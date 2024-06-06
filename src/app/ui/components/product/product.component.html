@@ -1,0 +1,12 @@
+// ürün eklemek için form oluştur.
+<form [formGroup]="productForm" (ngSubmit)="addProduct(productForm)">
+  <div class="form-group">
+    <label for="name">Name</label>
+    <input type="text" class="form-control" id="name" formControlName="name">
+  </div>
+  <div class="form-group">
+    <label for="price">Price</label>
+    <input type="number" class="form-control" id="price" formControlName="price">
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
