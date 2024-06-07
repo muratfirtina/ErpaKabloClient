@@ -1,0 +1,9 @@
+.app-container {
+  display: flex;
+}
+
+.content {
+  margin-left: 266px; // Sidebar genişliği kadar sol boşluk bırakır
+  flex-grow: 1;
+  padding: 16px;
+}

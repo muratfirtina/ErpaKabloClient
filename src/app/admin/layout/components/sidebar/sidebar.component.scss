@@ -1,0 +1,38 @@
+.sidebar-accordion {
+    width: 250px; // Sidebar genişliğini artırır
+    background-color: #820c0c; // Sidebar arka plan rengini belirginleştirir
+    padding: 1rem;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+  
+    .mat-expansion-panel-header {
+      .panel-title {
+        display: flex;
+        align-items: center;
+  
+        .menu-icon {
+          margin-right: 8px; // menu.icon ile menu.title arasında boşluk bırakır
+        }
+      }
+    }
+  
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 8px;
+  
+      mat-icon.child-icon {
+        margin-right: 8px;
+        vertical-align: middle; // İkonun ortalanması için
+      }
+  
+      .child-title {
+        display: inline-flex;
+        align-items: center;
+        vertical-align: middle; // Metnin ortalanması için
+      }
+    }
+  }
+  
