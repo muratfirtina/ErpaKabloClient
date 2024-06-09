@@ -38,4 +38,16 @@ export class BrandService {
     return await promiseData;
     
   }
+
+  async getBrandsByDynamicQuery(dynamicQuery: any, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Brand>> {
+    const observable: Observable<GetListResponse<Brand>> = this.httpClientService.post<GetListResponse<Brand>>({
+      controller: 'brands',
+      action: 'GetList/ByDynamic',
+      queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+    }, dynamicQuery);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
 }

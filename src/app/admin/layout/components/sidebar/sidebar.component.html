@@ -1,4 +1,10 @@
 <mat-accordion class="sidebar-accordion">
+  <mat-nav-list>
+    <a mat-list-item routerLink="/admin/dashboard" class="nav-item" style="padding-left: 20px;">
+      <mat-icon class="child-icon" style="color: white;">dashboard</mat-icon>
+      <span class="child-title" style="color: white;">Dashboard</span>
+    </a>
+  </mat-nav-list>
   <mat-expansion-panel *ngFor="let menu of sidebarItems">
     <mat-expansion-panel-header>
       <mat-panel-title class="panel-title">
