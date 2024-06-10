@@ -58,7 +58,7 @@ export class BrandCreateComponent extends BaseComponent implements OnInit{
 
   createBrand(name: string) {
     this.showSpinner(SpinnerType.BallSpinClockwise);
-    this.brandService.create({ name }, (data) => {
+    this.brandService.create({ name }, () => {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.toastrService.message(`Markası Başarıyla Oluşturuldu`, `${name}`, { toastrMessageType:ToastrMessageType.Success, position: ToastrPosition.TopRight });
     }, (error) => {

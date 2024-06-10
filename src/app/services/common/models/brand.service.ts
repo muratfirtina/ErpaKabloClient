@@ -13,21 +13,17 @@ export class BrandService {
 
   constructor(private httpClientService:HttpClientService) { }
 
-  async create(brand:BrandCreate, SuccessCallback: (data: any) => void, ErrorCallback: (error: any) => void): Promise<BrandCreate>{
+  async create(brand:BrandCreate, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<BrandCreate>{
     const observable : Observable<BrandCreate> = this.httpClientService.post<BrandCreate>({
       controller: "brands"
     }, brand);
     const promiseData = firstValueFrom(observable);
-    promiseData.then((data: BrandCreate) => {
-      SuccessCallback(data);
-    }).catch((error) => {
-      ErrorCallback(error);
-    });
+    promiseData.then(successCallback)
+      .catch(errorCallback);
     return await promiseData;
-    
   }
 
-  async list(pageRequest:PageRequest, successCallback: (data: any) => void, errorCallback: (error: any) => void): Promise<GetListResponse<Brand>>{
+  async list(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Brand>>{
     const observable : Observable<GetListResponse<Brand>> = this.httpClientService.get<GetListResponse<Brand>>({
       controller: "brands",
       queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
@@ -49,5 +45,16 @@ export class BrandService {
     promiseData.then(successCallback)
       .catch(errorCallback);
     return await promiseData;
+  }
+
+  async delete(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<any>{
+    const observable : Observable<any> = this.httpClientService.delete({
+      controller: "brands",
+    },id);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+    
   }
 }

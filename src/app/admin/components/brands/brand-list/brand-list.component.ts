@@ -14,11 +14,14 @@ import { PageRequest } from 'src/app/contracts/pageRequest';
 import { BrandService } from 'src/app/services/common/models/brand.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
+import { DialogService } from 'src/app/services/common/dialog.service';
+import { DeleteDialogComponent, DeleteDialogState } from 'src/app/dialogs/delete-dialog/delete-dialog.component';
 
 @Component({
   selector: 'app-brand-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatPaginatorModule, MatTableModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, MatPaginatorModule, MatTableModule, FormsModule, ReactiveFormsModule,DeleteDirectiveComponent],
   templateUrl: './brand-list.component.html',
   styleUrl: './brand-list.component.scss'
 })
@@ -27,19 +30,21 @@ export class BrandListComponent extends BaseComponent implements OnInit {
   pageRequest: PageRequest = { pageIndex: 0, pageSize: 10 };
   listBrand: GetListResponse<Brand> = { index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false, items: [] };
   pagedBrands: Brand[] = [];
+  selectedBrands: Brand[] = [];
   currentPageNo: number = 1;
   totalItems: number = 0;
   pageSize: number = 10;
   count: number = 0;
   pages: number = 0;
   pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Marka'];
+  displayedColumns: string[] = ['No', 'Brand','Delete'];
   searchForm: FormGroup;
 
   constructor(
     spinner: NgxSpinnerService,
     private brandService: BrandService,
     private toastrService: CustomToastrService,
+    private dialogService: DialogService,
     private activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {
@@ -114,7 +119,12 @@ export class BrandListComponent extends BaseComponent implements OnInit {
 
     let dynamicFilter: Filter | undefined;
     if (filters.length > 0) {
-      dynamicFilter = filters[0];
+      dynamicFilter = filters.length === 1 ? filters[0] : {
+        field: "",
+        operator: "",
+        logic: "and",
+        filters: filters
+      };
     }
     
     const dynamicQuery: DynamicQuery = {
@@ -135,4 +145,6 @@ export class BrandListComponent extends BaseComponent implements OnInit {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     });
   }
+
+  
 }
