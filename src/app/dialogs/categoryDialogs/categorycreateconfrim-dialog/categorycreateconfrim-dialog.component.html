@@ -1,0 +1,9 @@
+<!-- categorycreateconfrim-dialog.component.html -->
+<h1 mat-dialog-title>Kategori Oluşturma Onayı</h1>
+<div mat-dialog-content>
+  <p>... adlı kategoriyi oluşturmak istediğinizden emin misiniz?</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Hayır</button>
+  <button mat-raised-button color="primary" [mat-dialog-close]="true">Evet</button>
+</div>

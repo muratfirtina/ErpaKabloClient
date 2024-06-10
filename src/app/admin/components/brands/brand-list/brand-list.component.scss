@@ -5,6 +5,14 @@
   border: 5px solid #185bc3;
 }
 
+.mat-mdc-header-cell {
+  background-color: #007bff !important;
+  color: #fff !important;
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 10px;
+}
+
 ::ng-deep .mat-mdc-paginator-range-actions {
   background-color: #185bc3;
   border-radius: 30px;
@@ -50,6 +58,11 @@
   margin-bottom: 20px;
 }
 
+.mat-mdc-cell {
+  text-align: -webkit-center;
+  align-content: center;
+}
+
 .search-box .form-control {
   border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
@@ -72,20 +85,7 @@
   border-collapse: separate;
 }
 
-.header-cell {
-  background-color: #007bff;
-  color: #fff;
-  text-align: center;
-  font-size: 1.1rem;
-  padding: 10px;
-}
 
-.mat-cell {
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-}
 
 .mat-row {
   transition: background-color 0.3s;
