@@ -7,37 +7,70 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FeaturecreateconfrimDialogComponent } from 'src/app/dialogs/featureDialogs/featurecreateconfrim-dialog/featurecreateconfrim-dialog.component';
 import { AlertifyService, MessageType, Position } from 'src/app/services/admin/alertify.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { FeatureCreate } from 'src/app/contracts/feature/feature-create';
+import { MatSelectModule } from '@angular/material/select';
+import { Category } from 'src/app/contracts/category/category';
+import { CategoryService } from 'src/app/services/common/models/category.service';
+import { Observable } from 'rxjs';
+import { map, startWith } from 'rxjs/operators';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 @Component({
   selector: 'app-feature-create',
   standalone: true,
-  imports: [CommonModule,MatCardModule,MatFormFieldModule,MatInputModule,MatButtonModule,ReactiveFormsModule,MatDialogModule,FeaturecreateconfrimDialogComponent],
+  imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, 
+    MatButtonModule, ReactiveFormsModule, MatDialogModule, FeaturecreateconfrimDialogComponent,
+     MatSelectModule, NgxMatSelectSearchModule],
   templateUrl: './feature-create.component.html',
   styleUrls: ['./feature-create.component.scss']
 })
 export class FeatureCreateComponent extends BaseComponent implements OnInit {
   featureForm: FormGroup;
+  categories: Category[] = [];
+  filteredCategories: Observable<Category[]>;
+  categoryFilterCtrl: FormControl = new FormControl();
 
   constructor(spinner: NgxSpinnerService,
-              private featureService: FeatureService,
-              private fb: FormBuilder,
-              public dialog: MatDialog,
-              private alertifyService: AlertifyService,
-              private toastrService: CustomToastrService) {
+    private featureService: FeatureService,
+    private fb: FormBuilder,
+    public dialog: MatDialog,
+    private categoryService: CategoryService,
+    private toastrService: CustomToastrService) {
     super(spinner);
   }
 
   ngOnInit() {
     this.featureForm = this.fb.group({
       name: ['', Validators.required],
-      categoryIds: ['']
+      categoryIds: ['', Validators.required]
     });
+
+    this.loadCategories();
+
+    // Set up category filter
+    this.filteredCategories = this.categoryFilterCtrl.valueChanges.pipe(
+      startWith(''),
+      map(value => this.filterCategories(value))
+    );
+  }
+
+  loadCategories() {
+    this.categoryService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
+      this.categories = data.items;
+      this.categoryFilterCtrl.setValue('');
+    }).catch(error => {
+      this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
+    });
+  }
+
+  filterCategories(value: string): Category[] {
+    const filterValue = value.toLowerCase();
+    return this.categories.filter(category => category.name.toLowerCase().includes(filterValue));
   }
 
   onSubmit() {
@@ -62,9 +95,9 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   createFeature(formValue: any) {
     const create_feature: FeatureCreate = {
       name: formValue.name,
-      categoryIds: formValue.categoryIds ? formValue.categoryIds.split(',').map(id => id.trim()) : [],
+      categoryIds: formValue.categoryIds ? formValue.categoryIds : [],
     };
-  
+
     this.featureService.create(create_feature, () => {
       this.toastrService.message('Feature created successfully', 'Success', {
         toastrMessageType: ToastrMessageType.Success,

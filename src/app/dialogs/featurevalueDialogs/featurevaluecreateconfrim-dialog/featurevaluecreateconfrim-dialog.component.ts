@@ -4,15 +4,15 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButton, MatButtonModule } from '@angular/material/button';
 
 @Component({
-  selector: 'app-categorycreateconfrim-dialog',
+  selector: 'app-featurevaluecreateconfrim-dialog',
   standalone: true,
   imports: [MatDialogModule,MatButton],
-  templateUrl: './categorycreateconfrim-dialog.component.html',
-  styleUrl: './categorycreateconfrim-dialog.component.scss'
+  templateUrl: './featurevaluecreateconfrim-dialog.component.html',
+  styleUrl: './featurevaluecreateconfrim-dialog.component.scss'
 })
-export class CategorycreateconfrimDialogComponent extends BaseDialog<CategorycreateconfrimDialogComponent>{
+export class FeaturevaluecreateconfrimDialogComponent extends BaseDialog<FeaturevaluecreateconfrimDialogComponent>{
 
-  constructor(dialogRef: MatDialogRef<CategorycreateconfrimDialogComponent>,
+  constructor(dialogRef: MatDialogRef<FeaturevaluecreateconfrimDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: {name: string}) {
     super(dialogRef);
   }
@@ -23,7 +23,7 @@ export class CategorycreateconfrimDialogComponent extends BaseDialog<Categorycre
 
 }
 
-export enum CategoryCreateConfrimDialogState {
+export enum FeaturevalueCreateConfrimDialogState {
   Yes,
   No
 }

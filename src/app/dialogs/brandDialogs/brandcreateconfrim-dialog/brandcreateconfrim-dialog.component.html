@@ -1,6 +1,7 @@
-<h1 mat-dialog-title>Confirm</h1>
-<div mat-dialog-content>Are you sure you want to add the brand?</div>
+<h1 mat-dialog-title>Onay</h1>
+<div mat-dialog-content>
+  <h2>{{data.name}}</h2> Markasını eklemek istiyor musunuz?</div>
 <div mat-dialog-actions>
-  <button mat-button (click)="onNoClick()">No</button>
-  <button mat-raised-button style="background-color: green; color: aliceblue;" [mat-dialog-close]="true" cdkFocusInitial>Yes</button>
+  <button mat-button (click)="onNoClick()">Hayır</button>
+  <button mat-raised-button style="background-color: green; color: aliceblue;" [mat-dialog-close]="true" cdkFocusInitial>Evet</button>
 </div>

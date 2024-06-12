@@ -61,9 +61,9 @@ export class SidebarComponent implements OnInit{
       title: 'Feature Value',
       icon: 'settings',
       children: [
-        { title: 'Create', icon: 'add', path: 'feature-values/feature-value-create' },
-        { title: 'List', icon: 'list', path: 'feature-values/feature-value-list' },
-        { title: 'Update', icon: 'edit', path: 'feature-values/feature-value-update' }
+        { title: 'Create', icon: 'add', path: 'featurevalues/featurevalue-create' },
+        { title: 'List', icon: 'list', path: 'featurevalues/featurevalue-list' },
+        { title: 'Update', icon: 'edit', path: 'featurevalues/featurevalue-update' }
       ]
     }
   ];

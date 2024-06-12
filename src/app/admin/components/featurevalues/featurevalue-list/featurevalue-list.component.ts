@@ -1,51 +1,43 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
-import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { Brand } from 'src/app/contracts/brand/brand';
-import { BrandFilterByDynamic } from 'src/app/contracts/brand/brandFilterByDynamic';
-import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
+import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { PageRequest } from 'src/app/contracts/pageRequest';
-import { BrandService } from 'src/app/services/common/models/brand.service';
+import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
-import { DialogService } from 'src/app/services/common/dialog.service';
-import { DeleteDialogComponent, DeleteDialogState } from 'src/app/dialogs/delete-dialog/delete-dialog.component';
+import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
+import { FeaturevalueFilterByDynamic } from 'src/app/contracts/featurevalue/featurevalueFilterByDynamic';
 
 @Component({
-  selector: 'app-brand-list',
+  selector: 'app-featurevalue-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatPaginatorModule, MatTableModule, FormsModule, ReactiveFormsModule,DeleteDirectiveComponent],
-  templateUrl: './brand-list.component.html',
-  styleUrl: './brand-list.component.scss'
+  imports: [FormsModule, ReactiveFormsModule, MatPaginatorModule, MatTableModule,DeleteDirectiveComponent],
+  templateUrl: './featurevalue-list.component.html',
+  styleUrls: ['./featurevalue-list.component.scss']
 })
-export class BrandListComponent extends BaseComponent implements OnInit {
+export class FeaturevalueListComponent extends BaseComponent implements OnInit {
 
   pageRequest: PageRequest = { pageIndex: 0, pageSize: 10 };
-  listBrand: GetListResponse<Brand> = { index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false, items: [] };
-  pagedBrands: Brand[] = [];
-  selectedBrands: Brand[] = [];
+  listFeaturevalue: GetListResponse<Featurevalue> = { index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false, items: [] };
+  pagedFeaturevalues: Featurevalue[] = [];
   currentPageNo: number = 1;
   totalItems: number = 0;
   pageSize: number = 10;
   count: number = 0;
   pages: number = 0;
-  pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Brand','Delete'];
+  displayedColumns: string[] = ['No', 'Featurevalue', 'Delete'];
   searchForm: FormGroup;
 
   constructor(
     spinner: NgxSpinnerService,
-    private brandService: BrandService,
+    private featurevalueService: FeaturevalueService,
     private toastrService: CustomToastrService,
-    private dialogService: DialogService,
-    private activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {
     super(spinner);
@@ -54,27 +46,26 @@ export class BrandListComponent extends BaseComponent implements OnInit {
       nameSearch: [''],
     });
 
-    // Form control value changes subscription
     this.searchForm.get('nameSearch')?.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged()
     ).subscribe(value => {
       if (value.length >= 3) {
-        this.searchBrand();
+        this.searchFeaturevalue();
       } else if (value.length === 0) {
-        this.getBrands();
+        this.getFeaturevalues();
       }
     });
   }
 
   async ngOnInit() {
-    await this.getBrands();
+    await this.getFeaturevalues();
   }
 
-  async getBrands() {
+  async getFeaturevalues() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
 
-    const data: GetListResponse<Brand> = await this.brandService.list(
+    const data: GetListResponse<Featurevalue> = await this.featurevalueService.list(
       this.pageRequest,
       () => {},
       (error) => {
@@ -82,8 +73,8 @@ export class BrandListComponent extends BaseComponent implements OnInit {
       }
     );
 
-    this.listBrand = data;
-    this.pagedBrands = data.items;
+    this.listFeaturevalue = data;
+    this.pagedFeaturevalues = data.items;
     this.count = data.count;
     this.pages = Math.ceil(this.count / this.pageSize);
 
@@ -94,16 +85,16 @@ export class BrandListComponent extends BaseComponent implements OnInit {
     this.pageRequest.pageIndex = event.pageIndex;
     this.pageRequest.pageSize = event.pageSize;
     this.currentPageNo = event.pageIndex + 1;
-    this.getBrands();
+    this.getFeaturevalues();
   }
 
-  async searchBrand() {
+  async searchFeaturevalue() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
 
     const formValue = this.searchForm.value;
     let filters: Filter[] = [];
 
-    const name = BrandFilterByDynamic.Name;
+    const name = FeaturevalueFilterByDynamic.Name;
 
     if (formValue.nameSearch) {
       const nameFilter: Filter = {
@@ -134,8 +125,8 @@ export class BrandListComponent extends BaseComponent implements OnInit {
 
     const pageRequest: PageRequest = { pageIndex: 0, pageSize: this.pageSize };
   
-    await this.brandService.getBrandsByDynamicQuery(dynamicQuery, pageRequest).then((response) => {
-      this.pagedBrands = response.items;
+    await this.featurevalueService.getFeaturevaluesByDynamicQuery(dynamicQuery, pageRequest).then((response) => {
+      this.pagedFeaturevalues = response.items;
       this.count = response.count;
       this.pages = response.pages;
       this.currentPageNo = 1;

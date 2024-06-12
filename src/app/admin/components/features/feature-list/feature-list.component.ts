@@ -6,12 +6,12 @@ import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { Brand } from 'src/app/contracts/brand/brand';
-import { BrandFilterByDynamic } from 'src/app/contracts/brand/brandFilterByDynamic';
+import { Feature } from 'src/app/contracts/feature/feature';
+import { FeatureFilterByDynamic } from 'src/app/contracts/feature/featureFilterByDynamic';
 import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { PageRequest } from 'src/app/contracts/pageRequest';
-import { BrandService } from 'src/app/services/common/models/brand.service';
+import { FeatureService } from 'src/app/services/common/models/feature.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
@@ -19,30 +19,30 @@ import { DialogService } from 'src/app/services/common/dialog.service';
 import { DeleteDialogComponent, DeleteDialogState } from 'src/app/dialogs/delete-dialog/delete-dialog.component';
 
 @Component({
-  selector: 'app-brand-list',
+  selector: 'app-feature-list',
   standalone: true,
   imports: [CommonModule, RouterModule, MatPaginatorModule, MatTableModule, FormsModule, ReactiveFormsModule,DeleteDirectiveComponent],
-  templateUrl: './brand-list.component.html',
-  styleUrl: './brand-list.component.scss'
+  templateUrl: './feature-list.component.html',
+  styleUrl: './feature-list.component.scss'
 })
-export class BrandListComponent extends BaseComponent implements OnInit {
+export class FeatureListComponent extends BaseComponent implements OnInit {
 
   pageRequest: PageRequest = { pageIndex: 0, pageSize: 10 };
-  listBrand: GetListResponse<Brand> = { index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false, items: [] };
-  pagedBrands: Brand[] = [];
-  selectedBrands: Brand[] = [];
+  listFeature: GetListResponse<Feature> = { index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false, items: [] };
+  pagedFeatures: Feature[] = [];
+  selectedFeatures: Feature[] = [];
   currentPageNo: number = 1;
   totalItems: number = 0;
   pageSize: number = 10;
   count: number = 0;
   pages: number = 0;
   pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Brand','Delete'];
+  displayedColumns: string[] = ['No', 'Feature','Delete'];
   searchForm: FormGroup;
 
   constructor(
     spinner: NgxSpinnerService,
-    private brandService: BrandService,
+    private featureService: FeatureService,
     private toastrService: CustomToastrService,
     private dialogService: DialogService,
     private activatedRoute: ActivatedRoute,
@@ -60,21 +60,21 @@ export class BrandListComponent extends BaseComponent implements OnInit {
       distinctUntilChanged()
     ).subscribe(value => {
       if (value.length >= 3) {
-        this.searchBrand();
+        this.searchFeature();
       } else if (value.length === 0) {
-        this.getBrands();
+        this.getFeatures();
       }
     });
   }
 
   async ngOnInit() {
-    await this.getBrands();
+    await this.getFeatures();
   }
 
-  async getBrands() {
+  async getFeatures() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
 
-    const data: GetListResponse<Brand> = await this.brandService.list(
+    const data: GetListResponse<Feature> = await this.featureService.list(
       this.pageRequest,
       () => {},
       (error) => {
@@ -82,8 +82,8 @@ export class BrandListComponent extends BaseComponent implements OnInit {
       }
     );
 
-    this.listBrand = data;
-    this.pagedBrands = data.items;
+    this.listFeature = data;
+    this.pagedFeatures = data.items;
     this.count = data.count;
     this.pages = Math.ceil(this.count / this.pageSize);
 
@@ -94,16 +94,16 @@ export class BrandListComponent extends BaseComponent implements OnInit {
     this.pageRequest.pageIndex = event.pageIndex;
     this.pageRequest.pageSize = event.pageSize;
     this.currentPageNo = event.pageIndex + 1;
-    this.getBrands();
+    this.getFeatures();
   }
 
-  async searchBrand() {
+  async searchFeature() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
 
     const formValue = this.searchForm.value;
     let filters: Filter[] = [];
 
-    const name = BrandFilterByDynamic.Name;
+    const name = FeatureFilterByDynamic.Name;
 
     if (formValue.nameSearch) {
       const nameFilter: Filter = {
@@ -134,8 +134,8 @@ export class BrandListComponent extends BaseComponent implements OnInit {
 
     const pageRequest: PageRequest = { pageIndex: 0, pageSize: this.pageSize };
   
-    await this.brandService.getBrandsByDynamicQuery(dynamicQuery, pageRequest).then((response) => {
-      this.pagedBrands = response.items;
+    await this.featureService.getFeaturesByDynamicQuery(dynamicQuery, pageRequest).then((response) => {
+      this.pagedFeatures = response.items;
       this.count = response.count;
       this.pages = response.pages;
       this.currentPageNo = 1;

@@ -1,51 +1,43 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
-import { ActivatedRoute, RouterModule } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Category } from 'src/app/contracts/category/category';
-import { CategoryFilterByDynamic } from 'src/app/contracts/category/categoryFilterByDynamic';
-import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { PageRequest } from 'src/app/contracts/pageRequest';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
-import { DialogService } from 'src/app/services/common/dialog.service';
-import { DeleteDialogComponent, DeleteDialogState } from 'src/app/dialogs/delete-dialog/delete-dialog.component';
+import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
+import { CategoryFilterByDynamic } from 'src/app/contracts/category/categoryFilterByDynamic';
 
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatPaginatorModule, MatTableModule, FormsModule, ReactiveFormsModule,DeleteDirectiveComponent],
+  imports: [FormsModule, ReactiveFormsModule, MatPaginatorModule, MatTableModule,DeleteDirectiveComponent],
   templateUrl: './category-list.component.html',
-  styleUrl: './category-list.component.scss'
+  styleUrls: ['./category-list.component.scss']
 })
 export class CategoryListComponent extends BaseComponent implements OnInit {
 
   pageRequest: PageRequest = { pageIndex: 0, pageSize: 10 };
   listCategory: GetListResponse<Category> = { index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false, items: [] };
   pagedCategories: Category[] = [];
-  selectedCategories: Category[] = [];
   currentPageNo: number = 1;
   totalItems: number = 0;
   pageSize: number = 10;
   count: number = 0;
   pages: number = 0;
-  pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Category','Delete'];
+  displayedColumns: string[] = ['No', 'Category', 'Delete'];
   searchForm: FormGroup;
 
   constructor(
     spinner: NgxSpinnerService,
     private categoryService: CategoryService,
     private toastrService: CustomToastrService,
-    private dialogService: DialogService,
-    private activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {
     super(spinner);
@@ -54,7 +46,6 @@ export class CategoryListComponent extends BaseComponent implements OnInit {
       nameSearch: [''],
     });
 
-    // Form control value changes subscription
     this.searchForm.get('nameSearch')?.valueChanges.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -108,7 +99,7 @@ export class CategoryListComponent extends BaseComponent implements OnInit {
     if (formValue.nameSearch) {
       const nameFilter: Filter = {
         field: name,
-        operator: "startswith",
+        operator: "contains",
         value: formValue.nameSearch,
         logic: "",
         filters: [],

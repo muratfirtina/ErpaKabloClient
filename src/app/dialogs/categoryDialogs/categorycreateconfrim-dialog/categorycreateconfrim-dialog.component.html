@@ -1,9 +1,7 @@
-<!-- categorycreateconfrim-dialog.component.html -->
-<h1 mat-dialog-title>Kategori Oluşturma Onayı</h1>
+<h1 mat-dialog-title>Onay</h1>
 <div mat-dialog-content>
-  <p>... adlı kategoriyi oluşturmak istediğinizden emin misiniz?</p>
-</div>
+  <h2>{{data.name}}</h2> Kategorisini eklemek istiyor musunuz?</div>
 <div mat-dialog-actions>
   <button mat-button (click)="onNoClick()">Hayır</button>
-  <button mat-raised-button color="primary" [mat-dialog-close]="true">Evet</button>
+  <button mat-raised-button style="background-color: green; color: aliceblue;" [mat-dialog-close]="true" cdkFocusInitial>Evet</button>
 </div>

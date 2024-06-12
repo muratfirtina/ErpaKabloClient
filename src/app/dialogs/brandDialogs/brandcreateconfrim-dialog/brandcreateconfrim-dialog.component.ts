@@ -13,7 +13,7 @@ import { MatButton, MatButtonModule } from '@angular/material/button';
 export class BrandcreateconfrimDialogComponent extends BaseDialog<BrandcreateconfrimDialogComponent>{
 
   constructor(dialogRef: MatDialogRef<BrandcreateconfrimDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: BrandCreateConfrimDialogState | string,) {
+    @Inject(MAT_DIALOG_DATA) public data: {name: string}) {
     super(dialogRef);
   }
 

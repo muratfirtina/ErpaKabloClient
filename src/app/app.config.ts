@@ -14,12 +14,16 @@ import { MatInputModule } from '@angular/material/input';
 import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { MatSelectModule } from '@angular/material/select';
 import { ToastrModule } from 'ngx-toastr';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), provideAnimations(),
   importProvidersFrom(BrowserModule,FormsModule,HttpClientModule,ReactiveFormsModule,BrowserAnimationsModule
-    ,MatSidenavModule,MatListModule,MatCardModule,MatButtonModule,MatFormFieldModule,MatInputModule,MatPaginatorModule,MatTableModule,
+    ,MatSidenavModule,MatListModule,MatCardModule,MatButtonModule,
+    MatFormFieldModule,MatInputModule,MatPaginatorModule,MatTableModule,
+    MatSelectModule,NgxMatSelectSearchModule,
     ToastrModule.forRoot()),
   { provide: "baseUrl", useValue: "http://localhost:5199/api", multi: true },]
 };

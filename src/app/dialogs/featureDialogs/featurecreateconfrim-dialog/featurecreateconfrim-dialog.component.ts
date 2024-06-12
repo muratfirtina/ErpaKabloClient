@@ -2,6 +2,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { BaseDialog } from '../../baseDialog';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButton, MatButtonModule } from '@angular/material/button';
+import { Feature } from 'src/app/contracts/feature/feature';
 
 @Component({
   selector: 'app-featurecreateconfrim-dialog',
@@ -13,7 +14,7 @@ import { MatButton, MatButtonModule } from '@angular/material/button';
 export class FeaturecreateconfrimDialogComponent extends BaseDialog<FeaturecreateconfrimDialogComponent>{
 
   constructor(dialogRef: MatDialogRef<FeaturecreateconfrimDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: FeatureCreateConfrimDialogState | string,) {
+    @Inject(MAT_DIALOG_DATA) public data: { name: string } ) {
     super(dialogRef);
   }
 
