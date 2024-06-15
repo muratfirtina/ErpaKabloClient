@@ -19,13 +19,25 @@ import { CategoryService } from 'src/app/services/common/models/category.service
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { MatListModule } from '@angular/material/list';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-feature-create',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, 
-    MatButtonModule, ReactiveFormsModule, MatDialogModule, FeaturecreateconfrimDialogComponent,
-     MatSelectModule, NgxMatSelectSearchModule],
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    ReactiveFormsModule,
+    MatDialogModule,
+    MatSelectModule,
+    NgxMatSelectSearchModule,
+    MatListModule,
+    MatCheckboxModule
+  ],
   templateUrl: './feature-create.component.html',
   styleUrls: ['./feature-create.component.scss']
 })
@@ -35,19 +47,21 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   filteredCategories: Observable<Category[]>;
   categoryFilterCtrl: FormControl = new FormControl();
 
-  constructor(spinner: NgxSpinnerService,
+  constructor(
+    spinner: NgxSpinnerService,
     private featureService: FeatureService,
     private fb: FormBuilder,
     public dialog: MatDialog,
     private categoryService: CategoryService,
-    private toastrService: CustomToastrService) {
+    private toastrService: CustomToastrService
+  ) {
     super(spinner);
   }
 
   ngOnInit() {
     this.featureForm = this.fb.group({
       name: ['', Validators.required],
-      categoryIds: ['', Validators.required]
+      categoryIds: [[], Validators.required]
     });
 
     this.loadCategories();
@@ -55,7 +69,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     // Set up category filter
     this.filteredCategories = this.categoryFilterCtrl.valueChanges.pipe(
       startWith(''),
-      map(value => this.filterCategories(value))
+      map(value => typeof value === 'string' ? this.filterCategories(value) : this.categories)
     );
   }
 
@@ -109,5 +123,51 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
         position: ToastrPosition.TopRight
       });
     });
+  }
+
+  toggleAll(state: boolean) {
+    this.categories.forEach(category => this.toggleCategory(category, state));
+    this.updateCategoryIds();
+  }
+
+  toggleCategory(category: Category, state: boolean) {
+    category.checked = state;
+    if (category.subCategories) {
+      category.subCategories.forEach(child => this.toggleCategory(child, state));
+    }
+    this.updateCategoryIds();
+  }
+
+  expandAll() {
+    this.categories.forEach(category => this.expandCategory(category, true));
+  }
+
+  collapseAll() {
+    this.categories.forEach(category => this.expandCategory(category, false));
+  }
+
+  expandCategory(category: Category, state: boolean) {
+    category.expanded = state;
+    if (category.subCategories) {
+      category.subCategories.forEach(child => this.expandCategory(child, state));
+    }
+  }
+
+  updateCategoryIds() {
+    const selectedCategoryIds = this.collectSelectedCategoryIds(this.categories);
+    this.featureForm.patchValue({ categoryIds: selectedCategoryIds });
+  }
+
+  collectSelectedCategoryIds(categories: Category[]): string[] {
+    let selectedIds: string[] = [];
+    categories.forEach(category => {
+      if (category.checked) {
+        selectedIds.push(category.id);
+      }
+      if (category.subCategories) {
+        selectedIds = selectedIds.concat(this.collectSelectedCategoryIds(category.subCategories));
+      }
+    });
+    return selectedIds;
   }
 }

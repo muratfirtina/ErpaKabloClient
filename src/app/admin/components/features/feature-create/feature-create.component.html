@@ -1,4 +1,3 @@
-<!-- feature-create.component.html -->
 <mat-card>
   <mat-card-header>
     <mat-card-title>Özellik Ekle</mat-card-title>
@@ -13,18 +12,30 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="fill">
-        <mat-label>Kategori ID'leri</mat-label>
-        <mat-select formControlName="categoryIds" multiple>
-          <ngx-mat-select-search [formControl]="categoryFilterCtrl"></ngx-mat-select-search>
-          <mat-option *ngFor="let category of filteredCategories | async" [value]="category.id">
-            {{ category.name }}
-          </mat-option>
-        </mat-select>
-        <mat-error *ngIf="featureForm.get('categoryIds').hasError('required')">
-          Kategori seçimi zorunludur
-        </mat-error>
-      </mat-form-field>
+      <div class="container">
+        <h3>Kategorileri Kontrol Et</h3>
+        <div class="button-group">
+          <button mat-stroked-button color="primary" (click)="toggleAll(true)" type="button">Hepsini Seç</button>
+          <button mat-stroked-button color="warn" (click)="toggleAll(false)" type="button">Hepsini Kaldır</button>
+          <button mat-stroked-button color="accent" (click)="expandAll()" type="button">Hepsini Aç</button>
+          <button mat-stroked-button color="accent" (click)="collapseAll()" type="button">Hepsini Kapat</button>
+        </div>
+        <mat-selection-list>
+          <mat-list-option *ngFor="let category of filteredCategories | async" [value]="category">
+            <div class="category-item">
+              <mat-checkbox [checked]="category.checked" (change)="toggleCategory(category, !category.checked)">
+                {{ category.name }}
+              </mat-checkbox>
+              <button mat-button *ngIf="category.subCategories" (click)="category.expanded = !category.expanded" type="button">
+                {{ category.expanded ? 'Kapat' : 'Aç' }}
+              </button>
+            </div>
+            <ul *ngIf="category.expanded && category.subCategories">
+              <ng-container *ngTemplateOutlet="recursiveList; context: { $implicit: category.subCategories }"></ng-container>
+            </ul>
+          </mat-list-option>
+        </mat-selection-list>
+      </div>
 
       <div>
         <button mat-raised-button color="primary" type="submit" [disabled]="featureForm.invalid">Kaydet</button>
@@ -33,3 +44,21 @@
     </form>
   </mat-card-content>
 </mat-card>
+
+<ng-template #recursiveList let-subCategories>
+  <ng-container *ngFor="let subCategory of subCategories">
+    <li>
+      <div class="category-item">
+        <mat-checkbox [checked]="subCategory.checked" (change)="toggleCategory(subCategory, !subCategory.checked)">
+          {{ subCategory.name }}
+        </mat-checkbox>
+        <button mat-button *ngIf="subCategory.subCategories" (click)="subCategory.expanded = !subCategory.expanded" type="button">
+          {{ subCategory.expanded ? 'Kapat' : 'Aç' }}
+        </button>
+      </div>
+      <ul *ngIf="subCategory.expanded && subCategory.subCategories">
+        <ng-container *ngTemplateOutlet="recursiveList; context: { $implicit: subCategory.subCategories }"></ng-container>
+      </ul>
+    </li>
+  </ng-container>
+</ng-template>

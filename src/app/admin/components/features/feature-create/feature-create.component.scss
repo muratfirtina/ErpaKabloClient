@@ -1,0 +1,80 @@
+.container {
+    margin-top: 20px;
+  }
+  
+  .button-group {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+  }
+  
+  .category-item {
+    display: -webkit-inline-box;
+    width: 100%;
+    padding: 5px 0;
+  }
+  
+  .category-item mat-checkbox {
+    flex-grow: 1;
+  }
+  
+  .category-item button {
+    margin-left: 10px;
+  }
+  
+  .mat-selection-list {
+    width: 100%;
+  }
+  
+  .mat-list-option {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  .mat-list-option .category-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .mat-list-option .category-item ul {
+    padding-left: 20px;
+    list-style: none;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .mat-list-option ul {
+    list-style: none;
+    padding: 0;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .mat-list-option ul li {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .mat-list-option ul li ul {
+    position: relative;
+    z-index: 2;
+  }
+  
+  .mdc-list-item.mdc-list-item--with-one-line {
+    height: max-content;
+  }
+  
+  ::ng-deep .mdc-list-item__end {
+    display: none !important;
+  }
+  
+  .ng-star-inserted ::marker {
+    content: ">";
+  }
+  
