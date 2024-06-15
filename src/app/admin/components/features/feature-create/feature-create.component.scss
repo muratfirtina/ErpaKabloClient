@@ -25,6 +25,15 @@
   .mat-selection-list {
     width: 100%;
   }
+
+  .mat-mdc-selection-list {
+    width: max-content;
+  }
+
+  .mat-mdc-card-content {
+    display: -webkit-inline-box;
+    
+}
   
   .mat-list-option {
     width: 100%;

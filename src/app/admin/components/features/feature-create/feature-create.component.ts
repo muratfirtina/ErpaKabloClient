@@ -69,7 +69,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     // Set up category filter
     this.filteredCategories = this.categoryFilterCtrl.valueChanges.pipe(
       startWith(''),
-      map(value => typeof value === 'string' ? this.filterCategories(value) : this.categories)
+      map(value => this.filterCategories(value))
     );
   }
 
@@ -84,7 +84,32 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
 
   filterCategories(value: string): Category[] {
     const filterValue = value.toLowerCase();
-    return this.categories.filter(category => category.name.toLowerCase().includes(filterValue));
+    const matchedCategories: Category[] = [];
+  
+    for (const category of this.categories) {
+      const subMatchedCategories = this.filterCategory(category, filterValue);
+      matchedCategories.push(...subMatchedCategories);
+    }
+  
+    return matchedCategories;
+  }
+  
+  filterCategory(category: Category, filterValue: string): Category[] {
+    const matchedCategories: Category[] = [];
+    const match = category.name.toLowerCase().includes(filterValue);
+  
+    if (match) {
+      category.expanded = false;
+      matchedCategories.push(category);
+    } else if (category.subCategories) {
+      category.expanded = false;
+      const subMatchedCategories = category.subCategories
+        .flatMap(subCategory => this.filterCategory(subCategory, filterValue))
+        .filter(c => c !== undefined);
+      matchedCategories.push(...subMatchedCategories);
+    }
+  
+    return matchedCategories;
   }
 
   onSubmit() {
