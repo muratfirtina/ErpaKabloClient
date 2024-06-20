@@ -21,6 +21,18 @@ import { map, startWith } from 'rxjs/operators';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatListModule } from '@angular/material/list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
+import { MatChipsModule } from '@angular/material/chips';
+import { FlatTreeControl } from '@angular/cdk/tree';
+
+interface FlatNode {
+  expandable: boolean;
+  name: string;
+  level: number;
+  id: string;
+  checked?: boolean;
+}
 
 @Component({
   selector: 'app-feature-create',
@@ -36,7 +48,10 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatSelectModule,
     NgxMatSelectSearchModule,
     MatListModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatIconModule,
+    MatTreeModule,
+    MatChipsModule
   ],
   templateUrl: './feature-create.component.html',
   styleUrls: ['./feature-create.component.scss']
@@ -46,6 +61,32 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   categories: Category[] = [];
   filteredCategories: Observable<Category[]>;
   categoryFilterCtrl: FormControl = new FormControl();
+  selectedCategories: Category[] = [];
+
+
+
+  treeControl = new FlatTreeControl<FlatNode>(
+    node => node.level,
+    node => node.expandable
+  );
+
+  treeFlattener = new MatTreeFlattener(
+    (node: Category, level: number) => {
+      return {
+        expandable: !!node.subCategories,
+        name: node.name,
+        level: level,
+        id: node.id,
+        checked: node.checked
+      };
+    },
+    node => node.level,
+    node => node.expandable,
+    node => node.subCategories
+  );
+
+  dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+
 
   constructor(
     spinner: NgxSpinnerService,
@@ -73,9 +114,12 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     );
   }
 
+  
+
   loadCategories() {
     this.categoryService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
       this.categories = data.items;
+      this.dataSource.data = this.categories;
       this.categoryFilterCtrl.setValue('');
     }).catch(error => {
       this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
@@ -164,11 +208,11 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   }
 
   expandAll() {
-    this.categories.forEach(category => this.expandCategory(category, true));
+    this.treeControl.dataNodes.forEach(node => this.treeControl.expand(node));
   }
 
   collapseAll() {
-    this.categories.forEach(category => this.expandCategory(category, false));
+    this.treeControl.dataNodes.forEach(node => this.treeControl.collapse(node));
   }
 
   expandCategory(category: Category, state: boolean) {
@@ -181,6 +225,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   updateCategoryIds() {
     const selectedCategoryIds = this.collectSelectedCategoryIds(this.categories);
     this.featureForm.patchValue({ categoryIds: selectedCategoryIds });
+    this.updateSelectedCategories();
   }
 
   collectSelectedCategoryIds(categories: Category[]): string[] {
@@ -195,4 +240,31 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     });
     return selectedIds;
   }
+
+  updateSelectedCategories() {
+    this.selectedCategories = this.collectSelectedCategories(this.categories);
+  }
+
+  collectSelectedCategories(categories: Category[]): Category[] {
+    let selected: Category[] = [];
+    categories.forEach(category => {
+      if (category.checked) {
+        selected.push(category);
+      }
+      if (category.subCategories) {
+        selected = selected.concat(this.collectSelectedCategories(category.subCategories));
+      }
+    });
+    return selected;
+  }
+
+  removeCategory(category: Category) {
+    category.checked = false;
+    if (category.subCategories) {
+      category.subCategories.forEach(subCategory => this.toggleCategory(subCategory, false));
+    }
+    this.updateCategoryIds();
+  }
+
+  hasChild = (_: number, node: FlatNode) => node.expandable;
 }

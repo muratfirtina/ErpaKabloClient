@@ -24,6 +24,25 @@
           <button mat-stroked-button color="accent" (click)="expandAll()" type="button">Hepsini Aç</button>
           <button mat-stroked-button color="accent" (click)="collapseAll()" type="button">Hepsini Kapat</button>
         </div>
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
+          <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
+            <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
+              {{node.name}}
+            </mat-checkbox>
+          </mat-tree-node>
+          <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+            <div class="mat-tree-node">
+              <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
+                <mat-icon class="mat-icon-rtl-mirror">
+                  {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                </mat-icon>
+              </button>
+              <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
+                {{node.name}}
+              </mat-checkbox>
+            </div>
+          </mat-tree-node>
+        </mat-tree>
         <mat-selection-list>
           <mat-list-option *ngFor="let category of filteredCategories | async" [value]="category">
             <div class="category-item">
@@ -39,6 +58,18 @@
             </ul>
           </mat-list-option>
         </mat-selection-list>
+      </div>
+
+      <div class="selected-category-section">
+        <h3>Seçilen Kategoriler</h3>
+        <mat-chip-listbox>
+          <mat-chip *ngFor="let category of selectedCategories" (removed)="removeCategory(category)">
+            {{ category.name }}
+            <button mat-icon-button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+        </mat-chip-listbox>
       </div>
 
       <div>
