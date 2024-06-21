@@ -1,60 +1,68 @@
-<mat-card>
+<mat-card class="feature-card">
   <mat-card-header>
     <mat-card-title>Özellik Ekle</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form [formGroup]="featureForm" (ngSubmit)="onSubmit()">
-      <mat-form-field appearance="fill">
-        <mat-label>Özellik Adı</mat-label>
-        <input matInput formControlName="name" placeholder="Özellik Adı">
-        <mat-error *ngIf="featureForm.get('name').hasError('required')">
-          Özellik adı zorunludur
-        </mat-error>
-      </mat-form-field>
-
-      <div class="container">
-        <h3>Kategorileri Kontrol Et</h3>
-        <mat-form-field appearance="fill">
-          <mat-label>Kategori Ara</mat-label>
-          <input matInput [formControl]="categoryFilterCtrl" placeholder="Kategori Ara">
+    <form [formGroup]="featureForm" (ngSubmit)="onSubmit()" class="feature-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Özellik Adı</mat-label>
+          <input matInput formControlName="name" placeholder="Özellik Adı">
+          <mat-error *ngIf="featureForm.get('name').hasError('required')">
+            Özellik adı zorunludur
+          </mat-error>
         </mat-form-field>
-        <div class="button-group">
-          <button mat-stroked-button color="primary" (click)="toggleAll(true)" type="button">Hepsini Seç</button>
-          <button mat-stroked-button color="warn" (click)="toggleAll(false)" type="button">Hepsini Kaldır</button>
-          <button mat-stroked-button color="accent" (click)="expandAll()" type="button">Hepsini Aç</button>
-          <button mat-stroked-button color="accent" (click)="collapseAll()" type="button">Hepsini Kapat</button>
-        </div>
-        
-        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
-          <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
-            <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
-              {{node.name}}
-            </mat-checkbox>
-          </mat-tree-node>
-          <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-            <div class="mat-tree-node">
-              <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
-                <mat-icon class="mat-icon-rtl-mirror">
-                  {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-                </mat-icon>
-              </button>
-              <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
-                {{node.name}}
-              </mat-checkbox>
-            </div>
-          </mat-tree-node>
-        </mat-tree>
       </div>
 
-      <h3>Seçilen Kategoriler</h3>
-      <mat-chip-listbox>
-        <mat-chip *ngFor="let category of selectedCategories" (removed)="removeCategory(category)">
-          {{category.name}}
-          <mat-icon matChipRemove>cancel</mat-icon>
-        </mat-chip>
-      </mat-chip-listbox>
+      <div class="form-row">
+        <div class="category-section">
+          <h3>Kategorileri Kontrol Et</h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Kategori Ara</mat-label>
+            <input matInput [formControl]="categoryFilterCtrl" placeholder="Kategori Ara">
+          </mat-form-field>
+          <div class="button-group">
+            <button mat-stroked-button color="primary" (click)="toggleAll(true)" type="button">Hepsini Seç</button>
+            <button mat-stroked-button color="warn" (click)="toggleAll(false)" type="button">Hepsini Kaldır</button>
+            <button mat-stroked-button color="accent" (click)="expandAll()" type="button">Hepsini Aç</button>
+            <button mat-stroked-button color="accent" (click)="collapseAll()" type="button">Hepsini Kapat</button>
+          </div>
 
-      <div>
+          <div class="tree-container">
+            <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
+              <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
+                <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
+                  {{node.name}}
+                </mat-checkbox>
+              </mat-tree-node>
+              <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+                <div class="mat-tree-node">
+                  <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
+                    <mat-icon class="mat-icon-rtl-mirror">
+                      {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    </mat-icon>
+                  </button>
+                  <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
+                    {{node.name}}
+                  </mat-checkbox>
+                </div>
+              </mat-tree-node>
+            </mat-tree>
+          </div>
+        </div>
+
+        <div class="selected-categories">
+          <h3>Seçilen Kategoriler</h3>
+          <mat-chip-listbox class="chip-list">
+            <mat-chip *ngFor="let category of selectedCategories" (removed)="removeCategory(category)">
+              {{category.name}}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </mat-chip-listbox>
+        </div>
+      </div>
+
+      <div class="form-actions">
         <button mat-raised-button color="primary" type="submit" [disabled]="featureForm.invalid">Kaydet</button>
         <button mat-button type="button" (click)="featureForm.reset()">Temizle</button>
       </div>

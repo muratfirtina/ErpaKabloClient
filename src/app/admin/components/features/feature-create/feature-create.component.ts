@@ -22,14 +22,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
+import { Category } from 'src/app/contracts/category/category';
 
-interface CategoryNode {
-  name: string;
-  id: string;
-  checked?: boolean;
-  expanded?: boolean;
-  children?: CategoryNode[];
-}
 
 interface FlatNode {
   expandable: boolean;
@@ -37,6 +31,7 @@ interface FlatNode {
   level: number;
   id: string;
   checked?: boolean;
+  parentCategoryId: string;
 }
 
 @Component({
@@ -62,17 +57,19 @@ interface FlatNode {
 })
 export class FeatureCreateComponent extends BaseComponent implements OnInit {
   featureForm: FormGroup;
-  categories: CategoryNode[] = [];
-  filteredCategories: Observable<CategoryNode[]>;
+  categories: Category[] = [];
+  filteredCategories: Observable<Category[]>;
   categoryFilterCtrl: FormControl = new FormControl();
-  selectedCategories: CategoryNode[] = [];
+  selectedCategories: Category[] = [];
 
-  private transformer = (node: CategoryNode, level: number) => ({
-    expandable: !!node.children,
+  private transformer = (node: Category, level: number) => ({
+    expandable: !!node.subCategories && node.subCategories.length > 0,
     name: node.name,
     level: level,
     id: node.id,
     checked: node.checked,
+    parentCategoryId: node.parentCategoryId
+    
   });
 
   treeControl = new FlatTreeControl<FlatNode>(
@@ -84,7 +81,9 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     this.transformer,
     node => node.level,
     node => node.expandable,
-    node => node.children
+    node => node.subCategories,
+
+    
   );
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
@@ -105,18 +104,47 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
       name: ['', Validators.required],
       categoryIds: [[], Validators.required]
     });
-
+  
     this.loadCategories();
-
+  
     this.filteredCategories = this.categoryFilterCtrl.valueChanges.pipe(
       startWith(''),
       map(value => this.filterCategories(value))
     );
+  
+    this.categoryFilterCtrl.valueChanges.subscribe(value => {
+      const filteredCategories = this.filterCategories(value);
+      this.dataSource.data = this.buildTreeFromFlatList(filteredCategories);
+    });
+  }
+
+  private buildTreeFromFlatList(flatList: Category[]): Category[] {
+    const map = new Map<string, Category>();
+    const tree: Category[] = [];
+  
+    flatList.forEach(item => {
+      map.set(item.id, { ...item, subCategories: [] });
+    });
+  
+    flatList.forEach(item => {
+      if (item.parentCategoryId) {
+        const parent = map.get(item.parentCategoryId);
+        if (parent) {
+          parent.subCategories.push(map.get(item.id));
+        } else {
+          tree.push(map.get(item.id));
+        }
+      } else {
+        tree.push(map.get(item.id));
+      }
+    });
+  
+    return tree;
   }
 
   loadCategories() {
     this.categoryService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
-      this.categories = data.items.map(item => this.transformCategory(item));
+      this.categories = data.items;
       this.dataSource.data = this.categories;
       this.categoryFilterCtrl.setValue('');
     }).catch(error => {
@@ -124,37 +152,34 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     });
   }
 
-  transformCategory(category: any): CategoryNode {
-    return {
-      name: category.name,
-      id: category.id,
-      children: category.subCategories ? category.subCategories.map(sub => this.transformCategory(sub)) : [],
-      checked: false,
-      expanded: false
-    };
-  }
-
-  filterCategories(value: string): CategoryNode[] {
+  filterCategories(value: string): Category[] {
     const filterValue = value.toLowerCase();
-    const matchedCategories: CategoryNode[] = [];
-
-    for (const category of this.categories) {
-      const matched = this.filterCategory(category, filterValue);
-      matchedCategories.push(...matched);
-    }
-    return matchedCategories;
+    return this.flattenCategories(this.categories).filter(category => 
+      category.name.toLowerCase().includes(filterValue)
+    );
+  }
+  
+  private flattenCategories(categories: Category[]): Category[] {
+    let flattened: Category[] = [];
+    categories.forEach(category => {
+      flattened.push(category);
+      if (category.subCategories) {
+        flattened = flattened.concat(this.flattenCategories(category.subCategories));
+      }
+    });
+    return flattened;
   }
 
-  filterCategory(category: CategoryNode, filterValue: string): CategoryNode[] {
-    const matchedCategories: CategoryNode[] = [];
+  filterCategory(category: Category, filterValue: string): Category[] {
+    const matchedCategories: Category[] = [];
     const match = category.name.toLowerCase().includes(filterValue);
 
     if (match) {
       category.expanded = false;
       matchedCategories.push(category);
-    } else if (category.children) {
+    } else if (category.subCategories) {
       category.expanded = false;
-      const subMatchedCategories = category.children.flatMap(subCategory => this.filterCategory(subCategory, filterValue)).filter(c => c !== undefined);
+      const subMatchedCategories = category.subCategories.flatMap(subCategory => this.filterCategory(subCategory, filterValue)).filter(c => c !== undefined);
       matchedCategories.push(...subMatchedCategories);
     }
 
@@ -204,10 +229,10 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     this.updateCategoryIds();
   }
 
-  toggleCategory(category: CategoryNode, state: boolean) {
+  toggleCategory(category: Category, state: boolean) {
     category.checked = state;
-    if (category.children) {
-      category.children.forEach(child => this.toggleCategory(child, state));
+    if (category.subCategories) {
+      category.subCategories.forEach(child => this.toggleCategory(child, state));
     }
     this.updateCategoryIds();
   }
@@ -220,10 +245,10 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     this.treeControl.dataNodes.forEach(node => this.treeControl.collapse(node));
   }
 
-  expandCategory(category: CategoryNode, state: boolean) {
+  expandCategory(category: Category, state: boolean) {
     category.expanded = state;
-    if (category.children) {
-      category.children.forEach(child => this.expandCategory(child, state));
+    if (category.subCategories) {
+      category.subCategories.forEach(child => this.expandCategory(child, state));
     }
   }
 
@@ -233,7 +258,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     this.updateSelectedCategories();
   }
 
-  collectSelectedCategoryIds(categories: CategoryNode[]): string[] {
+  collectSelectedCategoryIds(categories: Category[]): string[] {
     let selectedIds: string[] = [];
     this.treeControl.dataNodes.forEach(category => {
       if (category.checked) {
@@ -248,8 +273,8 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     this.selectedCategories = this.collectSelectedCategories(this.categories);
   }
 
-  collectSelectedCategories(categories: CategoryNode[]): CategoryNode[] {
-    let selected: CategoryNode[] = [];
+  collectSelectedCategories(categories: Category[]): Category[] {
+    let selected: Category[] = [];
     this.treeControl.dataNodes.forEach(category => {
       if (category.checked) {
         selected.push(category);
@@ -259,10 +284,10 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     return selected;
   }
 
-  removeCategory(category: CategoryNode) {
+  removeCategory(category: Category) {
     category.checked = false;
-    if (category.children) {
-      category.children.forEach(subCategory => this.toggleCategory(subCategory, false));
+    if (category.subCategories) {
+      category.subCategories.forEach(subCategory => this.toggleCategory(subCategory, false));
     }
     this.updateCategoryIds();
   }
