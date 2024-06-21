@@ -3,7 +3,7 @@
     <mat-card-title>Özellik Ekle</mat-card-title>
   </mat-card-header>
   <mat-card-content>
-    <form [formGroup]="featureForm" (ngSubmit)="onSubmit()" class="feature-form">
+    <form [formGroup]="featureForm" (ngSubmit)="onSubmit($event)" class="feature-form">
       <div class="form-row">
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Özellik Adı</mat-label>
@@ -37,7 +37,7 @@
               </mat-tree-node>
               <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
                 <div class="mat-tree-node">
-                  <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
+                  <button type="button" mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
                     <mat-icon class="mat-icon-rtl-mirror">
                       {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                     </mat-icon>

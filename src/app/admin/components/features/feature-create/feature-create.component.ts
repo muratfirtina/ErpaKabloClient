@@ -24,7 +24,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { Category } from 'src/app/contracts/category/category';
 
-
 interface FlatNode {
   expandable: boolean;
   name: string;
@@ -69,7 +68,6 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     id: node.id,
     checked: node.checked,
     parentCategoryId: node.parentCategoryId
-    
   });
 
   treeControl = new FlatTreeControl<FlatNode>(
@@ -81,9 +79,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     this.transformer,
     node => node.level,
     node => node.expandable,
-    node => node.subCategories,
-
-    
+    node => node.subCategories
   );
 
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
@@ -104,28 +100,29 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
       name: ['', Validators.required],
       categoryIds: [[], Validators.required]
     });
-  
+
     this.loadCategories();
-  
+
     this.filteredCategories = this.categoryFilterCtrl.valueChanges.pipe(
       startWith(''),
       map(value => this.filterCategories(value))
     );
-  
+
     this.categoryFilterCtrl.valueChanges.subscribe(value => {
       const filteredCategories = this.filterCategories(value);
       this.dataSource.data = this.buildTreeFromFlatList(filteredCategories);
+      this.restoreCheckedState();
     });
   }
 
   private buildTreeFromFlatList(flatList: Category[]): Category[] {
     const map = new Map<string, Category>();
     const tree: Category[] = [];
-  
+
     flatList.forEach(item => {
       map.set(item.id, { ...item, subCategories: [] });
     });
-  
+
     flatList.forEach(item => {
       if (item.parentCategoryId) {
         const parent = map.get(item.parentCategoryId);
@@ -138,7 +135,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
         tree.push(map.get(item.id));
       }
     });
-  
+
     return tree;
   }
 
@@ -147,6 +144,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
       this.categories = data.items;
       this.dataSource.data = this.categories;
       this.categoryFilterCtrl.setValue('');
+      this.restoreCheckedState();
     }).catch(error => {
       this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
     });
@@ -154,11 +152,11 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
 
   filterCategories(value: string): Category[] {
     const filterValue = value.toLowerCase();
-    return this.flattenCategories(this.categories).filter(category => 
+    return this.flattenCategories(this.categories).filter(category =>
       category.name.toLowerCase().includes(filterValue)
     );
   }
-  
+
   private flattenCategories(categories: Category[]): Category[] {
     let flattened: Category[] = [];
     categories.forEach(category => {
@@ -170,23 +168,103 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     return flattened;
   }
 
-  filterCategory(category: Category, filterValue: string): Category[] {
-    const matchedCategories: Category[] = [];
-    const match = category.name.toLowerCase().includes(filterValue);
-
-    if (match) {
-      category.expanded = false;
-      matchedCategories.push(category);
-    } else if (category.subCategories) {
-      category.expanded = false;
-      const subMatchedCategories = category.subCategories.flatMap(subCategory => this.filterCategory(subCategory, filterValue)).filter(c => c !== undefined);
-      matchedCategories.push(...subMatchedCategories);
-    }
-
-    return matchedCategories;
+  toggleCategory(node: FlatNode, state: boolean) {
+    node.checked = state;
+    this.updateCheckedState(node.id, state);
+    this.updateCategoryIds();
   }
 
-  onSubmit() {
+  updateCheckedState(id: string, state: boolean) {
+    const category = this.findCategoryById(this.categories, id);
+    if (category) {
+      category.checked = state;
+      if (category.subCategories) {
+        category.subCategories.forEach(subCategory => this.updateCheckedState(subCategory.id, state));
+      }
+    }
+  }
+
+  findCategoryById(categories: Category[], id: string): Category | undefined {
+    for (const category of categories) {
+      if (category.id === id) {
+        return category;
+      }
+      if (category.subCategories) {
+        const subCategory = this.findCategoryById(category.subCategories, id);
+        if (subCategory) {
+          return subCategory;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  restoreCheckedState() {
+    this.treeControl.dataNodes.forEach(node => {
+      const category = this.findCategoryById(this.categories, node.id);
+      if (category) {
+        node.checked = category.checked;
+      }
+    });
+  }
+
+  toggleAll(state: boolean) {
+    this.treeControl.dataNodes.forEach(node => this.toggleCategory(node, state));
+    this.updateCategoryIds();
+  }
+
+  expandAll() {
+    this.treeControl.dataNodes.forEach(node => this.treeControl.expand(node));
+  }
+
+  collapseAll() {
+    this.treeControl.dataNodes.forEach(node => this.treeControl.collapse(node));
+  }
+
+  updateCategoryIds() {
+    const selectedCategoryIds = this.collectSelectedCategoryIds(this.categories);
+    this.featureForm.patchValue({ categoryIds: selectedCategoryIds });
+    this.updateSelectedCategories();
+  }
+
+  collectSelectedCategoryIds(categories: Category[]): string[] {
+    let selectedIds: string[] = [];
+    categories.forEach(category => {
+      if (category.checked) {
+        selectedIds.push(category.id);
+      }
+      if (category.subCategories) {
+        selectedIds = selectedIds.concat(this.collectSelectedCategoryIds(category.subCategories));
+      }
+    });
+    return selectedIds;
+  }
+
+  updateSelectedCategories() {
+    this.selectedCategories = this.collectSelectedCategories(this.categories);
+  }
+
+  collectSelectedCategories(categories: Category[]): Category[] {
+    let selected: Category[] = [];
+    categories.forEach(category => {
+      if (category.checked) {
+        selected.push(category);
+      }
+      if (category.subCategories) {
+        selected = selected.concat(this.collectSelectedCategories(category.subCategories));
+      }
+    });
+    return selected;
+  }
+
+  removeCategory(category: Category) {
+    this.updateCheckedState(category.id, false);
+    this.updateCategoryIds();
+    this.restoreCheckedState();
+  }
+
+  onSubmit(event: Event) {
+    event.preventDefault(); // Formun otomatik submit olmasını engeller
     if (this.featureForm.valid) {
       this.openDialog(this.featureForm.value);
     }
@@ -222,74 +300,6 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
         position: ToastrPosition.TopRight
       });
     });
-  }
-
-  toggleAll(state: boolean) {
-    this.treeControl.dataNodes.forEach(node => this.toggleCategory(node, state));
-    this.updateCategoryIds();
-  }
-
-  toggleCategory(category: Category, state: boolean) {
-    category.checked = state;
-    if (category.subCategories) {
-      category.subCategories.forEach(child => this.toggleCategory(child, state));
-    }
-    this.updateCategoryIds();
-  }
-
-  expandAll() {
-    this.treeControl.dataNodes.forEach(node => this.treeControl.expand(node));
-  }
-
-  collapseAll() {
-    this.treeControl.dataNodes.forEach(node => this.treeControl.collapse(node));
-  }
-
-  expandCategory(category: Category, state: boolean) {
-    category.expanded = state;
-    if (category.subCategories) {
-      category.subCategories.forEach(child => this.expandCategory(child, state));
-    }
-  }
-
-  updateCategoryIds() {
-    const selectedCategoryIds = this.collectSelectedCategoryIds(this.categories);
-    this.featureForm.patchValue({ categoryIds: selectedCategoryIds });
-    this.updateSelectedCategories();
-  }
-
-  collectSelectedCategoryIds(categories: Category[]): string[] {
-    let selectedIds: string[] = [];
-    this.treeControl.dataNodes.forEach(category => {
-      if (category.checked) {
-        selectedIds.push(category.id);
-      }
-      
-    });
-    return selectedIds;
-  }
-
-  updateSelectedCategories() {
-    this.selectedCategories = this.collectSelectedCategories(this.categories);
-  }
-
-  collectSelectedCategories(categories: Category[]): Category[] {
-    let selected: Category[] = [];
-    this.treeControl.dataNodes.forEach(category => {
-      if (category.checked) {
-        selected.push(category);
-      }
-      
-    });
-    return selected;
-  }
-
-  removeCategory(category: Category) {
-    category.checked = false;
-    if (category.subCategories) {
-      category.subCategories.forEach(subCategory => this.toggleCategory(subCategory, false));
-    }
-    this.updateCategoryIds();
   }
 
   hasChild = (_: number, node: FlatNode) => node.expandable;
