@@ -1,0 +1,67 @@
+<mat-card class="category-card">
+  <mat-card-header>
+    <mat-card-title>Kategori Güncelle</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="categoryForm" (ngSubmit)="onSubmit()" class="category-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Kategori Adı</mat-label>
+          <input matInput formControlName="name" placeholder="Kategori Adı">
+          <mat-error *ngIf="categoryForm.get('name').hasError('required')">
+            Kategori adı zorunludur
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Ana Kategori</mat-label>
+          <input type="text" matInput formControlName="parentCategoryId" [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+            <mat-option *ngFor="let category of filteredCategories | async" [value]="category">
+              {{category.name}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <h3>Alt Kategoriler</h3>
+        <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
+          <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
+            <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
+              {{node.name}}
+            </mat-checkbox>
+          </mat-tree-node>
+          <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+            <div class="mat-tree-node">
+              <button type="button" mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
+                <mat-icon class="mat-icon-rtl-mirror">
+                  {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                </mat-icon>
+              </button>
+              <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
+                {{node.name}}
+              </mat-checkbox>
+            </div>
+          </mat-tree-node>
+        </mat-tree>
+      </div>
+
+      <div class="form-row">
+        <h3>Özellikler</h3>
+        <div *ngFor="let feature of features">
+          <mat-checkbox [checked]="categoryForm.value.features.includes(feature.id)" (change)="onFeatureToggle(feature.id, $event.checked)">
+            {{ feature.name }}
+          </mat-checkbox>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="categoryForm.invalid">Güncelle</button>
+        <button mat-button type="button" (click)="categoryForm.reset()">Temizle</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

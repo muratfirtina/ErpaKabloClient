@@ -13,11 +13,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
 import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
 import { CategoryFilterByDynamic } from 'src/app/contracts/category/categoryFilterByDynamic';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, MatPaginatorModule, MatTableModule,DeleteDirectiveComponent],
+  imports: [FormsModule, ReactiveFormsModule, MatPaginatorModule, MatTableModule,DeleteDirectiveComponent,RouterModule],
   templateUrl: './category-list.component.html',
   styleUrls: ['./category-list.component.scss']
 })
@@ -31,14 +32,15 @@ export class CategoryListComponent extends BaseComponent implements OnInit {
   pageSize: number = 10;
   count: number = 0;
   pages: number = 0;
-  displayedColumns: string[] = ['No', 'Category', 'Delete'];
+  displayedColumns: string[] = ['No', 'Category', 'edit' , 'Delete'];
   searchForm: FormGroup;
 
   constructor(
     spinner: NgxSpinnerService,
     private categoryService: CategoryService,
     private toastrService: CustomToastrService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private router: Router
   ) {
     super(spinner);
 
@@ -137,5 +139,8 @@ export class CategoryListComponent extends BaseComponent implements OnInit {
     });
   }
 
+  navigateToUpdate(categoryId: string) {
+    this.router.navigate(['admin/categories/category-update', categoryId]);
+  }
   
 }

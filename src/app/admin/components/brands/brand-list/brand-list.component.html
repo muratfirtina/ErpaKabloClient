@@ -34,8 +34,10 @@
         <ng-container matColumnDef="Delete">
           <th mat-header-cell *matHeaderCellDef class="header-cell">Sil</th>
           <td mat-cell *matCellDef="let item">
+            <div class="app-delete-directive-container">
             <app-delete-directive [id]="item.id" [controller]="'brands'" [itemName]="item.name" (refresh)="searchBrand()">
             </app-delete-directive>
+          </div>
         </ng-container>
 
 

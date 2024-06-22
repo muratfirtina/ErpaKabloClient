@@ -94,3 +94,14 @@
 .mat-row:hover {
   background-color: #f1f1f1;
 }
+
+.app-delete-directive-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px; /* Padding'i sadece container'a uyguluyoruz */
+}
+
+.app-delete-directive-container button {
+  margin: 0;
+}

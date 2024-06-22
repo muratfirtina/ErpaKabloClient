@@ -5,6 +5,8 @@ import { PageRequest } from 'src/app/contracts/pageRequest';
 import { CategoryCreate } from 'src/app/contracts/category/category-create';
 import { Category } from 'src/app/contracts/category/category';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
+import { CategoryUpdate } from 'src/app/contracts/category/category-update';
+import { CategoryGetById } from 'src/app/contracts/category/category-getbyid';
 
 @Injectable({
   providedIn: 'root'
@@ -56,5 +58,25 @@ export class CategoryService {
       .catch(errorCallback);
     return await promiseData;
     
+  }
+
+  async update(category:CategoryUpdate, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<CategoryUpdate>{
+    const observable : Observable<CategoryUpdate> = this.httpClientService.put<CategoryUpdate>({
+      controller: "categories"
+    }, category);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
+
+  async getById(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<CategoryGetById>{
+    const observable : Observable<CategoryGetById> = this.httpClientService.get<CategoryGetById>({
+      controller: "categories"
+    }, id);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
   }
 }

@@ -1,0 +1,35 @@
+.category-card {
+    margin: 20px;
+  }
+  
+  .category-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-row {
+    margin-bottom: 15px;
+  }
+  
+  .full-width {
+    width: 100%;
+  }
+  
+  .category-tree {
+    margin: 15px 0;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+  
+  .feature-item {
+    min-width: 0;
+  }
