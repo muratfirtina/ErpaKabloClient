@@ -16,18 +16,22 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Ana Kategori</mat-label>
-          <input type="text" matInput formControlName="parentCategoryId" [matAutocomplete]="auto">
-          <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-            <mat-option *ngFor="let category of filteredCategories | async" [value]="category">
-              {{category.name}}
+          <mat-label>Üst Kategori Seçimi</mat-label>
+          <input type="text" matInput [formControl]="parentCategoryIdControl" [matAutocomplete]="auto">          
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let category of filteredParentCategories | async" [value]="category.name">
+              <mat-checkbox [checked]="categoryForm.get('parentCategoryId').value === category.id"
+                            (change)="selectParentCategory(category)"
+                            (click)="$event.stopPropagation()">
+                {{category.name}}
+              </mat-checkbox>
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
       </div>
 
       <div class="form-row">
-        <h3>Alt Kategoriler</h3>
+        <h3>Alt Kategori Seçimi</h3>
         <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
           <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
             <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
@@ -50,11 +54,14 @@
       </div>
 
       <div class="form-row">
-        <h3>Özellikler</h3>
-        <div *ngFor="let feature of features">
-          <mat-checkbox [checked]="categoryForm.value.features.includes(feature.id)" (change)="onFeatureToggle(feature.id, $event.checked)">
-            {{ feature.name }}
-          </mat-checkbox>
+        <h3>Özellik Ekle-Çıkart</h3>
+        <div class="features-grid">
+          <div *ngFor="let feature of features" class="feature-item">
+            <mat-checkbox [checked]="categoryForm.value.features.includes(feature.id)" 
+                          (change)="onFeatureToggle(feature.id, $event.checked)">
+              {{ feature.name }}
+            </mat-checkbox>
+          </div>
         </div>
       </div>
 

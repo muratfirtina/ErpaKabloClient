@@ -141,8 +141,8 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
 
   loadCategories() {
     this.categoryService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
-      this.categories = data.items;
-      this.dataSource.data = this.categories;
+      this.categories = this.createHierarchy(data.items);
+      this.dataSource.data = this.categories.filter(category => !category.parentCategoryId);
       this.categoryFilterCtrl.setValue('');
       this.restoreCheckedState();
     }).catch(error => {
@@ -233,7 +233,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
       if (category.checked) {
         selectedIds.push(category.id);
       }
-      if (category.subCategories) {
+      if (category.subCategories && category.subCategories.length > 0) {
         selectedIds = selectedIds.concat(this.collectSelectedCategoryIds(category.subCategories));
       }
     });
@@ -303,4 +303,30 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   }
 
   hasChild = (_: number, node: FlatNode) => node.expandable;
+
+  createHierarchy(categories: Category[]): Category[] {
+    const categoryMap = new Map<string, Category>();
+    const rootCategories: Category[] = [];
+  
+    // Tüm kategorileri bir Map'e ekleyin
+    categories.forEach(category => {
+      categoryMap.set(category.id, { ...category, subCategories: [] });
+    });
+  
+    // Kategorileri hiyerarşik yapıya yerleştirin
+    categoryMap.forEach(category => {
+      if (category.parentCategoryId) {
+        const parent = categoryMap.get(category.parentCategoryId);
+        if (parent) {
+          parent.subCategories.push(category);
+        }
+      } else {
+        rootCategories.push(category);
+      }
+    });
+  
+    return rootCategories;
+  }
+  
+  
 }
