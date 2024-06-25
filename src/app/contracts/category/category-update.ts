@@ -5,5 +5,5 @@ export class CategoryUpdate {
     name: string;
     parentCategoryId: string;
     subCategories: Category[];
-    featurIds: string[];
+    featureIds: string[];
 }

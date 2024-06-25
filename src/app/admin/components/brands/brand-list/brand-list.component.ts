@@ -17,13 +17,27 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { DeleteDialogComponent, DeleteDialogState } from 'src/app/dialogs/delete-dialog/delete-dialog.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatInputModule } from '@angular/material/input';
 
 @Component({
   selector: 'app-brand-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatPaginatorModule, MatTableModule, FormsModule, ReactiveFormsModule,DeleteDirectiveComponent],
+  imports: [CommonModule, RouterModule, FormsModule, 
+    ReactiveFormsModule, 
+    MatPaginatorModule, 
+    MatTableModule, 
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatAutocompleteModule,
+    DeleteDirectiveComponent,],
   templateUrl: './brand-list.component.html',
-  styleUrl: './brand-list.component.scss'
+  styleUrls: ['./brand-list.component.scss', '../../../../../styles.scss']
 })
 export class BrandListComponent extends BaseComponent implements OnInit {
 

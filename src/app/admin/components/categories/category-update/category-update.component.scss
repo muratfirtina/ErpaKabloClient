@@ -1,8 +1,10 @@
 .category-card {
     margin: 20px;
+    width: max-content;
   }
   
   .category-form {
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
   }
@@ -22,14 +24,22 @@
   .form-actions {
     display: flex;
     justify-content: space-between;
+    flex-direction: column;
   }
   
   .features-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 10px;
   }
   
   .feature-item {
     min-width: 0;
+  }
+
+  .category-update-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px; /* Padding'i sadece container'a uyguluyoruz */
   }

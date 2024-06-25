@@ -1,21 +1,17 @@
-import { FlatTreeControl } from '@angular/cdk/tree';
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckbox, MatCheckboxModule} from '@angular/material/checkbox';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatOption, MatOptionModule } from '@angular/material/core';
-import { MatError, MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTreeFlattener, MatTreeFlatDataSource, MatTreeModule } from '@angular/material/tree';
 import { ActivatedRoute } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { Observable, map, startWith } from 'rxjs';
+import { Observable, map, startWith, switchMap } from 'rxjs';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Category } from 'src/app/contracts/category/category';
 import { CategoryUpdate } from 'src/app/contracts/category/category-update';
@@ -27,30 +23,20 @@ import { CategoryService } from 'src/app/services/common/models/category.service
 import { FeatureService } from 'src/app/services/common/models/feature.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
-interface FlatNode {
-  expandable: boolean;
-  name: string;
-  level: number;
-  id: string;
-  checked?: boolean;
-  parentCategoryId: string;
-}
-
 @Component({
   selector: 'app-category-update',
   standalone: true,
-  imports: [CommonModule ,ReactiveFormsModule,FormsModule,MatCardModule,
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatAutocompleteModule,
     MatSelectModule,
     MatCheckboxModule,
-    MatTreeModule,
     MatIconModule,
     MatButtonModule,
-    MatChipsModule],
+  ],
   templateUrl: './category-update.component.html',
-  styleUrl: './category-update.component.scss'
+  styleUrls: ['./category-update.component.scss']
 })
 export class CategoryUpdateComponent extends BaseComponent implements OnInit {
 
@@ -59,9 +45,6 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
   categories: Category[] = [];
   features: Feature[] = [];
   filteredCategories: Observable<Category[]>;
-  treeControl: FlatTreeControl<FlatNode>;
-  treeFlattener: MatTreeFlattener<Category, FlatNode>;
-  dataSource: MatTreeFlatDataSource<Category, FlatNode>;
   filteredParentCategories: Observable<Category[]>;
   parentCategoryIdControl: FormControl;
   pagedCategories: Category[] = [];
@@ -87,32 +70,10 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
       nameSearch: [''],
     });
 
-    this.treeFlattener = new MatTreeFlattener(
-      this.transformer,
-      node => node.level,
-      node => node.expandable,
-      node => node.subCategories
-    );
-
-    this.treeControl = new FlatTreeControl<FlatNode>(
-      node => node.level,
-      node => node.expandable
-    );
-
-    this.dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-   
+    this.parentCategoryIdControl = new FormControl('');
   }
 
-  transformer = (node: Category, level: number) => ({
-    expandable: !!node.subCategories && node.subCategories.length > 0,
-    name: node.name,
-    level: level,
-    id: node.id,
-    checked: node.checked,
-    parentCategoryId: node.parentCategoryId
-  });
-
-  ngOnInit() {
+  async ngOnInit() {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
       parentCategoryId: [''],
@@ -121,57 +82,49 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
     });
 
     this.categoryId = this.route.snapshot.paramMap.get('id')!;
-    this.loadCategoryDetails();
-    this.loadCategories();
-    this.loadFeatures();
+    await this.loadCategoryDetails();
+    await this.loadCategories();
+    await this.loadFeatures();
 
-    this.filteredParentCategories = this.categoryForm.get('parentCategoryId').valueChanges.pipe(
+    this.filteredParentCategories = this.parentCategoryIdControl.valueChanges.pipe(
       startWith(''),
       map(value => typeof value === 'string' ? value : value?.name),
-      map(name => name ? this._filterCategories(name) : this.categories.slice())
+      switchMap(name => this.searchCategory(name)) // searchCategory metodunu çağırarak
     );
-
-    this.parentCategoryIdControl = this.categoryForm.get('parentCategoryId') as FormControl;
   }
 
-  private _filterCategories(name: string): Category[] {
-    const filterValue = name.toLowerCase();
-    return this.categories.filter(category => category.name.toLowerCase().includes(filterValue));
-  }
-  
   selectParentCategory(category: Category) {
     this.categoryForm.patchValue({ parentCategoryId: category.id });
+    this.parentCategoryIdControl.setValue(category.name);
   }
 
-  loadCategoryDetails() {
-    this.categoryService.getById(this.categoryId).then(category => {
-      this.categoryForm.patchValue({
-        name: category.name,
-        parentCategoryId: category.parentCategoryId,
-        subCategories: category.subCategories.map(sub => sub.id),
-        features: category.features.map(feat => feat.id)
-      });
+  async loadCategoryDetails() {
+    const category = await this.categoryService.getById(this.categoryId);
+    this.categoryForm.patchValue({
+      name: category.name,
+      parentCategoryId: category.parentCategoryId,
+      subCategories: category.subCategories.map(sub => sub.id),
+      features: category.features.map(feat => feat.id)
     });
+
+    if (category.parentCategoryId) {
+      const parentCategory = await this.categoryService.getById(category.parentCategoryId);
+      if (parentCategory) {
+        this.parentCategoryIdControl.setValue(parentCategory.name);
+      }
+    }
   }
 
-  loadCategories() {
-    this.categoryService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
-      this.categories = this.createHierarchy(data.items);
-      this.dataSource.data = this.categories;
-    });
+  async loadCategories() {
+    const data = await this.categoryService.list({ pageIndex: -1, pageSize: -1 });
+    this.categories = data.items;
+    this.pagedCategories = this.createHierarchy(this.categories);
   }
 
-  loadFeatures() {
-    this.featureService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
-      this.features = data.items;
-    });
+  async loadFeatures() {
+    const data = await this.featureService.list({ pageIndex: -1, pageSize: -1 });
+    this.features = data.items;
   }
-
-  displayFn(category: Category): string {
-    return category && category.name ? category.name : '';
-  }
-
-  hasChild = (_: number, node: FlatNode) => node.expandable;
 
   onSubmit() {
     if (this.categoryForm.valid) {
@@ -181,21 +134,15 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
         name: formValue.name,
         parentCategoryId: formValue.parentCategoryId,
         subCategories: formValue.subCategories.map(id => this.categories.find(cat => cat.id === id)),
-        featurIds: formValue.features
+        featureIds: formValue.features
       };
-      
+
       this.categoryService.update(updateCategory).then(() => {
         this.toastrService.message('Category updated successfully', 'Success', { toastrMessageType: ToastrMessageType.Success, position: ToastrPosition.TopRight });
       }).catch(error => {
         this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
       });
     }
-  }
-
-  toggleCategory(node: FlatNode, state: boolean) {
-    node.checked = state;
-    this.updateCheckedState(node.id, state);
-    this.updateCategoryIds();
   }
 
   updateCheckedState(id: string, state: boolean) {
@@ -223,24 +170,6 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
     return undefined;
   }
 
-  updateCategoryIds() {
-    const selectedCategoryIds = this.collectSelectedCategoryIds(this.categories);
-    this.categoryForm.patchValue({ subCategories: selectedCategoryIds });
-  }
-
-  collectSelectedCategoryIds(categories: Category[]): string[] {
-    let selectedIds: string[] = [];
-    categories.forEach(category => {
-      if (category.checked) {
-        selectedIds.push(category.id);
-      }
-      if (category.subCategories && category.subCategories.length > 0) {
-        selectedIds = selectedIds.concat(this.collectSelectedCategoryIds(category.subCategories));
-      }
-    });
-    return selectedIds;
-  }
-
   onFeatureToggle(featureId: string, checked: boolean) {
     let selectedFeatures = this.categoryForm.value.features || [];
     if (checked) {
@@ -251,65 +180,55 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
     this.categoryForm.patchValue({ features: selectedFeatures });
   }
 
-  async searchCategory() {
+  async searchCategory(name: string): Promise<Category[]> {
+    if (!name || name.length < 3) {
+      return [];
+    }
+
     this.showSpinner(SpinnerType.BallSpinClockwise);
 
-    const formValue = this.searchForm.value;
-    let filters: Filter[] = [];
+    const filters: Filter[] = [{
+      field: CategoryFilterByDynamic.Name,
+      operator: "contains",
+      value: name,
+      logic: "",
+      filters: [],
+    }];
 
-    const name = CategoryFilterByDynamic.Name;
+    const dynamicFilter: Filter = {
+      field: "",
+      operator: "",
+      logic: "and",
+      filters: filters
+    };
 
-    if (formValue.nameSearch) {
-      const nameFilter: Filter = {
-        field: name,
-        operator: "contains",
-        value: formValue.nameSearch,
-        logic: "",
-        filters: [],
-      };
-
-      filters.push(nameFilter);
-    }
-
-    let dynamicFilter: Filter | undefined;
-    if (filters.length > 0) {
-      dynamicFilter = filters.length === 1 ? filters[0] : {
-        field: "",
-        operator: "",
-        logic: "and",
-        filters: filters
-      };
-    }
-    
     const dynamicQuery: DynamicQuery = {
-      sort: [{ field: name, dir: "asc" }],
+      sort: [{ field: CategoryFilterByDynamic.Name, dir: "asc" }],
       filter: dynamicFilter
     };
 
     const pageRequest: PageRequest = { pageIndex: 0, pageSize: 10 };
-  
-    await this.categoryService.getCategoriesByDynamicQuery(dynamicQuery, pageRequest).then((response) => {
-      this.pagedCategories = response.items;
-      this.count = response.count;
-      this.pages = response.pages;
-      this.currentPageNo = 1;
-      this.dataSource.data = this.pagedCategories;
-    }).catch((error) => {
-      this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
-    }).finally(() => {
+
+    try {
+      const response = await this.categoryService.getCategoriesByDynamicQuery(dynamicQuery, pageRequest);
       this.hideSpinner(SpinnerType.BallSpinClockwise);
-    });
+      return response.items;
+    } catch (error) {
+      this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      return [];
+    }
   }
 
   createHierarchy(categories: Category[]): Category[] {
     const categoryMap = new Map<string, Category>();
     const rootCategories: Category[] = [];
-  
+
     // Tüm kategorileri bir Map'e ekleyin
     categories.forEach(category => {
       categoryMap.set(category.id, { ...category, subCategories: [] });
     });
-  
+
     // Kategorileri hiyerarşik yapıya yerleştirin
     categoryMap.forEach(category => {
       if (category.parentCategoryId) {
@@ -321,7 +240,7 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
         rootCategories.push(category);
       }
     });
-  
+
     return rootCategories;
   }
 

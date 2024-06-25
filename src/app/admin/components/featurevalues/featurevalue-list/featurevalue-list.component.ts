@@ -13,13 +13,29 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
 import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
 import { FeaturevalueFilterByDynamic } from 'src/app/contracts/featurevalue/featurevalueFilterByDynamic';
+import { CommonModule } from '@angular/common';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-featurevalue-list',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, MatPaginatorModule, MatTableModule,DeleteDirectiveComponent],
+  imports: [CommonModule, RouterModule, FormsModule, 
+    ReactiveFormsModule, 
+    MatPaginatorModule, 
+    MatTableModule, 
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatAutocompleteModule,
+    DeleteDirectiveComponent,],
   templateUrl: './featurevalue-list.component.html',
-  styleUrls: ['./featurevalue-list.component.scss']
+  styleUrls: ['./featurevalue-list.component.scss', '../../../../../styles.scss']
 })
 export class FeaturevalueListComponent extends BaseComponent implements OnInit {
 

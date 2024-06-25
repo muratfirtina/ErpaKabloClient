@@ -6,7 +6,7 @@ import { MatButton, MatButtonModule } from '@angular/material/button';
 @Component({
   selector: 'app-brandcreateconfrim-dialog',
   standalone: true,
-  imports: [MatDialogModule,MatButton],
+  imports: [MatDialogModule,MatButtonModule],
   templateUrl: './brandcreateconfrim-dialog.component.html',
   styleUrl: './brandcreateconfrim-dialog.component.scss'
 })

@@ -1,41 +1,3 @@
-.mat-mdc-paginator-outer-container {
-  background-color: #1d1c1c;
-  color: white;
-  border-radius: 30px;
-  border: 5px solid #185bc3;
-}
-
-.mat-mdc-header-cell {
-  background-color: #007bff !important;
-  color: #fff !important;
-  text-align: center;
-  font-size: 1.1rem;
-  padding: 10px;
-}
-
-.mat-mdc-paginator-range-actions {
-  background-color: #185bc3;
-  border-radius: 30px;
-}
-
-.mat-mdc-select-trigger {
-  background-color: rgb(24, 93, 195);
-  border-radius: 30px;
-}
-
-.mat-mdc-select-value-text {
-  color: white;
-  margin-left: 5px;
-}
-
-.mat-mdc-select-arrow {
-  margin-right: 5px;
-}
-
-.mat-mdc-select-arrow svg {
-  color: white;
-}
-
 .container {
   background-color: #f8f9fa;
   padding: 30px;
@@ -61,7 +23,7 @@
 }
 
 .mat-mdc-cell {
-  text-align: -webkit-center;
+  text-align: center;
   align-content: center;
 }
 
@@ -95,76 +57,69 @@
   background-color: #f1f1f1;
 }
 
-.app-delete-directive-container {
+.app-delete-directive-container,
+.updateButton {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px; /* Padding'i sadece container'a uyguluyoruz */
+  padding: 10px;
 }
 
 .app-delete-directive-container button {
   margin: 0;
 }
 
-.button_edit {
-  position: relative;
-  width: 60px;
-  height: 25px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #0418ae;
-  background-color: #11bbefba;
-  overflow: hidden;
-}
 
-.button_edit,
-.button_edit__icon,
-.button_edit__text {
-  transition: all 0.3s;
-}
 
-.button_edit .button_edit__text {
-  position: relative;
-  transform: translateX(0);
-  color: #fff;
-  font-weight: 600;
-}
-
-.button_edit .button_edit__icon {
-  position: absolute;
-  transform: translateX(124px);
-  height: 100%;
-  width: 19px;
-  background-color: #0418ae;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.button_edit .svg {
-  width: 20px;
-  stroke: #fff;
-}
-
-.button_edit:hover {
-  background: #0418ae;
-}
-
-.button_edit:hover .button_edit__text {
-  color: transparent;
-}
-
-.button_edit:hover .button_edit__icon {
+.search-and-table-container mat-form-field,
+.search-and-table-container table {
   width: 100%;
-  transform: translateX(0);
 }
 
-.button_edit:active .button_edit__icon {
-  background-color: #03117e;
+::ng-deep .mat-mdc-form-field-infix {
+  display: flex;
 }
 
-.button_edit:active {
-  border: 1px solid #03117e;
+
+.mat-mdc-select-arrow {
+  margin-right: 5px;
 }
+
+.mat-mdc-select-arrow svg {
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .page-description {
+    font-size: 1rem;
+  }
+
+  .search-and-table-container mat-form-field,
+  .search-and-table-container table {
+    width: 100%;
+  }
+
+  .updateButton,
+  .app-delete-directive-container {
+    padding: 5px;
+  }
+
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.5rem;
+  }
+  
+  .page-description {
+    font-size: 0.9rem;
+  }
+}
+
+
+

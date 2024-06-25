@@ -2,6 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Category } from 'src/app/contracts/category/category';
@@ -18,9 +23,21 @@ import { Router, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-category-list',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, MatPaginatorModule, MatTableModule,DeleteDirectiveComponent,RouterModule],
+  imports: [
+    FormsModule, 
+    ReactiveFormsModule, 
+    MatPaginatorModule, 
+    MatTableModule, 
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatAutocompleteModule,
+    DeleteDirectiveComponent, 
+    RouterModule
+  ],
   templateUrl: './category-list.component.html',
-  styleUrls: ['./category-list.component.scss']
+  styleUrls: ['./category-list.component.scss','../../../../../styles.scss']
 })
 export class CategoryListComponent extends BaseComponent implements OnInit {
 
@@ -32,7 +49,7 @@ export class CategoryListComponent extends BaseComponent implements OnInit {
   pageSize: number = 10;
   count: number = 0;
   pages: number = 0;
-  displayedColumns: string[] = ['No', 'Category', 'edit' , 'Delete'];
+  displayedColumns: string[] = ['No', 'Category', 'Update' , 'Delete'];
   searchForm: FormGroup;
 
   constructor(

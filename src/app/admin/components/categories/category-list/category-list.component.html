@@ -8,60 +8,55 @@
 
   <div class="row mb-4">
     <div class="col-md-12">
-      <form [formGroup]="searchForm" (ngSubmit)="searchCategory()">
-        <div class="input-group search-box">
-          <input type="text" class="form-control" placeholder="Search category name..." formControlName="nameSearch"
-            (input)="searchCategory()">
-          <button class="btn btn-primary" type="submit">Search</button>
-        </div>
-      </form>
-    </div>
-  </div>
+      <div class="search-and-table-container">
+        <form [formGroup]="searchForm" (ngSubmit)="searchCategory()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Category Ara...</mat-label>
+            <input matInput formControlName="nameSearch" (input)="searchCategory()">
+            <button mat-raised-button class="search-button" type="submit">Ara</button>
+          </mat-form-field>
+        </form>
 
-  <div class="row">
-    <div class="col-md-12">
-      <table mat-table [dataSource]="pagedCategories" class="mat-elevation-z8 table table-striped table-hover">
-        <ng-container matColumnDef="No">
-          <th mat-header-cell *matHeaderCellDef class="header-cell">No</th>
-          <td mat-cell *matCellDef="let item; let i = index">{{ (currentPageNo - 1) * pageSize + i + 1 }}</td>
-        </ng-container>
+        <table mat-table [dataSource]="pagedCategories" class="mat-elevation-z8 table table-striped table-hover">
+          <ng-container matColumnDef="No">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">No</th>
+            <td mat-cell *matCellDef="let item; let i = index">{{ (currentPageNo - 1) * pageSize + i + 1 }}</td>
+          </ng-container>
 
-        <ng-container matColumnDef="Category">
-          <th mat-header-cell *matHeaderCellDef class="header-cell">Marka Adı</th>
-          <td mat-cell *matCellDef="let item">{{ item.name }}</td>
-        </ng-container>
+          <ng-container matColumnDef="Category">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">Marka Adı</th>
+            <td mat-cell *matCellDef="let item">{{ item.name }}</td>
+          </ng-container>
 
-        <ng-container matColumnDef="edit">
-        <th mat-header-cell *matHeaderCellDef width="45">Güncelle</th>
-        <td mat-cell *matCellDef="let item"> <button class="button_edit" (click)="navigateToUpdate(item.id)">
-            <span class="button_edit__text">Güncelle</span><span class="button_edit__icon"><svg
-                xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke-width="2" stroke-linejoin="round"
-                stroke-linecap="round" stroke="#a649da" height="24" fill="none" class="svg">
-                <path d="m20 20h-16"></path>
-                <path clip-rule="evenodd"
-                  d="m14.5858 4.41422c.781-.78105 2.0474-.78105 2.8284 0 .7811.78105.7811 2.04738 0 2.82843l-8.28322 8.28325-3.03046.202.20203-3.0304z"
-                  fill-rule="evenodd"></path>
-              </svg></span>
-          </button> </td>
-      </ng-container>
+          <ng-container matColumnDef="Update">
+            <th mat-header-cell *matHeaderCellDef width="45">Güncelle</th>
+            <td mat-cell *matCellDef="let item">
+              <div class="updateButton">
+                <button mat-mini-fab (click)="navigateToUpdate(item.id)" class="edit-button-list">
+                  <mat-icon>edit</mat-icon>
+                </button> 
+              </div>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="Delete">
-          <th mat-header-cell *matHeaderCellDef class="header-cell">Sil</th>
-          <td mat-cell *matCellDef="let item">
-            <div class="app-delete-directive-container">
-              <app-delete-directive [id]="item.id" [controller]="'categories'" [itemName]="item.name" (refresh)="searchCategory()">
-              </app-delete-directive>
-            </div>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="Delete">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">Sil</th>
+            <td mat-cell *matCellDef="let item">
+              <div class="app-delete-directive-container">
+                <app-delete-directive [id]="item.id" [controller]="'categories'" [itemName]="item.name" (refresh)="searchCategory()">
+                </app-delete-directive>
+              </div>
+            </td>
+          </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
 
-      <mat-paginator [length]="count" [pageSize]="pageSize" [pageIndex]="currentPageNo - 1"
-        [pageSizeOptions]="[5, 10, 20]" (page)="onPageChange($event)">
-      </mat-paginator>
+        <mat-paginator [length]="count" [pageSize]="pageSize" [pageIndex]="currentPageNo - 1"
+          [pageSizeOptions]="[5, 10, 20]" (page)="onPageChange($event)">
+        </mat-paginator>
+      </div>
     </div>
   </div>
 </div>

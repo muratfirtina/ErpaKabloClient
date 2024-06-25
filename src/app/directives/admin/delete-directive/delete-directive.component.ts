@@ -1,5 +1,7 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { firstValueFrom } from 'rxjs';
 import { SpinnerType } from 'src/app/base/base/base.component';
@@ -14,7 +16,7 @@ declare var $: any;
 @Component({
   selector: 'app-delete-directive',
   standalone: true,
-  imports: [],
+  imports: [MatIconModule,MatButtonModule],
   templateUrl: './delete-directive.component.html',
   styleUrl: './delete-directive.component.scss'
 })

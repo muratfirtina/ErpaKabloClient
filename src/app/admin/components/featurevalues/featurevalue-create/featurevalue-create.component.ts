@@ -9,28 +9,24 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { FeaturevaluecreateconfrimDialogComponent } from 'src/app/dialogs/featurevalueDialogs/featurevaluecreateconfrim-dialog/featurevaluecreateconfrim-dialog.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { FeaturevalueCreate } from 'src/app/contracts/featurevalue/featurevalue-create';
 import { MatSelectModule } from '@angular/material/select';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
-import { Observable } from 'rxjs';
-import { map, startWith } from 'rxjs/operators';
+import { MatRadioModule } from '@angular/material/radio';
+import { FeaturevaluecreateconfrimDialogComponent } from 'src/app/dialogs/featureValueDialogs/featurevaluecreateconfrim-dialog/featurevaluecreateconfrim-dialog.component';
 
 @Component({
   selector: 'app-featurevalue-create',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, FeaturevaluecreateconfrimDialogComponent, MatSelectModule, MatAutocompleteModule],
+  imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, MatSelectModule, MatRadioModule],
   templateUrl: './featurevalue-create.component.html',
   styleUrls: ['./featurevalue-create.component.scss']
 })
 export class FeaturevalueCreateComponent extends BaseComponent implements OnInit {
   featurevalueForm: FormGroup;
   features: Feature[] = [];
-  filteredFeatures: Observable<Feature[]>;
-  featureFilterCtrl: FormControl = new FormControl();
 
   constructor(spinner: NgxSpinnerService,
     private featurevalueService: FeaturevalueService,
@@ -48,35 +44,23 @@ export class FeaturevalueCreateComponent extends BaseComponent implements OnInit
     });
 
     this.loadFeatures();
-
-    // Set up feature filter
-    this.filteredFeatures = this.featureFilterCtrl.valueChanges.pipe(
-      startWith(''),
-      map(value => this.filterFeatures(value))
-    );
   }
 
   loadFeatures() {
     this.featureService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
       this.features = data.items;
-      this.featureFilterCtrl.setValue('');
     }).catch(error => {
       this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
     });
   }
 
-  filterFeatures(value: string): Feature[] {
-    const filterValue = value.toLowerCase();
-    return this.features.filter(feature => feature.name.toLowerCase().includes(filterValue));
-  }
-
   onSubmit() {
     if (this.featurevalueForm.valid) {
-      this.openDialog(this.featurevalueForm.value.name);
+      this.openDialog(this.featurevalueForm.value.name, this.featurevalueForm.value.featureId);
     }
   }
 
-  openDialog(name: string): void {
+  openDialog(name: string, featureId: string): void {
     const dialogRef = this.dialog.open(FeaturevaluecreateconfrimDialogComponent, {
       width: '500px',
       data: { featurevalueName: name }
@@ -84,15 +68,15 @@ export class FeaturevalueCreateComponent extends BaseComponent implements OnInit
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.createFeatureValue(name);
+        this.createFeatureValue(name, featureId);
       }
     });
   }
 
-  createFeatureValue(formValue: any) {
+  createFeatureValue(name: string, featureId: string) {
     const create_featurevalue: FeaturevalueCreate = {
-      name: formValue,
-      featureId: this.featurevalueForm.value.featureId
+      name,
+      featureId
     };
 
     this.showSpinner(SpinnerType.BallSpinClockwise);

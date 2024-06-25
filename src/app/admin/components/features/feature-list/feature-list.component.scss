@@ -1,107 +1,125 @@
-::ng-deep .mat-mdc-paginator-outer-container {
-    background-color: #1d1c1c;
-    color: white;
-    border-radius: 30px;
-    border: 5px solid #185bc3;
-  }
-  
-  .mat-mdc-header-cell {
-    background-color: #007bff !important;
-    color: #fff !important;
-    text-align: center;
-    font-size: 1.1rem;
-    padding: 10px;
-  }
-  
-  ::ng-deep .mat-mdc-paginator-range-actions {
-    background-color: #185bc3;
-    border-radius: 30px;
-  }
-  
-  ::ng-deep .mat-mdc-select-trigger {
-    background-color: rgb(24, 93, 195);
-    border-radius: 30px;
-  }
-  ::ng-deep .mat-mdc-select-value-text {
-    color: white;
-    margin-left: 5px;
-  }
-  
-  ::ng-deep .mat-mdc-select-arrow {
-    margin-right: 5px;
-  }
-  ::ng-deep .mat-mdc-select-arrow svg {
-    color: white;
-  }
-  
-  .container {
-    background-color: #f8f9fa;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-  
+.container {
+  background-color: #f8f9fa;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+  font-size: 2.5rem;
+  color: #343a40;
+  margin-bottom: 0;
+}
+
+.page-description {
+  font-size: 1.2rem;
+  color: #6c757d;
+  margin-top: 0;
+}
+
+.search-box {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.mat-mdc-cell {
+  text-align: center;
+  align-content: center;
+}
+
+.search-box .form-control {
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+}
+
+.search-box .btn {
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  background-color: #007bff;
+  color: #fff;
+}
+
+.mat-paginator {
+  margin-top: 20px;
+}
+
+.table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: separate;
+}
+
+.mat-row {
+  transition: background-color 0.3s;
+}
+
+.mat-row:hover {
+  background-color: #f1f1f1;
+}
+
+.app-delete-directive-container,
+.updateButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.app-delete-directive-container button {
+  margin: 0;
+}
+
+
+
+.search-and-table-container mat-form-field,
+.search-and-table-container table {
+  width: 100%;
+}
+
+::ng-deep .mat-mdc-form-field-infix {
+  display: flex;
+}
+
+
+.mat-mdc-select-arrow {
+  margin-right: 5px;
+}
+
+.mat-mdc-select-arrow svg {
+  color: white;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
   .page-title {
-    font-size: 2.5rem;
-    color: #343a40;
-    margin-bottom: 0;
+    font-size: 2rem;
   }
   
   .page-description {
-    font-size: 1.2rem;
-    color: #6c757d;
-    margin-top: 0;
+    font-size: 1rem;
   }
-  
-  .search-box {
+
+  .search-and-table-container mat-form-field,
+  .search-and-table-container table {
     width: 100%;
-    margin-bottom: 20px;
   }
-  
-  .mat-mdc-cell {
-    text-align: -webkit-center;
-    align-content: center;
-  }
-  
-  .search-box .form-control {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-  }
-  
-  .search-box .btn {
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-    background-color: #007bff;
-    color: #fff;
-  }
-  
-  .mat-paginator {
-    margin-top: 20px;
-  }
-  
-  .table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: separate;
-  }
-  
-  
-  
-  .mat-row {
-    transition: background-color 0.3s;
-  }
-  
-  .mat-row:hover {
-    background-color: #f1f1f1;
-  }
-  
+
+  .updateButton,
   .app-delete-directive-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px; /* Padding'i sadece container'a uyguluyoruz */
+    padding: 5px;
+  }
+
+}
+
+@media (max-width: 576px) {
+  .page-title {
+    font-size: 1.5rem;
   }
   
-  .app-delete-directive-container button {
-    margin: 0;
+  .page-description {
+    font-size: 0.9rem;
   }
+}
+
+
+

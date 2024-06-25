@@ -43,15 +43,15 @@ export class BrandCreateComponent extends BaseComponent implements OnInit{
     }
   }
 
-  openDialog(name: string): void {
+  openDialog(formValue: any): void {
     const dialogRef = this.dialog.open(BrandcreateconfrimDialogComponent, {
       width: '500px',
-      data: { brandName: name }
+      data: { name: formValue }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.createBrand(name);
+        this.createBrand(formValue);
       }
     });
   }

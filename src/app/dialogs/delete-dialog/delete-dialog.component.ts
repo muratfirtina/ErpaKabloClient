@@ -2,11 +2,12 @@ import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseDialog } from '../baseDialog';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-delete-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule],
+  imports: [CommonModule, MatDialogModule, MatButtonModule,MatDialogModule],
   templateUrl: './delete-dialog.component.html',
   styleUrls: ['./delete-dialog.component.scss']
 })

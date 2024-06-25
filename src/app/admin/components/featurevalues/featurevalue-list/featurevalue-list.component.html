@@ -8,15 +8,14 @@
   
     <div class="row mb-4">
       <div class="col-md-12">
-        <form [formGroup]="searchForm" (ngSubmit)="searchFeaturevalue()">
-          <div class="input-group search-box">
-            <input type="text" class="form-control" placeholder="Search featurevalue name..." formControlName="nameSearch"
-              (input)="searchFeaturevalue()">
-            <button class="btn btn-primary" type="submit">Search</button>
-          </div>
-        </form>
-      </div>
-    </div>
+        <div class="search-and-table-container">
+          <form [formGroup]="searchForm" (ngSubmit)="searchFeaturevalue()">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Özellik Değeri Ara...</mat-label>
+              <input matInput formControlName="nameSearch" (input)="searchFeaturevalue()">
+              <button mat-raised-button class="search-button" type="submit">Ara</button>
+            </mat-form-field>
+          </form>
   
     <div class="row">
       <div class="col-md-12">
