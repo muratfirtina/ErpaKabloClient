@@ -21,20 +21,17 @@
             <mat-label>Kategori Ara</mat-label>
             <input matInput [formControl]="categoryFilterCtrl" placeholder="Kategori Ara">
           </mat-form-field>
-          <div class="button-group">
-            <button mat-stroked-button color="primary" (click)="toggleAll(true)" type="button">Hepsini Seç</button>
-            <button mat-stroked-button color="warn" (click)="toggleAll(false)" type="button">Hepsini Kaldır</button>
-            <button mat-stroked-button color="accent" (click)="expandAll()" type="button">Hepsini Aç</button>
-            <button mat-stroked-button color="accent" (click)="collapseAll()" type="button">Hepsini Kapat</button>
-          </div>
+          
 
           <div class="tree-container">
             <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
               <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
-                <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
-                  {{node.name}}
-                </mat-checkbox>
+                <button mat-icon-button disabled></button>
+                <mat-checkbox class="checklist-leaf-node"
+                              [checked]="checklistSelection.isSelected(node)"
+                              (change)="todoLeafItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
               </mat-tree-node>
+
               <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
                 <div class="mat-tree-node">
                   <button type="button" mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
@@ -42,9 +39,9 @@
                       {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                     </mat-icon>
                   </button>
-                  <mat-checkbox [checked]="node.checked" (change)="toggleCategory(node, !node.checked)">
-                    {{node.name}}
-                  </mat-checkbox>
+                  <mat-checkbox [checked]="descendantsAllSelected(node)"
+                                [indeterminate]="descendantsPartiallySelected(node)"
+                                (change)="todoItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
                 </div>
               </mat-tree-node>
             </mat-tree>

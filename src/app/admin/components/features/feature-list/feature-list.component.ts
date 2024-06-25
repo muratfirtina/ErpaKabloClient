@@ -51,7 +51,7 @@ export class FeatureListComponent extends BaseComponent implements OnInit {
   count: number = 0;
   pages: number = 0;
   pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Feature','Delete'];
+  displayedColumns: string[] = ['No', 'Feature', 'Update','Delete'];
   searchForm: FormGroup;
 
   constructor(
