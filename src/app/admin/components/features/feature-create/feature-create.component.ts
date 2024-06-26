@@ -8,6 +8,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FeaturecreateconfrimDialogComponent } from 'src/app/dialogs/featureDialogs/featurecreateconfrim-dialog/featurecreateconfrim-dialog.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { FeatureCreate } from 'src/app/contracts/feature/feature-create';
+import { FeaturevalueCreate } from 'src/app/contracts/featurevalue/featurevalue-create';
+import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -94,7 +96,8 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     private fb: FormBuilder,
     public dialog: MatDialog,
     private categoryService: CategoryService,
-    private toastrService: CustomToastrService
+    private toastrService: CustomToastrService,
+    private featureValueService: FeaturevalueService
   ) {
     super(spinner);
   }
@@ -102,7 +105,8 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   ngOnInit() {
     this.featureForm = this.fb.group({
       name: ['', Validators.required],
-      categoryIds: [[], Validators.required]
+      categoryIds: [[], Validators.required],
+      featureValue: ['', Validators.required]  // New feature value form control
     });
 
     this.loadCategories();
@@ -347,29 +351,42 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.createFeature(formValue);
+        this.createFeatureWithFeatureValue(formValue);
       }
     });
   }
 
-  createFeature(formValue: any) {
-    const create_feature: FeatureCreate = {
-      name: formValue.name,
-      categoryIds: formValue.categoryIds ? formValue.categoryIds : [],
-    };
-
-    this.featureService.create(create_feature, () => {
-      this.toastrService.message('Feature created successfully', 'Success', {
+  async createFeatureWithFeatureValue(formValue: any) {
+    try {
+      // İlk olarak Feature oluştur
+      const create_feature: FeatureCreate = {
+        id: '',
+        name: formValue.name,
+        categoryIds: formValue.categoryIds ? formValue.categoryIds : []
+      };
+  
+      const createdFeature = await this.featureService.create(create_feature);
+  
+      // Sonrasında FeatureValue oluştur
+      const featureValueCreate: FeaturevalueCreate = {
+        name: formValue.featureValue,
+        featureId: createdFeature.id // Oluşturulan Feature ID'si ile
+      };
+  
+      await this.featureValueService.create(featureValueCreate);
+  
+      this.toastrService.message('Feature and Feature Value created successfully', 'Success', {
         toastrMessageType: ToastrMessageType.Success,
         position: ToastrPosition.TopRight
       });
-    }, (error) => {
+    } catch (error) {
       this.toastrService.message(error, 'Error', {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
-    });
+    }
   }
+  
 
   findCategoryById(categories: Category[], id: string): Category | undefined {
     for (const category of categories) {

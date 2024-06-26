@@ -51,7 +51,8 @@
 }
 
 .chip-list {
-  max-height: 300px;
+  height: -webkit-fill-available;
+  max-height: 253px;
   overflow-y: auto;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -68,4 +69,11 @@
   .form-row {
     flex-direction: column;
   }
+}
+
+.mdc-evolution-chip-set {
+  display:flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 10px;
 }
