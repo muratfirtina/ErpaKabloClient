@@ -10,7 +10,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BrandcreateconfrimDialogComponent } from 'src/app/dialogs/brandDialogs/brandcreateconfrim-dialog/brandcreateconfrim-dialog.component';
-import { AlertifyService, MessageType, Position } from 'src/app/services/admin/alertify.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
@@ -27,7 +26,6 @@ export class BrandCreateComponent extends BaseComponent implements OnInit{
      private brandService: BrandService,
      private fb: FormBuilder,
      public dialog: MatDialog,
-     private alertifyService: AlertifyService,
      private toastrService: CustomToastrService) {
     super(spinner);
   }

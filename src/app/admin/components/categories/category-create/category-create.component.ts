@@ -14,7 +14,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { Observable } from 'rxjs';
 import { map, startWith, switchMap } from 'rxjs/operators';
 import { CategorycreateconfrimDialogComponent } from 'src/app/dialogs/categoryDialogs/categorycreateconfrim-dialog/categorycreateconfrim-dialog.component';
-import { AlertifyService, MessageType, Position } from 'src/app/services/admin/alertify.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { CategoryCreate } from 'src/app/contracts/category/category-create';
 import { Category } from 'src/app/contracts/category/category';
@@ -45,7 +44,6 @@ export class CategoryCreateComponent extends BaseComponent implements OnInit {
     private categoryService: CategoryService,
     private fb: FormBuilder,
     public dialog: MatDialog,
-    private alertifyService: AlertifyService,
     private toastrService: CustomToastrService,
     private featureService: FeatureService
   ) {

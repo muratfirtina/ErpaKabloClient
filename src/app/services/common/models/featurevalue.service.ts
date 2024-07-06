@@ -5,6 +5,8 @@ import { PageRequest } from 'src/app/contracts/pageRequest';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { FeaturevalueCreate } from 'src/app/contracts/featurevalue/featurevalue-create';
 import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
+import { FeaturevalueUpdate } from 'src/app/contracts/featurevalue/featurevalue-update';
+import { FeaturevalueGetById } from 'src/app/contracts/featurevalue/featurevalue-getbyid';
 
 
 @Injectable({
@@ -57,5 +59,25 @@ export class FeaturevalueService {
       .catch(errorCallback);
     return await promiseData;
     
+  }
+
+  async update(featurevalue:FeaturevalueUpdate, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<FeaturevalueUpdate>{
+    const observable : Observable<FeaturevalueUpdate> = this.httpClientService.put<FeaturevalueUpdate>({
+      controller: "featurevalues"
+    }, featurevalue);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
+
+  async getById(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<FeaturevalueGetById>{
+    const observable : Observable<FeaturevalueGetById> = this.httpClientService.get<FeaturevalueGetById>({
+      controller: "featurevalues",
+    },id);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
   }
 }

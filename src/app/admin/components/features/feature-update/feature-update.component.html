@@ -1,1 +1,84 @@
-<p>feature-update works!</p>
+<mat-card class="feature-card">
+  <mat-card-header>
+    <mat-card-title>Özellik Güncelle</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="featureForm" (ngSubmit)="onSubmit($event)" class="feature-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Özellik Adı</mat-label>
+          <input matInput formControlName="name" placeholder="Özellik Adı">
+          <mat-error *ngIf="featureForm.get('name').hasError('required')">
+            Özellik adı zorunludur
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="featurevalue-container" style="width: max-content;">
+        <div formArrayName="featureValues">
+          <div *ngFor="let featureValueControl of featureValues.controls; let i=index" [formGroupName]="i" class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Özellik Değeri</mat-label>
+              <mat-select formControlName="id">
+                <mat-option *ngFor="let value of allFeatureValues" [value]="value.id">{{value.name}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <button mat-icon-button color="warn" (click)="removeFeatureValueControl(i)" *ngIf="featureValues.length > 1">
+              <mat-icon>remove_circle</mat-icon>
+            </button>
+          </div>
+        </div>
+        <button mat-raised-button color="primary" type="button" (click)="addFeatureValueControl()">Özellik Değeri Ekle</button>
+      </div>
+
+      <div class="form-row">
+        <div class="category-section">
+          <h3>Kategorileri Kontrol Et</h3>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Kategori Ara</mat-label>
+            <input matInput [formControl]="categoryFilterCtrl" placeholder="Kategori Ara">
+          </mat-form-field>
+          
+          <div class="tree-container">
+            <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
+              <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
+                <button mat-icon-button disabled></button>
+                <mat-checkbox class="checklist-leaf-node"
+                              [checked]="checklistSelection.isSelected(node)"
+                              (change)="todoLeafItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
+              </mat-tree-node>
+
+              <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+                <div class="mat-tree-node">
+                  <button type="button" mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
+                    <mat-icon class="mat-icon-rtl-mirror">
+                      {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    </mat-icon>
+                  </button>
+                  <mat-checkbox [checked]="descendantsAllSelected(node)"
+                                [indeterminate]="descendantsPartiallySelected(node)"
+                                (change)="todoItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
+                </div>
+              </mat-tree-node>
+            </mat-tree>
+          </div>
+        </div>
+
+        <div class="selected-categories">
+          <h3>Seçilen Kategoriler</h3>
+          <mat-chip-listbox class="chip-list">
+            <mat-chip *ngFor="let category of selectedCategories" (removed)="removeCategory(category)">
+              {{category.name}}
+              <mat-icon matChipRemove>cancel</mat-icon>
+            </mat-chip>
+          </mat-chip-listbox>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="featureForm.invalid">Güncelle</button>
+        <button mat-button type="button" (click)="featureForm.reset()">Temizle</button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

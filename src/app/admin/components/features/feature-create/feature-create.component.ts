@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { BaseComponent } from 'src/app/base/base/base.component';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl, FormArray } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FeaturecreateconfrimDialogComponent } from 'src/app/dialogs/featureDialogs/featurecreateconfrim-dialog/featurecreateconfrim-dialog.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { FeatureCreate } from 'src/app/contracts/feature/feature-create';
 import { FeaturevalueCreate } from 'src/app/contracts/featurevalue/featurevalue-create';
-import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
@@ -26,6 +25,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatChipsModule } from '@angular/material/chips';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Category } from 'src/app/contracts/category/category';
+import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
 
 interface FlatNode {
   expandable: boolean;
@@ -97,7 +97,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
     public dialog: MatDialog,
     private categoryService: CategoryService,
     private toastrService: CustomToastrService,
-    private featureValueService: FeaturevalueService
+    private featurevalueService: FeaturevalueService
   ) {
     super(spinner);
   }
@@ -105,11 +105,12 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   ngOnInit() {
     this.featureForm = this.fb.group({
       name: ['', Validators.required],
-      categoryIds: [[], Validators.required],
-      featureValue: ['', Validators.required]  // New feature value form control
+      categoryIds: [[]],
+      featureValues: this.fb.array([this.createFeatureValueControl()])
     });
 
     this.loadCategories();
+    this.dataSource.data = [];
 
     this.filteredCategories = this.categoryFilterCtrl.valueChanges.pipe(
       startWith(''),
@@ -121,6 +122,24 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
       this.dataSource.data = this.buildTreeFromFlatList(filteredCategories);
       this.restoreCheckedState();
     });
+  }
+
+  get featureValues(): FormArray {
+    return this.featureForm.get('featureValues') as FormArray;
+  }
+
+  createFeatureValueControl(): FormControl {
+    return this.fb.control('');
+  }
+
+  addFeatureValueControl() {
+    this.featureValues.push(this.createFeatureValueControl());
+  }
+
+  removeFeatureValueControl(index: number) {
+    if (this.featureValues.length > 1) {
+      this.featureValues.removeAt(index);
+    }
   }
 
   private buildTreeFromFlatList(flatList: Category[]): Category[] {
@@ -351,31 +370,27 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.createFeatureWithFeatureValue(formValue);
+        this.createFeatureWithFeatureValues(formValue);
       }
     });
   }
 
-  async createFeatureWithFeatureValue(formValue: any) {
+  async createFeatureWithFeatureValues(formValue: any) {
     try {
-      // İlk olarak Feature oluştur
+      const featureValues = formValue.featureValues.map(value => ({
+        name: value
+      }));
+
       const create_feature: FeatureCreate = {
         id: '',
         name: formValue.name,
-        categoryIds: formValue.categoryIds ? formValue.categoryIds : []
+        categoryIds: formValue.categoryIds ? formValue.categoryIds : [],
+        featureValues: featureValues
       };
-  
+
       const createdFeature = await this.featureService.create(create_feature);
-  
-      // Sonrasında FeatureValue oluştur
-      const featureValueCreate: FeaturevalueCreate = {
-        name: formValue.featureValue,
-        featureId: createdFeature.id // Oluşturulan Feature ID'si ile
-      };
-  
-      await this.featureValueService.create(featureValueCreate);
-  
-      this.toastrService.message('Feature and Feature Value created successfully', 'Success', {
+
+      this.toastrService.message('Feature and Feature Values created successfully', 'Success', {
         toastrMessageType: ToastrMessageType.Success,
         position: ToastrPosition.TopRight
       });

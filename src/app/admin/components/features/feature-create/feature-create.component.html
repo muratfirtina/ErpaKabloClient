@@ -15,13 +15,23 @@
       </div>
 
       <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Özellik Değeri</mat-label>
-          <input matInput formControlName="featureValue" placeholder="Özellik Değeri">
-          <mat-error *ngIf="featureForm.get('featureValue').hasError('required')">
-            Özellik değeri zorunludur
-          </mat-error>
-        </mat-form-field>
+        <h3>Özellik Değerleri Ekle</h3>
+        <div formArrayName="featureValues" class="featurevalue-container" style="width: max-content;">
+          <div *ngFor="let featureValueControl of featureValues.controls; let i=index" class="form-row">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Özellik Değeri</mat-label>
+              <input matInput [formControlName]="i" placeholder="Özellik Değeri">
+              <mat-error *ngIf="featureValueControl.hasError('required')">
+                Özellik değeri zorunludur
+              </mat-error>
+            </mat-form-field>
+            <button mat-icon-button color="warn" (click)="removeFeatureValueControl(i)"
+              *ngIf="featureValues.length > 1">
+              <mat-icon>remove_circle</mat-icon>
+            </button>
+          </div>
+          <button mat-raised-button color="primary" type="button" (click)="addFeatureValueControl()">Özellik Değeri Ekle</button>
+        </div>
       </div>
 
       <div class="form-row">
@@ -31,15 +41,13 @@
             <mat-label>Kategori Ara</mat-label>
             <input matInput [formControl]="categoryFilterCtrl" placeholder="Kategori Ara">
           </mat-form-field>
-          
 
           <div class="tree-container">
             <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
               <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
                 <button mat-icon-button disabled></button>
-                <mat-checkbox class="checklist-leaf-node"
-                              [checked]="checklistSelection.isSelected(node)"
-                              (change)="todoLeafItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
+                <mat-checkbox class="checklist-leaf-node" [checked]="checklistSelection.isSelected(node)"
+                  (change)="todoLeafItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
               </mat-tree-node>
 
               <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
@@ -50,8 +58,8 @@
                     </mat-icon>
                   </button>
                   <mat-checkbox [checked]="descendantsAllSelected(node)"
-                                [indeterminate]="descendantsPartiallySelected(node)"
-                                (change)="todoItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
+                    [indeterminate]="descendantsPartiallySelected(node)"
+                    (change)="todoItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
                 </div>
               </mat-tree-node>
             </mat-tree>
