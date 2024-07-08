@@ -27,7 +27,6 @@ export class SidebarComponent implements OnInit{
       children: [
         { title: 'Create', icon: 'add', path: 'brands/brand-create' },
         { title: 'List', icon: 'list', path: 'brands/brand-list' },
-        { title: 'Update', icon: 'edit', path: 'brands/brand-update' }
       ]
     },
     {
@@ -36,7 +35,6 @@ export class SidebarComponent implements OnInit{
       children: [
         { title: 'Create', icon: 'add', path: 'products/create' },
         { title: 'List', icon: 'list', path: 'products/list' },
-        { title: 'Update', icon: 'edit', path: 'products/update' }
       ]
     },
     {
@@ -45,7 +43,6 @@ export class SidebarComponent implements OnInit{
       children: [
         { title: 'Create', icon: 'add', path: 'categories/category-create' },
         { title: 'List', icon: 'list', path: 'categories/category-list' },
-        { title: 'Update', icon: 'edit', path: 'categories/category-update' }
       ]
     },
     {
@@ -54,7 +51,6 @@ export class SidebarComponent implements OnInit{
       children: [
         { title: 'Create', icon: 'add', path: 'features/feature-create' },
         { title: 'List', icon: 'list', path: 'features/feature-list' },
-        { title: 'Update', icon: 'edit', path: 'features/feature-update' }
       ]
     },
     {
@@ -63,7 +59,6 @@ export class SidebarComponent implements OnInit{
       children: [
         { title: 'Create', icon: 'add', path: 'featurevalues/featurevalue-create' },
         { title: 'List', icon: 'list', path: 'featurevalues/featurevalue-list' },
-        { title: 'Update', icon: 'edit', path: 'featurevalues/featurevalue-update' }
       ]
     }
   ];

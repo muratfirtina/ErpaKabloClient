@@ -1,0 +1,34 @@
+<div class="featurevalue-container">
+    <mat-card>
+      <mat-card-header>
+        <mat-card-title>Özellik Değeri Güncelle</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="featurevalueForm" (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="fill">
+            <mat-label>Özellik Değeri Adı</mat-label>
+            <input matInput formControlName="name" placeholder="Özellik Değeri Adı">
+            <mat-error *ngIf="featurevalueForm.get('name').hasError('required')">
+              Özellik değeri adı zorunludur
+            </mat-error>
+          </mat-form-field>
+  
+          <p>Özellik Seçimi:</p>
+          <div class="feature-radio-group">
+            <mat-radio-group formControlName="featureId" class="radio-group">
+              <mat-radio-button *ngFor="let feature of features" [value]="feature.id">{{ feature.name }}</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <mat-error *ngIf="featurevalueForm.get('featureId').hasError('required')" style="margin-bottom: 20px;">
+            Özellik seçimi zorunludur
+          </mat-error>
+  
+          <div class="buttons">
+            <button mat-raised-button color="primary" type="submit" [disabled]="featurevalueForm.invalid">Güncelle</button>
+            <button mat-button type="button" (click)="featurevalueForm.reset()">Temizle</button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+  
