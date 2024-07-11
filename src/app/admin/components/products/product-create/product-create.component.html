@@ -53,7 +53,7 @@
 
     <div formArrayName="features" class="features-section full-width">
       <h3>Özellikler</h3>
-      <button mat-raised-button color="primary" type="button" (click)="addFeature()">
+      <button mat-stroked-button color="primary" type="button" (click)="addFeature()">
         <mat-icon>add</mat-icon> Özellik Ekle
       </button>
       <div *ngFor="let featureForm of featureFormArray.controls; let i = index" [formGroupName]="i" class="feature-row">
@@ -80,7 +80,7 @@
     </div>
 
     <div class="full-width">
-      <button mat-raised-button color="primary" type="button" 
+      <button mat-stroked-button color="primary" type="button" 
               (click)="generateVariants()" 
               [disabled]="!canGenerateVariants">
         <mat-icon>autorenew</mat-icon> Varyantları Oluştur
@@ -89,7 +89,21 @@
 
     <div *ngIf="variantsCreated" class="variants-table full-width">
       <h3>Varyantlar</h3>
+      
       <table mat-table [dataSource]="variants.controls" class="mat-elevation-z8">
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox (change)="$event ? toggleAllSelection() : null"
+                          [checked]="allSelected">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let variant">
+            <mat-checkbox [formControl]="variant.get('selected')"
+                          (change)="updateAllSelected()">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+    
         <ng-container matColumnDef="combination">
           <th mat-header-cell *matHeaderCellDef> Kombinasyon </th>
           <td mat-cell *matCellDef="let variant"> {{variant.get('combination').value}} </td>
@@ -97,43 +111,45 @@
     
         <ng-container matColumnDef="price">
           <th mat-header-cell *matHeaderCellDef> Fiyat </th>
-          <td mat-cell *matCellDef="let variant">
+          <td mat-cell *matCellDef="let variant; let i = index">
             <mat-form-field appearance="outline">
-              <input matInput type="number" [formControl]="variant.get('price')">
+              <input matInput type="number" [formControl]="variant.get('price')"
+                     (input)="updateSelectedVariants($event, 'price', i)">
             </mat-form-field>
           </td>
         </ng-container>
-    
+        
         <ng-container matColumnDef="stock">
           <th mat-header-cell *matHeaderCellDef> Stok </th>
-          <td mat-cell *matCellDef="let variant">
+          <td mat-cell *matCellDef="let variant; let i = index">
             <mat-form-field appearance="outline">
-              <input matInput type="number" [formControl]="variant.get('stock')">
+              <input matInput type="number" [formControl]="variant.get('stock')"
+                     (input)="updateSelectedVariants($event, 'stock', i)">
             </mat-form-field>
           </td>
         </ng-container>
-    
+        
         <ng-container matColumnDef="sku">
           <th mat-header-cell *matHeaderCellDef> SKU </th>
-          <td mat-cell *matCellDef="let variant">
+          <td mat-cell *matCellDef="let variant; let i = index">
             <mat-form-field appearance="outline">
-              <input matInput [formControl]="variant.get('sku')">
+              <input matInput [formControl]="variant.get('sku')"
+                     (input)="updateSelectedVariants($event, 'sku', i)">
             </mat-form-field>
           </td>
         </ng-container>
     
-        <!-- Yeni eklenen sil butonu sütunu -->
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> İşlemler </th>
           <td mat-cell *matCellDef="let variant; let i = index">
-            <button mat-icon-button color="warn" (click)="removeVariant(i)">
+            <button mat-icon-button color="warn" >
               <mat-icon>delete</mat-icon>
             </button>
           </td>
         </ng-container>
     
-        <tr mat-header-row *matHeaderRowDef="variantColumns.concat('actions')"></tr>
-        <tr mat-row *matRowDef="let row; columns: variantColumns.concat('actions');"></tr>
+        <tr mat-header-row *matHeaderRowDef="variantColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: variantColumns;"></tr>
       </table>
     </div>
     

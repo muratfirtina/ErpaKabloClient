@@ -21,6 +21,7 @@ import { ProductCreate } from 'src/app/contracts/product/product-create';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-product-create',
@@ -34,7 +35,8 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
     MatFormFieldModule,
     MatIconModule,
     MatCardModule,
-    MatTableModule
+    MatTableModule,
+    MatCheckboxModule
   ],
   templateUrl: './product-create.component.html',
   styleUrls: ['./product-create.component.scss']
@@ -45,7 +47,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
   brands: Brand[] = [];
   features: Feature[] = [];
   featureValues: { [key: string]: Featurevalue[] } = {};
-  variantColumns: string[] = ['combination', 'price', 'stock', 'sku'];
+  variantColumns: string[] = ['select', 'combination', 'price', 'stock', 'sku', 'actions'];
+  allSelected = false;
   variantsCreated: boolean = false;
   canGenerateVariants: boolean = false
   buttonText: string = 'Ürünü Ekle';
@@ -159,13 +162,37 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     this.updateCanGenerateVariants();
   }
 
-  removeVariant(index: number) {
-    this.variants.removeAt(index);
-    if (this.variants.length === 0) {
-      this.variantsCreated = false;
-    }
+  updateButtonText() {
     this.buttonText = this.variants.length > 1 ? 'Ürünleri Ekle' : 'Ürünü Ekle';
   }
+
+  toggleAllSelection() {
+    this.allSelected = !this.allSelected;
+    this.variants.controls.forEach(control => {
+      control.get('selected').setValue(this.allSelected);
+    });
+  }
+
+  updateAllSelected() {
+    this.allSelected = this.variants.controls.every(control => control.get('selected').value);
+  }
+
+  updateSelectedVariants(event: any, field: string, index: number) {
+    const value = event.target.value;
+    const currentVariant = this.variants.at(index);
+    
+    // Eğer değişiklik yapılan varyant seçili değilse, hiçbir şey yapma
+    if (!currentVariant.get('selected').value) {
+      return;
+    }
+
+    this.variants.controls.forEach((control, i) => {
+      if (i !== index && control.get('selected').value) {
+        control.get(field).setValue(value);
+      }
+    });
+  }
+  
 
   updateCanGenerateVariants() {
     this.canGenerateVariants = this.featureFormArray.length > 0 && 
@@ -183,17 +210,31 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
 
   generateVariants() {
     const combinations = this.generateCombinations();
+    
+    // Mevcut varyantların değerlerini saklayalım
+    const existingVariants = this.variants.controls.map(control => ({
+      combination: control.get('combination').value,
+      sku: control.get('sku').value,
+      price: control.get('price').value,
+      stock: control.get('stock').value
+    }));
+
     this.variants.clear();
-    combinations.forEach(combination => {
+    combinations.forEach((combination) => {
+      const combinationString = combination.join(' - ');
+      const existingVariant = existingVariants.find(v => v.combination === combinationString);
+      
       this.variants.push(this.fb.group({
-        combination: [combination.join(' - ')],
-        price: [0, [Validators.required, Validators.min(0)]],
-        stock: [0, [Validators.required, Validators.min(0)]],
-        sku: ['', Validators.required]
+        selected: [false],
+        combination: [combinationString],
+        price: [existingVariant ? existingVariant.price : 0, [Validators.required, Validators.min(0)]],
+        stock: [existingVariant ? existingVariant.stock : 0, [Validators.required, Validators.min(0)]],
+        sku: [existingVariant ? existingVariant.sku : '', Validators.required]
       }));
     });
+
     this.variantsCreated = true;
-    this.buttonText = this.variants.length > 1 ? 'Ürünleri Ekle' : 'Ürünü Ekle';
+    this.updateButtonText();
   }
 
   generateCombinations(): string[][] {
