@@ -1,1 +1,145 @@
-<p>product-create works!</p>
+<div class="product-create-container">
+  <h2>Ürün Ekleme Paneli</h2>
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="outline">
+      <mat-label>Ürün Adı</mat-label>
+      <input matInput formControlName="name" placeholder="Ürün adını girin">
+      <mat-error *ngIf="productForm.get('name').hasError('required')">
+        Ürün adı zorunludur
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Kategori</mat-label>
+      <mat-select formControlName="categoryId" (selectionChange)="onCategoryChange($event.value)">
+        <mat-option *ngFor="let category of categories" [value]="category.id">
+          {{category.name}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="productForm.get('categoryId').hasError('required')">
+        Kategori seçimi zorunludur
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Marka</mat-label>
+      <mat-select formControlName="brandId">
+        <mat-option *ngFor="let brand of brands" [value]="brand.id">
+          {{brand.name}}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="productForm.get('brandId').hasError('required')">
+        Marka seçimi zorunludur
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Varyant Grup ID</mat-label>
+      <input matInput formControlName="varyantGroupID" placeholder="Varyant Grup ID girin">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Vergi Oranı</mat-label>
+      <input matInput type="number" formControlName="tax" placeholder="Vergi oranı girin">
+      <mat-error *ngIf="productForm.get('tax').hasError('required') || productForm.get('tax').hasError('min')">
+        Geçerli bir vergi oranı girin
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Açıklama</mat-label>
+      <textarea matInput formControlName="description" placeholder="Ürün açıklamasını girin" rows="4"></textarea>
+    </mat-form-field>
+
+    <div formArrayName="features" class="features-section full-width">
+      <h3>Özellikler</h3>
+      <button mat-raised-button color="primary" type="button" (click)="addFeature()">
+        <mat-icon>add</mat-icon> Özellik Ekle
+      </button>
+      <div *ngFor="let featureForm of featureFormArray.controls; let i = index" [formGroupName]="i" class="feature-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Özellik</mat-label>
+          <mat-select formControlName="featureId">
+            <mat-option *ngFor="let feature of features" [value]="feature.id">
+              {{feature.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Değerler</mat-label>
+          <mat-select formControlName="selectedValues" multiple>
+            <mat-option *ngFor="let value of featureValues[featureForm.get('featureId').value]" [value]="value.id">
+              {{value.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <button mat-icon-button color="warn" type="button" (click)="removeFeature(i)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="full-width">
+      <button mat-raised-button color="primary" type="button" 
+              (click)="generateVariants()" 
+              [disabled]="!canGenerateVariants">
+        <mat-icon>autorenew</mat-icon> Varyantları Oluştur
+      </button>
+    </div>
+
+    <div *ngIf="variantsCreated" class="variants-table full-width">
+      <h3>Varyantlar</h3>
+      <table mat-table [dataSource]="variants.controls" class="mat-elevation-z8">
+        <ng-container matColumnDef="combination">
+          <th mat-header-cell *matHeaderCellDef> Kombinasyon </th>
+          <td mat-cell *matCellDef="let variant"> {{variant.get('combination').value}} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef> Fiyat </th>
+          <td mat-cell *matCellDef="let variant">
+            <mat-form-field appearance="outline">
+              <input matInput type="number" [formControl]="variant.get('price')">
+            </mat-form-field>
+          </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="stock">
+          <th mat-header-cell *matHeaderCellDef> Stok </th>
+          <td mat-cell *matCellDef="let variant">
+            <mat-form-field appearance="outline">
+              <input matInput type="number" [formControl]="variant.get('stock')">
+            </mat-form-field>
+          </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="sku">
+          <th mat-header-cell *matHeaderCellDef> SKU </th>
+          <td mat-cell *matCellDef="let variant">
+            <mat-form-field appearance="outline">
+              <input matInput [formControl]="variant.get('sku')">
+            </mat-form-field>
+          </td>
+        </ng-container>
+    
+        <!-- Yeni eklenen sil butonu sütunu -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef> İşlemler </th>
+          <td mat-cell *matCellDef="let variant; let i = index">
+            <button mat-icon-button color="warn" (click)="removeVariant(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+    
+        <tr mat-header-row *matHeaderRowDef="variantColumns.concat('actions')"></tr>
+        <tr mat-row *matRowDef="let row; columns: variantColumns.concat('actions');"></tr>
+      </table>
+    </div>
+    
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="!productForm.valid || !variantsCreated">
+      <mat-icon>save</mat-icon> {{ buttonText }}
+    </button>
+  </form>
+</div>

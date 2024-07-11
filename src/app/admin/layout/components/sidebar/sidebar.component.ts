@@ -33,8 +33,8 @@ export class SidebarComponent implements OnInit{
       title: 'Product',
       icon: 'shopping_cart',
       children: [
-        { title: 'Create', icon: 'add', path: 'products/create' },
-        { title: 'List', icon: 'list', path: 'products/list' },
+        { title: 'Create', icon: 'add', path: 'products/product-create' },
+        { title: 'List', icon: 'list', path: 'products/product-list' },
       ]
     },
     {
