@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { BrandService } from 'src/app/services/common/models/brand.service';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
@@ -52,6 +52,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
   variantsCreated: boolean = false;
   canGenerateVariants: boolean = false
   buttonText: string = 'Ürünü Ekle';
+  dataSource: MatTableDataSource<any>;
 
   constructor(
     private fb: FormBuilder,
@@ -61,6 +62,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     private productService: ProductService,
     private snackBar: MatSnackBar,
     private customToastrService: CustomToastrService,
+    private changeDetectorRef: ChangeDetectorRef,
     spinner: NgxSpinnerService
   ) {
     super(spinner);
@@ -93,6 +95,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
         );
       this.variantsCreated = false;
     });
+
+    this.updateDataSource();
   }
 
   async loadCategories() {
@@ -160,6 +164,33 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     this.featureFormArray.removeAt(index);
     this.variantsCreated = false;
     this.updateCanGenerateVariants();
+  }
+
+  removeVariant(index: number) {
+    this.variants.removeAt(index);
+    this.updateDataSource();
+    this.updateVariantsState();
+  }
+
+  removeSelectedVariants() {
+    for (let i = this.variants.length - 1; i >= 0; i--) {
+      if (this.variants.at(i).get('selected').value) {
+        this.variants.removeAt(i);
+      }
+    }
+    this.updateDataSource();
+    this.updateVariantsState();
+  }
+
+  updateDataSource() {
+    this.dataSource = new MatTableDataSource(this.variants.controls);
+    this.changeDetectorRef.detectChanges();
+  }
+
+  updateVariantsState() {
+    this.variantsCreated = this.variants.length > 0;
+    this.updateAllSelected();
+    this.updateButtonText();
   }
 
   updateButtonText() {
@@ -235,6 +266,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
 
     this.variantsCreated = true;
     this.updateButtonText();
+    this.updateDataSource();
   }
 
   generateCombinations(): string[][] {
