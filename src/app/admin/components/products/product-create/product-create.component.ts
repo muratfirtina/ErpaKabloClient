@@ -22,6 +22,9 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { AngularEditorConfig, AngularEditorModule } from '@kolkov/angular-editor';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-product-create',
@@ -36,15 +39,15 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatIconModule,
     MatCardModule,
     MatTableModule,
-    MatCheckboxModule
+    MatCheckboxModule,
+    MatAutocompleteModule,
+    AngularEditorModule,
   ],
   templateUrl: './product-create.component.html',
-  styleUrls: ['./product-create.component.scss']
+  styleUrls: ['./product-create.component.scss', '../../../../../styles.scss']
 })
 export class ProductCreateComponent extends BaseComponent implements OnInit {
   productForm: FormGroup;
-  categories: Category[] = [];
-  brands: Brand[] = [];
   features: Feature[] = [];
   featureValues: { [key: string]: Featurevalue[] } = {};
   variantColumns: string[] = ['select', 'combination', 'price', 'stock', 'sku', 'actions'];
@@ -53,6 +56,43 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
   canGenerateVariants: boolean = false
   buttonText: string = 'Ürünü Ekle';
   dataSource: MatTableDataSource<any>;
+
+  categories: Category[] = [];
+  filteredCategories: Category[] = [];
+  brands: Brand[] = [];
+  filteredBrands: Brand[] = [];
+  private categorySearchSubject = new Subject<string>();
+  private brandSearchSubject = new Subject<string>();
+  
+  editorConfig: AngularEditorConfig = {
+    editable: true,
+    spellcheck: true,
+    height: '15rem',
+    minHeight: '5rem',
+    placeholder: 'Ürün açıklamasını girin',
+    translate: 'no',
+    defaultParagraphSeparator: 'p',
+    defaultFontName: 'Arial',
+    toolbarHiddenButtons: [
+      
+    ],
+    customClasses: [
+      {
+        name: "quote",
+        class: "quote",
+      },
+      {
+        name: 'redText',
+        class: 'redText'
+      },
+      {
+        name: "titleText",
+        class: "titleText",
+        tag: "h1",
+      },
+    ]
+  };
+
 
   constructor(
     private fb: FormBuilder,
@@ -67,6 +107,20 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
   ) {
     super(spinner);
     this.createForm();
+
+    this.categorySearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.searchCategories(searchTerm);
+    });
+
+    this.brandSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.searchBrands(searchTerm);
+    });
   }
 
   createForm() {
@@ -74,7 +128,9 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       name: ['', Validators.required],
       description: [''],
       categoryId: ['', Validators.required],
+      categorySearch: [''],
       brandId: ['', Validators.required],
+      brandSearch: [''],
       varyantGroupID: [''],
       tax: [0, [Validators.required, Validators.min(0)]],
       features: this.fb.array([]),
@@ -83,10 +139,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     this.buttonText = 'Ürünü Ekle';
   }
 
-  async ngOnInit() {
-    await this.loadCategories();
-    await this.loadBrands();
-
+  ngOnInit() {
     this.productForm.get('features').valueChanges.subscribe(() => {
       this.canGenerateVariants = this.featureFormArray.length > 0 && 
         this.featureFormArray.controls.every(control => 
@@ -96,29 +149,85 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       this.variantsCreated = false;
     });
 
+    this.productForm.get('categorySearch').valueChanges.subscribe(value => {
+      this.categorySearchSubject.next(value);
+    });
+
+    this.productForm.get('brandSearch').valueChanges.subscribe(value => {
+      this.brandSearchSubject.next(value);
+    });
+
     this.updateDataSource();
   }
 
-  async loadCategories() {
-    const data = await this.categoryService.list({ pageIndex: 0, pageSize: 1000 });
-    this.categories = data.items;
-  }
+  async searchCategories(searchTerm: string) {
+    if (searchTerm.length < 2) {
+      this.filteredCategories = [];
+      return;
+    }
 
-  async loadBrands() {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+    const dynamicQuery = {
+      filter: {
+        field: 'name',
+        operator: 'contains',
+        value: searchTerm
+      }
+    };
+
     try {
-      const data = await this.brandService.list({ pageIndex: 0, pageSize: 1000 });
-      this.brands = data.items;
+      const response = await this.categoryService.getCategoriesByDynamicQuery(dynamicQuery, { pageIndex: 0, pageSize: 10 });
+      this.filteredCategories = response.items;
     } catch (error) {
-      this.customToastrService.message("Markalar yüklenemedi", "Hata", {
+      console.error('Error searching categories:', error);
+      this.customToastrService.message("Kategori araması başarısız", "Hata", {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
     }
-    this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
-  onCategoryChange(categoryId: string) {
+  async searchBrands(searchTerm: string) {
+    if (searchTerm.length < 2) {
+      this.filteredBrands = [];
+      return;
+    }
+
+    const dynamicQuery = {
+      filter: {
+        field: 'name',
+        operator: 'contains',
+        value: searchTerm
+      }
+    };
+
+    try {
+      const response = await this.brandService.getBrandsByDynamicQuery(dynamicQuery, { pageIndex: 0, pageSize: 10 });
+      this.filteredBrands = response.items;
+    } catch (error) {
+      console.error('Error searching brands:', error);
+      this.customToastrService.message("Marka araması başarısız", "Hata", {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+    }
+  }
+
+  onCategorySelected(category: Category) {
+    this.productForm.patchValue({
+      categoryId: category.id,
+      categorySearch: category.name
+    });
+    this.loadCategoryFeatures(category.id);
+  }
+
+  onBrandSelected(brand: Brand) {
+    this.productForm.patchValue({
+      brandId: brand.id,
+      brandSearch: brand.name
+    });
+  }
+
+  loadCategoryFeatures(categoryId: string) {
     this.features = [];
     this.featureValues = {};
     this.featureFormArray.clear();
@@ -136,7 +245,6 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       (error) => this.snackBar.open('Kategori özellikleri yüklenemedi: ' + error, 'Kapat', { duration: 3000 })
     );
   }
-
   loadFeatureValues(featureId: string) {
     this.featureService.getById(featureId).then(
       (feature) => {
@@ -222,8 +330,10 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
         control.get(field).setValue(value);
       }
     });
+
+    // Veri kaynağını güncelle
+    this.updateDataSource();
   }
-  
 
   updateCanGenerateVariants() {
     this.canGenerateVariants = this.featureFormArray.length > 0 && 

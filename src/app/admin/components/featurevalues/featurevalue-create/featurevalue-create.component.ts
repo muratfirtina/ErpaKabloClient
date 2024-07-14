@@ -22,7 +22,7 @@ import { FeaturevaluecreateconfrimDialogComponent } from 'src/app/dialogs/featur
   standalone: true,
   imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, MatSelectModule, MatRadioModule],
   templateUrl: './featurevalue-create.component.html',
-  styleUrls: ['./featurevalue-create.component.scss']
+  styleUrls: ['./featurevalue-create.component.scss','../../../../../styles.scss']
 })
 export class FeaturevalueCreateComponent extends BaseComponent implements OnInit {
   featurevalueForm: FormGroup;

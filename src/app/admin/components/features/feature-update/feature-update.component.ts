@@ -57,7 +57,7 @@ interface FlatNode {
     MatChipsModule
   ],
   templateUrl: './feature-update.component.html',
-  styleUrls: ['./feature-update.component.scss']
+  styleUrls: ['./feature-update.component.scss','../../../../../styles.scss']
 })
 export class FeatureUpdateComponent extends BaseComponent implements OnInit {
   featureForm: FormGroup;

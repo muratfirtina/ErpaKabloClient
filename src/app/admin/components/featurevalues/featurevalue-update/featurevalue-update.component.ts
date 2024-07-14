@@ -22,7 +22,7 @@ import { ActivatedRoute } from '@angular/router';
   standalone: true,
   imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, MatSelectModule, MatRadioModule],
   templateUrl: './featurevalue-update.component.html',
-  styleUrls: ['./featurevalue-update.component.scss']
+  styleUrls: ['./featurevalue-update.component.scss','../../../../../styles.scss']
 })
 export class FeaturevalueUpdateComponent extends BaseComponent implements OnInit {
   featurevalueForm: FormGroup;

@@ -1,6 +1,7 @@
 .category-card {
     margin: 20px;
     width: max-content;
+    background: #fff;
   }
   
   .category-form {
@@ -37,7 +38,7 @@
     min-width: 0;
   }
 
-  .category-update-container {
+  .category-create-container {
     display: flex;
     justify-content: center;
     align-items: center;

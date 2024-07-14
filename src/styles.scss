@@ -1,6 +1,18 @@
-.search-button {
-  background-color: #007bff !important;
-  color: #fff !important;
+//@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+.angular-editor-textarea {
+  min-height: 200px;
+}
+
+.mat-typography{
+  background: rgb(248, 250, 252);
+  
+}
+.app-container {
+  background: rgb(248, 250, 252);
+}
+.app-layout {
+  background: rgb(248, 250, 252);
 }
 
 .edit-button-list {
@@ -30,8 +42,8 @@
 }
 
 .mat-mdc-header-cell {
-  background-color: #007bff !important;
-  color: #fff !important;
+  background-color: rgb(238, 242, 246)!important;
+  color: rgb(75, 85, 101) !important;
   text-align: center;
   font-size: 1.1rem;
   padding: 10px;
@@ -43,11 +55,12 @@
 }
 
 ::ng-deep .mat-mdc-select-trigger {
-  background-color: #007bff !important;
+  background-color: #fff !important;
   border-radius: 30px;
 }
+
 ::ng-deep .mat-mdc-select-value-text {
-  color: white;
+  color: rgb(75, 85, 101);
   margin-left: 5px;
 }
 
@@ -60,3 +73,40 @@
 ::ng-deep .mat-mdc-form-field-infix {
     display: flex;
   }
+
+::ng-deep .mat-mdc-outlined-button{
+  border-radius: 0.25rem !important;
+}
+
+::ng-deep .mdc-button{
+  border-radius: 0.25rem !important;
+}
+
+::ng-deep .mat-mdc-raised-button{
+  border-radius: 0.25rem !important;
+}
+
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; color: rgb(75, 85, 101)!important;}
+
+ngx-editor ::ng-deep .NgxEditor {
+  height: 85vh;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+      width: 10px;
+  }
+  &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+  }
+  &::-webkit-scrollbar-thumb {
+      background: #888;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+      background: #555;
+  }
+}
+
+::ng-deep .angular-editor-toolbar{
+  font-size: 1.0rem !important;
+}

@@ -36,7 +36,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
     MatButtonModule,
   ],
   templateUrl: './category-update.component.html',
-  styleUrls: ['./category-update.component.scss']
+  styleUrls: ['./category-update.component.scss','../../../../../styles.scss']
 })
 export class CategoryUpdateComponent extends BaseComponent implements OnInit {
 

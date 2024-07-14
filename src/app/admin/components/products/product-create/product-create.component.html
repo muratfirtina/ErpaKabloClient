@@ -1,5 +1,5 @@
 <div class="product-create-container">
-  <h2>Ürün Ekleme Paneli</h2>
+  <h6>Ürün Ekleme Paneli</h6>
   <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
     <mat-form-field appearance="outline">
       <mat-label>Ürün Adı</mat-label>
@@ -11,11 +11,16 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Kategori</mat-label>
-      <mat-select formControlName="categoryId" (selectionChange)="onCategoryChange($event.value)">
-        <mat-option *ngFor="let category of categories" [value]="category.id">
+      <input matInput
+             type="text"
+             formControlName="categorySearch"
+             [matAutocomplete]="categoryAuto"
+             placeholder="Kategori ara">
+      <mat-autocomplete #categoryAuto="matAutocomplete" (optionSelected)="onCategorySelected($event.option.value)">
+        <mat-option *ngFor="let category of filteredCategories" [value]="category">
           {{category.name}}
         </mat-option>
-      </mat-select>
+      </mat-autocomplete>
       <mat-error *ngIf="productForm.get('categoryId').hasError('required')">
         Kategori seçimi zorunludur
       </mat-error>
@@ -23,11 +28,16 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Marka</mat-label>
-      <mat-select formControlName="brandId">
-        <mat-option *ngFor="let brand of brands" [value]="brand.id">
+      <input matInput
+             type="text"
+             formControlName="brandSearch"
+             [matAutocomplete]="auto"
+             placeholder="Marka ara">
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onBrandSelected($event.option.value)">
+        <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
           {{brand.name}}
         </mat-option>
-      </mat-select>
+      </mat-autocomplete>
       <mat-error *ngIf="productForm.get('brandId').hasError('required')">
         Marka seçimi zorunludur
       </mat-error>
@@ -46,16 +56,16 @@
       </mat-error>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Açıklama</mat-label>
-      <textarea matInput formControlName="description" placeholder="Ürün açıklamasını girin" rows="4"></textarea>
-    </mat-form-field>
+
+    <div class="full-width">
+      <label>Açıklama</label>
+      <angular-editor formControlName="description" [config]="editorConfig">
+      </angular-editor>
+    </div>
 
     <div formArrayName="features" class="features-section full-width">
-      <h3>Özellikler</h3>
-      <button mat-stroked-button color="primary" type="button" (click)="addFeature()">
-        <mat-icon>add</mat-icon> Özellik Ekle
-      </button>
+      <h6>Özellikler</h6>
+      
       <div *ngFor="let featureForm of featureFormArray.controls; let i = index" [formGroupName]="i" class="feature-row">
         <mat-form-field appearance="outline">
           <mat-label>Özellik</mat-label>
@@ -77,6 +87,11 @@
           <mat-icon>delete</mat-icon>
         </button>
       </div>
+
+      <button mat-stroked-button color="primary" type="button" (click)="addFeature()">
+        <mat-icon>add</mat-icon> Özellik Ekle
+      </button>
+      
     </div>
 
     <div class="full-width">
@@ -88,7 +103,6 @@
     </div>
 
     <div *ngIf="variantsCreated" class="variants-table full-width">
-      <h3>Varyantlar</h3>
       
       <div class="full-width">
         <button mat-stroked-button color="warn" type="button" (click)="removeSelectedVariants()">
@@ -111,33 +125,36 @@
         </ng-container>
     
         <ng-container matColumnDef="combination">
-          <th mat-header-cell *matHeaderCellDef> Kombinasyon </th>
+          <th mat-header-cell *matHeaderCellDef> Varyantlar </th>
           <td mat-cell *matCellDef="let variant"> {{variant.get('combination').value}} </td>
         </ng-container>
     
         <ng-container matColumnDef="price">
           <th mat-header-cell *matHeaderCellDef> Fiyat </th>
-          <td mat-cell *matCellDef="let variant">
+          <td mat-cell *matCellDef="let variant; let i = index">
             <mat-form-field appearance="outline">
-              <input matInput type="number" [formControl]="variant.get('price')">
+              <input matInput type="number" [formControl]="variant.get('price')"
+                     (input)="updateSelectedVariants($event, 'price', i)">
             </mat-form-field>
           </td>
         </ng-container>
         
         <ng-container matColumnDef="stock">
           <th mat-header-cell *matHeaderCellDef> Stok </th>
-          <td mat-cell *matCellDef="let variant">
+          <td mat-cell *matCellDef="let variant; let i = index">
             <mat-form-field appearance="outline">
-              <input matInput type="number" [formControl]="variant.get('stock')">
+              <input matInput type="number" [formControl]="variant.get('stock')"
+                     (input)="updateSelectedVariants($event, 'stock', i)">
             </mat-form-field>
           </td>
         </ng-container>
         
         <ng-container matColumnDef="sku">
           <th mat-header-cell *matHeaderCellDef> SKU </th>
-          <td mat-cell *matCellDef="let variant">
+          <td mat-cell *matCellDef="let variant; let i = index">
             <mat-form-field appearance="outline">
-              <input matInput [formControl]="variant.get('sku')">
+              <input matInput [formControl]="variant.get('sku')"
+                     (input)="updateSelectedVariants($event, 'sku', i)">
             </mat-form-field>
           </td>
         </ng-container>
@@ -161,3 +178,4 @@
     </button>
   </form>
   </div>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">

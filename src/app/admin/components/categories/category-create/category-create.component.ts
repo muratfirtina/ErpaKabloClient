@@ -30,7 +30,7 @@ import { PageRequest } from 'src/app/contracts/pageRequest';
     MatButtonModule, ReactiveFormsModule, MatDialogModule, MatAutocompleteModule, MatCheckboxModule
   ],
   templateUrl: './category-create.component.html',
-  styleUrls: ['./category-create.component.scss']
+  styleUrls: ['./category-create.component.scss','../../../../../styles.scss']
 })
 export class CategoryCreateComponent extends BaseComponent implements OnInit {
   categoryForm: FormGroup;

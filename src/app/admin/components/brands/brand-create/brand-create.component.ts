@@ -17,7 +17,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
   standalone: true,
   imports: [CommonModule,MatCardModule,MatFormFieldModule,MatInputModule,MatButtonModule,ReactiveFormsModule,MatDialogModule,BrandcreateconfrimDialogComponent],
   templateUrl: './brand-create.component.html',
-  styleUrls: ['./brand-create.component.scss']
+  styleUrls: ['./brand-create.component.scss','../../../../../styles.scss']
 })
 export class BrandCreateComponent extends BaseComponent implements OnInit{
   brandForm: FormGroup;

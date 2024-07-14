@@ -57,7 +57,7 @@ interface FlatNode {
     MatLabel
   ],
   templateUrl: './feature-create.component.html',
-  styleUrls: ['./feature-create.component.scss']
+  styleUrls: ['./feature-create.component.scss','../../../../../styles.scss']
 })
 export class FeatureCreateComponent extends BaseComponent implements OnInit {
   featureForm: FormGroup;
