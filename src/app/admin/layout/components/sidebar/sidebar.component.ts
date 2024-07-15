@@ -4,6 +4,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
 import {MatExpansionModule} from '@angular/material/expansion';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 interface SidebarItem {
   title: string;
@@ -17,7 +18,18 @@ interface SidebarItem {
   standalone: true,
   imports: [CommonModule, MatListModule, RouterModule, MatIconModule, MatExpansionModule],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.scss']
+  styleUrls: ['./sidebar.component.scss'],
+  animations: [
+    trigger('slideInOut', [
+      state('closed', style({
+        width: '72px'
+      })),
+      state('open', style({
+        width: '260px'
+      })),
+      transition('closed <=> open', animate('400ms ease-in-out'))
+    ])
+  ]
 })
 export class SidebarComponent implements OnInit{
   sidebarItems: SidebarItem[] = [
@@ -62,52 +74,46 @@ export class SidebarComponent implements OnInit{
       ]
     }
   ];
+  ngOnInit(): void {
+      
+  }
 
-  isLocked = true;
-  isHoverable = false;
-  isClosed = false;
+  isExpanded = true;
+  activeItems: Set<SidebarItem> = new Set();
+  hoveredItem: SidebarItem | null = null;
 
-  ngOnInit() {
-    if (window.innerWidth < 800) {
-      this.isClosed = true;
-      this.isLocked = false;
-      this.isHoverable = false;
+  toggleSidebar() {
+    this.isExpanded = !this.isExpanded;
+    if (!this.isExpanded) {
+      this.activeItems.clear();
+      this.hoveredItem = null;
     }
   }
 
-  toggleLock() {
-    this.isLocked = !this.isLocked;
-    this.isHoverable = !this.isLocked;
+  toggleSubmenu(item: SidebarItem, event: MouseEvent) {
+    event.stopPropagation();
+    if (this.isExpanded) {
+      if (this.activeItems.has(item)) {
+        this.activeItems.delete(item);
+      } else {
+        this.activeItems.add(item);
+      }
+    } else {
+      this.isExpanded = true;
+      this.activeItems.add(item);
+    }
   }
 
-  toggleSidebar() {
-    this.isClosed = !this.isClosed;
+  isActive(item: SidebarItem): boolean {
+    return this.activeItems.has(item);
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    if (event.target.innerWidth < 800) {
-      this.isClosed = true;
-      this.isLocked = false;
-      this.isHoverable = false;
-    } else if (!this.isLocked) {
-      this.isClosed = false;
-      this.isHoverable = true;
+    this.isExpanded = event.target.innerWidth > 768;
+    if (!this.isExpanded) {
+      this.activeItems.clear();
+      this.hoveredItem = null;
     }
   }
-
-  @HostListener('mouseenter')
-  onMouseEnter() {
-    if (this.isHoverable) {
-      this.isClosed = false;
-    }
-  }
-
-  @HostListener('mouseleave')
-  onMouseLeave() {
-    if (this.isHoverable) {
-      this.isClosed = true;
-    }
-  }
-   
 }

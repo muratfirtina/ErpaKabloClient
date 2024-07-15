@@ -25,9 +25,9 @@
                 Özellik değeri zorunludur
               </mat-error>
             </mat-form-field>
-            <button mat-icon-button color="warn" (click)="removeFeatureValueControl(i)"
+            <button mat-icon-button (click)="removeFeatureValueControl(i)"
               *ngIf="featureValues.length > 1">
-              <mat-icon>remove_circle</mat-icon>
+              <mat-icon color="warn" >remove_circle</mat-icon>
             </button>
           </div>
           <button mat-raised-button color="primary" type="button" (click)="addFeatureValueControl()">Özellik Değeri Ekle</button>

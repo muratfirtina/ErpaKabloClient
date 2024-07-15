@@ -25,6 +25,18 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AngularEditorConfig, AngularEditorModule } from '@kolkov/angular-editor';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { FlatTreeControl } from '@angular/cdk/tree';
+import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+
+interface FlatNode {
+  expandable: boolean;
+  name: string;
+  level: number;
+  id: string;
+  parentCategoryId: string;
+  checked?: boolean;
+}
 
 @Component({
   selector: 'app-product-create',
@@ -41,6 +53,8 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     MatTableModule,
     MatCheckboxModule,
     MatAutocompleteModule,
+    MatTreeModule,
+    NgxMatSelectSearchModule,
     AngularEditorModule,
   ],
   templateUrl: './product-create.component.html',
@@ -61,8 +75,33 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
   filteredCategories: Category[] = [];
   brands: Brand[] = [];
   filteredBrands: Brand[] = [];
-  private categorySearchSubject = new Subject<string>();
   private brandSearchSubject = new Subject<string>();
+
+  private _transformer = (node: Category, level: number): FlatNode => {
+    return {
+      expandable: !!node.subCategories && node.subCategories.length > 0,
+      name: node.name,
+      level: level,
+      id: node.id,
+      parentCategoryId: node.parentCategoryId
+    };
+  };
+
+  treeControl = new FlatTreeControl<FlatNode>(
+    node => node.level,
+    node => node.expandable
+  );
+
+  treeFlattener = new MatTreeFlattener(
+    this._transformer,
+    node => node.level,
+    node => node.expandable,
+    node => node.subCategories
+  );
+
+  hasChild = (_: number, node: FlatNode) => node.expandable;
+
+  categorydataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   
   editorConfig: AngularEditorConfig = {
     editable: true,
@@ -108,12 +147,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     super(spinner);
     this.createForm();
 
-    this.categorySearchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(searchTerm => {
-      this.searchCategories(searchTerm);
-    });
+   
 
     this.brandSearchSubject.pipe(
       debounceTime(300),
@@ -128,8 +162,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       name: ['', Validators.required],
       description: [''],
       categoryId: ['', Validators.required],
-      categorySearch: [''],
       brandId: ['', Validators.required],
+      categorySearch: [''],
       brandSearch: [''],
       varyantGroupID: [''],
       tax: [0, [Validators.required, Validators.min(0)]],
@@ -139,7 +173,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     this.buttonText = 'Ürünü Ekle';
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.productForm.get('features').valueChanges.subscribe(() => {
       this.canGenerateVariants = this.featureFormArray.length > 0 && 
         this.featureFormArray.controls.every(control => 
@@ -149,9 +183,11 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       this.variantsCreated = false;
     });
 
+    await this.loadCategories();
     this.productForm.get('categorySearch').valueChanges.subscribe(value => {
-      this.categorySearchSubject.next(value);
+      this.filterCategories(value);
     });
+
 
     this.productForm.get('brandSearch').valueChanges.subscribe(value => {
       this.brandSearchSubject.next(value);
@@ -160,30 +196,80 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     this.updateDataSource();
   }
 
-  async searchCategories(searchTerm: string) {
-    if (searchTerm.length < 2) {
-      this.filteredCategories = [];
-      return;
-    }
-
-    const dynamicQuery = {
-      filter: {
-        field: 'name',
-        operator: 'contains',
-        value: searchTerm
-      }
-    };
-
+  async loadCategories() {
     try {
-      const response = await this.categoryService.getCategoriesByDynamicQuery(dynamicQuery, { pageIndex: 0, pageSize: 10 });
-      this.filteredCategories = response.items;
+      const data = await this.categoryService.list({ pageIndex: -1, pageSize: -1 });
+      this.categories = data.items;
+      const hierarchicalCategories = this.createHierarchy(this.categories);
+      this.categorydataSource.data = hierarchicalCategories;
+      this.changeDetectorRef.detectChanges();
     } catch (error) {
-      console.error('Error searching categories:', error);
-      this.customToastrService.message("Kategori araması başarısız", "Hata", {
+      console.error('Error loading categories:', error);
+      this.customToastrService.message("Kategoriler yüklenemedi", "Hata", {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
     }
+  }
+
+  createHierarchy(categories: Category[]): Category[] {
+    const categoryMap = new Map<string, Category>();
+    const rootCategories: Category[] = [];
+
+    categories.forEach(category => {
+      categoryMap.set(category.id, { ...category, subCategories: [] });
+    });
+
+    categoryMap.forEach(category => {
+      if (category.parentCategoryId) {
+        const parent = categoryMap.get(category.parentCategoryId);
+        if (parent) {
+          parent.subCategories.push(category);
+        }
+      } else {
+        rootCategories.push(category);
+      }
+    });
+
+    return rootCategories;
+  }
+
+  //hasChild = (_: number, node: Category) => !!node.subCategories && node.subCategories.length > 0;
+  filterCategories(searchTerm: string) {
+    if (!searchTerm) {
+      this.categorydataSource.data = this.createHierarchy(this.categories);
+      this.treeControl.expandAll();
+      return;
+    }
+    
+    const filterTree = (categories: Category[]): Category[] => {
+      return categories.reduce((acc, category) => {
+        const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const filteredChildren = filterTree(category.subCategories || []);
+        
+        if (matchesSearch || filteredChildren.length > 0) {
+          acc.push({
+            ...category,
+            subCategories: filteredChildren
+          });
+        }
+        
+        return acc;
+      }, [] as Category[]);
+    };
+  
+    const filteredCategories = filterTree(this.categories);
+    this.categorydataSource.data = this.createHierarchy(filteredCategories);
+    this.treeControl.expandAll();
+    this.changeDetectorRef.detectChanges();
+  }
+
+  onCategorySelected(node: FlatNode) {
+    this.productForm.patchValue({
+      categoryId: node.id,
+      categorySearch: node.name
+    });
+    this.loadCategoryFeatures(node.id);
   }
 
   async searchBrands(searchTerm: string) {
@@ -212,13 +298,6 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     }
   }
 
-  onCategorySelected(category: Category) {
-    this.productForm.patchValue({
-      categoryId: category.id,
-      categorySearch: category.name
-    });
-    this.loadCategoryFeatures(category.id);
-  }
 
   onBrandSelected(brand: Brand) {
     this.productForm.patchValue({

@@ -1,23 +1,34 @@
-<mat-accordion class="sidebar-accordion">
-  <mat-nav-list>
-    <a mat-list-item routerLink="/admin/dashboard" class="nav-item" style="padding-left: 20px;">
-      <mat-icon class="child-icon" style="color: white;">dashboard</mat-icon>
-      <span class="child-title" style="color: white;">Dashboard</span>
-    </a>
-  </mat-nav-list>
-  <mat-expansion-panel *ngFor="let menu of sidebarItems">
-    <mat-expansion-panel-header>
-      <mat-panel-title class="panel-title">
-        <mat-icon class="menu-icon">{{ menu.icon }}</mat-icon>
-        <span class="menu-title">{{ menu.title }}</span>
-      </mat-panel-title>
-    </mat-expansion-panel-header>
-    <mat-nav-list>
-      <a mat-list-item *ngFor="let child of menu.children" [routerLink]="child.path" class="nav-item">
-        <mat-icon class="child-icon">{{ child.icon }}</mat-icon>
-        <span class="child-title">{{ child.title }}</span>
-      </a>
-    </mat-nav-list>
-  </mat-expansion-panel>
-</mat-accordion>
-
+<aside class="sidebar" [@slideInOut]="isExpanded ? 'open' : 'closed'">
+  <header>
+    <button type="button" class="sidebar-burger" (click)="toggleSidebar()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <img src="assets/logo.svg" *ngIf="isExpanded" />
+  </header>
+  <ul>
+    <li *ngFor="let item of sidebarItems">
+      <button type="button" 
+              [routerLink]="!item.children ? item.path : null" 
+              routerLinkActive="active"
+              [class.active]="isActive(item)"
+              (click)="toggleSubmenu(item, $event)">
+        <mat-icon>{{item.icon}}</mat-icon>
+        <p *ngIf="isExpanded">{{item.title}}</p>
+        <mat-icon *ngIf="item.children && isExpanded">
+          {{isActive(item) ? 'expand_less' : 'expand_more'}}
+        </mat-icon>
+      </button>
+      <div class="sub-menu" *ngIf="item.children" 
+           [class.expanded]="isActive(item)">
+        <ul>
+          <li *ngFor="let child of item.children">
+            <a [routerLink]="child.path" routerLinkActive="active">
+              <mat-icon>{{child.icon}}</mat-icon>
+              <p>{{child.title}}</p>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+</aside>

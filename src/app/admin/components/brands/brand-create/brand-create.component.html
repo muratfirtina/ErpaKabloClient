@@ -1,3 +1,4 @@
+<div class="brand-create-container">
 <mat-card>
     <mat-card-title>Brand Create</mat-card-title>
     <mat-card-content>
@@ -5,9 +6,10 @@
         <mat-form-field appearance="fill">
           <mat-label>Brand Name</mat-label>
           <input matInput formControlName="name" required>
+          <mat-error *ngIf="brandForm.get('name').hasError('required')">Brand name is required</mat-error>
         </mat-form-field>
         <button mat-raised-button color="primary" type="submit">Create Brand</button>
       </form>
     </mat-card-content>
   </mat-card>
-  
+</div>

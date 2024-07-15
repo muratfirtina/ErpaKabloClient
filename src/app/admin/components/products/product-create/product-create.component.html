@@ -11,16 +11,32 @@
 
     <mat-form-field appearance="outline">
       <mat-label>Kategori</mat-label>
-      <input matInput
-             type="text"
-             formControlName="categorySearch"
-             [matAutocomplete]="categoryAuto"
-             placeholder="Kategori ara">
-      <mat-autocomplete #categoryAuto="matAutocomplete" (optionSelected)="onCategorySelected($event.option.value)">
-        <mat-option *ngFor="let category of filteredCategories" [value]="category">
-          {{category.name}}
+      <mat-select formControlName="categoryId">
+        <mat-option>
+          <ngx-mat-select-search formControlName="categorySearch" placeholderLabel="Kategori ara" noEntriesFoundLabel="Kategori bulunamadı"></ngx-mat-select-search>
         </mat-option>
-      </mat-autocomplete>
+        
+        <mat-tree [dataSource]="categorydataSource" [treeControl]="treeControl">
+          <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+            <button mat-icon-button disabled></button>
+            <mat-option [value]="node.id" (click)="onCategorySelected(node)">
+              {{node.name}}
+            </mat-option>
+          </mat-tree-node>
+          <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+            <button mat-icon-button
+                    [attr.aria-label]="'Toggle ' + node.name"
+                    (click)="treeControl.toggle(node)">
+              <mat-icon class="mat-icon-rtl-mirror">
+                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+              </mat-icon>
+            </button>
+            <mat-option [value]="node.id" (click)="onCategorySelected(node)">
+              {{node.name}}
+            </mat-option>
+          </mat-tree-node>
+        </mat-tree>
+      </mat-select>
       <mat-error *ngIf="productForm.get('categoryId').hasError('required')">
         Kategori seçimi zorunludur
       </mat-error>
@@ -84,7 +100,7 @@
           </mat-select>
         </mat-form-field>
         <button mat-icon-button color="warn" type="button" (click)="removeFeature(i)">
-          <mat-icon>delete</mat-icon>
+          <mat-icon color="warn">delete</mat-icon>
         </button>
       </div>
 
@@ -163,7 +179,7 @@
           <th mat-header-cell *matHeaderCellDef> İşlemler </th>
           <td mat-cell *matCellDef="let variant; let i = index">
             <button mat-icon-button color="warn" type="button" (click)="removeVariant(i)">
-              <mat-icon>delete</mat-icon>
+              <mat-icon color="warn">delete</mat-icon>
             </button>
           </td>
         </ng-container>

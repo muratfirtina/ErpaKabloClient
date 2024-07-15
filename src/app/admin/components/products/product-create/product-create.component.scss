@@ -88,4 +88,30 @@
     font-size: 1.1rem;
   }
   
+  .mat-select-search-inner {
+    height: auto;
+    width: 100%;
+  }
+  
+  .mat-tree {
+    padding: 8px;
+  }
+    
+    .mat-tree-node {
+      min-height: 36px;
+    }
+    
+}
+
+
+
+::ng-deep {
+    .mat-select-panel {
+      max-height: none !important;
+    }
+}
+
+
+::ng-deep .mat-mdc-button-persistent-ripple::before {
+  background-color: #ba1a1a !important;
 }

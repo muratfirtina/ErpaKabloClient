@@ -1,0 +1,32 @@
+.brand-create-container {
+    max-width:min-content;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+    h2 {
+      color: mat-color();
+      margin-bottom: 2rem;
+      font-weight: 500;
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+  
+      @media (min-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+  
+      .full-width {
+        grid-column: 1 / -1;
+      }
+    }
+    .mat-mdc-card-title{
+        margin: 20px;
+
+    }
+}
