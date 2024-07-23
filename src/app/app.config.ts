@@ -19,6 +19,7 @@ import { ToastrModule } from 'ngx-toastr';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatTreeModule } from '@angular/material/tree';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { SafeUrlPipe } from './pipes/safeUrl.pipe';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), provideAnimations(),
@@ -26,6 +27,6 @@ export const appConfig: ApplicationConfig = {
     ,MatSidenavModule,MatListModule,MatCardModule,MatButtonModule,
     MatFormFieldModule,MatInputModule,MatPaginatorModule,MatTableModule,
     MatSelectModule,NgxMatSelectSearchModule,MatTreeModule,
-    ToastrModule.forRoot()),
+    ToastrModule.forRoot()),SafeUrlPipe,
   { provide: "baseUrl", useValue: "http://localhost:5199/api", multi: true }, provideAnimationsAsync(),]
 };

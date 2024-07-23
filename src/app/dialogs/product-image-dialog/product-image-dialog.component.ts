@@ -11,6 +11,8 @@ import { FileUploadOptions, FileuploadComponent } from 'src/app/services/common/
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 
+declare var $: any;
+
 @Component({
   selector: 'app-product-image-dialog',
   standalone: true,
@@ -35,7 +37,7 @@ export class ProductImageDialogComponent extends BaseDialog<ProductImageDialogCo
 
  @Output() options: Partial<FileUploadOptions> = {
     acceptedFileTypes: ".png, .jpg, .jpeg, .gif, .webp",
-    action: "upload",
+    action: "multiple",
     controller: "products",
     explanation: "Drag and drop your images here or click here to select images",
     //isAdminPage: true,

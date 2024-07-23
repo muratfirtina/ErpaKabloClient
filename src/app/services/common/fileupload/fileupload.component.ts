@@ -1,6 +1,6 @@
 import { HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Component, Input } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { SpinnerType } from 'src/app/base/base/base.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../ui/custom-toastr.service';
@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 @Component({
   selector: 'app-fileupload',
   standalone: true,
-  imports: [CommonModule,NgxFileDropModule],
+  imports: [CommonModule,NgxFileDropModule,MatDialogModule],
   templateUrl: './fileupload.component.html',
   styleUrl: './fileupload.component.scss'
 })

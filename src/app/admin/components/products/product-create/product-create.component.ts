@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -28,6 +28,12 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FlatTreeControl } from '@angular/cdk/tree';
 import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { NgxFileDropModule } from 'ngx-file-drop';
+import { DialogService } from 'src/app/services/common/dialog.service';
+import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
+import { ProductImageDialogComponent } from 'src/app/dialogs/product-image-dialog/product-image-dialog.component';
+import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 interface FlatNode {
   expandable: boolean;
@@ -56,6 +62,8 @@ interface FlatNode {
     MatTreeModule,
     NgxMatSelectSearchModule,
     AngularEditorModule,
+    NgxFileDropModule,
+    SafeUrlPipe
   ],
   templateUrl: './product-create.component.html',
   styleUrls: ['./product-create.component.scss', '../../../../../styles.scss']
@@ -64,7 +72,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
   productForm: FormGroup;
   features: Feature[] = [];
   featureValues: { [key: string]: Featurevalue[] } = {};
-  variantColumns: string[] = ['select', 'combination', 'price', 'stock', 'sku', 'actions'];
+  variantColumns: string[] = ['select', 'images', 'combination', 'price', 'stock', 'sku', 'actions'];
+  variantIds: string[] = [];
   allSelected = false;
   variantsCreated: boolean = false;
   canGenerateVariants: boolean = false
@@ -132,7 +141,10 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     ]
   };
 
+  currentImageIndex: { [key: string]: number } = {};
+  @ViewChild('carouselContainer') carouselContainer: ElementRef;
 
+  
   constructor(
     private fb: FormBuilder,
     private categoryService: CategoryService,
@@ -142,6 +154,9 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     private snackBar: MatSnackBar,
     private customToastrService: CustomToastrService,
     private changeDetectorRef: ChangeDetectorRef,
+    private dialogService: DialogService,
+    private safeUrlPipe: SafeUrlPipe,
+    private sanitizer: DomSanitizer,
     spinner: NgxSpinnerService
   ) {
     super(spinner);
@@ -194,6 +209,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     });
 
     this.updateDataSource();
+    this.initializeImageIndexes();
   }
 
   async loadCategories() {
@@ -211,6 +227,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       });
     }
   }
+
 
   createHierarchy(categories: Category[]): Category[] {
     const categoryMap = new Map<string, Category>();
@@ -436,7 +453,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       combination: control.get('combination').value,
       sku: control.get('sku').value,
       price: control.get('price').value,
-      stock: control.get('stock').value
+      stock: control.get('stock').value,
+      images: [[]]
     }));
 
     this.variants.clear();
@@ -449,13 +467,82 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
         combination: [combinationString],
         price: [existingVariant ? existingVariant.price : 0, [Validators.required, Validators.min(0)]],
         stock: [existingVariant ? existingVariant.stock : 0, [Validators.required, Validators.min(0)]],
-        sku: [existingVariant ? existingVariant.sku : '', Validators.required]
+        sku: [existingVariant ? existingVariant.sku : '', Validators.required],
+        images: [[]]
       }));
     });
 
     this.variantsCreated = true;
     this.updateButtonText();
     this.updateDataSource();
+  }
+
+  openImageUploadDialog(variant: FormGroup, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dialogService.openDialog({
+      componentType: FileUploadDialogComponent,
+      data: { variant: variant },
+      options: { width: '550px' },
+      afterClosed: (result: File[]) => {
+        if (result && result.length > 0) {
+          const currentImages = variant.get('images').value || [];
+          variant.patchValue({ images: [...currentImages, ...result] });
+          this.initializeImageIndexes(); // Yeni resimler eklendiğinde indeksleri güncelle
+        }
+      }
+    });
+  }
+
+  generateUniqueId(): string {
+    // Basit bir benzersiz ID oluşturma fonksiyonu
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  }
+  
+  initializeImageIndexes() {
+    (this.productForm.get('variants') as FormArray).controls.forEach((variant: FormGroup, index: number) => {
+      // Her varyant için benzersiz bir ID oluştur veya mevcut olanı kullan
+      if (!this.variantIds[index]) {
+        this.variantIds[index] = this.generateUniqueId();
+      }
+      // Bu benzersiz ID'yi kullanarak image index'ini set et
+      this.currentImageIndex[this.variantIds[index]] = 0;
+    });
+  }
+
+  getSafeUrl(url: string): SafeUrl {
+    return this.sanitizer.bypassSecurityTrustUrl(url);
+  }
+
+  prevImage(variant: FormGroup, event: Event, index: number) {
+    event.preventDefault();
+    event.stopPropagation();
+    const variantId = this.variantIds[index];
+    if (this.currentImageIndex[variantId] > 0) {
+      this.currentImageIndex[variantId]--;
+    }
+  }
+
+  nextImage(variant: FormGroup, event: Event, index: number) {
+    event.preventDefault();
+    event.stopPropagation();
+    const variantId = this.variantIds[index];
+    const images = variant.get('images').value;
+    if (this.currentImageIndex[variantId] < images.length - 1) {
+      this.currentImageIndex[variantId]++;
+    }
+  }
+
+  removeCurrentImage(variant: FormGroup, event: Event, index: number) {
+    event.preventDefault();
+    event.stopPropagation();
+    const variantId = this.variantIds[index];
+    const images = variant.get('images').value;
+    images.splice(this.currentImageIndex[variantId], 1);
+    variant.patchValue({ images: images });
+    if (this.currentImageIndex[variantId] >= images.length) {
+      this.currentImageIndex[variantId] = Math.max(0, images.length - 1);
+    }
   }
 
   generateCombinations(): string[][] {
@@ -476,50 +563,56 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
 
   onSubmit() {
     if (this.productForm.valid) {
-      const productData: ProductCreate[] = this.variants.controls.map(variant => ({
-        name: this.productForm.get('name').value,
-        description: this.productForm.get('description').value,
-        categoryId: this.productForm.get('categoryId').value,
-        brandId: this.productForm.get('brandId').value,
-        sku: variant.get('sku').value,
-        varyantGroupID: this.productForm.get('varyantGroupID').value,
-        price: parseFloat(variant.get('price').value),
-        stock: parseInt(variant.get('stock').value),
-        tax: parseFloat(this.productForm.get('tax').value),
-        featureIds: this.featureFormArray.controls.map(f => f.get('featureId').value),
-        featureValueIds: variant.get('combination').value.split(' - ').map((value, index) => 
-          this.featureValues[this.featureFormArray.at(index).get('featureId').value]
-            .find(fv => fv.name === value).id
-        )
-      }));
+      const formData = new FormData();
   
-      if (productData.length === 1) {
-        // Tek varyant durumunda
-        this.productService.create(productData[0],
-          () => {
-            console.log('Success: Single product created');
-            this.snackBar.open('Ürün başarıyla oluşturuldu', 'Kapat', { duration: 3000 });
-          },
-          (error) => {
-            console.error('Error:', error);
-            this.snackBar.open('Ürün oluşturulamadı: ' + JSON.stringify(error), 'Kapat', { duration: 3000 });
-          }
-        );
-      } else {
-        // Birden fazla varyant durumunda
-        this.productService.createMultiple(productData,
-          (data) => {
-            console.log('Success:', data);
-            this.snackBar.open('Ürünler başarıyla oluşturuldu', 'Kapat', { duration: 3000 });
-          },
-          (error) => {
-            console.error('Error:', error);
-            this.snackBar.open('Ürünler oluşturulamadı: ' + JSON.stringify(error), 'Kapat', { duration: 3000 });
-          }
-        );
-      }
-      
-      console.log(productData);
+      this.variants.controls.forEach((variant, index) => {
+        formData.append(`Products[${index}].Name`, this.productForm.get('name').value);
+        formData.append(`Products[${index}].Description`, this.productForm.get('description').value);
+        formData.append(`Products[${index}].CategoryId`, this.productForm.get('categoryId').value);
+        formData.append(`Products[${index}].BrandId`, this.productForm.get('brandId').value);
+        formData.append(`Products[${index}].Sku`, variant.get('sku').value);
+        formData.append(`Products[${index}].Price`, variant.get('price').value);
+        formData.append(`Products[${index}].Stock`, variant.get('stock').value);
+        formData.append(`Products[${index}].Tax`, this.productForm.get('tax').value);
+        formData.append(`Products[${index}].VaryantGroupID`, this.productForm.get('varyantGroupID').value);
+  
+        this.featureFormArray.controls.forEach((feature, featureIndex) => {
+          formData.append(`Products[${index}].FeatureIds[${featureIndex}]`, feature.get('featureId').value);
+        });
+  
+        const featureValueIds = variant.get('combination').value.split(' - ').map((value, valueIndex) => {
+          const featureId = this.featureFormArray.at(valueIndex).get('featureId').value;
+          const featureValues = this.featureValues[featureId] || [];
+          return featureValues.find(fv => fv.name === value)?.id || '';
+        });
+  
+        featureValueIds.forEach((valueId, valueIndex) => {
+          formData.append(`Products[${index}].FeatureValueIds[${valueIndex}]`, valueId);
+        });
+  
+        const images = variant.get('images').value;
+        if (images && images.length > 0) {
+          images.forEach((image, imageIndex) => {
+            if (image instanceof File) {
+              formData.append(`Products[${index}].ProductImages`, image, image.name);
+            }
+          });
+        }
+      });
+  
+      this.productService.createMultiple(formData,
+        () => {
+          console.log('Success: Products created');
+          this.snackBar.open('Ürünler başarıyla oluşturuldu', 'Kapat', { duration: 3000 });
+        },
+        (error) => {
+          console.error('Error:', error);
+          this.snackBar.open('Ürünler oluşturulamadı: ' + JSON.stringify(error), 'Kapat', { duration: 3000 });
+        }
+      );
+    } else {
+      console.log('Form is invalid');
+      this.snackBar.open('Lütfen tüm gerekli alanları doldurun', 'Kapat', { duration: 3000 });
     }
   }
 }

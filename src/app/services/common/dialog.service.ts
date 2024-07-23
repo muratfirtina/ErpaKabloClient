@@ -14,10 +14,6 @@ export class DialogService {
 
 
   openDialog(dialogParameters: Partial<DialogParameters>): void {
-
-    if (this.isDialogOpen) return;
-
-    this.isDialogOpen = true;
     const dialogRef = this.dialog.open(dialogParameters.componentType, {
       width: dialogParameters.options?.width,
       height: dialogParameters.options?.height,
@@ -25,11 +21,10 @@ export class DialogService {
       data: dialogParameters.data,
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      this.isDialogOpen = false;
-      if (result == dialogParameters.data) 
-        dialogParameters.afterClosed(DeleteDialogState.Yes);
-      
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (dialogParameters.afterClosed) {
+        dialogParameters.afterClosed(result);
+      }
     });
   }
 
@@ -37,19 +32,19 @@ export class DialogService {
     this.dialog.closeAll();
     this.isDialogOpen = false;
   }
-  
 }
 
 export class DialogParameters {
   componentType: ComponentType<any>;
-  data: any;
-  afterClosed: (result: DeleteDialogState) => void;
-  options?: Partial<DialogOptions> = new DialogOptions();
- 
+  data?: any;
+  afterClosed?: (result: any) => void;
+  options?: Partial<DialogOptions>;
 }
 
-export class DialogOptions{
-  width?: string = '250px';
+export class DialogOptions {
+  width?: string;
   height?: string;
-  position?: DialogPosition;
+  position?: any;
 }
+
+

@@ -1,1 +1,24 @@
-<p>file-upload-dialog works!</p>
+<h2 mat-dialog-title>Fotoğraf Yükle</h2>
+    <mat-dialog-content>
+      <ngx-file-drop
+        dropZoneLabel="Dosyaları buraya bırakın"
+        (onFileDrop)="dropped($event)"
+        [accept]="'images/*'"
+        [multiple]="true"
+      >
+        <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+          Fotoğrafları sürükleyip bırakın veya
+          <button type="button" (click)="openFileSelector()">Dosya Seç</button>
+        </ng-template>
+      </ngx-file-drop>
+      <div *ngIf="files.length > 0">
+        <h3>Seçilen Dosyalar:</h3>
+        <ul>
+          <li *ngFor="let file of files">{{ file.name }}</li>
+        </ul>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions>
+      <button mat-button (click)="onCancel()">İptal</button>
+      <button mat-button color="primary" (click)="onUpload()" [disabled]="files.length === 0">Ekle</button>
+    </mat-dialog-actions>

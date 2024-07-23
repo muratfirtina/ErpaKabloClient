@@ -110,19 +110,19 @@ export class ProductService {
     successCallBack();
   }
 
-  async createMultiple(products: ProductCreate[], SuccessCallback: (data: any) => void, ErrorCallback: (error: any) => void): Promise<ProductCreate[]> {
-    const command = { products: products }; // Bu satırı ekleyin
-    const observable: Observable<ProductCreate[]> = this.httpClientService.post<ProductCreate[]>({
+  createMultiple(formData: FormData, SuccessCallback?: () => void, ErrorCallback?: (errorMessage: string) => void) {
+    this.httpClientService.post({
       controller: "products",
       action: "multiple"
-    }, command as any); // 'command' nesnesini 'any' olarak cast edin
-    const promiseData = firstValueFrom(observable);
-    promiseData.then((data: ProductCreate[]) => {
-      SuccessCallback(data);
-    }).catch((error) => {
-      ErrorCallback(error);
+    }, formData).subscribe({
+      next: (response) => {
+        console.log('Server response:', response);
+        SuccessCallback();
+      },
+      error: (error) => {
+        console.error('Server error:', error);
+        ErrorCallback(error);
+      }
     });
-    return await promiseData;
   }
-  
 }
