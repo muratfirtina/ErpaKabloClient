@@ -7,6 +7,7 @@ import { PageRequest } from 'src/app/contracts/pageRequest';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { Product } from 'src/app/contracts/product/product';
 import { ProductImageList } from 'src/app/contracts/product/product-image-list';
+import { ProductImageFile } from 'src/app/contracts/product/productImageFile';
 
 @Injectable({
   providedIn: 'root'
@@ -55,7 +56,7 @@ export class ProductService {
     
   }
 
-  async getProductsByDynamicQuery(dynamicQuery: any, pageRequest: PageRequest, successCallback: (data: any) => void, errorCallback: (error: any) => void): Promise<GetListResponse<Product>> {
+  async getProductsByDynamicQuery(dynamicQuery: any, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<Product>> {
     const observable: Observable<GetListResponse<Product>> = this.httpClientService.post<GetListResponse<Product>>({
       controller: 'products',
       action: 'GetList/ByDynamic',

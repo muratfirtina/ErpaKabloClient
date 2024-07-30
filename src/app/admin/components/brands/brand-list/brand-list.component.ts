@@ -108,6 +108,7 @@ export class BrandListComponent extends BaseComponent implements OnInit {
     this.pageRequest.pageIndex = event.pageIndex;
     this.pageRequest.pageSize = event.pageSize;
     this.currentPageNo = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
     this.getBrands();
   }
 

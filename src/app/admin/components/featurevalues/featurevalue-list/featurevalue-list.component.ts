@@ -80,20 +80,20 @@ export class FeaturevalueListComponent extends BaseComponent implements OnInit {
 
   async getFeaturevalues() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
-
+  
     const data: GetListResponse<Featurevalue> = await this.featurevalueService.list(
-      this.pageRequest,
+      { pageIndex: this.currentPageNo - 1, pageSize: this.pageSize },
       () => {},
       (error) => {
         this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
       }
     );
-
+  
     this.listFeaturevalue = data;
     this.pagedFeaturevalues = data.items;
     this.count = data.count;
     this.pages = Math.ceil(this.count / this.pageSize);
-
+  
     this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
@@ -101,6 +101,7 @@ export class FeaturevalueListComponent extends BaseComponent implements OnInit {
     this.pageRequest.pageIndex = event.pageIndex;
     this.pageRequest.pageSize = event.pageSize;
     this.currentPageNo = event.pageIndex + 1;
+    this.pageSize = event.pageSize;
     this.getFeaturevalues();
   }
 
@@ -152,6 +153,17 @@ export class FeaturevalueListComponent extends BaseComponent implements OnInit {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     });
   }
-
+  
+  removeFeaturevalueFromList(featurevalueId: string) {
+    this.pagedFeaturevalues = this.pagedFeaturevalues.filter(featurevalue => featurevalue.id !== featurevalueId);
+    this.count--;
+    this.pages = Math.ceil(this.count / this.pageSize);
+  
+    // Eğer sayfadaki son ürün silindiyse ve başka sayfalar varsa, önceki sayfaya git
+    if (this.pagedFeaturevalues.length === 0 && this.currentPageNo > 1) {
+      this.currentPageNo--;
+      this.getFeaturevalues();
+    }
+  }
   
 }

@@ -1,39 +1,39 @@
 <div class="container mt-5">
     <div class="row mb-4">
       <div class="col-md-12 text-center">
-        <h1 class="page-title">Featurevalue List</h1>
-        <p class="page-description">Search and manage your categories easily</p>
+        <h1 class="page-title">Product List</h1>
+        <p class="page-description">Search and manage your products easily</p>
       </div>
     </div>
   
     <div class="row mb-4">
       <div class="col-md-12">
         <div class="search-and-table-container">
-          <form [formGroup]="searchForm" (ngSubmit)="searchFeaturevalue()">
+          <form [formGroup]="searchForm" (ngSubmit)="searchProduct()">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Özellik Değeri Ara...</mat-label>
-              <input matInput formControlName="nameSearch" (input)="searchFeaturevalue()">
+              <mat-label>Ürün Ara...</mat-label>
+              <input matInput formControlName="nameSearch" (input)="searchProduct()">
               <button mat-raised-button class="search-button" type="submit">Ara</button>
             </mat-form-field>
           </form>
   
     <div class="row">
       <div class="col-md-12">
-        <table mat-table [dataSource]="pagedFeaturevalues" class="mat-elevation-z8 table table-striped table-hover">
+        <table mat-table [dataSource]="pagedProducts" class="mat-elevation-z8 table table-striped table-hover">
           <ng-container matColumnDef="No">
             <th mat-header-cell *matHeaderCellDef class="header-cell">No</th>
             <td mat-cell *matCellDef="let item; let i = index">{{ (currentPageNo - 1) * pageSize + i + 1 }}</td>
           </ng-container>
   
-          <ng-container matColumnDef="Featurevalue">
-            <th mat-header-cell *matHeaderCellDef class="header-cell">Özellik Değeri</th>
+          <ng-container matColumnDef="Product">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">Özellik Adı</th>
             <td mat-cell *matCellDef="let item">{{ item.name }}</td>
           </ng-container>
 
           <ng-container matColumnDef="Update">
             <th mat-header-cell *matHeaderCellDef class="header-cell">Güncelle</th>
             <td mat-cell *matCellDef="let item">
-              <a [routerLink]="['/admin/featurevalues/featurevalue-update', item.id]">
+              <a [routerLink]="['/admin/products/product-update', item.id]">
                 <button mat-mini-fab class="edit-button-list">
                   <mat-icon>edit</mat-icon>
                 </button>
@@ -47,13 +47,13 @@
               <div class="app-delete-directive-container">
                 <app-delete-directive 
                 [id]="item.id" 
-                [controller]="'featurevalues'" 
+                [controller]="'products'" 
                 [itemName]="item.name" 
-                (refresh)="removeFeaturevalueFromList($event)">
+                (refresh)="removeProductFromList($event)">
               </app-delete-directive>
             </div>
-            </td>
           </ng-container>
+  
   
           <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
           <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
@@ -65,4 +65,3 @@
       </div>
     </div>
   </div>
-  

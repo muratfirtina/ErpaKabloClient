@@ -49,13 +49,12 @@ export class DeleteDirectiveComponent {
           try {
             const response: DeletedResponse = await firstValueFrom(this.httpClientService.delete({ controller: this.controller, action: this.action }, this.id));
             if (response.success) {
-              
-                this.refresh.emit();
+                this.dialogService.closeDialog();
                 this.toastrService.message(`${this.itemName} Deleted`, 'Success', {
                   toastrMessageType: ToastrMessageType.Success,
                   position: ToastrPosition.TopRight
                 },);
-                this.dialogService.closeDialog();  // Dialog'u kapat
+                this.refresh.emit(this.id);  // Dialog'u kapat
               }
             else {
               this.toastrService.message( 'Failed to delete the item', 'Error', {

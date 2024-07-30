@@ -1,6 +1,9 @@
 export class ProductImageList {
-    fileName: string;
-    path: string;
-    id: string;
-    showcase: boolean;
+  id: string;
+  fileName: string;
+  path: string;
+  category: string;
+  storage: string;
+  showcase: boolean;
+  url: string;
   }
