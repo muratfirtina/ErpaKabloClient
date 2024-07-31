@@ -30,6 +30,7 @@ import { Feature } from 'src/app/contracts/feature/feature';
 import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
 import { Product } from 'src/app/contracts/product/product';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
+import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'app-product-update',
@@ -47,6 +48,7 @@ import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/fi
     MatCheckboxModule,
     MatAutocompleteModule,
     MatTreeModule,
+    MatRadioModule,
     NgxMatSelectSearchModule,
     AngularEditorModule,
     NgxFileDropModule
@@ -172,6 +174,10 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
         showcase: [image.showcase] || '../../../../../assets/product/ecommerce-default-product.png'
       }));
     });
+
+    if (!this.product.productImageFiles.some(image => image.showcase)) {
+      this.setShowcaseImage(0);
+    }
   
     // RelatedProducts güncelleme
     this.relatedProducts = this.product.relatedProducts;
@@ -228,36 +234,59 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     return product.showcaseImage?.url || this.defaultProductImage;
   }
 
-  onSubmit() {
-    if (this.productForm.valid) {
-      const updatedProduct = {
-        ...this.productForm.value,
-        id: this.productId,
-        productImageFiles: this.productForm.get('productImageFiles').value.map(image => ({
-          ...image,
-          showcase: image.showcase || false
-        }))
-      };
-  
-      this.productService.update(updatedProduct,
-        () => {
-          this.customToastrService.message("Ürün başarıyla güncellendi", "Başarılı", {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight
-          });
-          this.router.navigate(['/products']);
-        },
-        (error) => {
-          this.customToastrService.message("Ürün güncellenemedi", "Hata", {
-            toastrMessageType: ToastrMessageType.Error,
-            position: ToastrPosition.TopRight
-          });
-        }
-      );
-    } else {
-      this.snackBar.open('Lütfen tüm gerekli alanları doldurun', 'Kapat', { duration: 3000 });
-    }
+  setShowcaseImage(index: number) {
+    const images = this.productImageFiles.controls;
+    images.forEach((image, i) => {
+      image.patchValue({ showcase: i === index });
+    });
   }
+
+  onSubmit() {
+  if (this.productForm.valid) {
+    const formData = new FormData();
+    const updatedProduct = this.productForm.value;
+    
+    // Form verilerini FormData'ya ekle
+    Object.keys(updatedProduct).forEach(key => {
+      if (key !== 'productImageFiles') {
+        formData.append(key, updatedProduct[key]);
+      }
+    });
+
+    // Ürün ID'sini ekle
+    formData.append('id', this.productId);
+
+    // Fotoğrafları ekle
+    this.productImageFiles.controls.forEach((control, index) => {
+      const file = control.get('file')?.value;
+      if (file instanceof File) {
+        formData.append(`productImageFiles`, file, file.name);
+      } else if (control.get('id')?.value) {
+        // Mevcut fotoğraflar için ID'yi gönder
+        formData.append(`existingImageIds[${index}]`, control.get('id').value);
+      }
+      formData.append(`productImageFiles[${index}].showcase`, control.get('showcase').value);
+    });
+
+    this.productService.update(updatedProduct,
+      () => {
+        this.customToastrService.message("Ürün başarıyla güncellendi", "Başarılı", {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        });
+        this.router.navigate(['/products']);
+      },
+      (error) => {
+        this.customToastrService.message("Ürün güncellenemedi", "Hata", {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        });
+      }
+    );
+  } else {
+    this.snackBar.open('Lütfen tüm gerekli alanları doldurun', 'Kapat', { duration: 3000 });
+  }
+}
 
   openImageUploadDialog() {
     this.dialogService.openDialog({
@@ -266,12 +295,17 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       options: { width: '550px' },
       afterClosed: (result: File[]) => {
         if (result && result.length > 0) {
-          // Yeni resimleri ekle
           result.forEach(file => {
-            this.productImageFiles.push(this.fb.group({
-              name: [file.name],
-              // Diğer gerekli alanları da ekleyin
-            }));
+            const reader = new FileReader();
+            reader.onload = (e: any) => {
+              this.productImageFiles.push(this.fb.group({
+                fileName: [file.name],
+                url: [e.target.result],
+                showcase: [false],
+                file: [file]  // Dosyayı da saklayalım
+              }));
+            };
+            reader.readAsDataURL(file);
           });
         }
       }
@@ -280,6 +314,9 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
 
   removeImage(index: number) {
     this.productImageFiles.removeAt(index);
+    if (this.productImageFiles.length > 0 && !this.productImageFiles.controls.some(control => control.get('showcase').value)) {
+      this.setShowcaseImage(0);
+    }
   }
 
   addFeature() {

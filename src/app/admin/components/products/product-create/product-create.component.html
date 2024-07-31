@@ -171,11 +171,16 @@
                 </mat-card-content>
                 <mat-card-actions>
                   <button mat-button type="button" color="primary" (click)="openImageUploadDialog(variant, $event)">
-                    <mat-icon style="margin-left: 0px !important; margin-right: 0px !important;">add_photo_alternate</mat-icon> 
+                    <mat-icon>add_photo_alternate</mat-icon> 
                   </button>
                   <button mat-button type="button" color="warn" (click)="removeCurrentImage(variant, $event,i)" [disabled]="variant.get('images').value.length === 0">
-                    <mat-icon style="margin-left: 0px !important; margin-right: 0px !important;">delete</mat-icon>
+                    <mat-icon>delete</mat-icon>
                   </button>
+                  <mat-radio-button 
+                    [checked]="isShowcaseImage(variant, currentImageIndex[variantIds[i]])"
+                    (change)="setShowcaseImage(variant, currentImageIndex[variantIds[i]])"
+                    [disabled]="variant.get('images').value.length === 0">
+                  </mat-radio-button>
                 </mat-card-actions>
               </mat-card>
             </div>

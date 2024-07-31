@@ -116,10 +116,11 @@
                         <img [src]="image.get('url').value" [alt]="image.get('fileName').value" class="product-image">
                     </mat-card-content>
                     <mat-card-actions>
-                        <mat-checkbox formControlName="showcase">Vitrin</mat-checkbox>
+                        <mat-radio-button [value]="i" (change)="setShowcaseImage(i)" [checked]="image.get('showcase').value">
+                            Vitrin
+                        </mat-radio-button>
                         <button mat-icon-button color="warn" (click)="removeImage(i)">
-                            <mat-icon
-                                style="margin-left: 0px !important; margin-right: 0px !important; color:#ba1a1a !important;">delete</mat-icon>
+                            <mat-icon style="margin-left: 0px !important; margin-right: 0px !important; color:#ba1a1a !important;">delete</mat-icon>
                         </button>
                     </mat-card-actions>
                 </mat-card>

@@ -127,7 +127,7 @@
 } */
 
 .image-carousel {
-  width: 150px;
+  width: 200px;
   margin: 5px 0;
 }
 
@@ -137,7 +137,7 @@
 
 .carousel-container {
   position: relative;
-  height: 100px;
+  height: 150px;
   overflow: hidden;
 }
 
@@ -176,7 +176,7 @@
 
 mat-card-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .mat-mdc-card-content{
@@ -197,3 +197,19 @@ mat-card-actions {
     
   }
 }
+
+@media (max-width: 600px) {
+  .feature-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .image-carousel {
+    width: 100%;
+  }
+
+  .narrow-input {
+    width: 100%;
+  }
+}
+

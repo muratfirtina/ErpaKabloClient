@@ -34,6 +34,7 @@ import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/fi
 import { ProductImageDialogComponent } from 'src/app/dialogs/product-image-dialog/product-image-dialog.component';
 import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { MatRadioModule } from '@angular/material/radio';
 
 interface FlatNode {
   expandable: boolean;
@@ -60,6 +61,7 @@ interface FlatNode {
     MatCheckboxModule,
     MatAutocompleteModule,
     MatTreeModule,
+    MatRadioModule,
     NgxMatSelectSearchModule,
     AngularEditorModule,
     NgxFileDropModule,
@@ -454,7 +456,9 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       sku: control.get('sku').value,
       price: control.get('price').value,
       stock: control.get('stock').value,
-      images: [[]]
+      images: [[]],
+      showcaseImageIndex: control.get('showcaseImageIndex').value
+
     }));
 
     this.variants.clear();
@@ -468,7 +472,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
         price: [existingVariant ? existingVariant.price : 0, [Validators.required, Validators.min(0)]],
         stock: [existingVariant ? existingVariant.stock : 0, [Validators.required, Validators.min(0)]],
         sku: [existingVariant ? existingVariant.sku : '', Validators.required],
-        images: [[]]
+        images: [[]],
+        showcaseImageIndex: [existingVariant ? existingVariant.showcaseImageIndex : 0]
       }));
     });
 
@@ -489,9 +494,32 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
           const currentImages = variant.get('images').value || [];
           variant.patchValue({ images: [...currentImages, ...result] });
           this.initializeImageIndexes(); // Yeni resimler eklendiğinde indeksleri güncelle
+
+          if (variant.get('showcaseImageIndex').value === null || variant.get('showcaseImageIndex').value === undefined) {
+            variant.patchValue({ showcaseImageIndex: 0 });
+          }
         }
       }
     });
+  }
+
+  setShowcaseImage(variant: FormGroup, index: number) {
+    const currentShowcaseIndex = variant.get('showcaseImageIndex').value;
+    
+    if (currentShowcaseIndex === index) {
+      // Eğer tıklanan görsel zaten vitrin görseli ise, vitrin görselini kaldır
+      variant.patchValue({ showcaseImageIndex: null });
+    } else {
+      // Değilse, yeni vitrin görselini ayarla
+      variant.patchValue({ showcaseImageIndex: index });
+    }
+    
+    // Değişiklikleri yansıtmak için Angular'ın değişiklik algılama mekanizmasını tetikle
+    this.changeDetectorRef.detectChanges();
+  }
+  
+  isShowcaseImage(variant: FormGroup, index: number): boolean {
+    return variant.get('showcaseImageIndex').value === index;
   }
 
   generateUniqueId(): string {
@@ -538,10 +566,17 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     event.stopPropagation();
     const variantId = this.variantIds[index];
     const images = variant.get('images').value;
+    const showcaseIndex = variant.get('showcaseImageIndex').value;
     images.splice(this.currentImageIndex[variantId], 1);
     variant.patchValue({ images: images });
     if (this.currentImageIndex[variantId] >= images.length) {
       this.currentImageIndex[variantId] = Math.max(0, images.length - 1);
+    }
+
+    if (showcaseIndex === this.currentImageIndex[variantId]) {
+      variant.patchValue({ showcaseImageIndex: images.length > 0 ? 0 : null });
+    } else if (showcaseIndex > this.currentImageIndex[variantId]) {
+      variant.patchValue({ showcaseImageIndex: showcaseIndex - 1 });
     }
   }
 
@@ -575,6 +610,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
         formData.append(`Products[${index}].Stock`, variant.get('stock').value);
         formData.append(`Products[${index}].Tax`, this.productForm.get('tax').value);
         formData.append(`Products[${index}].VaryantGroupID`, this.productForm.get('varyantGroupID').value);
+        formData.append(`Products[${index}].ShowcaseImageIndex`, variant.get('showcaseImageIndex').value);
+
   
         this.featureFormArray.controls.forEach((feature, featureIndex) => {
           formData.append(`Products[${index}].FeatureIds[${featureIndex}]`, feature.get('featureId').value);
