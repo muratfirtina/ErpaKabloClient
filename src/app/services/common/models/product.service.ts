@@ -30,18 +30,14 @@ export class ProductService {
     
   }
 
-  async update(product:ProductUpdate, successCallback: (data: any) => void, errorCallback: (error: any) => void): Promise<ProductUpdate>{
-    const observable : Observable<ProductUpdate> = this.httpClientService.put<ProductUpdate>({
+  async update(formData: FormData, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<any> {
+    const observable: Observable<any> = this.httpClientService.put({
       controller: "products"
-    }, product);
-    const promiseData = firstValueFrom(observable);
-    promiseData.then((data: ProductUpdate) => {
-      successCallback(data);
-    }).catch((error) => {
-      errorCallback(error);
-    });
-    return await promiseData;
+    }, formData);
     
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback).catch(errorCallback);
+    return await promiseData;
   }
 
   async list(pageRequest:PageRequest, successCallback: (data: any) => void, errorCallback: (error: any) => void): Promise<GetListResponse<Product>>{

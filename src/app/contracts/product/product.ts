@@ -14,8 +14,9 @@ export class Product {
     brandId: string;
     varyantGroupID: string;
     features: Feature[];
-    variants: any[];
     productFeatureValues: ProductFeatureValue[];
     productImageFiles: ProductImageFile[];
     relatedProducts: Product[];
+    availableFeatures: { [key: string]: string[] };
+
 }

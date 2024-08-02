@@ -1,0 +1,72 @@
+<div *ngIf="!product" class="loading">Ürün yükleniyor...</div>
+
+<div *ngIf="product" class="product-detail-container">
+  <div class="product-image-gallery">
+    <div class="main-image">
+      <img [src]="product.productImageFiles[currentImageIndex]?.url || defaultProductImage" 
+           [alt]="product.name">
+      <div class="image-navigation">
+        <button class="nav-button" (click)="prevImage()" [disabled]="currentImageIndex === 0">❮</button>
+        <button class="nav-button" (click)="nextImage()" [disabled]="currentImageIndex === product.productImageFiles.length - 1">❯</button>
+      </div>
+    </div>
+    <div class="thumbnail-list">
+      <div *ngFor="let image of product.productImageFiles; let i = index" 
+           class="thumbnail" 
+           [class.active]="i === currentImageIndex"
+           (click)="selectImage(i)">
+        <img [src]="image.url" [alt]="product.name">
+      </div>
+    </div>
+  </div>
+
+  <div class="product-info">
+    <h1 class="product-name">{{product.name}}</h1>
+    <p class="product-price">{{formatCurrency(product.price)}}</p>
+    <p class="product-stock" [class.in-stock]="product.stock > 0">
+      {{product.stock > 0 ? 'Stokta' : 'Stokta Yok'}}
+    </p>
+    <p class="product-sku">SKU: {{product.sku}}</p>
+
+    <div class="product-features" *ngIf="product.productFeatureValues && product.productFeatureValues.length > 0">
+      <h2>Özellikler</h2>
+      <ul class="feature-list">
+        <li *ngFor="let feature of product.productFeatureValues">
+          <span class="feature-name">{{feature.featureName}}:</span>
+          <span class="feature-value">{{feature.featureValueName}}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="product.relatedProducts && product.relatedProducts.length > 0" class="related-products">
+      <h2>İlişkili Ürünler</h2>
+      <div class="related-product-list">
+        <div *ngFor="let relatedProduct of product.relatedProducts" 
+             class="related-product-item"
+             (click)="navigateToRelatedProduct(relatedProduct.id)">
+          <div class="related-product-image">
+            <img [src]="getProductImage(relatedProduct)" [alt]="relatedProduct.name">
+          </div>
+          <div class="related-product-info">
+            <h3>{{relatedProduct.name}}</h3>
+            <p class="related-product-price">{{formatCurrency(relatedProduct.price)}}</p>
+            <p class="related-product-features">
+              <ng-container *ngFor="let feature of relatedProduct.productFeatureValues; let last = last">
+                {{feature.featureValueName}}{{!last ? ', ' : ''}}
+              </ng-container>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-description" *ngIf="product.description">
+      <h2>Ürün Açıklaması</h2>
+      <p>{{product.description}}</p>
+    </div>
+
+    <button class="add-to-cart-button" [disabled]="product.stock <= 0">
+      Sepete Ekle
+    </button>
+  </div>
+</div>
