@@ -18,5 +18,6 @@ export class Product {
     productImageFiles: ProductImageFile[];
     relatedProducts: Product[];
     availableFeatures: { [key: string]: string[] };
+    showcaseImage?: ProductImageFile;
 
 }

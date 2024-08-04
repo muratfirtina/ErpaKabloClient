@@ -1,1 +1,36 @@
-<p>main-header works!</p>
+<header class="site-header">
+    <div class="header-container">
+      <div class="logo">
+        <a routerLink="/">
+          <img src="assets/logo.png" alt="Site Logo">
+        </a>
+      </div>
+  
+      <nav class="category-nav">
+        <ul>
+          <li *ngFor="let category of categories">
+            <a [routerLink]="['/category', category.toLowerCase()]">{{category}}</a>
+          </li>
+        </ul>
+      </nav>
+  
+      <div class="search-bar">
+        <input type="text" [(ngModel)]="searchTerm" placeholder="Ürün ara...">
+        <button (click)="onSearch()">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+  
+      <div class="user-actions">
+        <a routerLink="/account" class="account-link">
+          <i class="fas fa-user"></i>
+          <span>Hesabım</span>
+        </a>
+        <a routerLink="/cart" class="cart-link">
+          <i class="fas fa-shopping-cart"></i>
+          <span>Sepet</span>
+          <span class="cart-count">0</span>
+        </a>
+      </div>
+    </div>
+  </header>

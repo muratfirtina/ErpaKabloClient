@@ -50,7 +50,7 @@ export class ProductListComponent extends BaseComponent implements OnInit {
   count: number = 0;
   pages: number = 0;
   pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Product', 'Update','Delete'];
+  displayedColumns: string[] = ['No', 'Image', 'Feature', 'Product', 'VariantID' ,'Update','Delete'];
   searchForm: FormGroup;
 
   constructor(
@@ -65,6 +65,7 @@ export class ProductListComponent extends BaseComponent implements OnInit {
 
     this.searchForm = this.fb.group({
       nameSearch: [''],
+      varyantGroupIdSearch: [''],
     });
 
     this.searchForm.get('nameSearch')?.valueChanges.pipe(
@@ -117,14 +118,21 @@ export class ProductListComponent extends BaseComponent implements OnInit {
     let filters: Filter[] = [];
 
     const name = ProductFilterByDynamic.Name;
+    const varyantGroupId = ProductFilterByDynamic.VaryantGroupID;
 
     if (formValue.nameSearch) {
       const nameFilter: Filter = {
         field: name,
         operator: "contains",
         value: formValue.nameSearch,
-        logic: "",
-        filters: [],
+        logic: "or",
+        filters: [
+          {
+            field: varyantGroupId,
+            operator: "contains",
+            value: formValue.nameSearch,
+          },
+        ],
       };
 
       filters.push(nameFilter);
@@ -169,4 +177,5 @@ export class ProductListComponent extends BaseComponent implements OnInit {
       this.getProducts();
     }
   }
+  
 }

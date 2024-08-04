@@ -5,6 +5,7 @@ export interface ProductImageFile {
     category: string;
     storage: string;
     showcase: boolean;
+    alt: string | null;
     url: string;
 
 }
