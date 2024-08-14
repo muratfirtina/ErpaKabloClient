@@ -1,41 +1,39 @@
-<!-- navbar.component.html -->
 <nav class="industrial-navbar">
   <div class="row">
-    <div class="top-bar">
-      <div class="col-md-1"></div>
-      <div class="all-products-dropdown d-none d-md-block col-auto px-0 dropdown">
-        <button (click)="toggleAllProducts()">
-          All Products
-          <span class="dropdown-arrow" [class.open]="isAllProductsOpen">▼</span>
-        </button>
-      </div>
-      <div class="search-bar">
-        <input type="text" placeholder="Search by product name or part number">
-        <button class="search-button">
-          <i class="fas fa-search"></i>
-        </button>
-      </div>
+  
+  <div class="top-bar">
+    <div class="col-md-1"></div>
+    <div class="all-products-dropdown">
+      <button class="dropdown-toggle" (click)="toggleAllProducts()">
+        All Products
+        <span class="dropdown-arrow" [class.open]="isAllProductsOpen"></span>
+      </button>
+    </div>
+    <div class="search-bar">
+      <input type="text" placeholder="Search by product name or part number">
+      <button class="search-button">
+        <i class="fas fa-search"></i>
+      </button>
       <div class="col-md-1"></div>
     </div>
-    <div class="main-content" [class.open]="isAllProductsOpen">
-      <div class="col-md-1"></div>
+  </div>
+  <div class="dropdown-overlay" [class.open]="isAllProductsOpen">
+    <div class="main-content">
       <div class="categories-list">
-        <h3>Categories</h3>
         <ul>
           <li *ngFor="let category of topLevelCategories" 
-              (click)="selectCategory(category)"
+              (mouseenter)="selectCategory(category)"
               [class.active]="category === selectedCategory">
             {{ category.name }}
           </li>
         </ul>
       </div>
-
-      <div class="subcategories" *ngIf="selectedCategory">
-        <div class="subcategory-header">
-          <h2>{{ selectedCategory.name }}</h2>
+      <div class="subcategories">
+        <div class="subcategory-header" *ngIf="selectedCategory">
+          <h3>{{ selectedCategory.name }}</h3>
           <a href="#" class="view-all">View All →</a>
         </div>
-        <ul>
+        <ul class="subcategory-list" *ngIf="selectedCategory">
           <li *ngFor="let subCategory of selectedCategory.subcategories">
             {{ subCategory.name }}
             <ul class="nested-subcategories" *ngIf="subCategory.subcategories && subCategory.subcategories.length > 0">
@@ -48,15 +46,15 @@
       </div>
       <div class="recommended-products" *ngIf="selectedCategory && recommendedProducts.length > 0">
         <div class="recommended-header">
-          <h2>RECOMMENDED {{ selectedCategory.name }}</h2>
+          <h3>RECOMMENDED {{ selectedCategory.name }}</h3>
           <a href="#" class="view-all">View All →</a>
         </div>
         <div class="product-grid">
           <div class="product-item" *ngFor="let product of recommendedProducts">
             <img [src]="product.showcaseImage?.url" [alt]="product.name">
             <div class="product-info">
-              <h3>{{ product.sku }}</h3>
-              <h4>{{ product.name }}</h4>
+              <h3>{{ product.name }}</h3>
+              <h4>{{ product.sku }}</h4>
               <p>{{ product.description }}</p>
               <p class="stock-status" [class.in-stock]="product.stock > 0">
                 {{ product.stock > 0 ? 'In stock' : 'Out of stock' }}
@@ -67,7 +65,8 @@
           </div>
         </div>
       </div>
-      <div class="col-md-1"></div>
     </div>
+    <div class="col-md-1"></div>
   </div>
+</div>
 </nav>

@@ -1,5 +1,4 @@
-// navbar.component.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Category } from 'src/app/contracts/category/category';
 import { PageRequest } from 'src/app/contracts/pageRequest';
@@ -47,7 +46,7 @@ export class NavbarComponent implements OnInit {
 
   organizeCategories() {
     const categoryMap = new Map<string, CategoryWithSubcategories>();
-
+    
     this.categories.forEach(category => {
       categoryMap.set(category.id, { ...category, subcategories: [] });
     });
@@ -80,5 +79,25 @@ export class NavbarComponent implements OnInit {
 
   toggleAllProducts() {
     this.isAllProductsOpen = !this.isAllProductsOpen;
+  }
+
+  openAllProducts() {
+    this.isAllProductsOpen = true;
+  }
+
+  closeAllProducts() {
+    this.isAllProductsOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const dropdownElement = document.querySelector('.dropdown-overlay');
+    const allProductsButton = document.querySelector('.all-products-dropdown button');
+    
+    if (dropdownElement && allProductsButton) {
+      if (!dropdownElement.contains(event.target as Node) && !allProductsButton.contains(event.target as Node)) {
+        this.closeAllProducts();
+      }
+    }
   }
 }
