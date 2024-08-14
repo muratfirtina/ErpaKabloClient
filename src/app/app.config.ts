@@ -20,6 +20,7 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { MatTreeModule } from '@angular/material/tree';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { SafeUrlPipe } from './pipes/safeUrl.pipe';
+import { JwtModule } from '@auth0/angular-jwt';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), provideAnimations(),
@@ -27,6 +28,17 @@ export const appConfig: ApplicationConfig = {
     ,MatSidenavModule,MatListModule,MatCardModule,MatButtonModule,
     MatFormFieldModule,MatInputModule,MatPaginatorModule,MatTableModule,
     MatSelectModule,NgxMatSelectSearchModule,MatTreeModule,
-    ToastrModule.forRoot()),SafeUrlPipe,
+    ToastrModule.forRoot(),
+    JwtModule.forRoot(
+      {
+        config: {
+          tokenGetter: () => {
+            return localStorage.getItem("accessToken");
+          },
+          allowedDomains: ["localhost:5199"],
+          disallowedRoutes: ["localhost:5199/api/auth/login"]
+        }
+      }
+    ),),SafeUrlPipe,
   { provide: "baseUrl", useValue: "http://localhost:5199/api", multi: true }, provideAnimationsAsync(),]
 };

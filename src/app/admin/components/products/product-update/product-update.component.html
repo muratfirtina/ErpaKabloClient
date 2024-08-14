@@ -1,5 +1,8 @@
 <div class="product-update-container">
-    <h2>Ürün Güncelleme</h2>
+    <div>
+        <h2>Ürün Güncelleme</h2>
+        <button mat-raised-button color="primary" (click)="navigateToProductDetail(productId)" style="margin-bottom: 40px;">Ürün Detayına Git</button>
+    </div>
     <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="outline">
             <mat-label>Ürün Adı</mat-label>

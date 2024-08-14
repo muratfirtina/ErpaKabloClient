@@ -365,4 +365,11 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   navigateToProduct(productId: string) {
     this.router.navigate(['/admin/products/product-update', productId]);
   }
+
+  navigateToProductDetail(productId: string) {
+    const url = this.router.serializeUrl(
+      this.router.createUrlTree(['/product', productId])
+    );
+    window.open(url, '_blank');
+  }
 }

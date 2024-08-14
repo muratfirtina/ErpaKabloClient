@@ -122,4 +122,13 @@ export class ProductService {
       }
     });
   }
+
+  async getRandomProductsByCategory(categoryId: string, count: number = 4): Promise<Product[]> {
+    const observable: Observable<Product[]> = this.httpClientService.get<Product[]>({
+      controller: "products",
+      action: `GetRandomProductsByCategory/${categoryId}`,
+      queryString: `count=${count}`
+    });
+    return await firstValueFrom(observable);
+  }
 }

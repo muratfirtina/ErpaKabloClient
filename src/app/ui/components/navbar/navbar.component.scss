@@ -1,0 +1,236 @@
+.industrial-navbar {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+
+  .top-bar {
+    background-color: #333;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch; // Değiştirdim: çocuk öğelerin yüksekliği eşit olsun
+    padding: 0 20px; // Üst ve alt padding'i kaldırdım
+
+    .all-products-dropdown {
+      button {
+        background-color: transparent;
+        color: white;
+        border: none;
+        padding: 0 15px;
+        cursor: pointer;
+        font-size: 18px;
+        height: 64px; // Butonun yüksekliğini %100 yaptım
+        display: flex;
+        align-items: center; // Dikey hizalama için
+
+        .dropdown-arrow {
+          margin-left: 5px;
+          transition: transform 0.3s ease;
+
+          &.open {
+            transform: rotate(180deg);
+          }
+        }
+      }
+
+      button:hover {
+        background-color: #5a5a5a;
+      }
+    }
+
+    .search-bar {
+      flex-grow: 1;
+      margin: 0 20px;
+      display: flex;
+      align-items: center; // Dikey hizalama için
+
+      input {
+        flex-grow: 1;
+        padding: 10px;
+        border: none;
+        font-size: 16px;
+        height: 40px; // Sabit bir yükseklik verdim
+      }
+
+      .search-button {
+        background-color: white;
+        border: none;
+        padding: 0 15px;
+        cursor: pointer;
+        height: 40px; // Input ile aynı yükseklikte
+        display: flex;
+        align-items: center; // Dikey hizalama için
+      }
+    }
+
+    .right-menu {
+      display: flex;
+      align-items: center;
+
+      a {
+        color: white;
+        text-decoration: none;
+        margin-left: 20px;
+        font-size: 18px; // Menü öğeleri yazı boyutunu artırdım
+      }
+
+      .cart {
+        position: relative;
+
+        .cart-count {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background-color: red;
+          color: white;
+          border-radius: 50%;
+          padding: 2px 6px;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+
+  .main-content {
+    display: flex;
+    background-color: #f1f1f1;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+
+    &.open {
+      max-height: 1000px; // Adjust this value based on your content
+    }
+
+    .categories-list {
+      width: 300px; // Genişliği artırdım
+      background-color: #000;
+      color: white;
+      padding: 20px;
+
+      h3 {
+        margin-bottom: 20px;
+        font-size: 24px; // Başlık yazı boyutunu artırdım
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+
+        li {
+          padding: 10px 0;
+          cursor: pointer;
+          font-size: 18px; // Liste öğeleri yazı boyutunu artırdım
+
+          &:hover, &.active {
+            color: #4CAF50;
+          }
+        }
+      }
+    }
+    .subcategories {
+      padding: 20px;
+      width: 350px; // Sabit genişlik atadım
+    }
+    .recommended-products {
+      padding: 20px;
+      width: 900px; // Sabit genişlik atadım
+    }
+
+    .subcategory-header, .recommended-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+
+      h2 {
+        margin: 0;
+        font-size: 28px; // Başlık yazı boyutunu artırdım
+      }
+
+      .view-all {
+        color: #0066cc;
+        text-decoration: none;
+        font-size: 18px; // "View All" yazı boyutunu artırdım
+      }
+    }
+
+    .subcategories {
+      ul {
+        list-style-type: none;
+        padding: 0;
+
+        li {
+          padding: 10px 0;
+          font-weight: bold;
+          font-size: 20px; // Alt kategori yazı boyutunu artırdım
+
+          .nested-subcategories {
+            padding-left: 20px;
+            margin-top: 10px;
+
+            li {
+              font-weight: normal;
+              font-size: 18px; // İç içe alt kategori yazı boyutunu artırdım
+              color: #666;
+            }
+          }
+        }
+      }
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+
+      .product-item {
+        background-color: white;
+        padding: 20px;
+        display: flex;
+
+        img {
+          width: 120px; // Ürün resmi boyutunu artırdım
+          height: 120px;
+          object-fit: contain;
+          margin-right: 20px;
+        }
+
+        .product-info {
+          h3, h4 {
+            margin: 0 0 10px 0;
+            font-size: 20px; // Ürün başlığı yazı boyutunu artırdım
+          }
+
+          p {
+            font-size: 16px; // Ürün açıklaması yazı boyutunu artırdım
+          }
+
+          .stock-status {
+            color: red;
+            font-size: 18px; // Stok durumu yazı boyutunu artırdım
+
+            &.in-stock {
+              color: green;
+            }
+          }
+
+          .price {
+            font-weight: bold;
+            font-size: 22px; // Fiyat yazı boyutunu artırdım
+
+            span {
+              font-weight: normal;
+              font-size: 18px;
+            }
+          }
+
+          .sign-in {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 18px; // "Sign in" yazı boyutunu artırdım
+          }
+        }
+      }
+    }
+  }
+}

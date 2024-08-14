@@ -79,4 +79,5 @@ export class CategoryService {
       .catch(errorCallback);
     return await promiseData;
   }
+  
 }

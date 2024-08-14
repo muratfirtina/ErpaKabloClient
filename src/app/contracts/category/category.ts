@@ -1,3 +1,5 @@
+import { Product } from "../product/product";
+
 export class Category{
     id: string;
     name: string;
@@ -5,4 +7,5 @@ export class Category{
     subCategories?: Category[];
     checked?: boolean;
     expanded?: boolean;
+    products?: Product[];
 }
