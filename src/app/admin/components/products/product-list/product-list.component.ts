@@ -52,6 +52,8 @@ export class ProductListComponent extends BaseComponent implements OnInit {
   pageList: number[] = [];
   displayedColumns: string[] = ['No', 'Image', 'Feature', 'Product', 'VariantID' ,'Update','Delete'];
   searchForm: FormGroup;
+  private searchCache: Product[] = []; // Arama sonuçları önbelleği
+  private currentSearchTerm: string = ''; // Mevcut arama terimi
 
   constructor(
     spinner: NgxSpinnerService,
@@ -66,6 +68,7 @@ export class ProductListComponent extends BaseComponent implements OnInit {
     this.searchForm = this.fb.group({
       nameSearch: [''],
       varyantGroupIdSearch: [''],
+      featureValueNameSearch: [''],
     });
 
     this.searchForm.get('nameSearch')?.valueChanges.pipe(
@@ -73,9 +76,11 @@ export class ProductListComponent extends BaseComponent implements OnInit {
       distinctUntilChanged()
     ).subscribe(value => {
       if (value.length >= 3) {
-        this.searchProduct();
+        this.searchProduct(value);
       } else if (value.length === 0) {
         this.getProducts();
+        this.searchCache = []; // Önbelleği temizle
+        this.currentSearchTerm = '';
       }
     });
   }
@@ -111,61 +116,93 @@ export class ProductListComponent extends BaseComponent implements OnInit {
     this.getProducts();
   }
 
-  async searchProduct() {
+  async searchProduct(searchTerm: string) {
     this.showSpinner(SpinnerType.BallSpinClockwise);
+  
+    // Eğer mevcut arama terimi, yeni arama teriminin başında yer alıyorsa (örn. "Kahverengi" -> "Kahverengi ar")
+    if (searchTerm.startsWith(this.currentSearchTerm) && this.searchCache.length > 0) {
+      // İstemci tarafında filtreleme yap
+      this.pagedProducts = this.searchCache.filter(product => 
+        this.productMatchesSearchTerm(product, searchTerm)
+      );
+      this.count = this.pagedProducts.length;
+      this.pages = Math.ceil(this.count / this.pageSize);
+      this.currentPageNo = 1;
+    } else {
+      // Sunucuya yeni bir istek at
+      const filters: Filter[] = this.buildFilters(searchTerm);
+  
+      const dynamicQuery: DynamicQuery = {
+        sort: [{ field: 'Name', dir: 'asc' }], // 'Name' alanını güncellediğinizden emin olun
+        filter: filters.length > 0 ? {
+          logic: 'and',
+          filters: filters
+        } : undefined
+      };
+  
+      const pageRequest: PageRequest = { pageIndex: 0, pageSize: this.pageSize };
+  
+      await this.productService.getProductsByDynamicQuery(dynamicQuery, pageRequest).then((response) => {
+        this.pagedProducts = response.items;
+        this.count = response.count;
+        this.pages = response.pages;
+        this.currentPageNo = 1;
+  
+        // Önbelleği güncelle
+        this.searchCache = response.items;
+        this.currentSearchTerm = searchTerm;
+      }).catch((error) => {
+        this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
+      }).finally(() => {
+        this.hideSpinner(SpinnerType.BallSpinClockwise);
+      });
+    }
+  }
+  
 
-    const formValue = this.searchForm.value;
-    let filters: Filter[] = [];
-
+  private buildFilters(searchTerm: string): Filter[] {
+    const terms = searchTerm.split(' ').filter(term => term.length > 0);
+  
     const name = ProductFilterByDynamic.Name;
     const varyantGroupId = ProductFilterByDynamic.VaryantGroupID;
-
-    if (formValue.nameSearch) {
-      const nameFilter: Filter = {
-        field: name,
+    const description = ProductFilterByDynamic.Description;
+    const filters: Filter[] = terms.map(term => ({
+      field: name,
         operator: "contains",
-        value: formValue.nameSearch,
+        value: searchTerm,
         logic: "or",
         filters: [
           {
             field: varyantGroupId,
             operator: "contains",
-            value: formValue.nameSearch,
+            value: searchTerm,
+            logic: "or",
+            filters: [
+              {
+                field: description,
+                operator: "contains",
+                value: searchTerm
+              },
+            ],
           },
         ],
-      };
-
-      filters.push(nameFilter);
-    }
-
-    let dynamicFilter: Filter | undefined;
-    if (filters.length > 0) {
-      dynamicFilter = filters.length === 1 ? filters[0] : {
-        field: "",
-        operator: "",
-        logic: "and",
-        filters: filters
-      };
-    }
-    
-    const dynamicQuery: DynamicQuery = {
-      sort: [{ field: name, dir: "asc" }],
-      filter: dynamicFilter
-    };
-
-    const pageRequest: PageRequest = { pageIndex: 0, pageSize: this.pageSize };
+    }));
   
-    await this.productService.getProductsByDynamicQuery(dynamicQuery, pageRequest).then((response) => {
-      this.pagedProducts = response.items;
-      this.count = response.count;
-      this.pages = response.pages;
-      this.currentPageNo = 1;
-    }).catch((error) => {
-      this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
-    }).finally(() => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-    });
+    return filters;
   }
+
+  private productMatchesSearchTerm(product: Product, searchTerm: string): boolean {
+    const terms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
+    const name = product.name.toLowerCase();
+    const variantGroupId = product.varyantGroupID?.toLowerCase() || '';
+    const description = product.description?.toLowerCase() || '';
+  
+    return terms.every(term => 
+      name.includes(term) || variantGroupId.includes(term) || description.includes(term)
+    );
+  }
+  
+  
 
   removeProductFromList(productId: string) {
     this.pagedProducts = this.pagedProducts.filter(product => product.id !== productId);

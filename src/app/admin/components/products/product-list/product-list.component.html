@@ -9,10 +9,10 @@
     <div class="row mb-4">
       <div class="col-md-12">
         <div class="search-and-table-container">
-          <form [formGroup]="searchForm" (ngSubmit)="searchProduct()">
+          <form [formGroup]="searchForm" (ngSubmit)="searchProduct(searchForm.get('nameSearch').value)">
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Ürün Ara...</mat-label>
-              <input matInput formControlName="nameSearch" (input)="searchProduct()">
+              <input matInput formControlName="nameSearch" (input)="searchProduct(searchForm.get('nameSearch').value)">
               <button mat-raised-button class="search-button" type="submit">Ara</button>
             </mat-form-field>
           </form>
