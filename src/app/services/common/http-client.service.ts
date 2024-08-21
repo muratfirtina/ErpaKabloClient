@@ -44,7 +44,7 @@ export class HttpClientService {
 
   }
 
-  put<T>(requestParameters: Partial<RequestParameters>, body: Partial<T>): Observable<T>{
+  put<T>(requestParameters: Partial<RequestParameters>, body: Partial<T> | FormData, options?: any): Observable<T>{
     let url: string = "";
     if(requestParameters.fullEndpoint){
       url = requestParameters.fullEndpoint;

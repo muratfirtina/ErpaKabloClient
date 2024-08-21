@@ -99,6 +99,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
+      title: ['', Validators.required],
       categoryId: ['', Validators.required],
       brandId: ['', Validators.required],
       varyantGroupID: [''],
@@ -141,6 +142,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     this.productForm.patchValue({
       name: this.product.name,
       description: this.product.description,
+      title: this.product.title,
       categoryId: this.product.categoryId,
       brandId: this.product.brandId,
       varyantGroupID: this.product.varyantGroupID,
@@ -168,7 +170,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
         id: [image.id],
         fileName: [image.fileName],
         path: [image.path],
-        category: [image.category],
+        entityType: [image.entityType],
         storage: [image.storage],
         url: [image.url],
         showcase: [image.showcase] || '../../../../../assets/product/ecommerce-default-product.png'
@@ -250,6 +252,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       formData.append('id', this.productId);
       formData.append('name', updatedProduct.name);
       formData.append('description', updatedProduct.description);
+      formData.append('title', updatedProduct.name);
       formData.append('categoryId', updatedProduct.categoryId);
       formData.append('brandId', updatedProduct.brandId);
       formData.append('varyantGroupID', updatedProduct.varyantGroupID);

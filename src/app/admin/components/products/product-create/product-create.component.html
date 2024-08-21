@@ -1,5 +1,5 @@
 <div class="product-create-container">
-  <h6>Ürün Ekleme Paneli</h6>
+  <h2>Ürün Ekleme Paneli</h2>
   <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
     <mat-form-field appearance="outline">
       <mat-label>Ürün Adı</mat-label>
@@ -72,13 +72,6 @@
       </mat-error>
     </mat-form-field>
 
-
-    <div class="full-width">
-      <label>Açıklama</label>
-      <angular-editor formControlName="description" [config]="editorConfig">
-      </angular-editor>
-    </div>
-
     <div formArrayName="features" class="features-section full-width">
       <h6>Özellikler</h6>
       
@@ -107,7 +100,6 @@
       <button mat-stroked-button color="primary" type="button" (click)="addFeature()">
         <mat-icon>add</mat-icon> Özellik Ekle
       </button>
-      
     </div>
 
     <div class="full-width">
@@ -119,7 +111,6 @@
     </div>
 
     <div *ngIf="variantsCreated" class="variants-table full-width">
-      
       <div class="full-width">
         <button mat-stroked-button color="warn" type="button" (click)="removeSelectedVariants()">
           Seçili Varyantları Sil
@@ -191,7 +182,6 @@
           <th mat-header-cell *matHeaderCellDef> Varyantlar </th>
           <td mat-cell *matCellDef="let variant"> {{variant.get('combination').value}} </td>
         </ng-container>
-
     
         <ng-container matColumnDef="price">
           <th mat-header-cell *matHeaderCellDef> Fiyat </th>
@@ -222,7 +212,26 @@
             </mat-form-field>
           </td>
         </ng-container>
-    
+
+        <ng-container matColumnDef="title">
+          <th mat-header-cell *matHeaderCellDef> Başlık </th>
+          <td mat-cell *matCellDef="let variant; let i = index">
+            <mat-form-field appearance="outline" class="narrow-input">
+              <input matInput [formControl]="variant.get('title')"
+                     (input)="updateSelectedVariants($event, 'title', i)">
+            </mat-form-field>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+          <th mat-header-cell *matHeaderCellDef> Açıklama </th>
+          <td mat-cell *matCellDef="let variant; let i = index">
+            <button mat-icon-button color="primary" type="button" (click)="openDescriptionEditor(variant, i, $event)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="actions">
           <th mat-header-cell *matHeaderCellDef> İşlemler </th>
           <td mat-cell *matCellDef="let variant; let i = index">
@@ -241,5 +250,5 @@
       <mat-icon>save</mat-icon> {{ buttonText }}
     </button>
   </form>
-  </div>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</div>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">

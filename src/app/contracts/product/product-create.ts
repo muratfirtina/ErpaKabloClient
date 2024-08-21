@@ -1,6 +1,7 @@
 export class ProductCreate {
     name: string;
     description: string;
+    title: string;
     categoryId: string;
     brandId: string;
     sku: string;

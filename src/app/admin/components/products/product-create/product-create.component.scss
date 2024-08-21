@@ -7,7 +7,7 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 
   h2 {
-    color: mat-color();
+    color: #333;
     margin-bottom: 2rem;
     font-weight: 500;
   }
@@ -38,7 +38,7 @@
     margin-bottom: 20px;
 
     h3 {
-      color: mat-color();
+      color: #333;
       margin-bottom: 1rem;
     }
 
@@ -66,27 +66,30 @@
       th, td {
         text-align: center;
         vertical-align: middle;
+        padding: 0.5rem;
       }
 
       th {
         font-weight: 500;
-        padding: 0.5rem;
         font-size: 0.9rem;
+        background-color: #f5f5f5;
       }
-
       td {
         background-color: white;
-        padding: 0.25rem 0.5rem;
         font-size: 0.9rem;
       }
 
       tr {
-        height: 60px; // Tüm satırlar için sabit bir yükseklik
+        height: 60px;
       }
 
       tr:nth-child(even) td {
         background-color: #f9f9f9;
       }
+    }
+
+    .narrow-input {
+      width: 150px;
     }
   }
 
@@ -107,24 +110,16 @@
     padding: 8px;
   }
     
-    .mat-tree-node {
-      min-height: 36px;
-    }
-    
+  .mat-tree-node {
+    min-height: 36px;
+  }
 }
-
-
 
 ::ng-deep {
-    .mat-select-panel {
-      max-height: none !important;
-    }
+  .mat-select-panel {
+    max-height: none !important;
+  }
 }
-
-
-/* ::ng-deep .mat-mdc-button-persistent-ripple::before {
-  background-color: #ba1a1a !important;
-} */
 
 .image-carousel {
   width: 200px;
@@ -179,9 +174,8 @@ mat-card-actions {
   justify-content: center;
 }
 
-.mat-mdc-card-content{
+.mat-mdc-card-content {
   padding: 6px !important;
-
 }
 
 .compact-icon-button {
@@ -194,7 +188,6 @@ mat-card-actions {
     width: 18px;
     height: 18px;
     line-height: 18px;
-    
   }
 }
 
@@ -211,5 +204,19 @@ mat-card-actions {
   .narrow-input {
     width: 100%;
   }
+
+  .variants-table {
+    overflow-x: scroll;
+    
+    table {
+      min-width: 1000px;
+    }
+  }
 }
 
+// Kolkov Editor için stil
+::ng-deep {
+  .angular-editor-textarea {
+    min-height: 200px !important;
+  }
+}

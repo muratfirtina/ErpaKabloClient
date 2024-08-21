@@ -1,19 +1,76 @@
 <nav class="industrial-navbar">
   <div class="row">
-  
-  <div class="top-bar">
-    <div class="col-md-1"></div>
-    <div class="all-products-dropdown">
-      <button class="dropdown-toggle" (click)="toggleAllProducts()">
-        All Products
-        <span class="dropdown-arrow" [class.open]="isAllProductsOpen"></span>
-      </button>
-    </div>
-    <div class="search-bar">
-      <input type="text" placeholder="Search by product name or part number">
-      <button class="search-button">
-        <i class="fas fa-search"></i>
-      </button>
+
+    <div class="top-bar">
+      <div class="col-md-1"></div>
+      <div class="all-products-dropdown">
+        <button class="dropdown-toggle" (click)="toggleAllProducts()">
+          All Products
+          <span class="dropdown-arrow" [class.open]="isAllProductsOpen"></span>
+        </button>
+      </div>
+      <div class="search-bar">
+        <form [formGroup]="searchForm">
+          <input type="text" formControlName="searchTerm" placeholder="Search by product name or part number"
+            (focus)="onSearchFocus()" (blur)="onSearchBlur()">
+          <button class="search-button">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                          class="bi bi-search" viewBox="0 0 16 16">
+                          <path
+                              d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                      </svg>
+          </button>
+        </form>
+        <div class="search-dropdown" *ngIf="isSearchFocused">
+          <div class="recent-searches" *ngIf="recentSearches.length > 0">
+            <div class="recent-searches-header">
+              <h4>Recent Searches</h4>
+              <span class="clear-history" (click)="clearSearchHistory()">Clear Search History</span>
+            </div>
+            <ul>
+              <li *ngFor="let search of recentSearches" (click)="searchForm.get('searchTerm').setValue(search)">{{ search }}</li>
+            </ul>
+          </div>
+          <div class="search-results">
+            <div class="products" *ngIf="searchResults.products.length > 0">
+              <h4>Products</h4>
+              <ul>
+                <li *ngFor="let product of searchResults.products" (click)="navigateToSearchResult('product', product.id)">
+                  <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name" class="product-thumbnail">
+                  <div class="product-info">
+                    <span class="product-name">{{ product.name }}</span>
+                    <span class="product-features">
+                      <ng-container *ngFor="let feature of product.productFeatureValues; let last = last">
+                        {{ feature.featureValueName }}{{ !last ? ', ' : '' }}
+                      </ng-container>
+                    </span>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="categories" *ngIf="searchResults.categories.length > 0">
+              <h4>Categories</h4>
+              <ul>
+                <li *ngFor="let category of searchResults.categories"
+                  (click)="navigateToSearchResult('category', category.id)">
+                  <img [src]="category.categoryImage?.url || 'assets/default-category-image.png'" [alt]="category.name"
+                    class="category-thumbnail">
+                  <span>{{ category.name }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="brands" *ngIf="searchResults.brands.length > 0">
+              <h4>Brands</h4>
+              <ul>
+                <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult('brand', brand.id)">
+                  <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" [alt]="brand.name"
+                    class="brand-thumbnail">
+                  <span>{{ brand.name }}</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       <div class="col-md-1"></div>
     </div>
   </div>
@@ -21,9 +78,8 @@
     <div class="main-content">
       <div class="categories-list">
         <ul>
-          <li *ngFor="let category of topLevelCategories" 
-              (mouseenter)="selectCategory(category)"
-              [class.active]="category === selectedCategory">
+          <li *ngFor="let category of topLevelCategories" (mouseenter)="selectCategory(category)"
+            [class.active]="category === selectedCategory">
             {{ category.name }}
           </li>
         </ul>
@@ -68,5 +124,5 @@
     </div>
     <div class="col-md-1"></div>
   </div>
-</div>
+  </div>
 </nav>

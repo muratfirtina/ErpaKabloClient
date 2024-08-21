@@ -9,6 +9,7 @@ export class Product {
     price: number;
     sku: string;
     tax: number;
+    title: string;
     description: string;
     categoryId: string;
     brandId: string;

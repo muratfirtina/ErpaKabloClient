@@ -51,7 +51,7 @@ export class BrandListComponent extends BaseComponent implements OnInit {
   count: number = 0;
   pages: number = 0;
   pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Brand','Delete'];
+  displayedColumns: string[] = ['No', 'Image', 'Brand', 'Delete'];
   searchForm: FormGroup;
 
   constructor(

@@ -15,14 +15,19 @@ export class CategoryService {
 
   constructor(private httpClientService:HttpClientService) { }
 
-  async create(category:CategoryCreate, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<CategoryCreate>{
-    const observable : Observable<CategoryCreate> = this.httpClientService.post<CategoryCreate>({
+  async create(categoryData:FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void){
+    this.httpClientService.post({
       controller: "categories"
-    }, category);
-    const promiseData = firstValueFrom(observable);
-    promiseData.then(successCallback)
-      .catch(errorCallback);
-    return await promiseData;
+    }, categoryData).subscribe({
+      next: (response) => {
+        console.log('Server response:', response);
+        successCallback();
+      },
+      error: (error) => {
+        console.error('Server error:', error);
+        errorCallback(error);
+      }
+    });
   }
 
   async list(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Category>>{
@@ -60,10 +65,10 @@ export class CategoryService {
     
   }
 
-  async update(category:CategoryUpdate, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<CategoryUpdate>{
-    const observable : Observable<CategoryUpdate> = this.httpClientService.put<CategoryUpdate>({
+  async update(categoryData: FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<CategoryUpdate> {
+    const observable: Observable<CategoryUpdate> = this.httpClientService.put<CategoryUpdate>({
       controller: "categories"
-    }, category);
+    }, categoryData);
     const promiseData = firstValueFrom(observable);
     promiseData.then(successCallback)
       .catch(errorCallback);

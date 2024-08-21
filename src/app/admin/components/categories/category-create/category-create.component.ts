@@ -21,6 +21,7 @@ import { FeatureService } from 'src/app/services/common/models/feature.service';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { PageRequest } from 'src/app/contracts/pageRequest';
+import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
 
 @Component({
   selector: 'app-category-create',
@@ -38,6 +39,7 @@ export class CategoryCreateComponent extends BaseComponent implements OnInit {
   filteredParentCategories: Observable<Category[]>;
   categories: Category[] = [];
   features: Feature[] = [];
+  selectedFile: File | null = null;
 
   constructor(
     spinner: NgxSpinnerService,
@@ -149,15 +151,35 @@ export class CategoryCreateComponent extends BaseComponent implements OnInit {
     });
   }
 
+  openFileUploadDialog(): void {
+    const dialogRef = this.dialog.open(FileUploadDialogComponent, {
+      width: '500px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.length > 0) {
+        this.selectedFile = result[0];
+      }
+    });
+  }
+
   createCategory(formValue: any) {
-    const create_category: CategoryCreate = {
-      name: formValue.name,
-      parentCategoryId: formValue.parentCategoryId ? formValue.parentCategoryId : null,
-      featureIds: formValue.featureIds ? formValue.featureIds : []
-    };
+    const formData = new FormData();
+    formData.append('name', formValue.name);
+    if (formValue.parentCategoryId) {
+      formData.append('parentCategoryId', formValue.parentCategoryId);
+    }
+    if (formValue.featureIds && formValue.featureIds.length > 0) {
+      formValue.featureIds.forEach((featureId: string, index: number) => {
+        formData.append(`featureIds[${index}]`, featureId);
+      });
+    }
+    if (this.selectedFile) {
+      formData.append('CategoryImage', this.selectedFile, this.selectedFile.name);
+    }
 
     this.showSpinner(SpinnerType.BallSpinClockwise);
-    this.categoryService.create(create_category, () => {
+    this.categoryService.create(formData, () => {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.toastrService.message('Category created successfully', 'Success', {
         toastrMessageType: ToastrMessageType.Success,

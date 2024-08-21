@@ -16,6 +16,13 @@
         </div>
 
         <div class="form-row">
+          <button mat-raised-button color="primary" type="button" (click)="openFileUploadDialog()">
+            {{ selectedFile ? 'Change Image' : 'Upload Image' }}
+          </button>
+          <p *ngIf="selectedFile">Selected file: {{ selectedFile.name }}</p>
+        </div>
+
+        <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
             <mat-label>Üst Kategori Seçimi</mat-label>
             <input type="text" matInput [formControl]="parentCategoryIdControl" [matAutocomplete]="auto">

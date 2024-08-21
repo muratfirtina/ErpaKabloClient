@@ -3,10 +3,9 @@
   font-size: 14px;
 
   .top-bar {
-    background-color: #424242;
+    background-color: #343434;
     color: white;
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding-right: 20px;
     height: 64px;
@@ -41,8 +40,13 @@
     .search-bar {
       flex-grow: 1;
       margin: 0 20px;
-      display: flex;
-      align-items: center;
+      position: relative;
+      max-width: 700px;
+
+      form {
+        display: flex;
+        align-items: center;
+      }
 
       input {
         flex-grow: 1;
@@ -50,6 +54,7 @@
         border: none;
         font-size: 14px;
         height: 40px;
+        width: 100%;
       }
 
       .search-button {
@@ -61,7 +66,145 @@
         display: flex;
         align-items: center;
       }
+
+      .search-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: white;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        max-height: 400px;
+        max-width: 700px;
+        overflow-y: auto;
+
+        .recent-searches, .search-results > div {
+          padding: 10px;
+
+          .recent-searches-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+      
+            h4 {
+              margin: 0;
+            }
+      
+            .clear-history {
+              color: red;
+              cursor: pointer;
+              font-size: 12px;
+              
+              &:hover {
+                text-decoration: underline;
+              }
+            }
+          }
+
+          h4 {
+            margin: 0 0 10px;
+            font-size: 1rem;
+            color: black;
+            font-weight: bold;
+          }
+
+          ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+
+            li {
+              padding: 4px 0;
+              cursor: pointer;
+              color: black;
+
+              &:hover {
+                background-color: #f5f5f5;
+              }
+            }
+          }
+        }
+
+        .search-results {
+          border-top: 1px solid #eee;
+
+          .products {
+            ul {
+              li {
+                display: flex;
+                align-items: center;
+                padding: 8px 0;
+                cursor: pointer;
+      
+                &:hover {
+                  background-color: #f5f5f5;
+                }
+      
+                .product-thumbnail {
+                  width: 50px;
+                  height: 50px;
+                  object-fit: cover;
+                  margin-right: 10px;
+                  border-radius: 4px;
+                }
+      
+                .product-info {
+                  flex-grow: 1;
+                  display: flex;
+                  flex-direction: column;
+                  overflow: hidden;
+      
+                  .product-name {
+                    font-weight: bold;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  }
+      
+                  .product-features {
+                    font-size: 0.8em;
+                    color: #666;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  }
+                }
+              }
+            }
+          }
+          .categories, .brands {
+            ul {
+              li {
+                display: flex;
+                align-items: center;
+                padding: 8px 0;
+                cursor: pointer;
+    
+                &:hover {
+                  background-color: #f5f5f5;
+                }
+    
+                .category-thumbnail, .brand-thumbnail {
+                  width: 40px;
+                  height: 40px;
+                  object-fit: cover;
+                  margin-right: 10px;
+                  border-radius: 4px;
+                }
+    
+                span {
+                  flex-grow: 1;
+                }
+              }
+            }
+          }
+        }
+      }
     }
+    
 
     
   }

@@ -9,13 +9,15 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Observable, map, startWith, switchMap } from 'rxjs';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Category } from 'src/app/contracts/category/category';
+import { CategoryGetById } from 'src/app/contracts/category/category-getbyid';
 import { CategoryUpdate } from 'src/app/contracts/category/category-update';
 import { CategoryFilterByDynamic } from 'src/app/contracts/category/categoryFilterByDynamic';
+import { CategoryImageFile } from 'src/app/contracts/category/categoryImageFile';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { PageRequest } from 'src/app/contracts/pageRequest';
@@ -42,6 +44,7 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
 
   categoryForm: FormGroup;
   categoryId: string;
+  category: CategoryGetById;
   categories: Category[] = [];
   features: Feature[] = [];
   filteredCategories: Observable<Category[]>;
@@ -55,6 +58,12 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
   count: number = 0;
   pages: number = 0;
   searchForm: FormGroup;
+  selectedFile: File | null = null;
+  categoryImage: CategoryImageFile;
+  currentImageUrl: string | null = null;
+  selectedImageUrl: string | ArrayBuffer | null = null;
+  removeExistingImage: boolean = false;
+
 
   constructor(
     spinner: NgxSpinnerService,
@@ -62,6 +71,7 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
     private categoryService: CategoryService,
     private featureService: FeatureService,
     private route: ActivatedRoute,
+    private router: Router,
     private toastrService: CustomToastrService
   ) {
     super(spinner);
@@ -78,12 +88,12 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
       name: ['', Validators.required],
       parentCategoryId: [''],
       subCategories: [[]],
-      features: [[]]
+      features: [[]],
+      categoryImage: [null]
     });
 
     this.categoryId = this.route.snapshot.paramMap.get('id')!;
     await this.loadCategoryDetails();
-    await this.loadCategories();
     await this.loadFeatures();
 
     this.filteredParentCategories = this.parentCategoryIdControl.valueChanges.pipe(
@@ -99,19 +109,34 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
   }
 
   async loadCategoryDetails() {
-    const category = await this.categoryService.getById(this.categoryId);
-    this.categoryForm.patchValue({
-      name: category.name,
-      parentCategoryId: category.parentCategoryId,
-      subCategories: category.subCategories.map(sub => sub.id),
-      features: category.features.map(feat => feat.id)
-    });
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    try {
+      this.category = await this.categoryService.getById(this.categoryId);
+      if (this.category) {
+        this.categoryForm.patchValue({
+          name: this.category.name,
+          parentCategoryId: this.category.parentCategoryId,
+          features: this.category.features.map(feat => feat.id),
+        });
 
-    if (category.parentCategoryId) {
-      const parentCategory = await this.categoryService.getById(category.parentCategoryId);
-      if (parentCategory) {
-        this.parentCategoryIdControl.setValue(parentCategory.name);
+        if (this.category.categoryImage) {
+          this.currentImageUrl = this.category.categoryImage.url;
+        }
+
+        if (this.category.parentCategoryId) {
+          const parentCategory = await this.categoryService.getById(this.category.parentCategoryId);
+          if (parentCategory) {
+            this.parentCategoryIdControl.setValue(parentCategory.name);
+          }
+        }
       }
+    } catch (error) {
+      this.toastrService.message('Error loading category details', 'Error', { 
+        toastrMessageType: ToastrMessageType.Error, 
+        position: ToastrPosition.TopRight 
+      });
+    } finally {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
     }
   }
 
@@ -128,22 +153,61 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
 
   onSubmit() {
     if (this.categoryForm.valid) {
-      const formValue = this.categoryForm.value;
-      const updateCategory: CategoryUpdate = {
-        id: this.categoryId,
-        name: formValue.name,
-        parentCategoryId: formValue.parentCategoryId,
-        subCategories: formValue.subCategories.map(id => this.categories.find(cat => cat.id === id)),
-        featureIds: formValue.features
-      };
+      const formData = new FormData();
+      formData.append('id', this.categoryId);
+      formData.append('name', this.categoryForm.get('name').value);
 
-      this.categoryService.update(updateCategory).then(() => {
-        this.toastrService.message('Category updated successfully', 'Success', { toastrMessageType: ToastrMessageType.Success, position: ToastrPosition.TopRight });
-      }).catch(error => {
-        this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
-      });
+      const parentCategoryId = this.categoryForm.get('parentCategoryId').value;
+      if (parentCategoryId) {
+        formData.append('parentCategoryId', parentCategoryId);
+      }
+
+      const features = this.categoryForm.get('features').value;
+      if (features && features.length > 0) {
+        features.forEach((featureId: string) => {
+          formData.append('featureIds', featureId);
+        });
+      }
+
+      formData.append('removeExistingImage', this.removeExistingImage.toString());
+
+      if (this.selectedFile) {
+        formData.append('newCategoryImage', this.selectedFile, this.selectedFile.name);
+      }
+
+      this.showSpinner(SpinnerType.BallSpinClockwise);
+      this.categoryService.update(formData).then(
+        () => {
+          this.hideSpinner(SpinnerType.BallSpinClockwise);
+          this.toastrService.message('Category updated successfully', 'Success', {
+            toastrMessageType: ToastrMessageType.Success,
+            position: ToastrPosition.TopRight
+          });
+          this.router.navigate(['/admin/categories']);
+        },
+        (error) => {
+          this.hideSpinner(SpinnerType.BallSpinClockwise);
+          this.toastrService.message('Failed to update category', 'Error', {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight
+          });
+        }
+      );
     }
   }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      this.removeExistingImage = true;
+
+      const reader = new FileReader();
+      reader.onload = e => this.selectedImageUrl = reader.result;
+      reader.readAsDataURL(file);
+    }
+  }
+
 
   updateCheckedState(id: string, state: boolean) {
     const category = this.findCategoryById(this.categories, id);

@@ -17,7 +17,6 @@ import { Brand } from 'src/app/contracts/brand/brand';
 import { Category } from 'src/app/contracts/category/category';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
-import { ProductCreate } from 'src/app/contracts/product/product-create';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
@@ -31,10 +30,11 @@ import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
-import { ProductImageDialogComponent } from 'src/app/dialogs/product-image-dialog/product-image-dialog.component';
 import { SafeUrlPipe } from 'src/app/pipes/safeUrl.pipe';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatDialog } from '@angular/material/dialog';
+import { DescriptionEditorDialogComponent } from 'src/app/dialogs/description-editor-dialog/description-editor-dialog.component';
 
 interface FlatNode {
   expandable: boolean;
@@ -74,7 +74,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
   productForm: FormGroup;
   features: Feature[] = [];
   featureValues: { [key: string]: Featurevalue[] } = {};
-  variantColumns: string[] = ['select', 'images', 'combination', 'price', 'stock', 'sku', 'actions'];
+  variantColumns: string[] = ['select', 'images', 'combination', 'price', 'stock', 'sku', 'actions','title','description'];
   variantIds: string[] = [];
   allSelected = false;
   variantsCreated: boolean = false;
@@ -159,7 +159,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     private dialogService: DialogService,
     private safeUrlPipe: SafeUrlPipe,
     private sanitizer: DomSanitizer,
-    spinner: NgxSpinnerService
+    private dialog: MatDialog,
+    spinner: NgxSpinnerService,
   ) {
     super(spinner);
     this.createForm();
@@ -178,6 +179,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       description: [''],
+      title: [''],
       categoryId: ['', Validators.required],
       brandId: ['', Validators.required],
       categorySearch: [''],
@@ -456,9 +458,11 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       sku: control.get('sku').value,
       price: control.get('price').value,
       stock: control.get('stock').value,
+      title: control.get('title').value,
+      description: control.get('description').value,
       images: [[]],
       showcaseImageIndex: control.get('showcaseImageIndex').value
-
+      
     }));
 
     this.variants.clear();
@@ -473,7 +477,9 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
         stock: [existingVariant ? existingVariant.stock : 0, [Validators.required, Validators.min(0)]],
         sku: [existingVariant ? existingVariant.sku : '', Validators.required],
         images: [[]],
-        showcaseImageIndex: [existingVariant ? existingVariant.showcaseImageIndex : 0]
+        showcaseImageIndex: [existingVariant ? existingVariant.showcaseImageIndex : 0],
+        title: [existingVariant ? existingVariant.title : ''],
+        description: [existingVariant ? existingVariant.description : '']
       }));
     });
 
@@ -602,7 +608,8 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
   
       this.variants.controls.forEach((variant, index) => {
         formData.append(`Products[${index}].Name`, this.productForm.get('name').value);
-        formData.append(`Products[${index}].Description`, this.productForm.get('description').value);
+        formData.append(`Products[${index}].Description`, variant.get('description').value);
+        formData.append(`Products[${index}].Title`, variant.get('title').value);
         formData.append(`Products[${index}].CategoryId`, this.productForm.get('categoryId').value);
         formData.append(`Products[${index}].BrandId`, this.productForm.get('brandId').value);
         formData.append(`Products[${index}].Sku`, variant.get('sku').value);
@@ -651,5 +658,22 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       console.log('Form is invalid');
       this.snackBar.open('Lütfen tüm gerekli alanları doldurun', 'Kapat', { duration: 3000 });
     }
+  }
+
+  openDescriptionEditor(variant: FormGroup, index: number, event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const dialogRef = this.dialog.open(DescriptionEditorDialogComponent, {
+      width: '600px',
+      data: { description: variant.get('description').value }
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        variant.patchValue({ description: result });
+        this.updateSelectedVariants({ target: { value: result } }, 'description', index);
+      }
+    });
   }
 }

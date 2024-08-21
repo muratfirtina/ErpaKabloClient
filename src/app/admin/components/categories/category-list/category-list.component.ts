@@ -49,7 +49,7 @@ export class CategoryListComponent extends BaseComponent implements OnInit {
   pageSize: number = 10;
   count: number = 0;
   pages: number = 0;
-  displayedColumns: string[] = ['No', 'Category', 'Update' , 'Delete'];
+  displayedColumns: string[] = ['No', 'Image' ,'Category', 'Update' , 'Delete'];
   searchForm: FormGroup;
 
   constructor(

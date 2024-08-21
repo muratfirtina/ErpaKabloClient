@@ -4,5 +4,6 @@ export enum ProductFilterByDynamic {
     VaryantGroupID = 'VaryantGroupID',
     CategoryId = 'CategoryId',
     Description = 'Description',
+    Title = 'Title',
     
 }
