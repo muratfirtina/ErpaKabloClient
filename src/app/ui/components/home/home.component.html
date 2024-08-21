@@ -1,2 +1,16 @@
 <app-main-header></app-main-header>
-<p>home works!</p>
+<h2 style="color: rgb(214, 69, 69); text-align: center; margin: 20px 0;">Main Categories</h2>
+<div class="container">
+    <div class="card" *ngFor="let category of mainCategories; let i = index" [style.--clr]="getColor(i)">
+      <div class="img-box">
+        <img [src]="category.categoryImage?.url" [alt]="category.name">
+      </div>
+      <div class="content">
+        <h2>{{ category.name }}</h2>
+        <p>
+          {{ category.title || 'Daha fazla bilgi için tıklayın.' }}
+        </p>
+        <a href="#">Daha Fazla</a>
+      </div>
+    </div>
+  </div>

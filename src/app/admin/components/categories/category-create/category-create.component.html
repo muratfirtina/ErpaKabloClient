@@ -24,6 +24,13 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Kategori Açıklaması</mat-label>
+            <textarea matInput formControlName="title" placeholder="Kategori Açıklaması"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
             <mat-label>Üst Kategori Seçimi</mat-label>
             <input type="text" matInput [formControl]="parentCategoryIdControl" [matAutocomplete]="auto">
             <mat-autocomplete #auto="matAutocomplete">

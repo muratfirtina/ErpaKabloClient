@@ -170,6 +170,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     const name = ProductFilterByDynamic.Name;
     const varyantGroupId = ProductFilterByDynamic.VaryantGroupID;
     const description = ProductFilterByDynamic.Description;
+    const title = ProductFilterByDynamic.Title;
     
     const filters: Filter[] = terms.map(term => ({
       field: name,
@@ -186,7 +187,15 @@ export class NavbarComponent extends BaseComponent implements OnInit {
             {
               field: description,
               operator: "contains",
-              value: term
+              value: term,
+              logic: "or",
+              filters: [
+                {
+                  field: title,
+                  operator: "contains",
+                  value: term,
+                },
+              ],
             },
           ],
         },
@@ -201,9 +210,10 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     const name = product.name.toLowerCase();
     const variantGroupId = product.varyantGroupID?.toLowerCase() || '';
     const description = product.description?.toLowerCase() || '';
+    const title = product.title?.toLowerCase() || '';
   
     return terms.every(term => 
-      name.includes(term) || variantGroupId.includes(term) || description.includes(term)
+      name.includes(term) || variantGroupId.includes(term) || description.includes(term) || title.includes(term)
     );
   }
 

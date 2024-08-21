@@ -84,5 +84,17 @@ export class CategoryService {
       .catch(errorCallback);
     return await promiseData;
   }
+
+  async getMainCategories(pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Category>> {
+    const observable: Observable<GetListResponse<Category>> = this.httpClientService.get<GetListResponse<Category>>({
+      controller: 'categories',
+      action: 'GetMainCategories',
+      queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+    });
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
   
 }

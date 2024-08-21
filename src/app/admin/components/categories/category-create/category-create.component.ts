@@ -56,6 +56,7 @@ export class CategoryCreateComponent extends BaseComponent implements OnInit {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
       parentCategoryId: [''],
+      title: [''],
       featureIds: [[]]
     });
 
@@ -166,6 +167,7 @@ export class CategoryCreateComponent extends BaseComponent implements OnInit {
   createCategory(formValue: any) {
     const formData = new FormData();
     formData.append('name', formValue.name);
+    formData.append('title', formValue.title);
     if (formValue.parentCategoryId) {
       formData.append('parentCategoryId', formValue.parentCategoryId);
     }
