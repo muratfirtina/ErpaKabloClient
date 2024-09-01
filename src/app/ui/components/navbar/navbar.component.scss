@@ -257,7 +257,7 @@
             font-size: 1rem;
 
             &:hover, &.active {
-              background-image: linear-gradient(to bottom, rgba(12, 108, 212, 0), rgba(35, 41, 50, .15) 37%), linear-gradient(to bottom, #e53935, #e53935);
+              background-image: linear-gradient(to top, #bf1300, #f51900);
               color: white;
             }
           }
