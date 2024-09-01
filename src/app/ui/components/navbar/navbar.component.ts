@@ -9,7 +9,12 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { Subject, async } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { FormGroup, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormGroup,
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+} from '@angular/forms';
 import { Brand } from 'src/app/contracts/brand/brand';
 import { BrandService } from 'src/app/services/common/models/brand.service';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
@@ -22,9 +27,9 @@ interface CategoryWithSubcategories extends Category {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule,FormsModule,ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss']
+  styleUrls: ['./navbar.component.scss'],
 })
 export class NavbarComponent extends BaseComponent implements OnInit {
   categories: CategoryWithSubcategories[] = [];
@@ -61,25 +66,22 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   private setupCategorySubject() {
-    this.categorySubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(categoryId => {
-      this.loadRecommendedProductsWithCache(categoryId);
-    });
+    this.categorySubject
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((categoryId) => {
+        this.loadRecommendedProductsWithCache(categoryId);
+      });
   }
 
   private createSearchForm() {
     this.searchForm = this.fb.group({
-      searchTerm: ['']
+      searchTerm: [''],
     });
 
-    this.searchForm.get('searchTerm').valueChanges
-      .pipe(
-        debounceTime(300),
-        distinctUntilChanged()
-      )
-      .subscribe(value => {
+    this.searchForm
+      .get('searchTerm')
+      .valueChanges.pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((value) => {
         if (value.length >= 3) {
           this.searchProducts(value);
         } else if (value.length === 0) {
@@ -89,12 +91,11 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   private setupSearchSubject() {
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(searchTerm => {
-      this.searchProducts(searchTerm);
-    });
+    this.searchSubject
+      .pipe(debounceTime(300), distinctUntilChanged())
+      .subscribe((searchTerm) => {
+        this.searchProducts(searchTerm);
+      });
   }
 
   onSearchFocus() {
@@ -111,7 +112,10 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   async searchProducts(searchTerm: string) {
     this.showSpinner(SpinnerType.BallSpinClockwise);
 
-    if (searchTerm.startsWith(this.currentSearchTerm) && this.searchCache.length > 0) {
+    if (
+      searchTerm.startsWith(this.currentSearchTerm) &&
+      this.searchCache.length > 0
+    ) {
       this.filterCachedResults(searchTerm);
     } else {
       await this.performNewSearch(searchTerm);
@@ -121,9 +125,9 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   private filterCachedResults(searchTerm: string) {
-    this.searchResults.products = this.searchCache.filter(product => 
-      this.productMatchesSearchTerm(product, searchTerm)
-    ).slice(0, 3);  // Sadece ilk 3 sonucu göster
+    this.searchResults.products = this.searchCache
+      .filter((product) => this.productMatchesSearchTerm(product, searchTerm))
+      .slice(0, 3); // Sadece ilk 3 sonucu göster
     this.saveRecentSearch(searchTerm);
   }
 
@@ -136,26 +140,42 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     const filters: Filter[] = this.buildFilters(searchTerm);
 
     const dynamicQuery: DynamicQuery = {
-      sort: [{ field: ProductFilterByDynamic.Name, dir: "asc" }],
-      filter: filters.length > 0 ? {
-        logic: 'and',
-        filters: filters
-      } : undefined
+      sort: [{ field: ProductFilterByDynamic.Name, dir: 'asc' }],
+      filter:
+        filters.length > 0
+          ? {
+              logic: 'and',
+              filters: filters,
+            }
+          : undefined,
     };
 
     const pageRequest: PageRequest = { pageIndex: 0, pageSize: 3 };
 
     try {
-      const productResponse = await this.productService.getProductsByDynamicQuery(dynamicQuery, pageRequest);
+      const productResponse =
+        await this.productService.getProductsByDynamicQuery(
+          dynamicQuery,
+          pageRequest
+        );
       this.searchResults.products = productResponse.items;
       this.searchCache = productResponse.items;
       this.currentSearchTerm = searchTerm;
 
       // Kategori ve marka aramaları için benzer bir yaklaşım kullanabilirsiniz
-      const categoryResponse = await this.categoryService.getCategoriesByDynamicQuery({ filter: { field: 'name', operator: 'contains', value: searchTerm } }, pageRequest);
+      const categoryResponse =
+        await this.categoryService.getCategoriesByDynamicQuery(
+          {
+            filter: { field: 'name', operator: 'contains', value: searchTerm },
+          },
+          pageRequest
+        );
       this.searchResults.categories = categoryResponse.items;
 
-      const brandResponse = await this.brandService.getBrandsByDynamicQuery({ filter: { field: 'name', operator: 'contains', value: searchTerm } }, pageRequest);
+      const brandResponse = await this.brandService.getBrandsByDynamicQuery(
+        { filter: { field: 'name', operator: 'contains', value: searchTerm } },
+        pageRequest
+      );
       this.searchResults.brands = brandResponse.items;
 
       this.saveRecentSearch(searchTerm);
@@ -165,34 +185,34 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   private buildFilters(searchTerm: string): Filter[] {
-    const terms = searchTerm.split(' ').filter(term => term.length > 0);
-  
+    const terms = searchTerm.split(' ').filter((term) => term.length > 0);
+
     const name = ProductFilterByDynamic.Name;
     const varyantGroupId = ProductFilterByDynamic.VaryantGroupID;
     const description = ProductFilterByDynamic.Description;
     const title = ProductFilterByDynamic.Title;
-    
-    const filters: Filter[] = terms.map(term => ({
+
+    const filters: Filter[] = terms.map((term) => ({
       field: name,
-      operator: "contains",
+      operator: 'contains',
       value: term,
-      logic: "or",
+      logic: 'or',
       filters: [
         {
           field: varyantGroupId,
-          operator: "contains",
+          operator: 'contains',
           value: term,
-          logic: "or",
+          logic: 'or',
           filters: [
             {
               field: description,
-              operator: "contains",
+              operator: 'contains',
               value: term,
-              logic: "or",
+              logic: 'or',
               filters: [
                 {
                   field: title,
-                  operator: "contains",
+                  operator: 'contains',
                   value: term,
                 },
               ],
@@ -201,19 +221,29 @@ export class NavbarComponent extends BaseComponent implements OnInit {
         },
       ],
     }));
-  
+
     return filters;
   }
 
-  private productMatchesSearchTerm(product: Product, searchTerm: string): boolean {
-    const terms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
+  private productMatchesSearchTerm(
+    product: Product,
+    searchTerm: string
+  ): boolean {
+    const terms = searchTerm
+      .toLowerCase()
+      .split(' ')
+      .filter((term) => term.length > 0);
     const name = product.name.toLowerCase();
     const variantGroupId = product.varyantGroupID?.toLowerCase() || '';
     const description = product.description?.toLowerCase() || '';
     const title = product.title?.toLowerCase() || '';
-  
-    return terms.every(term => 
-      name.includes(term) || variantGroupId.includes(term) || description.includes(term) || title.includes(term)
+
+    return terms.every(
+      (term) =>
+        name.includes(term) ||
+        variantGroupId.includes(term) ||
+        description.includes(term) ||
+        title.includes(term)
     );
   }
 
@@ -234,7 +264,10 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     if (!this.recentSearches.includes(query)) {
       this.recentSearches.unshift(query);
       this.recentSearches = this.recentSearches.slice(0, 3);
-      localStorage.setItem('recentSearches', JSON.stringify(this.recentSearches));
+      localStorage.setItem(
+        'recentSearches',
+        JSON.stringify(this.recentSearches)
+      );
     }
   }
 
@@ -244,14 +277,18 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     this.isSearchFocused = false;
   }
 
-
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const dropdownElement = document.querySelector('.dropdown-overlay');
-    const allProductsButton = document.querySelector('.all-products-dropdown button');
-    
-    if (dropdownElement && allProductsButton) {
-      if (!dropdownElement.contains(event.target as Node) && !allProductsButton.contains(event.target as Node)) {
+    const allProductsButton = document.querySelector(
+      '.all-products-dropdown button'
+    );
+
+    if (this.isAllProductsOpen && dropdownElement && allProductsButton) {
+      if (
+        !dropdownElement.contains(event.target as Node) &&
+        !allProductsButton.contains(event.target as Node)
+      ) {
         this.closeAllProducts();
       }
     }
@@ -276,12 +313,12 @@ export class NavbarComponent extends BaseComponent implements OnInit {
 
   organizeCategories() {
     const categoryMap = new Map<string, CategoryWithSubcategories>();
-    
-    this.categories.forEach(category => {
+
+    this.categories.forEach((category) => {
       categoryMap.set(category.id, { ...category, subcategories: [] });
     });
 
-    this.categories.forEach(category => {
+    this.categories.forEach((category) => {
       if (category.parentCategoryId) {
         const parentCategory = categoryMap.get(category.parentCategoryId);
         if (parentCategory) {
@@ -290,7 +327,9 @@ export class NavbarComponent extends BaseComponent implements OnInit {
       }
     });
 
-    this.topLevelCategories = Array.from(categoryMap.values()).filter(category => !category.parentCategoryId);
+    this.topLevelCategories = Array.from(categoryMap.values()).filter(
+      (category) => !category.parentCategoryId
+    );
   }
 
   selectCategory(category: CategoryWithSubcategories) {
@@ -304,11 +343,16 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     } else {
       this.showSpinner(SpinnerType.BallSpinClockwise);
       try {
-        const products = await this.productService.getRandomProductsByCategory(categoryId);
+        const products = await this.productService.getRandomProductsByCategory(
+          categoryId
+        );
         this.categoryCache.set(categoryId, products);
         this.recommendedProducts = products;
       } catch (error) {
-        console.error(`Error loading recommended products for category ${categoryId}:`, error);
+        console.error(
+          `Error loading recommended products for category ${categoryId}:`,
+          error
+        );
         this.recommendedProducts = [];
       } finally {
         this.hideSpinner(SpinnerType.BallSpinClockwise);
@@ -324,7 +368,13 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     this.isAllProductsOpen = true;
   }
 
-  closeAllProducts() {
+  public closeAllProducts() {
     this.isAllProductsOpen = false;
+  }
+
+  closeDropdownIfClickedOutside(event: MouseEvent) {
+    if (event.target === event.currentTarget) {
+      this.closeAllProducts();
+    }
   }
 }

@@ -5,13 +5,13 @@
       <div class="col-md-1"></div>
       <div class="all-products-dropdown">
         <button class="dropdown-toggle" (click)="toggleAllProducts()">
-          All Products
+          Tüm Ürünler
           <span class="dropdown-arrow" [class.open]="isAllProductsOpen"></span>
         </button>
       </div>
       <div class="search-bar">
         <form [formGroup]="searchForm">
-          <input type="text" formControlName="searchTerm" placeholder="Search by product name or part number"
+          <input type="text" formControlName="searchTerm" placeholder="Ürün, kategori veya marka ara..."
             (focus)="onSearchFocus()" (blur)="onSearchBlur()">
           <button class="search-button">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -24,8 +24,8 @@
         <div class="search-dropdown" *ngIf="isSearchFocused">
           <div class="recent-searches" *ngIf="recentSearches.length > 0">
             <div class="recent-searches-header">
-              <h4>Recent Searches</h4>
-              <span class="clear-history" (click)="clearSearchHistory()">Clear Search History</span>
+              <h4>Son Aramalar</h4>
+              <span class="clear-history" (click)="clearSearchHistory()">Arama Geçmişini Temizle</span>
             </div>
             <ul>
               <li *ngFor="let search of recentSearches" (click)="searchForm.get('searchTerm').setValue(search)">{{ search }}</li>
@@ -33,7 +33,7 @@
           </div>
           <div class="search-results">
             <div class="products" *ngIf="searchResults.products.length > 0">
-              <h4>Products</h4>
+              <h4>Ürünler</h4>
               <ul>
                 <li *ngFor="let product of searchResults.products" (click)="navigateToSearchResult('product', product.id)">
                   <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name" class="product-thumbnail">
@@ -49,7 +49,7 @@
               </ul>
             </div>
             <div class="categories" *ngIf="searchResults.categories.length > 0">
-              <h4>Categories</h4>
+              <h4>Kategoriler</h4>
               <ul>
                 <li *ngFor="let category of searchResults.categories"
                   (click)="navigateToSearchResult('category', category.id)">
@@ -60,7 +60,7 @@
               </ul>
             </div>
             <div class="brands" *ngIf="searchResults.brands.length > 0">
-              <h4>Brands</h4>
+              <h4>Markalar</h4>
               <ul>
                 <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult('brand', brand.id)">
                   <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" [alt]="brand.name"
@@ -74,8 +74,8 @@
       <div class="col-md-1"></div>
     </div>
   </div>
-  <div class="dropdown-overlay" [class.open]="isAllProductsOpen">
-    <div class="main-content">
+  <div class="dropdown-overlay" [class.open]="isAllProductsOpen" (click)="closeDropdownIfClickedOutside($event)">
+    <div class="main-content" (click)="$event.stopPropagation()">
       <div class="categories-list">
         <ul>
           <li *ngFor="let category of topLevelCategories" (mouseenter)="selectCategory(category)"
@@ -87,7 +87,7 @@
       <div class="subcategories">
         <div class="subcategory-header" *ngIf="selectedCategory">
           <h3>{{ selectedCategory.name }}</h3>
-          <a href="#" class="view-all">View All →</a>
+          <a href="#" class="view-all">Hepsini Gör →</a>
         </div>
         <ul class="subcategory-list" *ngIf="selectedCategory">
           <li *ngFor="let subCategory of selectedCategory.subcategories">
@@ -102,8 +102,8 @@
       </div>
       <div class="recommended-products" *ngIf="selectedCategory && recommendedProducts.length > 0">
         <div class="recommended-header">
-          <h3>RECOMMENDED {{ selectedCategory.name }}</h3>
-          <a href="#" class="view-all">View All →</a>
+          <h3>Tavsiye Edilenler {{ selectedCategory.name }}</h3>
+          <a href="#" class="view-all">Hepsini Gör →</a>
         </div>
         <div class="product-grid">
           <div class="product-item" *ngFor="let product of recommendedProducts">

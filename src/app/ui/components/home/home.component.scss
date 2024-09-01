@@ -46,128 +46,271 @@ body {
   background: #555;
 }
 
-.card {
-  flex: 0 0 auto;
-  width: 200px;
-  height: 200px;
-  background: white;
-  border-radius: 15px;
-  transition: 0.5s;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-  position: relative;
-  scroll-snap-align: start;
-}
 
-.card:hover {
-  height: 250px;
-}
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
-.card .img-box {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 160px;
-  height: 100px;
-  background: #333;
-  border-radius: 10px;
-  overflow: hidden;
-  transition: 0.5s;
-}
-
-.card:hover .img-box {
-  top: -30px;
-  scale: 0.75;
-  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
-}
-
-.card .img-box img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: none;
-}
-
-.card .content {
-  position: absolute;
-  top: 120px;
-  width: 100%;
-  padding: 0 10px;
-  text-align: center;
-  transition: 0.5s;
-  overflow: hidden;
-}
-
-.card:hover .content {
-  top: 75px;
-}
-
-.card:hover .content p {
-    opacity: 0.8;
-  }
-
-.card .content h2 {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--clr);
+  // Variables
+  $primary-color: #003366;
+  $secondary-color: #f0f0f0;
+  $accent-color: #ff9900;
+  $text-color: #333;
+  $light-text: #fff;
   
-}
-
-.card .content p {
-  color: #333;
-  font-size: 0.8rem;
-  margin: 4px 0;
-  opacity: 0;
-  max-height: 45px;
-  min-height: 45px;
-  max-width: 180px;
-}
-
-.card .content a {
-  position: relative;
-  top: 0px;
-  display: inline-block;
-  padding: 8px 15px;
-  text-decoration: none;
-  background: var(--clr);
-  color: white;
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.card .content a:hover {
-  opacity: 0.8;
-}
-
-@media (max-width: 768px) {
-  .card {
-    width: 220px;
-    height: 220px;
-  }
-
-  .card:hover {
-    height: 320px;
+  body {
+    font-family: 'Roboto', sans-serif;
+    color: $text-color;
+    line-height: 1.6;
   }
   
-
-  .card .img-box {
-    width: 190px;
-    height: 140px;
+  .hero-carousel {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    overflow: hidden;
+    background-color: $secondary-color;
+  
+    .carousel-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+  
+    .carousel-slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+  
+      &.active {
+        opacity: 1;
+      }
+  
+      .slide-content {
+        display: flex;
+        height: 100%;
+        padding: 0 5%;
+      }
+  
+      .text-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding-right: 5%;
+      }
+  
+      .image-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+  
+        img {
+          max-width: 100%;
+          max-height: 100%;
+          object-fit: contain;
+        }
+      }
+  
+      .slide-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: $primary-color;
+        margin-bottom: 1rem;
+      }
+  
+      .slide-description {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+      }
+  
+      .btn-cta {
+        display: inline-block;
+        padding: 12px 30px;
+        background-color: $accent-color;
+        color: $light-text;
+        text-decoration: none;
+        font-weight: 500;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+  
+        &:hover {
+          background-color: darken($accent-color, 10%);
+        }
+      }
+    }
+  
+    .carousel-control {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba($primary-color, 0.5);
+      color: $light-text;
+      border: none;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+  
+      &:hover {
+        background-color: rgba($primary-color, 0.8);
+      }
+  
+      svg {
+        width: 24px;
+        height: 24px;
+      }
+  
+      &.prev {
+        left: 20px;
+      }
+  
+      &.next {
+        right: 20px;
+      }
+    }
+  
+    .carousel-indicators {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+  
+      span {
+        width: 12px;
+        height: 12px;
+        background-color: rgba($primary-color, 0.5);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.3s;
+  
+        &.active, &:hover {
+          background-color: $primary-color;
+        }
+      }
+    }
   }
-
-  .card .content h2 {
-    font-size: 1.2rem;
-    margin-top: -15px ;
+  
+  .categories {
+    padding: 60px 0;
+    background-color: $light-text;
+  
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      color: $primary-color;
+      margin-bottom: 40px;
+    }
+  
+    .category-grid {
+      display: flex;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+    }
+  
+    .category-card {
+      background-color: $secondary-color;
+      width: 250px;
+      border-radius: 10px;
+      overflow: hidden;
+      transition: transform 0.3s, box-shadow 0.3s;
+  
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+  
+      .category-image {
+        margin-top: 20px;
+        height: 100px;
+        overflow: hidden;
+  
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit:none;
+        }
+      }
+  
+      .category-content {
+        padding: 20px;
+        text-align: center;
+      }
+  
+      .category-title {
+        font-size: 1.2rem;
+        color: $primary-color;
+        margin-bottom: 10px;
+      }
+  
+      .category-description {
+        width: max-content;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+      }
+  
+      .btn-category {
+        display: inline-block;
+        padding: 8px 20px;
+        background-color: $primary-color;
+        color: $light-text;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s;
+  
+        &:hover {
+          background-color: lighten($primary-color, 10%);
+        }
+      }
+    }
   }
-
-  .card .content p {
-    font-size: 0.8rem;
+  
+  
+  @media (max-width: 768px) {
+    .hero-carousel {
+      height: 500px;
+  
+      .carousel-slide {
+        .slide-content {
+          flex-direction: column;
+          text-align: center;
+        }
+  
+        .text-content {
+          padding-right: 0;
+          padding-bottom: 20px;
+        }
+  
+        .slide-title {
+          font-size: 2rem;
+        }
+  
+        .slide-description {
+          font-size: 1rem;
+        }
+      }
+    }
+  
+    .categories {
+      .category-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+    }
   }
-
-  .card .content a {
-    font-size: 0.8rem;
-    padding: 6px 12px;
-  }
+.downbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 60px;
+  background-image: linear-gradient(to top, #bf1300, #f51900);
+  color: #fff;
 }

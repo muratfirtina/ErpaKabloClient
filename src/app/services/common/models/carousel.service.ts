@@ -1,0 +1,41 @@
+import { Injectable } from '@angular/core';
+import { HttpClientService } from '../http-client.service';
+import { Observable, firstValueFrom } from 'rxjs';
+import { PageRequest } from 'src/app/contracts/pageRequest';
+import { Carousel } from 'src/app/contracts/carousel/carousel';
+import { GetListResponse } from 'src/app/contracts/getListResponse';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CarouselService {
+
+  constructor(private httpClientService:HttpClientService) { }
+
+  async create(carouselData: FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void){
+    this.httpClientService.post({
+      controller: "carousels"
+    }, carouselData).subscribe({
+      next: (response) => {
+        console.log('Server response:', response);
+        successCallback();
+      },
+      error: (error) => {
+        console.error('Server error:', error);
+        errorCallback(error);
+      }
+    });
+  }
+
+  async list(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Carousel>>{
+    const observable : Observable<GetListResponse<Carousel>> = this.httpClientService.get<GetListResponse<Carousel>>({
+      controller: "carousels",
+      queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+    });
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+    
+  }
+}

@@ -1,9 +1,11 @@
 .industrial-navbar {
   font-family: Arial, sans-serif;
   font-size: 14px;
+  position: relative;
+  z-index: 1000;
 
   .top-bar {
-    background-color: #343434;
+    background-color: #003366;
     color: white;
     display: flex;
     align-items: center;
@@ -33,7 +35,7 @@
       }
 
       button:hover {
-        background-color: #5a5a5a;
+        background-color: rgb(119, 139, 194);
       }
     }
 
@@ -210,15 +212,15 @@
   }
 
   .dropdown-overlay {
-    position: fixed;
-    top: 190px;
+    position: fixed; // absolute yerine fixed kullanıyoruz
+    top: 155px; // Navbar'ın yüksekliği kadar
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 0; // Ekranın altına kadar uzansın
+    z-index: 999;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
     display: none;
-    z-index: 1000;
     --bs-gutter-x: 19rem !important;
     --bs-gutter-y: 0;
 
@@ -235,7 +237,7 @@
       .categories-list {
         padding-top: 25px;
         min-width: 310px;
-        background-color: rgba(0, 0, 0, 0.8);
+        background-color: #003366;
         color: white;
 
 
@@ -271,12 +273,12 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 20px 20px 20px 0px;
+          padding: 20px 0px 20px 0px;
           margin-bottom: 10px;
 
           h3 {
             margin: 0;
-            font-size: 1.5rem;
+            font-size: 1.1rem;
             font-weight: bold;
             position: relative;
             left: 20px;

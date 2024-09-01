@@ -1,15 +1,52 @@
 <app-main-header></app-main-header>
-<div class="row">
-    <div class="container">
-        <div class="card" *ngFor="let category of mainCategories; let i = index" [style.--clr]="getColor(i)">
-            <div class="img-box">
-                <img [src]="category.categoryImage?.url" [alt]="category.name">
-            </div>
-            <div class="content">
-                <h2>{{ category.name }}</h2>
-                <p class="title">{{ category.title || 'Daha fazla bilgi için tıklayın.' }}</p>
-                <a href="#" class="more-info">Daha Fazla</a>
-            </div>
+
+<!-- Professional Carousel Section -->
+<section class="hero-carousel">
+  <div class="carousel-container">
+    <div *ngFor="let item of carousels; let i = index" 
+         class="carousel-slide" 
+         [class.active]="i === currentSlide">
+      <div class="slide-content">
+        <div class="text-content">
+          <h2 class="slide-title">{{item.name}}</h2>
+          <p class="slide-description">{{item.description}}</p>
+          <a href="#" class="btn-cta">Daha Fazla Bilgi</a>
         </div>
+        <div class="image-content">
+          <img [src]="item.carouselImageFiles[0]?.url" [alt]="item.name">
+        </div>
+      </div>
     </div>
+  </div>
+  <button class="carousel-control prev" (click)="prevSlide()" aria-label="Önceki slayt">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  </button>
+  <button class="carousel-control next" (click)="nextSlide()" aria-label="Sonraki slayt">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+  </button>
+  <div class="carousel-indicators">
+    <span *ngFor="let item of carousels; let i = index" 
+          [class.active]="i === currentSlide"
+          (click)="setCurrentSlide(i)"></span>
+  </div>
+</section>
+<div class="downbar-container">
 </div>
+
+<!-- Categories Section -->
+<section class="categories">
+  <div class="container" style="max-width: max-content;">
+    <div class="category-grid">
+      <div class="category-card" *ngFor="let category of mainCategories">
+        <div class="category-image">
+          <img [src]="category.categoryImage?.url" [alt]="category.name">
+        </div>
+        <div class="category-content">
+          <h3 class="category-title">{{ category.name }}</h3>
+          <p class="category-description">{{ category.title || 'Ürünlerimizi keşfedin' }}</p>
+          <a href="#" class="btn-category">İncele</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
