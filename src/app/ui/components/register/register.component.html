@@ -11,89 +11,54 @@
     <form [formGroup]="frm" (ngSubmit)="onSubmit(frm.value)">
   
       <div class="title_container">
-        <p class="title">Lütfen Kayıt Olunuz.</p>
-        <a class="subtitle" routerLink="login">Zaten üye iseniz, giriş yapmak için tıklayınız.</a>
+        <p class="title">Create an Account</p>
+        <p class="subtitle">Already have an account? <a routerLink="login">Sign in</a></p>
       </div>
       <br>
       <!-- <img class="mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57" /> -->
   
       <div class="form-floating">
-        <input type="nameSurname" formControlName="nameSurname" class="form-control" id="nameSurname"
-          placeholder="Name Surname" [ngClass]="{'is-invalid': (component['nameSurname'].invalid && component['nameSurname'].dirty) || (submitted && component['nameSurname'].invalid ),
-                                  'is-valid': component['nameSurname'].valid && frm.get('nameSurname').value}" />
-        <label for="nameSurname">Ad Soyad</label>
-  
-        <div class="invalid-feedback">
-          <div *ngIf="frm.get('nameSurname').hasError('required')">
-            Ad Soyad girmeniz gerkemektedir.
-          </div>
-          <div *ngIf="frm.get('nameSurname').hasError('minlength')">
-            Ad Soyad en az 3 karakter uzunluğunda olmalıdır.
-          </div>
-          <div *ngIf="frm.get('nameSurname').hasError('maxlength')">
-            Ad Soyad en fazla 50 karakter uzunluğunda olmalıdır.
-          </div>
-        </div>
+       
+        <input type="text" formControlName="nameSurname" class="form-control" id="nameSurname" placeholder="Full Name" 
+        [ngClass]="{'is-invalid': (component['nameSurname'].invalid && component['nameSurname'].dirty) || (submitted && component['nameSurname'].invalid),'is-valid': component['nameSurname'].valid && frm.get('nameSurname').value}">
+        <label for="nameSurname">Name Surname</label>
+      <div class="invalid-feedback" *ngIf="component['nameSurname'].invalid && (component['nameSurname'].dirty || submitted)">
+        <span *ngIf="component['nameSurname'].errors?.['required']">Full name is required.</span>
+        <span *ngIf="component['nameSurname'].errors?.['minlength']">Full name must be at least 3 characters long.</span>
+      </div>
       </div>
   
-  
       <div class="form-floating">
-        <input type="username" formControlName="userName" class="form-control" id="userName" placeholder="User Name"
-          [ngClass]="{'is-invalid': (component['userName'].invalid && component['userName'].dirty) || (submitted && component['userName'].invalid),
-                                'is-valid': component['userName'].valid && frm.get('userName').value}" />
-        <label for="username">Kullanıcı Adı</label>
-  
-        <div class="invalid-feedback">
-          <div *ngIf="frm.get('userName').hasError('required')">
-            Kullanıcı Adı girmeniz gerkemektedir.
-          </div>
-          <div *ngIf="frm.get('userName').hasError('minlength')">
-            Kullanıcı Adı en az 3 karakter uzunluğunda olmalıdır.
-          </div>
-          <div *ngIf="frm.get('userName').hasError('maxlength')">
-            Kullanıcı Adı en fazla 50 karakter uzunluğunda olmalıdır.
-          </div>
-        </div>
+        <input type="text" formControlName="userName" class="form-control" id="userName" placeholder="Username"
+        [ngClass]="{'is-invalid': (component['userName'].invalid && component['userName'].dirty) || (submitted && component['userName'].invalid),'is-valid': component['userName'].valid && frm.get('userName').value}">
+        <label for="username">User Name</label>
+      <div class="invalid-feedback" *ngIf="component['userName'].invalid && (component['userName'].dirty || submitted)">
+        <span *ngIf="component['userName'].errors?.['required']">Username is required.</span>
+        <span *ngIf="component['userName'].errors?.['minlength']">Username must be at least 3 characters long.</span>
+      </div>
       </div>
   
   
       <div class="form-floating">
         <input type="email" formControlName="email" class="form-control" id="email" placeholder="name@example.com"
-          [ngClass]="{'is-invalid': (component['email'].invalid && component['email'].dirty) || (submitted && component['email'].invalid ),
-                                  'is-valid': component['email'].valid && frm.get('email').value}" />
-        <label for="email">Email</label>
-  
-        <div class="invalid-feedback">
-          <div *ngIf="frm.get('email').hasError('required')">
-            Email adresi gerkemektedir
-          </div>
-          <div *ngIf="frm.get('email').hasError('minlength')">
-            Email adresi en az 3 karakter uzunluğunda olmalıdır.
-          </div>
-          <div *ngIf="frm.get('email').hasError('maxlength')">
-            Email adresi en fazla 50 karakter uzunluğunda olmalıdır.
-          </div>
-          <div *ngIf="frm.get('email').hasError('email')">
-            Email adresi geçersizdir.
-          </div>
+            [ngClass]="{'is-invalid': (component['email'].invalid && component['email'].dirty) || (submitted && component['email'].invalid),
+                                    'is-valid': component['email'].valid && frm.get('email').value}" />
+        <label for="email">Email address</label>
+        <div class="invalid-feedback" *ngIf="component['email'].invalid && (component['email'].dirty || submitted)">
+            <span *ngIf="component['email'].errors?.['required']">Email is required.</span>
+            <span *ngIf="component['email'].errors?.['email']">Please enter a valid email address.</span>
         </div>
-      </div>
+     </div>
   
       <div class="form-floating">
         <input type="password" formControlName="password" class="form-control" id="password" placeholder="Password"
           [ngClass]="{'is-invalid': (component['password'].invalid && component['password'].dirty) || (submitted && component['password'].invalid ),
                                 'is-valid': component['password'].valid && frm.get('password').value}" />
-        <label for="password">Şifre</label>
-  
-  
-        <div class="invalid-feedback">
-          <div *ngIf="frm.get('password').hasError('required')">
-            Şifre gerkemektedir.
+        <label for="password">Password</label>
+        <div class="invalid-feedback" *ngIf="component['password'].invalid && (component['password'].dirty || submitted)">
+            <span *ngIf="component['password'].errors?.['required']">Password is required.</span>
+            <span *ngIf="component['password'].errors?.['minlength']">Password must be at least 8 characters long.</span>
           </div>
-          <div *ngIf="frm.get('password').hasError('minlength')">
-            Şifre en az 8 karakter uzunluğunda olmalıdır.
-          </div>
-        </div>
       </div>
   
       <div class="form-floating">
@@ -102,19 +67,12 @@
           [ngClass]="{
                       'is-invalid': (frm.get('confirmPassword').invalid && frm.get('confirmPassword').dirty) || (submitted && frm.get('confirmPassword').invalid),
                       'is-valid': frm.get('confirmPassword').valid && frm.get('password').value === frm.get('confirmPassword').value}" />
-        <label for="confirmPassword">Şifre doğrula </label>
+        <label for="confirmPassword">Confirm Password </label>
   
-        <div class="invalid-feedback">
-          <div *ngIf="frm.get('confirmPassword').hasError('required')">
-            Şifre doğrulama gerkemektedir.
+        <div class="invalid-feedback" *ngIf="component['confirmPassword'].invalid && (component['confirmPassword'].dirty || submitted)">
+            <span *ngIf="component['confirmPassword'].errors?.['required']">Please confirm your password.</span>
+            <span *ngIf="component['confirmPassword'].errors?.['notSame']">Passwords do not match.</span>
           </div>
-          <div *ngIf="frm.get('confirmPassword').hasError('notSame')">
-            Doğrulama şifresi ile şifre aynı olmalıdır.
-          </div>
-          <div *ngIf="frm.get('confirmPassword').hasError('minlength')">
-            Şifre doğrulama en az 8 karakter uzunluğunda olmalıdır.
-          </div>
-        </div>
       </div>
   
   
@@ -123,32 +81,17 @@
                           <input type="checkbox" value="remember-me" /> Remember me
                       </label>
                   </div> -->
-      <button title="Sign Up" type="submit" class="sign-in_btn" style="background-color: rgb(255, 102, 0);">
-        <span>Kayıt Ol</span>
-      </button>
-  
-      <div class="separator">
-        <hr class="line">
-        <span>Veya</span>
-        <hr class="line">
-      </div>
+                  <button type="submit" class="btn-register">Create Account</button>
 
-      <br>
-  
-      <br>
-      <br>
-      <button title="Sign In" type="submit" class="sign-in_apl">
-        <svg preserveAspectRatio="xMidYMid" version="1.1" viewBox="0 0 256 315" height="20px" width="16px"
-          xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
-          <g>
-            <path fill="#ffffff"
-              d="M213.803394,167.030943 C214.2452,214.609646 255.542482,230.442639 256,230.644727 C255.650812,231.761357 249.401383,253.208293 234.24263,275.361446 C221.138555,294.513969 207.538253,313.596333 186.113759,313.991545 C165.062051,314.379442 158.292752,301.507828 134.22469,301.507828 C110.163898,301.507828 102.642899,313.596301 82.7151126,314.379442 C62.0350407,315.16201 46.2873831,293.668525 33.0744079,274.586162 C6.07529317,235.552544 -14.5576169,164.286328 13.147166,116.18047 C26.9103111,92.2909053 51.5060917,77.1630356 78.2026125,76.7751096 C98.5099145,76.3877456 117.677594,90.4371851 130.091705,90.4371851 C142.497945,90.4371851 165.790755,73.5415029 190.277627,76.0228474 C200.528668,76.4495055 229.303509,80.1636878 247.780625,107.209389 C246.291825,108.132333 213.44635,127.253405 213.803394,167.030988 M174.239142,50.1987033 C185.218331,36.9088319 192.607958,18.4081019 190.591988,0 C174.766312,0.636050225 155.629514,10.5457909 144.278109,23.8283506 C134.10507,35.5906758 125.195775,54.4170275 127.599657,72.4607932 C145.239231,73.8255433 163.259413,63.4970262 174.239142,50.1987249">
-            </path>
-          </g>
-        </svg>
-        <span>Sign Up with Apple</span>
-      </button>
-      <p class="note">Terms of use &amp; Conditions</p>
+                  <div class="separator">
+                    <span>or</span>
+                  </div>
+              
+                  <button type="button" class="btn-social apple">
+                    <i class="fab fa-apple"></i> Sign up with Apple
+                  </button>
+              
+                  <p class="terms">By signing up, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a></p>
   
     </form>
   </div>

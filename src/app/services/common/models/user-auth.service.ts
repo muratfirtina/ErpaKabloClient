@@ -53,44 +53,6 @@ export class UserAuthService {
       callBackFunction(false);
     }
   }
-
-  async googleLogin(user:SocialUser, callBackFunction?:()=> void): Promise<any>{
-    const observable: Observable<SocialUser | TokenResponse> = this.httpClientService.post<SocialUser | TokenResponse>({
-      action:"google-login",
-      controller:"auth"
-    },user);
-
-    const tokenResponse: TokenResponse = await firstValueFrom(observable) as TokenResponse;
-    if(tokenResponse){
-      localStorage.setItem("accessToken", tokenResponse.token.accessToken);
-      localStorage.setItem("refreshToken", tokenResponse.token.refreshToken);
-      this.toastrService.message("Login successful with Google", "Success",{
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-    }
-    callBackFunction();
-  }
-
-  async facebookLogin(user:SocialUser, callBackFunction?:()=> void): Promise<any>{
-    const observable: Observable<SocialUser | TokenResponse> = this.httpClientService.post<SocialUser | TokenResponse>({
-      action:"facebook-login",
-      controller:"auth"
-    },user);
-
-    const tokenResponse: TokenResponse = await firstValueFrom(observable) as TokenResponse;
-    if(tokenResponse){
-      localStorage.setItem("accessToken", tokenResponse.token.accessToken);
-      localStorage.setItem("refreshToken", tokenResponse.token.refreshToken);
-      this.toastrService.message("Login successful with Facebook", "Success",{
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-    }
-    callBackFunction();
-
-  
-  }
   
   async passwordReset(email: string, callBackFunction?:()=> void): Promise<any>{
     const observable: Observable<any> = this.httpClientService.post<any>({

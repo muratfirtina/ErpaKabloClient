@@ -36,7 +36,9 @@ export class RegisterComponent extends BaseComponent implements OnInit {
     this.authService.identityCheck();
     this.hideSpinner(SpinnerType.BallSpinClockwise)
   }
+
   frm: FormGroup;
+
   ngOnInit(): void {
     this.frm = this.formBuilder.group({
       nameSurname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
@@ -45,7 +47,6 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(3)]],
       confirmPassword: ['', [Validators.required, Validators.minLength(3), this.passwordsMatchValidator.bind(this)]]
     });
-
   }
 
   passwordsMatchValidator(control: AbstractControl): { [key: string]: any } | null {
@@ -56,37 +57,69 @@ export class RegisterComponent extends BaseComponent implements OnInit {
   get component() { return this.frm.controls; }
 
   submitted: boolean = false;
+
   async onSubmit(user: User) {
     this.submitted = true;
     if (this.frm.invalid) return;
-
-    const result: CreateUser = await this.userService.create(user);
-
-    if (result.isSuccess) {
-      this.toastrService.message(result.message, "User Created Successfully", {
-        toastrMessageType: ToastrMessageType.Success,
+  
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+  
+    try {
+      const result: CreateUser = await this.userService.create(user);
+  
+      if (result.isSuccess) {
+        this.toastrService.message(result.message, "User Created Successfully", {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        });
+  
+        // Kısa bir bekleme süresi ekleyelim (backend'in kullanıcıyı tamamen oluşturması için)
+        await new Promise(resolve => setTimeout(resolve, 1000));
+  
+        try {
+          await new Promise<void>((resolve, reject) => {
+            this.userAuthService.login(user.userName || user.email, user.password, () => {
+              resolve();
+            });
+          });
+  
+          // Login başarılı olduysa
+          await this.authService.identityCheck();
+          
+          // 2 saniye bekle
+          await new Promise(resolve => setTimeout(resolve, 2000));
+  
+          const returnUrl: string = this.activatedRoute.snapshot.queryParams["returnUrl"];
+          if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+          } else {
+            this.router.navigateByUrl("/").then(() => {
+              location.reload();
+            });
+          }
+        } catch (loginError) {
+          console.error("Login error:", loginError);
+          this.toastrService.message("An unexpected error occurred during automatic login. Please try logging in manually.", "Login Error", {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight
+          });
+          // Kullanıcıyı login sayfasına yönlendir
+          this.router.navigateByUrl("/login");
+        }
+      } else {
+        this.toastrService.message(result.message, "User Creation Failed", {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        });
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      this.toastrService.message("An error occurred during registration. Please try again.", "Registration Error", {
+        toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
-      this.authService.identityCheck();
-        const returnUrl: string = this.activatedRoute.snapshot.queryParams["returnUrl"];
-        if (returnUrl) {
-          this.router.navigateByUrl(returnUrl);
-        } else {
-          this.router.navigateByUrl("/").then(() => {
-            location.reload();
-          });; // Ana sayfaya yönlendir
-        }
-       
-      
-       this.userAuthService.login(user.userName || user.email, user.password);
-      
-    
-    }else{
-      this.toastrService.message(result.message,"User Creation Failed",{
-        toastrMessageType: ToastrMessageType.Error,
-        position:ToastrPosition.TopRight
-
-      });
+    } finally {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
     }
   }
 }

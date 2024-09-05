@@ -72,6 +72,22 @@ export class SidebarComponent implements OnInit{
         { title: 'Create', icon: 'add', path: 'featurevalues/featurevalue-create' },
         { title: 'List', icon: 'list', path: 'featurevalues/featurevalue-list' },
       ]
+    },
+    {
+      title: 'User',
+      icon: 'person',
+      children: [
+        
+        { title: 'List', icon: 'list', path: 'users/user-list' },
+      ]
+    },
+    {
+      title: 'Role',
+      icon: 'person',
+      children: [
+        { title: 'Create', icon: 'add', path: 'roles/role-create' },
+        { title: 'List', icon: 'list', path: 'roles/role-list' },
+      ]
     }
   ];
   ngOnInit(): void {

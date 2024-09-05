@@ -6,6 +6,8 @@ import { User } from 'src/app/contracts/user/user';
 import { Observable, firstValueFrom } from 'rxjs';
 import { UserDto } from 'src/app/contracts/user/userDto';
 import { RoleDto } from 'src/app/contracts/user/roleDto';
+import { PageRequest } from 'src/app/contracts/pageRequest';
+import { GetListResponse } from 'src/app/contracts/getListResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -36,15 +38,28 @@ export class UserService {
 
   }
 
-  async getAllUsers(page: number = 0, size: number = 5, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void): Promise<{ totalCount: number; users: UserDto[] }> {
-    const observable: Observable<{ totalCount: number; users: UserDto[] }> = this.httpClientService.get({
+  async getAllUsers(pageRequest:PageRequest, successCallback: (data: any) => void, errorCallback: (error: any) => void): Promise<GetListResponse<User>>{
+    const observable : Observable<GetListResponse<User>> = this.httpClientService.get<GetListResponse<User>>({
       controller: "users",
-      queryString: `page=${page}&size=${size}`
+      queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
     });
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+    
+  }
+
+  async getUserByDynamicQuery(dynamicQuery: any, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<User>> {
+    const observable: Observable<GetListResponse<User>> = this.httpClientService.post<GetListResponse<User>>({
+      controller: 'users',
+      action: 'GetList/ByDynamic',
+      queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+    }, dynamicQuery);
 
     const promiseData = firstValueFrom(observable);
-    promiseData.then(value => successCallBack())
-      .catch(error => errorCallBack(error));
+    promiseData.then(successCallback)
+      .catch(errorCallback);
 
     return await promiseData;
   }

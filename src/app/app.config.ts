@@ -5,7 +5,7 @@ import { routes } from './app.routes';
 import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +21,7 @@ import { MatTreeModule } from '@angular/material/tree';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { SafeUrlPipe } from './pipes/safeUrl.pipe';
 import { JwtModule } from '@auth0/angular-jwt';
+import { HttpErrorHandlerInterceptorService } from './services/common/http-error-handler-interceptor.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), provideAnimations(),
@@ -40,5 +41,6 @@ export const appConfig: ApplicationConfig = {
         }
       }
     ),),SafeUrlPipe,
-  { provide: "baseUrl", useValue: "http://localhost:5199/api", multi: true }, provideAnimationsAsync(),]
+    {provide:HTTP_INTERCEPTORS, useClass: HttpErrorHandlerInterceptorService, multi:true},
+  { provide: "baseUrl", useValue: "https://localhost:5199/api", multi: true }, provideAnimationsAsync(),]
 };

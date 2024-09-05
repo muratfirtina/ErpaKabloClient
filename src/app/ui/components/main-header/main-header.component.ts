@@ -13,8 +13,7 @@ import { CartService } from 'src/app/services/common/models/cart.service';
 import { ComponentName, DynamicloadcomponentService } from 'src/app/services/common/dynamicloadcomponent.service';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { NavbarComponent } from '../navbar/navbar.component';
-
-
+import { UserService } from 'src/app/services/common/models/user.service';
 
 
 @Component({
@@ -39,6 +38,7 @@ export class MainHeaderComponent implements OnInit {
     private router: Router,
     private dynamicLoadComponentService: DynamicloadcomponentService,
     private cartService: CartService,
+    private userService: UserService
     ) {
     authService.identityCheck();
     this.cartItemsObservable = cartService.getCartItemsObservable();
@@ -57,29 +57,25 @@ export class MainHeaderComponent implements OnInit {
     this.cartItems = await this.cartService.get();
   }
   
-
   signOut() {
     localStorage.removeItem("accessToken");
-    //localStorage.removeItem("refreshToken");
     this.authService.identityCheck();
-    this.router.navigateByUrl("").then(() => {
+    this.router.navigate([""]).then(() => {
       location.reload();
-    }); // Ana sayfaya yönlendir;
-    this.toastrService.message("Logged out successfully","Log Out ",{
+    });
+    this.toastrService.message("Logged out successfully", "Log Out", {
       toastrMessageType: ToastrMessageType.Warning,
       position: ToastrPosition.TopRight
-    })
+    });
   }
+
   loadComponent() {
     this.dynamicLoadComponentService.loadComponent(ComponentName.CartComponent, this.dynamicLoadComponentDirective.viewContainerRef);
-
   }
 
   toggleDropdownOverlay() {
     this.isDropdownOverlayActive = !this.isDropdownOverlayActive;
   }
-  
-  
 
   openDropdown() {
     this.isDropdownOverlayActive = true;
@@ -88,6 +84,4 @@ export class MainHeaderComponent implements OnInit {
   closeDropdown() {
     this.isDropdownOverlayActive = false;
   }
-  
 }
-
