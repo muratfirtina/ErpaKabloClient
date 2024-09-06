@@ -8,13 +8,15 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { ProductImageFile } from 'src/app/contracts/product/productImageFile';
 import { MainHeaderComponent } from '../../main-header/main-header.component';
+import { NavbarComponent } from "../../navbar/navbar.component";
+import { SafeHtmlPipe } from "../../../../pipes/safe-html.pipe";
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule,MainHeaderComponent]
+  imports: [CommonModule, MainHeaderComponent, NavbarComponent, SafeHtmlPipe]
 })
 export class ProductDetailComponent extends BaseComponent implements OnInit {
   product: Product | null = null;
@@ -23,6 +25,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   selectedFeatures: { [key: string]: string } = {};
   sortedAvailableFeatures: { [key: string]: string[] } = {};
   visualFeatures: string[] = [];
+  allFeatures: { [key: string]: string[] } = {};
   
   constructor(
     private route: ActivatedRoute,
@@ -45,6 +48,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       });
     }
     this.determineVisualFeatures();
+
+    
   }
 
   async loadProduct(id: string) {
@@ -52,20 +57,40 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     try {
       this.product = await this.productService.getById(id, () => {}, () => {});
       if (this.product) {
-        // relatedProducts'ın dizi olduğundan emin olun
         this.product.relatedProducts = Array.isArray(this.product.relatedProducts) ? this.product.relatedProducts : [];
         this.initializeSelectedFeatures();
+        this.initializeAllFeatures();
         this.sortAvailableFeatures();
         this.resetCurrentImageIndex();
       }
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     } catch (error) {
-      this.customToastrService.message("Ürün yüklenemedi", "Hata", {
-        toastrMessageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight
-      });
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      // Hata işleme kodu...
     }
+  }
+  initializeAllFeatures() {
+    if (this.product && this.product.relatedProducts) {
+      const allProducts = [this.product, ...this.product.relatedProducts];
+      allProducts.forEach(product => {
+        product.productFeatureValues.forEach(feature => {
+          if (!this.allFeatures[feature.featureName]) {
+            this.allFeatures[feature.featureName] = [];
+          }
+          if (!this.allFeatures[feature.featureName].includes(feature.featureValueName)) {
+            this.allFeatures[feature.featureName].push(feature.featureValueName);
+          }
+        });
+      });
+    }
+  }
+
+  getFeatureImage(featureName: string, featureValue: string): string {
+    if (this.visualFeatures.includes(featureName.toLowerCase())) {
+      const featureImages = this.getFeatureImages(featureName);
+      const matchingImage = featureImages.find(img => img.value === featureValue);
+      return matchingImage ? matchingImage.imageUrl : this.defaultProductImage;
+    }
+    return '';
   }
 
   determineVisualFeatures() {

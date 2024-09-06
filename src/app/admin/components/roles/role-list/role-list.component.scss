@@ -1,0 +1,69 @@
+.mat-elevation-z8 {
+  max-width: 1000px; // Maksimum genişliği sınırla
+  margin: 0 auto; // Merkeze hizala
+  overflow-x: auto; // Gerektiğinde yatay kaydırma çubuğu ekle
+}
+.mat-mdc-cell{
+  text-align: center;
+}
+
+.role-table {
+  width: 100%;
+  min-width: 600px; // Minimum genişlik belirle
+}
+
+.mat-column-select {
+  width: 100px;
+  text-align: center;
+}
+
+.mat-column-name {
+  padding-left: 16px;
+}
+
+.mat-column-edit, .mat-column-delete {
+  width: 60px;
+  text-align: center;
+}
+
+.mat-icon-button {
+  line-height: 24px;
+}
+
+// Responsive tasarım için medya sorguları
+@media screen and (max-width: 768px) {
+  .mat-elevation-z8 {
+    margin: 0 10px; // Kenar boşluklarını azalt
+  }
+
+  .role-table {
+    min-width: 450px; // Daha küçük minimum genişlik
+  }
+
+  .mat-column-select {
+    width: 80px;
+  }
+
+  .mat-column-edit, .mat-column-delete {
+    width: 50px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .role-table {
+    min-width: 350px; // En küçük ekranlar için minimum genişlik
+  }
+
+  .mat-column-select {
+    width: 60px;
+  }
+
+  .mat-column-edit, .mat-column-delete {
+    width: 40px;
+  }
+
+  // Küçük ekranlarda gereksiz boşlukları azalt
+  .mat-cell, .mat-header-cell {
+    padding: 8px 4px;
+  }
+}

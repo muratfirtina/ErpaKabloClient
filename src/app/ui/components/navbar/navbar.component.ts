@@ -19,6 +19,7 @@ import { Brand } from 'src/app/contracts/brand/brand';
 import { BrandService } from 'src/app/services/common/models/brand.service';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { ProductFilterByDynamic } from 'src/app/contracts/product/productFilterByDynamic';
+import { Router, RouterModule } from '@angular/router';
 
 interface CategoryWithSubcategories extends Category {
   subcategories?: CategoryWithSubcategories[];
@@ -27,7 +28,7 @@ interface CategoryWithSubcategories extends Category {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss'],
 })
@@ -57,7 +58,8 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     private productService: ProductService,
     private brandService: BrandService,
     spinner: NgxSpinnerService,
-    private fb: FormBuilder
+    private router: Router,
+    private fb: FormBuilder,
   ) {
     super(spinner);
     this.setupCategorySubject();
@@ -271,12 +273,6 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     }
   }
 
-  navigateToSearchResult(type: string, id: string) {
-    // Implement navigation logic
-    console.log(`Navigating to ${type} with id ${id}`);
-    this.isSearchFocused = false;
-  }
-
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
     const dropdownElement = document.querySelector('.dropdown-overlay');
@@ -299,16 +295,14 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   async loadCategories() {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
     const pageRequest: PageRequest = { pageIndex: 0, pageSize: 1000 };
     try {
-      const response = await this.categoryService.list(pageRequest);
+      const response = await this.categoryService.getCategories(pageRequest);
       this.categories = response.items;
       this.organizeCategories();
     } catch (error) {
       console.error('Error loading categories:', error);
     }
-    this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
   organizeCategories() {
@@ -376,5 +370,46 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     if (event.target === event.currentTarget) {
       this.closeAllProducts();
     }
+  }
+
+
+  navigateToSearchResult(type: string, id: string) {
+    console.log(`Attempting to navigate to ${type} with id ${id}`);
+    const url = `/${type}/${id}`;
+    
+    // Mevcut URL'yi kontrol et
+    if (this.router.url !== url) {
+      this.router.navigateByUrl(url).then(
+        (success) => {
+          console.log('Navigation result:', success);
+          if (success) {
+            // Navigasyon başarılı olduktan sonra sayfayı yenile
+            window.location.reload();
+          } else {
+            window.location.href = url; // Fallback yöntemi
+          }
+        },
+        (error) => console.error('Navigation error:', error)
+      );
+    } else {
+      // Eğer aynı sayfadaysak, sadece sayfayı yenile
+      window.location.reload();
+    }
+    
+    this.isSearchFocused = false;
+  }
+  
+  navigateToRecommendedProduct(productId: string) {
+    this.router.navigate(['/product', productId]);
+    this.closeAllProducts();
+  }
+  
+  navigateToCategory(categoryId: string) {
+    this.router.navigate(['/category', categoryId]);
+    this.closeAllProducts();
+  }
+  onProductClick(product: Product) {
+    console.log('Product clicked:', product);
+    this.navigateToSearchResult('product', product.id);
   }
 }

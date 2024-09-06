@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClientService } from '../http-client.service';
 import { ProductCreate } from 'src/app/contracts/product/product-create';
-import { Observable, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { ProductUpdate } from 'src/app/contracts/product/product-update';
 import { PageRequest } from 'src/app/contracts/pageRequest';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
@@ -14,7 +14,8 @@ import { ProductImageFile } from 'src/app/contracts/product/productImageFile';
 })
 export class ProductService {
 
-  constructor(private httpClientService:HttpClientService) { }
+  constructor(private httpClientService:HttpClientService) {}
+
 
   async create(product:ProductCreate, SuccessCallback: (data: any) => void, ErrorCallback: (error: any) => void): Promise<ProductCreate>{
     const observable : Observable<ProductCreate> = this.httpClientService.post<ProductCreate>({

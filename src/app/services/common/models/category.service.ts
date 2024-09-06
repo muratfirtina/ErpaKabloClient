@@ -15,6 +15,8 @@ export class CategoryService {
 
   constructor(private httpClientService:HttpClientService) { }
 
+  private cacheDuration: number = 5 * 60 * 1000; // 5 dakika
+
   async create(categoryData:FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void){
     this.httpClientService.post({
       controller: "categories"
@@ -28,6 +30,44 @@ export class CategoryService {
         errorCallback(error);
       }
     });
+  }
+
+  private saveCategoriesToLocalStorage(categories: Category[]) {
+    localStorage.setItem('categories', JSON.stringify(categories));
+    localStorage.setItem('categoriesLastFetchTime', new Date().getTime().toString());
+  }
+
+  private getCategoriesFromLocalStorage(): Category[] | null {
+    const categoriesJson = localStorage.getItem('categories');
+    const lastFetchTime = localStorage.getItem('categoriesLastFetchTime');
+    if (categoriesJson && lastFetchTime) {
+      const currentTime = new Date().getTime();
+      if ((currentTime - parseInt(lastFetchTime)) <= this.cacheDuration) {
+        return JSON.parse(categoriesJson);
+      }
+    }
+    return null;
+  }
+
+  async getCategories(pageRequest: PageRequest, forceRefresh: boolean = false): Promise<GetListResponse<Category>> {
+    if (!forceRefresh) {
+      const cachedCategories = this.getCategoriesFromLocalStorage();
+      if (cachedCategories) {
+        return {
+          items: cachedCategories,
+          index: pageRequest.pageIndex,
+          size: pageRequest.pageSize,
+          count: cachedCategories.length,
+          pages: Math.ceil(cachedCategories.length / pageRequest.pageSize),
+          hasPrevious: pageRequest.pageIndex > 1,
+          hasNext: pageRequest.pageIndex < Math.ceil(cachedCategories.length / pageRequest.pageSize)
+        };
+      }
+    }
+
+    const response = await this.list(pageRequest);
+    this.saveCategoriesToLocalStorage(response.items);
+    return response;
   }
 
   async list(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Category>>{

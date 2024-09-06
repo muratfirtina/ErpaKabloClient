@@ -1,5 +1,6 @@
 
 <app-main-header></app-main-header>
+<app-navbar></app-navbar>
 <div *ngIf="!product" class="loading">Ürün yükleniyor...</div>
 
 <div *ngIf="product" class="product-detail-container">
@@ -31,34 +32,32 @@
     </p>
     <p class="product-sku">SKU: {{product.sku}}</p>
 
-    <div *ngFor="let featureName of sortedAvailableFeatures | keyvalue" class="product-feature-selector">
-        <h3>{{featureName.key}}</h3>
-        <div class="feature-options">
-          <ng-container *ngIf="visualFeatures.includes(featureName.key.toLowerCase()); else regularFeature">
-            <button *ngFor="let featureImage of getFeatureImages(featureName.key)"
-                    class="feature-button visual-feature-button"
-                    [class.selected]="isFeatureValueSelected(featureName.key, featureImage.value)"
-                    [disabled]="!isFeatureValueAvailable(featureName.key, featureImage.value)"
-                    (click)="onFeatureSelect(featureName.key, featureImage.value)">
-              <img [src]="featureImage.imageUrl" [alt]="featureImage.value" class="feature-image">
-              <span>{{featureImage.value}}</span>
-            </button>
-          </ng-container>
-          <ng-template #regularFeature>
-            <button *ngFor="let value of featureName.value"
-                    class="feature-button"
-                    [class.selected]="isFeatureValueSelected(featureName.key, value)"
-                    [disabled]="!isFeatureValueAvailable(featureName.key, value)"
-                    (click)="onFeatureSelect(featureName.key, value)">
-              {{value}}
-            </button>
-          </ng-template>
-        </div>
+    <div *ngFor="let featureName of allFeatures | keyvalue" class="product-feature-selector">
+      <h3>{{featureName.key}}</h3>
+      <div class="feature-options">
+        <ng-container *ngIf="visualFeatures.includes(featureName.key.toLowerCase()); else regularFeature">
+          <button *ngFor="let featureValue of featureName.value"
+                  class="feature-button visual-feature-button"
+                  [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
+                  (click)="onFeatureSelect(featureName.key, featureValue)">
+            <img [src]="getFeatureImage(featureName.key, featureValue)" [alt]="featureValue" class="feature-image">
+            <span>{{featureValue}}</span>
+          </button>
+        </ng-container>
+        <ng-template #regularFeature>
+          <button *ngFor="let featureValue of featureName.value"
+                  class="feature-button"
+                  [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
+                  (click)="onFeatureSelect(featureName.key, featureValue)">
+            {{featureValue}}
+          </button>
+        </ng-template>
       </div>
+    </div>
       
     <div class="product-description" *ngIf="product.description">
       <h2>Ürün Açıklaması</h2>
-      <p>{{product.description}}</p>
+      <p [innerHTML]="product.description | safeHtml"></p>
     </div>
 
     <button class="add-to-cart-button" [disabled]="product.stock <= 0">

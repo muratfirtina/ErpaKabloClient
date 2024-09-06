@@ -1,6 +1,6 @@
 import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Category } from 'src/app/contracts/category/category';
 import { DynamicLoadComponentDirective } from 'src/app/directives/dynamic-load-component.directive';
@@ -19,7 +19,7 @@ import { UserService } from 'src/app/services/common/models/user.service';
 @Component({
   selector: 'app-main-header',
   standalone: true,
-  imports: [CommonModule, RouterModule,FormsModule,NgxSpinnerModule,NavbarComponent],
+  imports: [CommonModule, RouterModule,FormsModule,NgxSpinnerModule],
   templateUrl: './main-header.component.html',
   styleUrls: ['./main-header.component.scss']
 })
@@ -38,7 +38,8 @@ export class MainHeaderComponent implements OnInit {
     private router: Router,
     private dynamicLoadComponentService: DynamicloadcomponentService,
     private cartService: CartService,
-    private userService: UserService
+    private userService: UserService,
+    private route: ActivatedRoute
     ) {
     authService.identityCheck();
     this.cartItemsObservable = cartService.getCartItemsObservable();
@@ -67,6 +68,28 @@ export class MainHeaderComponent implements OnInit {
       toastrMessageType: ToastrMessageType.Warning,
       position: ToastrPosition.TopRight
     });
+  }
+
+  navigateToLogin() {
+    // Mevcut URL'yi al
+    const currentUrl = this.router.url;
+    
+    // Login sayfasına yönlendir ve mevcut URL'yi returnUrl olarak ekle
+    this.router.navigate(['/login'], { 
+      queryParams: { returnUrl: currentUrl },
+      relativeTo: this.route
+    });
+  }
+  navigateToRegister() {
+    const currentUrl = this.router.url;
+    this.router.navigate(['/register'], {
+      queryParams: { returnUrl: currentUrl },
+      relativeTo: this.route
+    });
+  }
+  
+  navigateToAdmin() {
+    this.router.navigate(['/admin']);
   }
 
   loadComponent() {

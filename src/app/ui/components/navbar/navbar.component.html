@@ -35,7 +35,7 @@
             <div class="products" *ngIf="searchResults.products.length > 0">
               <h4>Ürünler</h4>
               <ul>
-                <li *ngFor="let product of searchResults.products" (click)="navigateToSearchResult('product', product.id)">
+                <li *ngFor="let product of searchResults.products" (click)="onProductClick(product)">
                   <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name" class="product-thumbnail">
                   <div class="product-info">
                     <span class="product-name">{{ product.name }}</span>
@@ -79,6 +79,7 @@
       <div class="categories-list">
         <ul>
           <li *ngFor="let category of topLevelCategories" (mouseenter)="selectCategory(category)"
+            (click)="navigateToCategory(category.id)"
             [class.active]="category === selectedCategory">
             {{ category.name }}
           </li>
@@ -90,10 +91,10 @@
           <a href="#" class="view-all">Hepsini Gör →</a>
         </div>
         <ul class="subcategory-list" *ngIf="selectedCategory">
-          <li *ngFor="let subCategory of selectedCategory.subcategories">
+          <li *ngFor="let subCategory of selectedCategory.subcategories" (click)="navigateToCategory(subCategory.id)">
             {{ subCategory.name }}
             <ul class="nested-subcategories" *ngIf="subCategory.subcategories && subCategory.subcategories.length > 0">
-              <li *ngFor="let nestedSubCategory of subCategory.subcategories">
+              <li *ngFor="let nestedSubCategory of subCategory.subcategories" (click)="navigateToCategory(nestedSubCategory.id); $event.stopPropagation()">
                 {{ nestedSubCategory.name }}
               </li>
             </ul>
@@ -106,7 +107,7 @@
           <a href="#" class="view-all">Hepsini Gör →</a>
         </div>
         <div class="product-grid">
-          <div class="product-item" *ngFor="let product of recommendedProducts">
+          <div class="product-item" *ngFor="let product of recommendedProducts" (click)="navigateToRecommendedProduct(product.id)">
             <img [src]="product.showcaseImage?.url" [alt]="product.name">
             <div class="product-info">
               <h3>{{ product.name }}</h3>

@@ -8,11 +8,12 @@ import { CarouselService } from 'src/app/services/common/models/carousel.service
 import { Category } from 'src/app/contracts/category/category';
 import { Carousel } from 'src/app/contracts/carousel/carousel';
 import { PageRequest } from 'src/app/contracts/pageRequest';
+import { NavbarComponent } from "../navbar/navbar.component";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MainHeaderComponent, CommonModule],
+  imports: [MainHeaderComponent, CommonModule, NavbarComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

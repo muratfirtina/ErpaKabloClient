@@ -1,1 +1,55 @@
-<p>role-list works!</p>
+<div class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" class="role-table">
+      <!-- Select Column -->
+      <ng-container matColumnDef="select">
+        <th mat-header-cell *matHeaderCellDef>
+          <button mat-icon-button (click)="selectAllRoles()" [disabled]="selectedRoles.length === selectAllRoles.length">
+            <mat-icon>done_all</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="deleteSelectedRoles()" [disabled]="selectedRoles.length === 0">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </th>
+        <td mat-cell *matCellDef="let role">
+          <mat-checkbox (change)="selectRole(role)" [checked]="selectedRoles.includes(role)"></mat-checkbox>
+        </td>
+      </ng-container>
+  
+      <!-- Name Column -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Name </th>
+        <td mat-cell *matCellDef="let role"> {{role.name}} </td>
+      </ng-container>
+  
+      <!-- Edit Column -->
+      <ng-container matColumnDef="edit">
+        <th mat-header-cell *matHeaderCellDef>Edit</th>
+        <td mat-cell *matCellDef="let role">
+            <button mat-mini-fab class="edit-button-list">
+                <mat-icon>edit</mat-icon>
+              </button>
+        </td>
+      </ng-container>
+  
+      <!-- Delete Column -->
+      <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef>Delete</th>
+        <td mat-cell *matCellDef="let role">
+          <app-delete-directive [id]="role.roleId" (refresh)="getRoles()" controller="roles">
+            <button mat-icon-button color="warn">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </app-delete-directive>
+        </td>
+      </ng-container>
+  
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  
+    <mat-paginator (page)="pageChanged()" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons
+      aria-label="Select page of roles">
+    </mat-paginator>
+  </div>
+
+  

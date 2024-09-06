@@ -18,7 +18,7 @@
               </a>
             </li>
             <li *ngIf="authService.isAuthenticated">
-              <a routerLink="admin" class="nav-link">
+              <a (click)="navigateToAdmin()" class="nav-link">
                 <i class="fas fa-cog"></i>
                 <span>Admin</span>
               </a>
@@ -39,11 +39,11 @@
           </ng-container>
           <ng-template #authButtons>
             <div class="auth-buttons">
-              <a routerLink="login" class="btn btn-login">
+              <a (click)="navigateToLogin()" class="btn btn-login">
                 <i class="fas fa-user-check"></i>
                 <span class="btn-text">Giriş</span>
               </a>
-              <a routerLink="register" class="btn btn-register">
+              <a (click)="navigateToRegister()" class="btn btn-register">
                 <i class="fas fa-user-plus"></i>
                 <span class="btn-text">Kayıt Ol</span>
               </a>
@@ -53,8 +53,6 @@
       </div>
     </div>
   </header>
-  
-  <app-navbar></app-navbar>
   
   <!-- Modal for cart -->
   <div class="modal-wrapper">
