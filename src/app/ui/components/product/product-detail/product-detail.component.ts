@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Product } from 'src/app/contracts/product/product';
 import { ProductService } from 'src/app/services/common/models/product.service';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -10,13 +11,16 @@ import { ProductImageFile } from 'src/app/contracts/product/productImageFile';
 import { MainHeaderComponent } from '../../main-header/main-header.component';
 import { NavbarComponent } from "../../navbar/navbar.component";
 import { SafeHtmlPipe } from "../../../../pipes/safe-html.pipe";
+import { ProductDetailTabsComponent } from './product-detail-tabs/product-detail-tabs.component';
+import { BreadcrumbComponent } from '../../breadcrumb/breadcrumb.component';
+import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, MainHeaderComponent, NavbarComponent, SafeHtmlPipe]
+  imports: [CommonModule, FormsModule, MainHeaderComponent, NavbarComponent, SafeHtmlPipe, ProductDetailTabsComponent,RouterModule,BreadcrumbComponent]
 })
 export class ProductDetailComponent extends BaseComponent implements OnInit {
   product: Product | null = null;
@@ -26,12 +30,16 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   sortedAvailableFeatures: { [key: string]: string[] } = {};
   visualFeatures: string[] = [];
   allFeatures: { [key: string]: string[] } = {};
+  quantity: number = 1;
+  activeTab: string = 'description';
+  isImageZoomed: boolean = false;
   
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private productService: ProductService,
     private customToastrService: CustomToastrService,
+    private breadcrumbService: BreadcrumbService,
     spinner: NgxSpinnerService
   ) {
     super(spinner);
@@ -48,8 +56,10 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       });
     }
     this.determineVisualFeatures();
+  }
 
-    
+  setActiveTab(tabName: string): void {
+    this.activeTab = tabName;
   }
 
   async loadProduct(id: string) {
@@ -62,12 +72,18 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
         this.initializeAllFeatures();
         this.sortAvailableFeatures();
         this.resetCurrentImageIndex();
+        this.updateBreadcrumbs();
       }
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     } catch (error) {
-      // Hata işleme kodu...
+      this.customToastrService.message("Ürün yüklenirken bir hata oluştu", "Hata", {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
     }
   }
+
   initializeAllFeatures() {
     if (this.product && this.product.relatedProducts) {
       const allProducts = [this.product, ...this.product.relatedProducts];
@@ -94,8 +110,6 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   }
 
   determineVisualFeatures() {
-    // Bu metod, hangi özelliklerin görsel içereceğini belirler
-    // Şu an sadece 'renk' özelliğini içeriyor, ancak daha fazla eklenebilir
     this.visualFeatures = ['renk'];
   }
 
@@ -104,8 +118,6 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
 
     const selectedNumara = this.selectedFeatures['Numara'];
     const allProducts = [this.product, ...this.product.relatedProducts];
-
-    // Renk seçeneklerini sabit sırada tutmak için sortedAvailableFeatures kullanıyoruz
     const sortedFeatureValues = this.sortedAvailableFeatures[featureName];
 
     return sortedFeatureValues.map(featureValue => {
@@ -124,7 +136,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     });
   }
 
-  findShowcaseImage(productImageFiles: any[]): string {
+  findShowcaseImage(productImageFiles: ProductImageFile[]): string {
     if (!productImageFiles) {
       return '';
     }
@@ -219,14 +231,21 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     this.loadProduct(relatedProduct.id);
   }
 
+  
 
-  nextImage() {
+  toggleImageZoom() {
+    this.isImageZoomed = !this.isImageZoomed;
+  }
+
+  nextImage(event: Event) {
+    event.stopPropagation();
     if (this.product && this.product.productImageFiles && this.currentImageIndex < this.product.productImageFiles.length - 1) {
       this.currentImageIndex++;
     }
   }
 
-  prevImage() {
+  prevImage(event: Event) {
+    event.stopPropagation();
     if (this.currentImageIndex > 0) {
       this.currentImageIndex--;
     }
@@ -239,8 +258,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   }
 
   getProductImage(product: Product): string {
-    if (product.productImageFiles && product.productImageFiles.length > 0) {
-      return product.productImageFiles[0].url;
+    if (product.showcaseImage ) {
+      return product.showcaseImage.url;
     }
     return this.defaultProductImage;
   }
@@ -248,5 +267,25 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   formatCurrency(value: number | undefined): string {
     if (value === undefined) return 'N/A';
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
+  }
+
+  increaseQuantity() {
+    if (this.quantity < 10) {
+      this.quantity++;
+    }
+  }
+
+  decreaseQuantity() {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
+  }
+
+  updateBreadcrumbs() {
+    this.breadcrumbService.setBreadcrumbs([
+      { label: this.product.categoryName, url: `/category/${this.product.categoryId}` },
+      { label: this.product.brandName, url: `/brand/${this.product.brandId}` },
+      { label: this.product.name + ' ' + this.product.title, url: `/product/${this.product.id}` }
+    ]);
   }
 }

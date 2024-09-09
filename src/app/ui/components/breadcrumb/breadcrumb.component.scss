@@ -1,0 +1,35 @@
+.breadcrumb {
+  display: flex;
+  list-style: none;
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  border-radius: 0.25rem;
+  font-size: 13px;
+
+  .breadcrumb-item {
+    &:not(:last-child)::after {
+      content: ">";
+      padding: 0 0.5rem;
+      color: #a5aaaf;
+    }
+
+    &::before {
+      content: none;
+    }
+  }
+
+  a {
+    color: #003366;
+    font-weight: bold;
+    text-decoration: none;
+    font-size: 13px;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+
+  .active {
+    color: rgb(80 98 116 / 75%);;
+  }
+}

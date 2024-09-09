@@ -374,7 +374,6 @@ export class NavbarComponent extends BaseComponent implements OnInit {
 
 
   navigateToSearchResult(type: string, id: string) {
-    console.log(`Attempting to navigate to ${type} with id ${id}`);
     const url = `/${type}/${id}`;
     
     // Mevcut URL'yi kontrol et

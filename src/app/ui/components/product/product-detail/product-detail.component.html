@@ -1,88 +1,155 @@
-
 <app-main-header></app-main-header>
 <app-navbar></app-navbar>
+<div class="breadcrumb">
+<app-breadcrumb></app-breadcrumb>
+</div>
+
 <div *ngIf="!product" class="loading">Ürün yükleniyor...</div>
-
-<div *ngIf="product" class="product-detail-container">
-  <div class="product-image-gallery">
-    <div class="main-image">
-      <img [src]="product.productImageFiles && product.productImageFiles.length > 0 && currentImageIndex >= 0 ? 
-                  product.productImageFiles[currentImageIndex].url : defaultProductImage" 
-           [alt]="product.name">
-      <div class="image-navigation" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
-        <button class="nav-button" (click)="prevImage()" [disabled]="currentImageIndex === 0">❮</button>
-        <button class="nav-button" (click)="nextImage()" [disabled]="currentImageIndex === product.productImageFiles.length - 1">❯</button>
+  <div *ngIf="product" class="product-detail-container">
+    <div class="product-image-gallery">
+      <div class="main-image" (click)="toggleImageZoom()">
+        <img [src]="product.productImageFiles && product.productImageFiles.length > 0 && currentImageIndex >= 0 ? 
+                  product.productImageFiles[currentImageIndex].url : defaultProductImage" [alt]="product.name"
+          [class.zoomed]="isImageZoomed">
+        <div class="image-navigation" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
+          <button class="nav-button" (click)="prevImage($event)" [disabled]="currentImageIndex === 0">❮</button>
+          <button class="nav-button" (click)="nextImage($event)"
+            [disabled]="currentImageIndex === product.productImageFiles.length - 1">❯</button>
+        </div>
+      </div>
+      <div class="thumbnail-list" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
+        <div *ngFor="let image of product.productImageFiles; let i = index" class="thumbnail"
+          [class.active]="i === currentImageIndex" (click)="selectImage(i)">
+          <img [src]="image.url" [alt]="product.name">
+        </div>
       </div>
     </div>
-    <div class="thumbnail-list" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
-      <div *ngFor="let image of product.productImageFiles; let i = index" 
-           class="thumbnail" 
-           [class.active]="i === currentImageIndex"
-           (click)="selectImage(i)">
-        <img [src]="image.url" [alt]="product.name">
+
+    <div class="product-info">
+      <p class="product-display">
+        <a class="product-brand" [routerLink]="['/brand', product.brandId]">{{product.brandName}}</a>
+        {{product.name}}
+        {{product.title}}
+      </p>
+      <div class="product-ratings">
+        <!-- Add star rating component here -->
+        <span class="rating-score">4.8</span>
+        <span class="rating-count">(1000+ Değerlendirme)</span>
+      </div>
+      <p class="product-price">{{formatCurrency(product.price)}}</p>
+
+      <p class="product-stock" [class.in-stock]="product.stock > 0">
+        {{product.stock > 0 ? 'Stokta' : 'Stokta Yok'}}
+      </p>
+      <p class="product-sku">SKU: {{product.sku}}</p>
+
+      <div *ngFor="let featureName of allFeatures | keyvalue" class="product-feature-selector">
+        <h3>{{featureName.key}}</h3>
+        <div class="feature-options">
+          <ng-container *ngIf="visualFeatures.includes(featureName.key.toLowerCase()); else regularFeature">
+            <button *ngFor="let featureValue of featureName.value" class="feature-button visual-feature-button"
+              [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
+              (click)="onFeatureSelect(featureName.key, featureValue)">
+              <img [src]="getFeatureImage(featureName.key, featureValue)" [alt]="featureValue" class="feature-image">
+              <span>{{featureValue}}</span>
+            </button>
+          </ng-container>
+          <ng-template #regularFeature>
+            <button *ngFor="let featureValue of featureName.value" class="feature-button"
+              [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
+              (click)="onFeatureSelect(featureName.key, featureValue)">
+              {{featureValue}}
+            </button>
+          </ng-template>
+        </div>
+      </div>
+      <div class="add-to-cart-section">
+        <div class="quantity-selector">
+          <button (click)="decreaseQuantity()">-</button>
+          <input type="number" [(ngModel)]="quantity" min="1" max="10">
+          <button (click)="increaseQuantity()">+</button>
+        </div>
+        <button class="add-to-cart-button" [disabled]="product.stock <= 0">
+          Sepete Ekle
+        </button>
       </div>
     </div>
-  </div>
-
-  <div class="product-info">
-    <h1 class="product-name">{{product.name}}</h1>
-    <p class="product-price">{{formatCurrency(product.price)}}</p>
-    <p class="product-stock" [class.in-stock]="product.stock > 0">
-      {{product.stock > 0 ? 'Stokta' : 'Stokta Yok'}}
-    </p>
-    <p class="product-sku">SKU: {{product.sku}}</p>
-
-    <div *ngFor="let featureName of allFeatures | keyvalue" class="product-feature-selector">
-      <h3>{{featureName.key}}</h3>
-      <div class="feature-options">
-        <ng-container *ngIf="visualFeatures.includes(featureName.key.toLowerCase()); else regularFeature">
-          <button *ngFor="let featureValue of featureName.value"
-                  class="feature-button visual-feature-button"
-                  [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
-                  (click)="onFeatureSelect(featureName.key, featureValue)">
-            <img [src]="getFeatureImage(featureName.key, featureValue)" [alt]="featureValue" class="feature-image">
-            <span>{{featureValue}}</span>
-          </button>
-        </ng-container>
-        <ng-template #regularFeature>
-          <button *ngFor="let featureValue of featureName.value"
-                  class="feature-button"
-                  [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
-                  (click)="onFeatureSelect(featureName.key, featureValue)">
-            {{featureValue}}
-          </button>
-        </ng-template>
-      </div>
+    <div class="ivirzivir">
     </div>
-      
-    <div class="product-description" *ngIf="product.description">
-      <h2>Ürün Açıklaması</h2>
+</div>
+
+<div class="product-detail-tabs">
+  <ul class="tab-headers">
+    <li class="tab-header" [class.active]="activeTab === 'description'" (click)="setActiveTab('description')">
+      Ürün Açıklaması
+    </li>
+    <li class="tab-header" [class.active]="activeTab === 'reviews'" (click)="setActiveTab('reviews')">
+      Değerlendirmeler <span class="badge">1899</span>
+    </li>
+    <li class="tab-header" [class.active]="activeTab === 'questions'" (click)="setActiveTab('questions')">
+      Soru & Cevap <span class="badge">22</span>
+    </li>
+    <li class="tab-header" [class.active]="activeTab === 'installment'" (click)="setActiveTab('installment')">
+      Taksit Seçenekleri
+    </li>
+    <li class="tab-header" [class.active]="activeTab === 'credit'" (click)="setActiveTab('credit')">
+      Alışveriş Kredisi
+    </li>
+    <li class="tab-header" [class.active]="activeTab === 'return'" (click)="setActiveTab('return')">
+      İptal ve İade Koşulları
+    </li>
+  </ul>
+
+  <div class="tab-content" [ngSwitch]="activeTab">
+    <div *ngSwitchCase="'description'">
       <p [innerHTML]="product.description | safeHtml"></p>
     </div>
-
-    <button class="add-to-cart-button" [disabled]="product.stock <= 0">
-      Sepete Ekle
-    </button>
+    <div *ngSwitchCase="'reviews'">
+      <h2>Değerlendirmeler</h2>
+      <!-- Değerlendirmeler içeriği buraya gelecek -->
+    </div>
+    <div *ngSwitchCase="'questions'">
+      <h2>Soru & Cevap</h2>
+      <!-- Soru & Cevap içeriği buraya gelecek -->
+    </div>
+    <div *ngSwitchCase="'installment'">
+      <h2>Taksit Seçenekleri</h2>
+      <!-- Taksit seçenekleri içeriği buraya gelecek -->
+    </div>
+    <div *ngSwitchCase="'credit'">
+      <h2>Alışveriş Kredisi</h2>
+      <!-- Alışveriş kredisi içeriği buraya gelecek -->
+    </div>
+    <div *ngSwitchCase="'return'">
+      <h2>İptal ve İade Koşulları</h2>
+      <!-- İptal ve iade koşulları içeriği buraya gelecek -->
+    </div>
   </div>
 </div>
 
-<!-- <div *ngIf="product && product.relatedProducts && product.relatedProducts.length > 0" class="related-products">
-  <h2>İlişkili Ürünler</h2>
+<div *ngIf="product && product.relatedProducts && product.relatedProducts.length > 0" class="related-products">
+  <h2>Bu Ürünle Birlikte Alınabilecek Ürünler</h2>
   <div class="related-product-list">
-    <div *ngFor="let relatedProduct of product.relatedProducts" 
-         class="related-product-item"
-         (click)="onRelatedProductClick(relatedProduct)">
+    <div *ngFor="let relatedProduct of product.relatedProducts" class="related-product-item"
+      (click)="onRelatedProductClick(relatedProduct)">
       <div class="related-product-image">
         <img [src]="getProductImage(relatedProduct)" [alt]="relatedProduct.name">
       </div>
       <div class="related-product-info">
-        <h3>{{relatedProduct.name}}</h3>
+        <div class="name-title">
+          <p class="related-product-name">{{relatedProduct.name}}</p>
+          <p class="related-product-title">{{relatedProduct.title}}</p>
+        </div>
+        <p class="related-product-price">{{formatCurrency(relatedProduct.price)}}</p>
         <p class="related-product-features">
           <ng-container *ngFor="let feature of relatedProduct.productFeatureValues; let last = last">
             {{feature.featureValueName}}{{!last ? ', ' : ''}}
           </ng-container>
         </p>
       </div>
+      <button class="related-product-add-to-cart-button" [disabled]="product.stock <= 0">
+        Sepete Ekle
+      </button>
     </div>
   </div>
-</div> -->
+</div>

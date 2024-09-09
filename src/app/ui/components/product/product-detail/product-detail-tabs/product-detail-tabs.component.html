@@ -1,0 +1,49 @@
+<div class="product-detail-tabs">
+    <ul class="tab-headers">
+      <li class="tab-header" [class.active]="activeTab === 'description'" (click)="setActiveTab('description')">
+        Ürün Açıklaması
+      </li>
+      <li class="tab-header" [class.active]="activeTab === 'reviews'" (click)="setActiveTab('reviews')">
+        Değerlendirmeler <span class="badge">1899</span>
+      </li>
+      <li class="tab-header" [class.active]="activeTab === 'questions'" (click)="setActiveTab('questions')">
+        Soru & Cevap <span class="badge">22</span>
+      </li>
+      <li class="tab-header" [class.active]="activeTab === 'installment'" (click)="setActiveTab('installment')">
+        Taksit Seçenekleri
+      </li>
+      <li class="tab-header" [class.active]="activeTab === 'credit'" (click)="setActiveTab('credit')">
+        Alışveriş Kredisi
+      </li>
+      <li class="tab-header" [class.active]="activeTab === 'return'" (click)="setActiveTab('return')">
+        İptal ve İade Koşulları
+      </li>
+    </ul>
+  
+    <div class="tab-content" [ngSwitch]="activeTab">
+      <div *ngSwitchCase="'description'">
+        <h2>Ürün Açıklaması</h2>
+        <!-- Ürün açıklaması içeriği buraya gelecek -->
+      </div>
+      <div *ngSwitchCase="'reviews'">
+        <h2>Değerlendirmeler</h2>
+        <!-- Değerlendirmeler içeriği buraya gelecek -->
+      </div>
+      <div *ngSwitchCase="'questions'">
+        <h2>Soru & Cevap</h2>
+        <!-- Soru & Cevap içeriği buraya gelecek -->
+      </div>
+      <div *ngSwitchCase="'installment'">
+        <h2>Taksit Seçenekleri</h2>
+        <!-- Taksit seçenekleri içeriği buraya gelecek -->
+      </div>
+      <div *ngSwitchCase="'credit'">
+        <h2>Alışveriş Kredisi</h2>
+        <!-- Alışveriş kredisi içeriği buraya gelecek -->
+      </div>
+      <div *ngSwitchCase="'return'">
+        <h2>İptal ve İade Koşulları</h2>
+        <!-- İptal ve iade koşulları içeriği buraya gelecek -->
+      </div>
+    </div>
+  </div>

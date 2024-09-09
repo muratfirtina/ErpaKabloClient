@@ -14,7 +14,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule,],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -31,27 +31,55 @@ export class RegisterComponent extends BaseComponent implements OnInit {
     spinner: NgxSpinnerService
   ) {
     super(spinner);
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-
-    this.authService.identityCheck();
-    this.hideSpinner(SpinnerType.BallSpinClockwise)
   }
 
   frm: FormGroup;
+  passwordRequirements = {
+    uppercase: false,
+    lowercase: false,
+    symbol: false,
+    length: false
+  };
 
   ngOnInit(): void {
     this.frm = this.formBuilder.group({
       nameSurname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       userName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email, Validators.minLength(3), Validators.maxLength(50)]],
-      password: ['', [Validators.required, Validators.minLength(3)]],
-      confirmPassword: ['', [Validators.required, Validators.minLength(3), this.passwordsMatchValidator.bind(this)]]
+      password: ['', [Validators.required, Validators.minLength(3), /* Validators.maxLength(16) */, /* this.passwordStrengthValidator.bind(this) */]],
+      confirmPassword: ['', [Validators.required, this.passwordsMatchValidator.bind(this)]]
     });
+
+    this.frm.get('password').valueChanges.subscribe(
+      (password: string) => {
+        this.updatePasswordRequirements(password);
+      }
+    );
+  }
+
+  updatePasswordRequirements(password: string) {
+    this.passwordRequirements = {
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password),
+      length: password.length >= 8
+    };
   }
 
   passwordsMatchValidator(control: AbstractControl): { [key: string]: any } | null {
     const password = control.root.get('password');
     return password && control.value !== password.value ? { 'notSame': true } : null;
+  }
+
+  passwordStrengthValidator(control: AbstractControl): { [key: string]: boolean } | null {
+    const value: string = control.value;
+    const hasUpperCase = /[A-Z]+/.test(value);
+    const hasLowerCase = /[a-z]+/.test(value);
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value);
+    const isLongEnough = value.length >= 8;
+  
+    const valid = hasUpperCase && hasLowerCase && hasSymbol && isLongEnough;
+    return valid ? null : { 'passwordStrength': true };
   }
   
   get component() { return this.frm.controls; }
@@ -73,7 +101,6 @@ export class RegisterComponent extends BaseComponent implements OnInit {
           position: ToastrPosition.TopRight
         });
   
-        // Kısa bir bekleme süresi ekleyelim (backend'in kullanıcıyı tamamen oluşturması için)
         await new Promise(resolve => setTimeout(resolve, 1000));
   
         try {
@@ -83,11 +110,9 @@ export class RegisterComponent extends BaseComponent implements OnInit {
             });
           });
   
-          // Login başarılı olduysa
           await this.authService.identityCheck();
           
-          // 2 saniye bekle
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise(resolve => setTimeout(resolve, 1000));
   
           const returnUrl: string = this.activatedRoute.snapshot.queryParams["returnUrl"];
           if (returnUrl) {
@@ -103,7 +128,6 @@ export class RegisterComponent extends BaseComponent implements OnInit {
             toastrMessageType: ToastrMessageType.Error,
             position: ToastrPosition.TopRight
           });
-          // Kullanıcıyı login sayfasına yönlendir
           this.router.navigateByUrl("/login");
         }
       } else {

@@ -12,10 +12,10 @@ export class RoleService {
 
   constructor(private httpClientService:HttpClientService) { }
 
-  async create(name: string, successCallBack?: () => void, errorCallBack?: (error) => void) {
+  async create(roleData: FormData, successCallBack?: () => void, errorCallBack?: (error) => void) {
     const observable: Observable<any> = this.httpClientService.post({
       controller: "roles"
-    }, { roleName: name});
+    }, roleData);
 
     const promiseData = firstValueFrom(observable);
     promiseData.then(successCallBack)

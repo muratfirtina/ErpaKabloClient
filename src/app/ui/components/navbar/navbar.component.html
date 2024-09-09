@@ -107,7 +107,7 @@
           <a href="#" class="view-all">Hepsini Gör →</a>
         </div>
         <div class="product-grid">
-          <div class="product-item" *ngFor="let product of recommendedProducts" (click)="navigateToRecommendedProduct(product.id)">
+          <div class="product-item" *ngFor="let product of recommendedProducts" (click)="navigateToSearchResult('product',product.id)">
             <img [src]="product.showcaseImage?.url" [alt]="product.name">
             <div class="product-info">
               <h3>{{ product.name }}</h3>

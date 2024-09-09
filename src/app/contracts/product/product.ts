@@ -12,7 +12,9 @@ export class Product {
     title: string;
     description: string;
     categoryId: string;
+    categoryName: string;
     brandId: string;
+    brandName: string;
     varyantGroupID: string;
     features: Feature[];
     productFeatureValues: ProductFeatureValue[];
