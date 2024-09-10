@@ -16,7 +16,7 @@
                 <span>Siparişler</span>
               </a>
             </li>
-            <li *ngIf="authService.isAuthenticated">
+            <li *ngIf="authService.isAuthenticated && authService.isAdmin">
               <a (click)="navigateToAdmin()" class="nav-link">
                 <i class="fas fa-cog"></i>
                 <span>Admin</span>

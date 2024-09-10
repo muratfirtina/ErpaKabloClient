@@ -25,6 +25,7 @@ export class UserAuthService {
     if(tokenResponse){
       localStorage.setItem("accessToken", tokenResponse.token.accessToken);
       localStorage.setItem("refreshToken", tokenResponse.token.refreshToken);
+      localStorage.setItem("userId", tokenResponse.token.userId);
 
       this.toastrService.message("Login successful", "Success",{
         toastrMessageType: ToastrMessageType.Success,

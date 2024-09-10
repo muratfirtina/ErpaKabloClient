@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener } from '@angular/core';
+import { Component, OnInit, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Category } from 'src/app/contracts/category/category';
 import { PageRequest } from 'src/app/contracts/pageRequest';
@@ -23,6 +23,7 @@ import { Router, RouterModule } from '@angular/router';
 
 interface CategoryWithSubcategories extends Category {
   subcategories?: CategoryWithSubcategories[];
+  
 }
 
 @Component({
@@ -30,7 +31,7 @@ interface CategoryWithSubcategories extends Category {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss'],
+  styleUrls: ['./navbar.component.scss', '../../../../styles.scss']
 })
 export class NavbarComponent extends BaseComponent implements OnInit {
   categories: CategoryWithSubcategories[] = [];
@@ -52,6 +53,9 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   searchForm: FormGroup;
   private searchCache: Product[] = [];
   private currentSearchTerm: string = '';
+
+  @Input() showOnlyMainCategories: boolean = false;
+
 
   constructor(
     private categoryService: CategoryService,
@@ -324,6 +328,12 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     this.topLevelCategories = Array.from(categoryMap.values()).filter(
       (category) => !category.parentCategoryId
     );
+
+    if (this.showOnlyMainCategories) {
+      this.topLevelCategories.forEach(category => {
+        category.subcategories = [];
+      });
+    }
   }
 
   selectCategory(category: CategoryWithSubcategories) {

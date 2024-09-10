@@ -2,9 +2,11 @@ import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import {MatExpansionModule} from '@angular/material/expansion';
 import { trigger, state, style, transition, animate } from '@angular/animations';
+import { AuthService } from 'src/app/services/common/auth.service';
+import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 interface SidebarItem {
   title: string;
@@ -32,7 +34,15 @@ interface SidebarItem {
   ]
 })
 export class SidebarComponent implements OnInit{
+
+  constructor(private authService: AuthService, private router:Router, private toastrService:CustomToastrService) { }
+
   sidebarItems: SidebarItem[] = [
+    {
+      title: 'Home Page',
+      icon: 'home',
+      path: ''
+    },
     {
       title: 'Brand',
       icon: 'branding_watermark',
@@ -88,6 +98,15 @@ export class SidebarComponent implements OnInit{
         { title: 'Create', icon: 'add', path: 'roles/role-create' },
         { title: 'List', icon: 'list', path: 'roles/role-list' },
       ]
+    },
+    {
+      title: 'AuthorizeEndpoint',
+      icon: 'person',
+      path: 'authorize-menu'
+    },
+    {
+      title: 'Log Out',
+      icon: 'logout',
     }
   ];
   ngOnInit(): void {
@@ -132,4 +151,29 @@ export class SidebarComponent implements OnInit{
       this.hoveredItem = null;
     }
   }
+
+  logout() {
+    localStorage.removeItem("accessToken");
+    this.authService.identityCheck();
+    this.toastrService.message("Logged out successfully", "Log Out", {
+      toastrMessageType: ToastrMessageType.Warning,
+      position: ToastrPosition.TopRight
+    });
+    setTimeout(() => {
+      this.router.navigate([""]).then(() => {
+        location.reload();
+      });
+    }, 1000);
+  }
+  
+
+  handleItemClick(item: SidebarItem, event: MouseEvent) {
+    if (item.title === 'Log Out') {
+      event.preventDefault();
+      this.logout();
+    } else {
+      this.toggleSubmenu(item, event);
+    }
+  }
+  
 }

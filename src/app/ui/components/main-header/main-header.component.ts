@@ -14,6 +14,7 @@ import { ComponentName, DynamicloadcomponentService } from 'src/app/services/com
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { UserService } from 'src/app/services/common/models/user.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 
 @Component({
@@ -21,7 +22,7 @@ import { UserService } from 'src/app/services/common/models/user.service';
   standalone: true,
   imports: [CommonModule, RouterModule,FormsModule,NgxSpinnerModule],
   templateUrl: './main-header.component.html',
-  styleUrls: ['./main-header.component.scss']
+  styleUrls: ['./main-header.component.scss','../../../../styles.scss']
 })
 export class MainHeaderComponent implements OnInit {
   @ViewChild(DynamicLoadComponentDirective, { static: true })
@@ -39,12 +40,15 @@ export class MainHeaderComponent implements OnInit {
     private dynamicLoadComponentService: DynamicloadcomponentService,
     private cartService: CartService,
     private userService: UserService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private jwtHelper: JwtHelperService
     ) {
     authService.identityCheck();
     this.cartItemsObservable = cartService.getCartItemsObservable();
   }
   async ngOnInit() {
+    await this.authService.identityCheck();
+    console.log(this.authService.isAdmin);
     if (this.authService.isAuthenticated) {
       await this.getCartItems();
       this.loadComponent();
@@ -107,4 +111,5 @@ export class MainHeaderComponent implements OnInit {
   closeDropdown() {
     this.isDropdownOverlayActive = false;
   }
+  
 }

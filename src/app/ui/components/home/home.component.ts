@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MainHeaderComponent } from '../main-header/main-header.component';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
@@ -22,6 +22,15 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
   carousels: Carousel[] = [];
   currentSlide = 0;
   slideInterval: any;
+  isMobile: boolean = false;
+
+  @ViewChild('categoryGrid') categoryGrid!: ElementRef;
+
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkScreenSize();
+  }
 
   constructor(
     spinner: NgxSpinnerService,
@@ -37,6 +46,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
     await this.loadCarousels();
     this.hideSpinner(SpinnerType.BallSpinClockwise);
     this.startSlideShow();
+    this.checkScreenSize()
   }
 
   ngOnDestroy() {
@@ -77,5 +87,18 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
 
   setCurrentSlide(index: number) {
     this.currentSlide = index;
+  }
+  private checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
+  }
+
+  scrollLeft() {
+    const grid = this.categoryGrid.nativeElement;
+    grid.scrollBy({ left: -250, behavior: 'smooth' });
+  }
+
+  scrollRight() {
+    const grid = this.categoryGrid.nativeElement;
+    grid.scrollBy({ left: 250, behavior: 'smooth' });
   }
 }

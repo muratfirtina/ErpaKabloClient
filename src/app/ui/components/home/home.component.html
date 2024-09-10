@@ -1,17 +1,18 @@
 <app-main-header></app-main-header>
-<app-navbar></app-navbar>
+<app-navbar [showOnlyMainCategories]="isMobile"></app-navbar>
 
 <!-- Professional Carousel Section -->
-<section class="hero-carousel">
+<section class="hero-carousel d-none d-md-block">
   <div class="carousel-container">
     <div *ngFor="let item of carousels; let i = index" 
          class="carousel-slide" 
          [class.active]="i === currentSlide">
       <div class="slide-content">
+        <div class="overlay"></div>
         <div class="text-content">
           <h2 class="slide-title">{{item.name}}</h2>
           <p class="slide-description">{{item.description}}</p>
-          <a href="#" class="btn-cta">Daha Fazla Bilgi</a>
+          <a href="#" class="btn-cta">Learn More</a>
         </div>
         <div class="image-content">
           <img [src]="item.carouselImageFiles[0]?.url" [alt]="item.name">
@@ -19,25 +20,31 @@
       </div>
     </div>
   </div>
-  <button class="carousel-control prev" (click)="prevSlide()" aria-label="Önceki slayt">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  <button class="carousel-control prev" (click)="prevSlide()" aria-label="Previous slide">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
   </button>
-  <button class="carousel-control next" (click)="nextSlide()" aria-label="Sonraki slayt">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+  <button class="carousel-control next" (click)="nextSlide()" aria-label="Next slide">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
   </button>
   <div class="carousel-indicators">
-    <span *ngFor="let item of carousels; let i = index" 
-          [class.active]="i === currentSlide"
-          (click)="setCurrentSlide(i)"></span>
+    <span *ngFor="let item of carousels; let i = index" [class.active]="i === currentSlide" (click)="setCurrentSlide(i)"></span>
   </div>
 </section>
+
 <div class="downbar-container">
 </div>
 
 <!-- Categories Section -->
+
 <section class="categories">
-  <div class="container" style="max-width: max-content;">
-    <div class="category-grid">
+  <div class="category-place" *ngIf="isMobile">KATEGORİLER</div>
+  <div class="container">
+    <button class="scroll-btn left" (click)="scrollLeft()">
+      <!-- Sol ok ikonu -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+
+    <div class="category-grid" #categoryGrid>
       <div class="category-card" *ngFor="let category of mainCategories">
         <div class="category-image">
           <img [src]="category.categoryImage?.url" [alt]="category.name">
@@ -49,5 +56,10 @@
         </div>
       </div>
     </div>
+
+    <button class="scroll-btn right" (click)="scrollRight()">
+      <!-- Sağ ok ikonu -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
   </div>
 </section>

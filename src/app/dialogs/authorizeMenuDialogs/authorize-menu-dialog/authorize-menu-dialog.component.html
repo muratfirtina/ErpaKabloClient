@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>{{data.userName}} Kullanıcısına Rol Atama</h2>
+<mat-dialog-content>
+  <p>Bu kullanıcıya atamak istediğiniz rolleri seçin:</p>
+  <div class="role-list">
+    <mat-checkbox *ngFor="let role of roles" 
+                  [(ngModel)]="role.isAssigned"
+                  (change)="onRoleChange()">
+      {{role.name}}
+    </mat-checkbox>
+  </div>
+  <div class="role-summary">
+    Atanmış Roller: {{assignedRoleCount}} / Toplam Roller: {{totalRoleCount}}
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">İptal</button>
+  <button mat-raised-button color="primary" (click)="assignRoles()">Rolleri Ata</button>
+</mat-dialog-actions>

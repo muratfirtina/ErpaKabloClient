@@ -7,19 +7,15 @@
   </header>
   <ul>
     <li *ngFor="let item of sidebarItems">
-      <button type="button" 
-              [routerLink]="!item.children ? item.path : null" 
-              routerLinkActive="active"
-              [class.active]="isActive(item)"
-              (click)="toggleSubmenu(item, $event)">
+      <button type="button" [routerLink]="!item.children && item.title !== 'Log Out' ? item.path : null"
+        routerLinkActive="active" [class.active]="isActive(item)" (click)="handleItemClick(item, $event)">
         <mat-icon>{{item.icon}}</mat-icon>
         <p *ngIf="isExpanded">{{item.title}}</p>
         <mat-icon *ngIf="item.children && isExpanded">
           {{isActive(item) ? 'expand_less' : 'expand_more'}}
         </mat-icon>
       </button>
-      <div class="sub-menu" *ngIf="item.children" 
-           [class.expanded]="isActive(item)">
+      <div class="sub-menu" *ngIf="item.children" [class.expanded]="isActive(item)">
         <ul>
           <li *ngFor="let child of item.children">
             <a [routerLink]="child.path" routerLinkActive="active">

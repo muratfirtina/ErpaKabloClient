@@ -30,8 +30,10 @@ $light-bg: #f3f4f6;
 }
 
 .main-header {
-  background-color: $light-bg;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 1320px;
+  margin: auto;
+  background-color: white;
+  //box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
  
   position: relative;
   overflow: visible;

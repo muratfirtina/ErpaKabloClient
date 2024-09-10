@@ -1,8 +1,13 @@
+.navbar-container{
+  background: #003366;
+}
 .industrial-navbar {
   font-family: Arial, sans-serif;
   font-size: 14px;
   position: static;
   z-index: 1000;
+  max-width: 1320px;
+  margin: auto;
 
   .top-bar {
     background-color: #003366;

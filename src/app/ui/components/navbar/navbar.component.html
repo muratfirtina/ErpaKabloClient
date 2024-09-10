@@ -1,6 +1,6 @@
-<nav class="industrial-navbar">
+<div class="navbar-container">
+  <nav class="industrial-navbar">
   <div class="row">
-
     <div class="top-bar">
       <div class="col-md-1"></div>
       <div class="all-products-dropdown">
@@ -78,14 +78,15 @@
     <div class="main-content" (click)="$event.stopPropagation()">
       <div class="categories-list">
         <ul>
-          <li *ngFor="let category of topLevelCategories" (mouseenter)="selectCategory(category)"
-            (click)="navigateToCategory(category.id)"
-            [class.active]="category === selectedCategory">
+          <li *ngFor="let category of topLevelCategories" 
+              (mouseenter)="!showOnlyMainCategories && selectCategory(category)"
+              (click)="navigateToCategory(category.id)"
+              [class.active]="category === selectedCategory">
             {{ category.name }}
           </li>
         </ul>
       </div>
-      <div class="subcategories">
+      <div class="subcategories" *ngIf="!showOnlyMainCategories">
         <div class="subcategory-header" *ngIf="selectedCategory">
           <h3>{{ selectedCategory.name }}</h3>
           <a href="#" class="view-all">Hepsini Gör →</a>
@@ -101,7 +102,7 @@
           </li>
         </ul>
       </div>
-      <div class="recommended-products" *ngIf="selectedCategory && recommendedProducts.length > 0">
+      <div class="recommended-products" *ngIf="!showOnlyMainCategories && selectedCategory && recommendedProducts.length > 0">
         <div class="recommended-header">
           <h3>Tavsiye Edilenler {{ selectedCategory.name }}</h3>
           <a href="#" class="view-all">Hepsini Gör →</a>
@@ -127,3 +128,4 @@
   </div>
   </div>
 </nav>
+</div>
