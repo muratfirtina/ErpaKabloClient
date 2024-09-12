@@ -8,6 +8,9 @@ import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { Product } from 'src/app/contracts/product/product';
 import { ProductImageList } from 'src/app/contracts/product/product-image-list';
 import { ProductImageFile } from 'src/app/contracts/product/productImageFile';
+import { Brand } from 'src/app/contracts/brand/brand';
+import { Feature } from 'src/app/contracts/feature/feature';
+import { DynamicQuery } from 'src/app/contracts/dynamic-query';
 
 @Injectable({
   providedIn: 'root'
@@ -53,7 +56,7 @@ export class ProductService {
     
   }
 
-  async getProductsByDynamicQuery(dynamicQuery: any, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<Product>> {
+  async getProductsByDynamicQuery(dynamicQuery: DynamicQuery, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<Product>> {
     const observable: Observable<GetListResponse<Product>> = this.httpClientService.post<GetListResponse<Product>>({
       controller: 'products',
       action: 'GetList/ByDynamic',
@@ -131,5 +134,12 @@ export class ProductService {
       queryString: `count=${count}`
     });
     return await firstValueFrom(observable);
+  }
+
+  getAvailableFilters(): Observable<{ brands: Brand[], features: Feature[] }> {
+    return this.httpClientService.get<{ brands: Brand[], features: Feature[] }>({
+      controller: 'products',
+      action: 'GetAvailableFilters'
+    });
   }
 }

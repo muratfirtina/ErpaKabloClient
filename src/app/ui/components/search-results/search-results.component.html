@@ -1,0 +1,44 @@
+<app-main-header></app-main-header>
+<app-navbar></app-navbar>
+<div class="breadcrumb">
+  <app-breadcrumb></app-breadcrumb>
+</div>
+
+<div class="search-results-container">
+  <h2>Arama Sonuçları: "{{ searchTerm }}"</h2>
+
+  <div class="search-content">
+    <app-filter [filters]="availableFilters" (filterChange)="onFilterChange($event)"></app-filter>
+
+    <div class="results-area">
+      <div *ngIf="noResults" class="no-results">
+        <p>Üzgünüz, "{{ searchTerm }}" için sonuç bulunamadı.</p>
+      </div>
+
+      <div *ngIf="!noResults" class="product-list">
+        <div *ngFor="let product of products" class="product-item">
+          <div class="product-image">
+            <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name">
+          </div>
+          <div class="product-info">
+            <div class="name-title">
+              <p class="product-name">{{product.name}}</p>
+              <p class="product-title">{{product.title}}</p>
+            </div>
+            <p class="product-price">{{formatCurrency(product.price)}}</p>
+            <p class="product-features">
+              <ng-container *ngFor="let feature of product.productFeatureValues; let last = last">
+                {{feature.featureValueName}}{{!last ? ', ' : ''}}
+              </ng-container>
+            </p>
+          </div>
+          <button class="product-add-to-cart-button" [disabled]="product.stock <= 0">
+            Sepete Ekle
+          </button>
+        </div>
+      </div>
+
+      <mat-paginator [length]="totalItems" [pageSize]="pageRequest.pageSize" [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="onPageChange($event)" *ngIf="totalItems > 0">
+      </mat-paginator>
+    </div>

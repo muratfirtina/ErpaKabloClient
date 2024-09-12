@@ -46,7 +46,7 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       nameSurname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       userName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
       email: ['', [Validators.required, Validators.email, Validators.minLength(3), Validators.maxLength(50)]],
-      password: ['', [Validators.required, Validators.minLength(3), /* Validators.maxLength(16) */, /* this.passwordStrengthValidator.bind(this) */]],
+      password: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(16), this.passwordStrengthValidator.bind(this)]],
       confirmPassword: ['', [Validators.required, this.passwordsMatchValidator.bind(this)]]
     });
 

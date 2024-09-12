@@ -104,6 +104,14 @@ export class NavbarComponent extends BaseComponent implements OnInit {
       });
   }
 
+  onSearchSubmit(event: Event) {
+    event.preventDefault();
+    const searchTerm = this.searchForm.get('searchTerm').value;
+    if (searchTerm && searchTerm.trim() !== '') {
+      this.router.navigate(['/search'], { queryParams: { q: searchTerm } });
+    }
+  }
+
   onSearchFocus() {
     this.isSearchFocused = true;
     this.loadRecentSearches();
@@ -133,7 +141,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   private filterCachedResults(searchTerm: string) {
     this.searchResults.products = this.searchCache
       .filter((product) => this.productMatchesSearchTerm(product, searchTerm))
-      .slice(0, 3); // Sadece ilk 3 sonucu göster
+      .slice(0, 5); // Sadece ilk 3 sonucu göster
     this.saveRecentSearch(searchTerm);
   }
 
@@ -156,7 +164,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
           : undefined,
     };
 
-    const pageRequest: PageRequest = { pageIndex: 0, pageSize: 3 };
+    const pageRequest: PageRequest = { pageIndex: 0, pageSize: 5 };
 
     try {
       const productResponse =
@@ -168,8 +176,19 @@ export class NavbarComponent extends BaseComponent implements OnInit {
       this.searchCache = productResponse.items;
       this.currentSearchTerm = searchTerm;
 
-      // Kategori ve marka aramaları için benzer bir yaklaşım kullanabilirsiniz
-      const categoryResponse =
+      //gelen ürünlerin categoryId lerini al ve bu categoryId leri bir array e dönüştür. daha sonra bu arrayler ile category service de ki getCategoriesByIds metodunda kullanıp o idlere göre kategorileri getirecelim.
+      const categoryIds = this.searchResults.products.map(product => product.categoryId);
+      const categoriesOfProducts = await this.categoryService.getCategoriesByIds(categoryIds);
+      this.searchResults.categories = categoriesOfProducts.items;
+      //console.log('categoryResponse',categoriesOfProducts);
+
+      const brandIds = this.searchResults.products.map(product => product.brandId);
+      const brandsOfProducts = await this.brandService.getBrandsByIds(brandIds);
+      this.searchResults.brands = brandsOfProducts.items;
+      console.log('brandResponse',brandsOfProducts);
+
+      
+      /* const categoryResponse =
         await this.categoryService.getCategoriesByDynamicQuery(
           {
             filter: { field: 'name', operator: 'contains', value: searchTerm },
@@ -182,7 +201,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
         { filter: { field: 'name', operator: 'contains', value: searchTerm } },
         pageRequest
       );
-      this.searchResults.brands = brandResponse.items;
+      this.searchResults.brands = brandResponse.items; */
 
       this.saveRecentSearch(searchTerm);
     } catch (error) {
@@ -197,6 +216,8 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     const varyantGroupId = ProductFilterByDynamic.VaryantGroupID;
     const description = ProductFilterByDynamic.Description;
     const title = ProductFilterByDynamic.Title;
+    const brandName = ProductFilterByDynamic.BrandName;
+    const categoryName = ProductFilterByDynamic.CategoryName
 
     const filters: Filter[] = terms.map((term) => ({
       field: name,
@@ -205,7 +226,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
       logic: 'or',
       filters: [
         {
-          field: varyantGroupId,
+          field: brandName,
           operator: 'contains',
           value: term,
           logic: 'or',
@@ -220,6 +241,14 @@ export class NavbarComponent extends BaseComponent implements OnInit {
                   field: title,
                   operator: 'contains',
                   value: term,
+                  logic: 'or',
+                  filters: [
+                    {
+                      field: categoryName,
+                      operator: 'contains',
+                      value: term,
+                    }
+                  ]
                 },
               ],
             },
@@ -269,7 +298,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   saveRecentSearch(query: string) {
     if (!this.recentSearches.includes(query)) {
       this.recentSearches.unshift(query);
-      this.recentSearches = this.recentSearches.slice(0, 3);
+      this.recentSearches = this.recentSearches.slice(0, 5);
       localStorage.setItem(
         'recentSearches',
         JSON.stringify(this.recentSearches)

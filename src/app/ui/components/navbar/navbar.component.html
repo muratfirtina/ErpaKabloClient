@@ -10,7 +10,7 @@
         </button>
       </div>
       <div class="search-bar">
-        <form [formGroup]="searchForm">
+        <form [formGroup]="searchForm" (click)="onSearchSubmit($event)">
           <input type="text" formControlName="searchTerm" placeholder="Ürün, kategori veya marka ara..."
             (focus)="onSearchFocus()" (blur)="onSearchBlur()">
           <button class="search-button">
@@ -51,8 +51,7 @@
             <div class="categories" *ngIf="searchResults.categories.length > 0">
               <h4>Kategoriler</h4>
               <ul>
-                <li *ngFor="let category of searchResults.categories"
-                  (click)="navigateToSearchResult('category', category.id)">
+                <li *ngFor="let category of searchResults.categories" (click)="navigateToSearchResult('category', category.id)">
                   <img [src]="category.categoryImage?.url || 'assets/default-category-image.png'" [alt]="category.name"
                     class="category-thumbnail">
                   <span>{{ category.name }}</span>

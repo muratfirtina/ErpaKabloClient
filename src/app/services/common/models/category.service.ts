@@ -136,5 +136,13 @@ export class CategoryService {
       .catch(errorCallback);
     return await promiseData;
   }
+
+  async getCategoriesByIds(ids: any): Promise<GetListResponse<Category>> {
+    const observable: Observable<GetListResponse<Category>> = this.httpClientService.post<GetListResponse<Category>>({
+      controller: "categories",
+      action: "GetByIds"
+    }, ids);
+    return await firstValueFrom(observable);
+  }
   
 }

@@ -62,4 +62,22 @@ export class BrandService {
     return await promiseData;
     
   }
+
+  async getById(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<Brand>{
+    const observable : Observable<Brand> = this.httpClientService.get<Brand>({
+      controller: "brands"
+    }, id);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
+
+  async getBrandsByIds(ids: any): Promise<GetListResponse<Brand>> {
+    const observable: Observable<GetListResponse<Brand>> = this.httpClientService.post<GetListResponse<Brand>>({
+      controller: "brands",
+      action: "GetByIds"
+    }, ids);
+    return await firstValueFrom(observable);
+  }
 }

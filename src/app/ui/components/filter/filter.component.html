@@ -1,0 +1,17 @@
+<div class="filter-container">
+    <h3>Filtreler</h3>
+    <div *ngFor="let filter of filters | keyvalue">
+      <h4>{{ filter.key }}</h4>
+      <ul>
+        <li *ngFor="let option of filter.value">
+          <label>
+            <input type="checkbox" 
+                   [checked]="isSelected(filter.key, option)"
+                   (change)="toggleFilter(filter.key, option)">
+            {{ option }}
+          </label>
+        </li>
+      </ul>
+    </div>
+    <button (click)="applyFilters()">Filtreleri Uygula</button>
+  </div>

@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { DynamicQuery } from 'src/app/contracts/dynamic-query';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +32,7 @@ export class HttpClientService {
 
   }
 
-  post<T>(requestParameters: Partial<RequestParameters>, body: Partial<T>): Observable<T> {
+  post<T>(requestParameters: Partial<RequestParameters>, body: DynamicQuery | Partial<T>): Observable<T> {
     let url: string = "";
     if(requestParameters.fullEndpoint){
       url = requestParameters.fullEndpoint;
