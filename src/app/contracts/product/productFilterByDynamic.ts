@@ -9,7 +9,8 @@ export enum ProductFilterByDynamic {
     Description = 'Description',
     Title = 'Title',
     Price = 'Price',
-    FeatureValueId = 'ProductFeatureValue.FeatureValueId',
+    FeatureValueId = 'ProductFeatureValues.FeatureValueId',
+    FeatureValueName = 'ProductFeatureValues.FeatureValueName',
 
 
     

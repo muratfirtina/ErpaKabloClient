@@ -176,32 +176,13 @@ export class NavbarComponent extends BaseComponent implements OnInit {
       this.searchCache = productResponse.items;
       this.currentSearchTerm = searchTerm;
 
-      //gelen ürünlerin categoryId lerini al ve bu categoryId leri bir array e dönüştür. daha sonra bu arrayler ile category service de ki getCategoriesByIds metodunda kullanıp o idlere göre kategorileri getirecelim.
       const categoryIds = this.searchResults.products.map(product => product.categoryId);
       const categoriesOfProducts = await this.categoryService.getCategoriesByIds(categoryIds);
       this.searchResults.categories = categoriesOfProducts.items;
-      //console.log('categoryResponse',categoriesOfProducts);
 
       const brandIds = this.searchResults.products.map(product => product.brandId);
       const brandsOfProducts = await this.brandService.getBrandsByIds(brandIds);
       this.searchResults.brands = brandsOfProducts.items;
-      console.log('brandResponse',brandsOfProducts);
-
-      
-      /* const categoryResponse =
-        await this.categoryService.getCategoriesByDynamicQuery(
-          {
-            filter: { field: 'name', operator: 'contains', value: searchTerm },
-          },
-          pageRequest
-        );
-      this.searchResults.categories = categoryResponse.items;
-
-      const brandResponse = await this.brandService.getBrandsByDynamicQuery(
-        { filter: { field: 'name', operator: 'contains', value: searchTerm } },
-        pageRequest
-      );
-      this.searchResults.brands = brandResponse.items; */
 
       this.saveRecentSearch(searchTerm);
     } catch (error) {

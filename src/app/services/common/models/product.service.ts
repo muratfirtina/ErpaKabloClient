@@ -11,6 +11,7 @@ import { ProductImageFile } from 'src/app/contracts/product/productImageFile';
 import { Brand } from 'src/app/contracts/brand/brand';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { DynamicQuery } from 'src/app/contracts/dynamic-query';
+import { FilterGroup } from 'src/app/contracts/product/filter/filters';
 
 @Injectable({
   providedIn: 'root'
@@ -136,10 +137,44 @@ export class ProductService {
     return await firstValueFrom(observable);
   }
 
-  getAvailableFilters(): Observable<{ brands: Brand[], features: Feature[] }> {
+  getAvailableFilters2(): Observable<{ brands: Brand[], features: Feature[] }> {
     return this.httpClientService.get<{ brands: Brand[], features: Feature[] }>({
       controller: 'products',
       action: 'GetAvailableFilters'
     });
   }
+
+  getAvailableFilters(): Observable<FilterGroup[]> {
+    return this.httpClientService.get<FilterGroup[]>({
+      controller: 'products',
+      action: 'filters'
+    });
+  }
+
+  async searchProducts(searchTerm: string, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<Product>> {
+    const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
+      controller: 'products',
+      action: 'search',
+      queryString: `searchTerm=${searchTerm}&pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+    });
+
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
+
+  async filterProducts(searchTerm: string, filters: { [key: string]: string[] }, pageRequest: PageRequest,sortOrder : string, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<Product>> {
+    const observable: Observable<GetListResponse<Product>> = this.httpClientService.post<GetListResponse<Product>>({
+      controller: 'products',
+      action: 'filter',
+      queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+    }, { searchTerm: searchTerm, filters: filters , sortOrder: sortOrder});
+
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
+
 }

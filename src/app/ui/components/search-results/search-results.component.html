@@ -6,9 +6,19 @@
 
 <div class="search-results-container">
   <h2>Arama Sonuçları: "{{ searchTerm }}"</h2>
+  <p>{{ totalItems }} ürün bulundu</p>
+
+  <div class="sort-dropdown">
+    <label for="sort-select">Sırala:</label>
+    <select id="sort-select" (change)="onSortChange($event)">
+      <option value="">Varsayılan</option>
+      <option value="price_asc">Fiyat (Düşükten Yükseğe)</option>
+      <option value="price_desc">Fiyat (Yüksekten Düşüğe)</option>
+    </select>
+  </div>
 
   <div class="search-content">
-    <app-filter [filters]="availableFilters" (filterChange)="onFilterChange($event)"></app-filter>
+    <app-filter [availableFilters]="availableFilters" (filterChange)="onFilterChange($event)"></app-filter>
 
     <div class="results-area">
       <div *ngIf="noResults" class="no-results">
@@ -16,14 +26,20 @@
       </div>
 
       <div *ngIf="!noResults" class="product-list">
-        <div *ngFor="let product of products" class="product-item">
+        <div *ngFor="let product of products" class="product-item" [routerLink]="['/product', product.id]">
           <div class="product-image">
             <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name">
           </div>
           <div class="product-info">
             <div class="name-title">
-              <p class="product-name">{{product.name}}</p>
-              <p class="product-title">{{product.title}}</p>
+              <a class="brand-name">{{product.brandName}}
+              </a>
+              <div class="product-names">
+              <p class="product-name">
+                {{product.name}}
+                <p class="product-title">{{product.title}}
+              </p>
+            </div>
             </div>
             <p class="product-price">{{formatCurrency(product.price)}}</p>
             <p class="product-features">
@@ -32,7 +48,7 @@
               </ng-container>
             </p>
           </div>
-          <button class="product-add-to-cart-button" [disabled]="product.stock <= 0">
+          <button class="product-add-to-cart-button" [disabled]="product.stock <= 0" (click)="addToCart($event, product)">
             Sepete Ekle
           </button>
         </div>

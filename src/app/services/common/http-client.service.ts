@@ -32,8 +32,8 @@ export class HttpClientService {
 
   }
 
-  post<T>(requestParameters: Partial<RequestParameters>, body: DynamicQuery | Partial<T>): Observable<T> {
-    let url: string = "";
+  post<T>(requestParameters: Partial<RequestParameters>, body: DynamicQuery | Partial<T> | any): Observable<T> {
+      let url: string = "";
     if(requestParameters.fullEndpoint){
       url = requestParameters.fullEndpoint;
     }
