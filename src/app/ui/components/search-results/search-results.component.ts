@@ -36,9 +36,9 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private productService: ProductService,
     private breadcrumbService: BreadcrumbService,
-    private router: Router,
     spinner: NgxSpinnerService
   ) { 
     super(spinner);
@@ -51,12 +51,12 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
       this.selectedFilters = this.parseFiltersFromUrl(params);
       this.loadAvailableFilters();
       this.searchProducts();
-      this.updateBreadcrumbs()
+      this.updateBreadcrumbs();
     });
   }
 
   loadAvailableFilters() {
-    this.productService.getAvailableFilters().subscribe(
+    this.productService.getAvailableFilters(this.searchTerm).subscribe(
       filters => {
         this.availableFilters = filters;
       },
@@ -65,42 +65,35 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
       }
     );
   }
-  onSortChange(event: Event) {
-    this.sortOrder = (event.target as HTMLSelectElement).value;
-    this.loadProducts();
-  }
 
-  loadProducts() {
+  searchProducts() {
+    this.showSpinner(SpinnerType.BallSpinClockwise);
     this.productService.filterProducts(this.searchTerm, this.selectedFilters, this.pageRequest, this.sortOrder)
       .then(
         (response) => {
           this.products = response.items;
           this.totalItems = response.count;
           this.noResults = this.products.length === 0;
+          this.hideSpinner(SpinnerType.BallSpinClockwise);
         },
         (error) => {
           console.error('Error fetching products:', error);
           this.noResults = true;
+          this.hideSpinner(SpinnerType.BallSpinClockwise);
         }
       );
   }
 
-  async searchProducts() {
-    try {
-      const response = await this.productService.filterProducts(this.searchTerm, this.selectedFilters, this.pageRequest, this.sortOrder);
-      this.products = response.items;
-      this.totalItems = response.count;
-      this.noResults = this.products.length === 0;
-    } catch (error) {
-      console.error('Error searching products:', error);
-      this.noResults = true;
-    }
-  }
-
   onFilterChange(filters: { [key: string]: string[] }) {
-    this.selectedFilters = filters;
+    this.selectedFilters = { ...filters };
     this.pageRequest.pageIndex = 0;
     this.updateUrl();
+    this.searchProducts();
+  }
+
+  onSortChange(event: Event) {
+    this.sortOrder = (event.target as HTMLSelectElement).value;
+    this.searchProducts();
   }
 
   onPageChange(event: any) {
@@ -133,15 +126,15 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
     return filters;
   }
 
-  formatCurrency(value: number | undefined): string {
-    if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
-  }
-
-  updateBreadcrumbs(){
+  updateBreadcrumbs() {
     this.breadcrumbService.setBreadcrumbs([
       { label: this.searchTerm, url: '/search-results' }
     ]);
+  }
+
+  formatCurrency(value: number | undefined): string {
+    if (value === undefined) return 'N/A';
+    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
   }
 
   addToCart(event: Event, product: any) {

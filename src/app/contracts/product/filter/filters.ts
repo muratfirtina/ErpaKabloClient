@@ -7,6 +7,7 @@ export interface FilterGroup {
 
 export interface FilterOption {
   value: string;
+  displayValue: string;
   count: number;
 }
 

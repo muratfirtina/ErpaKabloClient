@@ -137,17 +137,15 @@ export class ProductService {
     return await firstValueFrom(observable);
   }
 
-  getAvailableFilters2(): Observable<{ brands: Brand[], features: Feature[] }> {
-    return this.httpClientService.get<{ brands: Brand[], features: Feature[] }>({
-      controller: 'products',
-      action: 'GetAvailableFilters'
-    });
-  }
-
-  getAvailableFilters(): Observable<FilterGroup[]> {
+  getAvailableFilters(searchTerm?: string): Observable<FilterGroup[]> {
+    let queryString = '';
+    if (searchTerm) {
+      queryString = `searchTerm=${searchTerm}`;
+    }
     return this.httpClientService.get<FilterGroup[]>({
       controller: 'products',
-      action: 'filters'
+      action: 'filters',
+      queryString: queryString
     });
   }
 
