@@ -21,7 +21,6 @@ $hover-color: rgba($primary-color, 0.1);
     color: $secondary-color;
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
-    //border-bottom: 1px solid $border-color;
   }
 
   .filter-groups-container {
@@ -36,8 +35,64 @@ $hover-color: rgba($primary-color, 0.1);
       font-size: 0.9rem;
       color: $secondary-color;
       margin-bottom: 0.5rem;
-      border-bottom: 1px solid #e0e0e0;
-      border-top: 1px solid #e0e0e0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid $border-color;
+      border-top: 1px solid $border-color;
+      padding-top: 0.5rem;
+    }
+
+    .category-tree {
+      list-style-type: none;
+      padding-left: 0;
+
+      .category-item {
+        margin-bottom: 0.3rem;
+      }
+
+      .category-header {
+        display: flex;
+        align-items: center;
+
+        .toggle-btn {
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-size: 0.8rem;
+          color: $secondary-color;
+          padding: 0.2rem;
+          margin-right: 0.3rem;
+
+          &:hover {
+            background-color: $hover-color;
+          }
+        }
+      }
+
+      .subcategory-list {
+        list-style-type: none;
+        padding-left: 1.5rem;
+        margin-top: 0.3rem;
+      }
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.3rem;
+      cursor: pointer;
+
+      input[type="checkbox"], input[type="radio"] {
+        margin-right: 0.5rem;
+      }
+
+      .checkbox-text {
+        font-size: 0.8rem;
+        color: $text-color;
+      }
+
+      &:hover {
+        background-color: $hover-color;
+      }
     }
 
     .checkbox-group, .predefined-ranges {
@@ -57,26 +112,6 @@ $hover-color: rgba($primary-color, 0.1);
         &::-webkit-scrollbar-thumb {
           background: $secondary-color;
         }
-      }
-    }
-
-    .checkbox-label {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.5rem;
-      cursor: pointer;
-
-      input[type="checkbox"], input[type="radio"] {
-        margin-right: 0.5rem;
-      }
-
-      .checkbox-text {
-        font-size: 0.8rem;
-        color: lighten($text-color, 20%);
-      }
-
-      &:hover {
-        background-color: $hover-color;
       }
     }
 

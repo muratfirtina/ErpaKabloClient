@@ -50,7 +50,7 @@ export class ProductListComponent extends BaseComponent implements OnInit {
   count: number = 0;
   pages: number = 0;
   pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Image', 'Feature', 'Product', 'VariantID' ,'Update','Delete'];
+  displayedColumns: string[] = ['No', 'Image', 'Feature', 'Product', 'CategoryName', 'VariantID' ,'Update','Delete'];
   searchForm: FormGroup;
   private searchCache: Product[] = []; // Arama sonuçları önbelleği
   private currentSearchTerm: string = ''; // Mevcut arama terimi
