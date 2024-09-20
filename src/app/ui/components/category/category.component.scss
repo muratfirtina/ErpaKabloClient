@@ -13,7 +13,7 @@ $hover-color: rgba($primary-color, 0.1);
 
   .category-name{
     font-size: 1.4rem;
-    font-weight: bolder;
+    font-weight:600;
   }
 }
 
@@ -21,7 +21,7 @@ $hover-color: rgba($primary-color, 0.1);
 .breadcrumb {
   display: flex;
   max-width: 1320px;
-  margin: 0.5rem auto;
+  margin: auto;
   padding: 0 1rem;
   font-family: "Roboto", Arial, sans-serif;
   color: $text-color;
@@ -29,7 +29,7 @@ $hover-color: rgba($primary-color, 0.1);
 
 .category-container {
   max-width: 1320px;
-  margin: 2rem auto;
+  margin: 1rem auto;
   padding: 0 1rem;
   font-family: "Roboto", Arial, sans-serif;
   color: $text-color;

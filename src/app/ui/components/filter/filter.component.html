@@ -1,5 +1,4 @@
 <div class="filter-container">
-  <h2>Filtreler</h2>
   <form [formGroup]="filterForm" (ngSubmit)="onFilterChange()">
     <div class="filter-groups-container">
       <div *ngFor="let filter of availableFilters" class="filter-group">
