@@ -1,12 +1,15 @@
 <app-main-header></app-main-header>
 <app-navbar></app-navbar>
+
+<div class="page-title">
+  <p class="category-name">{{ category?.name }}</p>
+</div>
 <div class="breadcrumb">
   <app-breadcrumb></app-breadcrumb>
 </div>
 
 <div class="category-container">
-  <h2>{{ category?.name }}</h2>
-  <p>{{ totalItems }} ürün bulundu</p>
+  
 
   <div class="sort-dropdown">
     <label for="sort-select">Sırala:</label>
@@ -16,7 +19,7 @@
       <option value="price_desc">Fiyat (Yüksekten Düşüğe)</option>
     </select>
   </div>
-
+  <p class="total-items">{{ totalItems }} ürün bulundu</p>
   <div class="category-content">
     <app-filter 
       [availableFilters]="availableFilters"

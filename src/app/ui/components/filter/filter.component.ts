@@ -1,28 +1,31 @@
-import { FlatTreeControl } from "@angular/cdk/tree";
 import { CommonModule } from "@angular/common";
-import { Component, OnChanges, Input, Output, EventEmitter, SimpleChanges } from "@angular/core";
+import { Component, OnChanges, Input, Output, EventEmitter, SimpleChanges, PipeTransform, Pipe } from "@angular/core";
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatIconModule } from "@angular/material/icon";
-import { MatTreeModule, MatTreeFlattener, MatTreeFlatDataSource } from "@angular/material/tree";
 import { FilterGroup, FilterType } from "src/app/contracts/product/filter/filters";
-import { Router, ActivatedRoute } from "@angular/router";
+
+@Pipe({
+  name: 'filterByKey',
+  standalone: true
+})
+export class FilterByKeyPipe implements PipeTransform {
+  transform(filters: FilterGroup[], key: string): FilterGroup | undefined {
+    return filters.find(filter => filter.key === key);
+  }
+}
 
 interface CategoryNode {
   id: string;
   name: string;
   parentId: string;
   children: CategoryNode[];
-  checked: boolean;
   expanded: boolean;
+  selected: boolean;
 }
-
 
 @Component({
   selector: 'app-filter',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule,MatTreeModule, MatIconModule, MatCheckboxModule, MatButtonModule],
+  imports: [CommonModule,ReactiveFormsModule,FormsModule,FilterByKeyPipe],
   templateUrl: './filter.component.html',
   styleUrls: ['./filter.component.scss']
 })
@@ -51,7 +54,7 @@ export class FilterComponent implements OnChanges {
     this.filterForm = this.fb.group({});
     this.availableFilters.forEach(filter => {
       if (filter.key === 'Category') {
-        // Category will be handled separately
+        this.selectedFilters['Category'] = this.selectedFilters['Category'] || [];
         return;
       }
       if (filter.type === FilterType.Range) {
@@ -70,7 +73,7 @@ export class FilterComponent implements OnChanges {
     const categoryFilter = this.availableFilters.find(filter => filter.key === 'Category');
     if (categoryFilter) {
       this.categoryTree = this.buildTree(categoryFilter.options);
-      this.updateCategoryCheckState(this.categoryTree);
+      this.updateCategorySelectState(this.categoryTree);
     }
   }
 
@@ -84,8 +87,8 @@ export class FilterComponent implements OnChanges {
         name: category.displayValue.split(' > ').pop(),
         parentId: category.parentId,
         children: [],
-        checked: this.isSelected('Category', category.value),
-        expanded: false
+        expanded: false,
+        selected: this.isSelected('Category', category.value)
       };
       map.set(category.value, node);
 
@@ -102,42 +105,34 @@ export class FilterComponent implements OnChanges {
     return roots;
   }
 
-  updateCategoryCheckState(nodes: CategoryNode[]) {
+  updateCategorySelectState(nodes: CategoryNode[]) {
     nodes.forEach(node => {
-      this.updateNodeCheckState(node);
-      this.updateCategoryCheckState(node.children);
+      this.updateNodeSelectState(node);
+      this.updateCategorySelectState(node.children);
     });
   }
 
-  updateNodeCheckState(node: CategoryNode) {
-    if (node.children.length === 0) {
-      node.checked = this.isSelected('Category', node.id);
-      node.expanded = false;
-    } else {
-      const checkedChildren = node.children.filter(child => child.checked);
-      const indeterminateChildren = node.children.filter(child => child.expanded);
-      
-      if (checkedChildren.length === node.children.length) {
-        node.checked = true;
-        node.expanded = false;
-      } else if (checkedChildren.length > 0 || indeterminateChildren.length > 0) {
-        node.checked = false;
-        node.expanded = true;
-      } else {
-        node.checked = false;
-        node.expanded = false;
-      }
-    }
+  updateNodeSelectState(node: CategoryNode) {
+    node.selected = this.isSelected('Category', node.id);
+    node.expanded = node.children.some(child => child.selected || child.expanded);
   }
 
   toggleNode(node: CategoryNode) {
     node.expanded = !node.expanded;
   }
 
-  toggleCategory(node: CategoryNode, event: Event) {
+  selectCategory(node: CategoryNode, event: Event) {
     event.stopPropagation();
-    node.checked = !node.checked;
+    this.clearCategorySelection(this.categoryTree);
+    node.selected = true;
     this.updateSelectedFilters();
+  }
+
+  clearCategorySelection(nodes: CategoryNode[]) {
+    nodes.forEach(node => {
+      node.selected = false;
+      this.clearCategorySelection(node.children);
+    });
   }
 
   toggleFilter(key: string, value: string) {
@@ -159,6 +154,11 @@ export class FilterComponent implements OnChanges {
     this.emitFilterChange();
   }
 
+  selectPriceRange(value: string) {
+    this.selectedFilters['Price'] = [value];
+    this.emitFilterChange();
+  }
+
   updateSelectedFilters() {
     const formValue = this.filterForm.value;
     const updatedFilters: { [key: string]: string[] } = {};
@@ -166,17 +166,16 @@ export class FilterComponent implements OnChanges {
     Object.keys(formValue).forEach(key => {
       if (Array.isArray(formValue[key])) {
         updatedFilters[key] = formValue[key];
-      } else if (typeof formValue[key] === 'object') {
-        // Handle range filters
-        const range = formValue[key];
-        if (range.min || range.max) {
-          updatedFilters[key] = [`${range.min || ''}-${range.max || ''}`];
-        }
       }
     });
 
-    // Handle categories separately
+    // Kategori filtresi için özel işlem
     updatedFilters['Category'] = this.getSelectedCategoryIds(this.categoryTree);
+
+    // Fiyat filtresi için özel işlem
+    if (this.selectedFilters['Price']) {
+      updatedFilters['Price'] = this.selectedFilters['Price'];
+    }
 
     this.filterChange.emit(updatedFilters);
   }
@@ -184,10 +183,11 @@ export class FilterComponent implements OnChanges {
   getSelectedCategoryIds(nodes: CategoryNode[]): string[] {
     let selectedIds: string[] = [];
     nodes.forEach(node => {
-      if (node.checked) {
+      if (node.selected) {
         selectedIds.push(node.id);
+      } else {
+        selectedIds = selectedIds.concat(this.getSelectedCategoryIds(node.children));
       }
-      selectedIds = selectedIds.concat(this.getSelectedCategoryIds(node.children));
     });
     return selectedIds;
   }
@@ -209,7 +209,13 @@ export class FilterComponent implements OnChanges {
     if (priceFilter) {
       const priceControl = this.filterForm.get('Price') as FormGroup;
       if (priceControl) {
-        priceControl.patchValue(this.customPriceRange);
+        const min = priceControl.get('min')?.value;
+        const max = priceControl.get('max')?.value;
+        if (min || max) {
+          this.selectedFilters['Price'] = [`${min || ''}-${max || ''}`];
+        } else {
+          delete this.selectedFilters['Price'];
+        }
         this.emitFilterChange();
       }
     }

@@ -11,7 +11,7 @@ import { Product } from 'src/app/contracts/product/product';
 import { ProductService } from 'src/app/services/common/models/product.service';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
-import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
+import { Breadcrumb, BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { Category } from 'src/app/contracts/category/category';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -95,6 +95,7 @@ export class CategoryComponent extends BaseComponent implements OnInit {
 
   loadProducts() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
+    // Ensure the current category is always included in the filter
     this.selectedFilters['Category'] = [this.categoryId];
     this.productService.filterProducts('', this.selectedFilters, this.pageRequest, this.sortOrder)
       .then(
@@ -113,9 +114,18 @@ export class CategoryComponent extends BaseComponent implements OnInit {
   }
 
   onFilterChange(filters: { [key: string]: string[] }) {
-    this.selectedFilters = { ...filters, Category: [this.categoryId] };
-    this.pageRequest.pageIndex = 0;
-    this.loadProducts();
+    // Check if the category has changed
+    const newCategoryId = filters['Category'] ? filters['Category'][0] : this.categoryId;
+    
+    if (newCategoryId !== this.categoryId) {
+      // Category has changed, update the route
+      this.router.navigate(['/category', newCategoryId]);
+    } else {
+      // Category hasn't changed, just update filters and reload products
+      this.selectedFilters = filters;
+      this.pageRequest.pageIndex = 0;
+      this.loadProducts();
+    }
   }
 
   onPageChange(event: any) {
@@ -129,12 +139,42 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     this.loadProducts();
   }
 
-  updateBreadcrumbs() {
+  async updateBreadcrumbs() {
     if (this.category) {
-      this.breadcrumbService.setBreadcrumbs([
-        { label: this.category.name, url: `/category/${this.category.id}` }
-      ]);
+      const categoryHierarchy = await this.getCategoryHierarchy(this.category);
+      const breadcrumbs: Breadcrumb[] = categoryHierarchy.map(cat => ({
+        label: cat.name,
+        url: `/category/${cat.id}`
+      }));
+      this.breadcrumbService.setBreadcrumbs(breadcrumbs);
     }
+  }
+
+  async getCategoryHierarchy(category: Category): Promise<Category[]> {
+    const hierarchy: Category[] = [category];
+    let currentCategory = category;
+
+    while (currentCategory.parentCategoryId) {
+      try {
+        const parentCategory = await this.categoryService.getById(currentCategory.parentCategoryId);
+        hierarchy.unshift(parentCategory);
+        currentCategory = parentCategory;
+      } catch (error) {
+        console.error('Error fetching parent category:', error);
+        break;
+      }
+    }
+
+    return hierarchy;
+  }
+
+  selectCategory(node: any, event: Event) {
+    event.stopPropagation();
+    this.onFilterChange({ 'Category': [node.id] });
+  }
+
+  toggleNode(node: any) {
+    node.expanded = !node.expanded;
   }
 
   formatCurrency(value: number | undefined): string {
