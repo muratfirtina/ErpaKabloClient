@@ -20,6 +20,7 @@ import { BrandService } from 'src/app/services/common/models/brand.service';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { ProductFilterByDynamic } from 'src/app/contracts/product/productFilterByDynamic';
 import { Router, RouterModule } from '@angular/router';
+import { GetListResponse } from 'src/app/contracts/getListResponse';
 
 interface CategoryWithSubcategories extends Category {
   subcategories?: CategoryWithSubcategories[];
@@ -37,10 +38,10 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   categories: CategoryWithSubcategories[] = [];
   topLevelCategories: CategoryWithSubcategories[] = [];
   selectedCategory: CategoryWithSubcategories | null = null;
-  recommendedProducts: Product[] = [];
+  recommendedProducts: GetListResponse<Product>
   isAllProductsOpen: boolean = false;
   private categorySubject = new Subject<string>();
-  private categoryCache: Map<string, Product[]> = new Map();
+  private categoryCache: Map<string, GetListResponse<Product>> = new Map();
 
   isSearchFocused: boolean = false;
   recentSearches: string[] = [];
@@ -357,17 +358,15 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     } else {
       this.showSpinner(SpinnerType.BallSpinClockwise);
       try {
-        const products = await this.productService.getRandomProductsByCategory(
-          categoryId
-        );
-        this.categoryCache.set(categoryId, products);
-        this.recommendedProducts = products;
+        const response = await this.productService.getRandomProductsByCategory(categoryId);
+        this.categoryCache.set(categoryId, response);
+        this.recommendedProducts = response;
       } catch (error) {
         console.error(
           `Error loading recommended products for category ${categoryId}:`,
           error
         );
-        this.recommendedProducts = [];
+        this.recommendedProducts = { items: [], index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false };
       } finally {
         this.hideSpinner(SpinnerType.BallSpinClockwise);
       }

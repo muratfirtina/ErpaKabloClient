@@ -24,6 +24,9 @@ import { MatListModule } from '@angular/material/list';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
+import { AuthService } from 'src/app/services/common/auth.service';
+import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 
 @Component({
@@ -56,6 +59,9 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     private categoryService: CategoryService,
     private productService: ProductService,
     private breadcrumbService: BreadcrumbService,
+    private productLikeService: ProductLikeService,
+    private authService: AuthService,
+    private customToasterService: CustomToastrService,
     spinner: NgxSpinnerService,
   ) {
     super(spinner);
@@ -93,16 +99,25 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     );
   }
 
-  loadProducts() {
+ async loadProducts() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
     // Ensure the current category is always included in the filter
     this.selectedFilters['Category'] = [this.categoryId];
     this.productService.filterProducts('', this.selectedFilters, this.pageRequest, this.sortOrder)
       .then(
-        (response) => {
+        async (response) => {
           this.products = response.items;
           this.totalItems = response.count;
           this.noResults = this.products.length === 0;
+
+          if (this.authService.isAuthenticated) {
+            const productIds = this.products.map(p => p.id);
+            const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+            
+            this.products.forEach(product => {
+              product.isLiked = likedProductIds.includes(product.id);
+            });
+          }
           this.hideSpinner(SpinnerType.BallSpinClockwise);
         },
         (error) => {
@@ -185,5 +200,42 @@ export class CategoryComponent extends BaseComponent implements OnInit {
   addToCart(event: Event, product: any) {
     event.stopPropagation();
     // Sepete ekleme mantığı
+  }
+
+  async toggleLike(event: Event, product: Product) {
+    event.stopPropagation();
+  
+    if (!this.authService.isAuthenticated) {
+      this.router.navigate(['/login'], { 
+        queryParams: { returnUrl: this.router.url }
+      });
+      return;
+    }
+  
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    try {
+      const isLiked = await this.productLikeService.toggleProductLike(product.id);
+      product.isLiked = isLiked;
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message(
+        isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
+        'Başarılı',
+        {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        }
+      );
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message(
+        'Beğeni işlemi sırasında bir hata oluştu',
+        'Hata',
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
+    }
   }
 }

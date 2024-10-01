@@ -38,6 +38,15 @@
       </div>
       <p class="product-price">{{formatCurrency(product.price)}}</p>
 
+      <!-- <div class="like-container">
+        <i class="heart-icon" 
+           [class.fas]="product.isLiked" 
+           [class.far]="!product.isLiked" 
+           [class.fa-heart]="true"
+           (click)="toggleLike()">
+        </i>
+      </div> -->
+
       <p class="product-stock" [class.in-stock]="product.stock > 0">
         {{product.stock > 0 ? 'Stokta' : 'Stokta Yok'}}
       </p>

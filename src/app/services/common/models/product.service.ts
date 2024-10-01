@@ -128,8 +128,8 @@ export class ProductService {
     });
   }
 
-  async getRandomProductsByCategory(categoryId: string, count: number = 4): Promise<Product[]> {
-    const observable: Observable<Product[]> = this.httpClientService.get<Product[]>({
+  async getRandomProductsByCategory(categoryId: string, count: number = 4): Promise<GetListResponse<Product>> {
+    const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
       controller: "products",
       action: `GetRandomProductsByCategory/${categoryId}`,
       queryString: `count=${count}`

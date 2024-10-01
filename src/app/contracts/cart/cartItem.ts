@@ -1,9 +1,11 @@
+import { ProductImageFile } from "../product/productImageFile";
+
 export class CartItem {
     cartItemId: string;
     productName: string;
     unitPrice: number;
     quantity: number;
-    productImageUrls: string;
+    showcaseImage?: ProductImageFile;
     productId: string;
     quantityPrice: number;
     showCase: boolean;

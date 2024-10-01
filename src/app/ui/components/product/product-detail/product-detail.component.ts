@@ -14,6 +14,11 @@ import { SafeHtmlPipe } from "../../../../pipes/safe-html.pipe";
 import { ProductDetailTabsComponent } from './product-detail-tabs/product-detail-tabs.component';
 import { BreadcrumbComponent } from '../../breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
+import { AuthService } from 'src/app/services/common/auth.service';
+import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
+import { ProductLike } from 'src/app/contracts/productLike/productLike';
+import { User } from 'src/app/contracts/user/user';
+import { PageRequest } from 'src/app/contracts/pageRequest';
 
 @Component({
   selector: 'app-product-detail',
@@ -24,6 +29,7 @@ import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 })
 export class ProductDetailComponent extends BaseComponent implements OnInit {
   product: Product | null = null;
+  user : User
   currentImageIndex = 0;
   defaultProductImage = 'assets/product/ecommerce-default-product.png';
   selectedFeatures: { [key: string]: string } = {};
@@ -33,6 +39,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   quantity: number = 1;
   activeTab: string = 'description';
   isImageZoomed: boolean = false;
+  isAuthenticated: boolean = false;
   
   constructor(
     private route: ActivatedRoute,
@@ -40,6 +47,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     private productService: ProductService,
     private customToastrService: CustomToastrService,
     private breadcrumbService: BreadcrumbService,
+    private authService: AuthService,
+    private productLikeService: ProductLikeService,
     spinner: NgxSpinnerService
   ) {
     super(spinner);
@@ -56,6 +65,9 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       });
     }
     this.determineVisualFeatures();
+    this.isAuthenticated = this.authService.isAuthenticated;
+    this.getProductsUserLiked();
+    
   }
 
   setActiveTab(tabName: string): void {
@@ -288,4 +300,57 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       { label: this.product.name + ' ' + this.product.title, url: `/product/${this.product.id}` }
     ]);
   }
+  /* async toggleLike() {
+    if (!this.isAuthenticated) {
+      this.router.navigate(['/login'], { 
+        queryParams: { returnUrl: this.router.url }
+      });
+      return;
+    }
+
+    try {
+      const response = await this.productLikeService.addProductLike({
+        productId: this.product.id,
+        userId: this.authService.getUserId(),
+        isLiked: !this.product.isLiked
+      });
+      this.product.isLiked = response.isLiked;
+      this.customToastrService.message(
+        response.isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
+        'Başarılı',
+        { toastrMessageType: ToastrMessageType.Success, position: ToastrPosition.TopRight }
+      );
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      this.customToastrService.message('Beğeni işlemi sırasında bir hata oluştu', 'Hata', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+    }
+  } */
+
+  //kullanıcının beğendiği ürünleri listele
+
+  async getProductsUserLiked() {
+    try {
+      const pageRequest: PageRequest = {
+        pageIndex: 0,
+        pageSize: 10
+      };
+      const response = await this.productLikeService.getProductsUserLiked(
+        pageRequest,
+        () => {
+          
+          console.log('User liked products loaded');
+        },
+        error => {
+          console.error('Error loading user liked products:', error);
+        }
+      );
+      console.log('User liked products:', response);
+    } catch (error) {
+      console.error('Error getting user liked products:', error);
+    }
+  }
+  
 }

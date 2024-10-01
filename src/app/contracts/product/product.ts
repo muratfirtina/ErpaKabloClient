@@ -22,5 +22,6 @@ export class Product {
     relatedProducts: Product[];
     availableFeatures: { [key: string]: string[] };
     showcaseImage?: ProductImageFile;
+    isLiked: boolean;
 
 }

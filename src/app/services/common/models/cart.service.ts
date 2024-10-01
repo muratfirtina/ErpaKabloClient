@@ -37,12 +37,12 @@ export class CartService {
     return cartItems;
   }
 
-  async add(cartItem: CreateCartItem,successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void): Promise<void>{
+  async add(createCartItem: CreateCartItem,successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void): Promise<void>{
    
-    const observable: Observable<any> = this.httpClientService.post({
+    const observable: Observable<CreateCartItem> = this.httpClientService.post<CreateCartItem>({
       controller: 'carts',
 
-    }, cartItem);
+    }, {createCartItem});
 
     const promiseData = firstValueFrom(observable);
     promiseData.then(value => successCallBack())

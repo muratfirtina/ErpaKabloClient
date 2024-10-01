@@ -35,6 +35,52 @@ $link-color: #0000EE;
     flex-direction: column;
   }
 }
+
+.like-container {
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+}
+
+.heart-icon {
+  font-size: 24px;
+  transition: all 0.3s ease;
+  
+  &.far {
+    color: #000;  // Beğenilmemiş durumda siyah kalp
+  }
+  
+  &.fas {
+    color: #ff0000;  // Beğenilmiş durumda kırmızı kalp
+  }
+  
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+// Kalp ikonuna tıklama animasyonu
+@keyframes heartBeat {
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
+}
+
+.heart-icon:active {
+  animation: heartBeat 1s;
+}
 .ivirzivir {
 
   width: 230px;

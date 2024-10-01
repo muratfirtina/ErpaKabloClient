@@ -57,6 +57,7 @@ export class AuthService {
   get isAdmin(): boolean {
     return this._isAdmin;
   }
+  
 }
 
 export let _isAuthenticated: boolean;

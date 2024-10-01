@@ -15,12 +15,13 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { UserService } from 'src/app/services/common/models/user.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { CartComponent } from '../cart/cart.component';
 
 
 @Component({
   selector: 'app-main-header',
   standalone: true,
-  imports: [CommonModule, RouterModule,FormsModule,NgxSpinnerModule],
+  imports: [CommonModule, RouterModule,FormsModule,NgxSpinnerModule, CartComponent ,DynamicLoadComponentDirective],
   templateUrl: './main-header.component.html',
   styleUrls: ['./main-header.component.scss','../../../../styles.scss']
 })
