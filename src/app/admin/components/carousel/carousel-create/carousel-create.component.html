@@ -1,1 +1,33 @@
-<p>carousel-create works!</p>
+<div class="carousel-create-container">
+    <h1>Create Carousel</h1>
+  
+    <form (ngSubmit)="createCarousel()" #carouselForm="ngForm" enctype="multipart/form-data">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" [(ngModel)]="carouselData.name" class="form-control" required />
+      </div>
+  
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" [(ngModel)]="carouselData.description" class="form-control"></textarea>
+      </div>
+  
+      <div class="form-group">
+        <label for="order">Order</label>
+        <input type="number" id="order" name="order" [(ngModel)]="carouselData.order" class="form-control" required />
+      </div>
+  
+      <div class="form-group">
+        <label for="isActive">Is Active</label>
+        <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="carouselData.isActive" class="form-check-input" />
+      </div>
+  
+      <div class="form-group">
+        <label for="carouselImageFiles">Upload Images</label>
+        <input type="file" id="carouselImageFiles" (change)="onFileSelected($event)" class="form-control" multiple />
+      </div>
+  
+      <button type="submit" class="btn btn-primary" [disabled]="!carouselForm.valid">Create Carousel</button>
+    </form>
+  </div>
+  

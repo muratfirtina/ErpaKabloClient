@@ -12,19 +12,14 @@ export class CarouselService {
 
   constructor(private httpClientService:HttpClientService) { }
 
-  async create(carouselData: FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void){
-    this.httpClientService.post({
+  async create(carouselData: FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void) {
+    const observable: Observable<any> = this.httpClientService.post({
       controller: "carousels"
-    }, carouselData).subscribe({
-      next: (response) => {
-        console.log('Server response:', response);
-        successCallback();
-      },
-      error: (error) => {
-        console.error('Server error:', error);
-        errorCallback(error);
-      }
-    });
+    }, carouselData);
+
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback).catch(errorCallback);
+    return await promiseData;
   }
 
   async list(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Carousel>>{
