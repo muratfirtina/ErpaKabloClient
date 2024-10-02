@@ -175,4 +175,12 @@ export class ProductService {
     return await promiseData;
   }
 
+  async getRandomProductsByProductId(productId: string): Promise<GetListResponse<Product>> {
+    const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
+      controller: 'products',
+      action: `GetRandomsByProductId/${productId}`
+    });
+    return await firstValueFrom(observable);
+  }
+
 }

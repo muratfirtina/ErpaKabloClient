@@ -46,4 +46,13 @@ export class ProductLikeService {
     return response.likedProductIds;
   }
 
+  async isProductLiked(productId: string): Promise<boolean> {
+    const observable: Observable<{ isLiked: boolean }> = this.httpClientService.get<{ isLiked: boolean }>({
+      controller: "productlikes",
+      action: `isLiked/${productId}`
+    });
+    const response = await firstValueFrom(observable);
+    return response.isLiked;
+  }
+
 }

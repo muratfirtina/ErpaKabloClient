@@ -1,90 +1,91 @@
 <app-main-header></app-main-header>
 <app-navbar></app-navbar>
 <div class="breadcrumb">
-<app-breadcrumb></app-breadcrumb>
+  <app-breadcrumb></app-breadcrumb>
 </div>
 
 <div *ngIf="!product" class="loading">Ürün yükleniyor...</div>
-  <div *ngIf="product" class="product-detail-container">
-    <div class="product-image-gallery">
-      <div class="main-image" (click)="toggleImageZoom()">
-        <img [src]="product.productImageFiles && product.productImageFiles.length > 0 && currentImageIndex >= 0 ? 
+<div *ngIf="product" class="product-detail-container">
+  <div class="product-image-gallery">
+    <div class="main-image" (click)="toggleImageZoom()">
+      <img [src]="product.productImageFiles && product.productImageFiles.length > 0 && currentImageIndex >= 0 ? 
                   product.productImageFiles[currentImageIndex].url : defaultProductImage" [alt]="product.name"
-          [class.zoomed]="isImageZoomed">
-        <div class="image-navigation" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
-          <button class="nav-button" (click)="prevImage($event)" [disabled]="currentImageIndex === 0">❮</button>
-          <button class="nav-button" (click)="nextImage($event)"
-            [disabled]="currentImageIndex === product.productImageFiles.length - 1">❯</button>
-        </div>
-      </div>
-      <div class="thumbnail-list" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
-        <div *ngFor="let image of product.productImageFiles; let i = index" class="thumbnail"
-          [class.active]="i === currentImageIndex" (click)="selectImage(i)">
-          <img [src]="image.url" [alt]="product.name">
-        </div>
+        [class.zoomed]="isImageZoomed">
+      <div class="image-navigation" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
+        <button class="nav-button" (click)="prevImage($event)" [disabled]="currentImageIndex === 0">❮</button>
+        <button class="nav-button" (click)="nextImage($event)"
+          [disabled]="currentImageIndex === product.productImageFiles.length - 1">❯</button>
       </div>
     </div>
-
-    <div class="product-info">
-      <p class="product-display">
-        <a class="product-brand" [routerLink]="['/brand', product.brandId]">{{product.brandName}}</a>
-        {{product.name}}
-        {{product.title}}
-      </p>
-      <div class="product-ratings">
-        <!-- Add star rating component here -->
-        <span class="rating-score">4.8</span>
-        <span class="rating-count">(1000+ Değerlendirme)</span>
-      </div>
-      <p class="product-price">{{formatCurrency(product.price)}}</p>
-
-      <!-- <div class="like-container">
-        <i class="heart-icon" 
-           [class.fas]="product.isLiked" 
-           [class.far]="!product.isLiked" 
-           [class.fa-heart]="true"
-           (click)="toggleLike()">
-        </i>
-      </div> -->
-
-      <p class="product-stock" [class.in-stock]="product.stock > 0">
-        {{product.stock > 0 ? 'Stokta' : 'Stokta Yok'}}
-      </p>
-      <p class="product-sku">SKU: {{product.sku}}</p>
-
-      <div *ngFor="let featureName of allFeatures | keyvalue" class="product-feature-selector">
-        <h3>{{featureName.key}}</h3>
-        <div class="feature-options">
-          <ng-container *ngIf="visualFeatures.includes(featureName.key.toLowerCase()); else regularFeature">
-            <button *ngFor="let featureValue of featureName.value" class="feature-button visual-feature-button"
-              [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
-              (click)="onFeatureSelect(featureName.key, featureValue)">
-              <img [src]="getFeatureImage(featureName.key, featureValue)" [alt]="featureValue" class="feature-image">
-              <span>{{featureValue}}</span>
-            </button>
-          </ng-container>
-          <ng-template #regularFeature>
-            <button *ngFor="let featureValue of featureName.value" class="feature-button"
-              [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
-              (click)="onFeatureSelect(featureName.key, featureValue)">
-              {{featureValue}}
-            </button>
-          </ng-template>
-        </div>
-      </div>
-      <div class="add-to-cart-section">
-        <div class="quantity-selector">
-          <button (click)="decreaseQuantity()">-</button>
-          <input type="number" [(ngModel)]="quantity" min="1" max="10">
-          <button (click)="increaseQuantity()">+</button>
-        </div>
-        <button class="add-to-cart-button" [disabled]="product.stock <= 0">
-          Sepete Ekle
-        </button>
+    <div class="thumbnail-list" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
+      <div *ngFor="let image of product.productImageFiles; let i = index" class="thumbnail"
+        [class.active]="i === currentImageIndex" (click)="selectImage(i)">
+        <img [src]="image.url" [alt]="product.name">
       </div>
     </div>
-    <div class="ivirzivir">
+  </div>
+
+  <div class="product-info">
+    <p class="product-display">
+      <a class="product-brand" [routerLink]="['/brand', product.brandId]">{{product.brandName}}</a>
+      {{product.name}}
+      {{product.title}}
+    </p>
+    <div class="product-ratings">
+      <!-- Add star rating component here -->
+      <span class="rating-score">4.8</span>
+      <span class="rating-count">(1000+ Değerlendirme)</span>
     </div>
+    <p class="product-price">{{formatCurrency(product.price)}}</p>
+
+    <div class="like-container">
+      <i class="heart-icon" 
+         [ngClass]="{'liked': product.isLiked}"
+         (click)="toggleLike($event, product)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+      </i>
+    </div>
+
+    <p class="product-stock" [class.in-stock]="product.stock > 0">
+      {{product.stock > 0 ? 'Stokta' : 'Stokta Yok'}}
+    </p>
+    <p class="product-sku">SKU: {{product.sku}}</p>
+
+    <div *ngFor="let featureName of allFeatures | keyvalue" class="product-feature-selector">
+      <h3>{{featureName.key}}</h3>
+      <div class="feature-options">
+        <ng-container *ngIf="visualFeatures.includes(featureName.key.toLowerCase()); else regularFeature">
+          <button *ngFor="let featureValue of featureName.value" class="feature-button visual-feature-button"
+            [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
+            (click)="onFeatureSelect(featureName.key, featureValue)">
+            <img [src]="getFeatureImage(featureName.key, featureValue)" [alt]="featureValue" class="feature-image">
+            <span>{{featureValue}}</span>
+          </button>
+        </ng-container>
+        <ng-template #regularFeature>
+          <button *ngFor="let featureValue of featureName.value" class="feature-button"
+            [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
+            (click)="onFeatureSelect(featureName.key, featureValue)">
+            {{featureValue}}
+          </button>
+        </ng-template>
+      </div>
+    </div>
+    <div class="add-to-cart-section">
+      <div class="quantity-selector">
+        <button (click)="decreaseQuantity()">-</button>
+        <input type="number" [(ngModel)]="quantity" min="1" max="10">
+        <button (click)="increaseQuantity()">+</button>
+      </div>
+      <button class="add-to-cart-button" [disabled]="product.stock <= 0" (click)="addToCart(product)">
+        Sepete Ekle
+      </button>
+    </div>
+  </div>
+  <div class="ivirzivir">
+  </div>
 </div>
 
 <div class="product-detail-tabs">
@@ -136,29 +137,58 @@
   </div>
 </div>
 
-<div *ngIf="product && product.relatedProducts && product.relatedProducts.length > 0" class="related-products">
-  <h2>Bu Ürünle Birlikte Alınabilecek Ürünler</h2>
-  <div class="related-product-list">
-    <div *ngFor="let relatedProduct of product.relatedProducts" class="related-product-item"
-      (click)="onRelatedProductClick(relatedProduct)">
-      <div class="related-product-image">
-        <img [src]="getProductImage(relatedProduct)" [alt]="relatedProduct.name">
-      </div>
-      <div class="related-product-info">
-        <div class="name-title">
-          <p class="related-product-name">{{relatedProduct.name}}</p>
-          <p class="related-product-title">{{relatedProduct.title}}</p>
-        </div>
-        <p class="related-product-price">{{formatCurrency(relatedProduct.price)}}</p>
-        <p class="related-product-features">
-          <ng-container *ngFor="let feature of relatedProduct.productFeatureValues; let last = last">
-            {{feature.featureValueName}}{{!last ? ', ' : ''}}
-          </ng-container>
-        </p>
-      </div>
-      <button class="related-product-add-to-cart-button" [disabled]="product.stock <= 0">
-        Sepete Ekle
+
+<section class="products">
+  <div *ngIf="randomProducts" class="random-products">
+    <h2>Bu Ürünle İlgili Diğer Ürünler</h2>
+    <div class="container">
+      <button class="scroll-btn left" (click)="scrollLeft()">
+        <!-- Sol ok ikonu -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
       </button>
+      <div class="product-grid">
+        <div class="random-product-list" #productGrid>
+          <div *ngFor="let randomProduct of randomProducts.items" class="random-product-item" [routerLink]="['/product', randomProduct.id]">
+            <div class="random-product-image">
+              <img [src]="getProductImage(randomProduct)" [alt]="randomProduct.name">
+              <i class="heart-icon" [ngClass]="{'liked': randomProduct.isLiked}" (click)="toggleLike($event, product)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                  </path>
+                </svg>
+              </i>
+            </div>
+            <div class="random-product-info">
+              <div class="name-title">
+                <p class="random-product-name">{{randomProduct.name}}</p>
+                <p class="random-product-title">{{randomProduct.title}}</p>
+              </div>
+              <p class="random-product-price">{{formatCurrency(randomProduct.price)}}</p>
+              <p class="random-product-features">
+                <ng-container *ngFor="let feature of randomProduct.productFeatureValues; let last = last">
+                  {{feature.featureValueName}}{{!last ? ', ' : ''}}
+                </ng-container>
+              </p>
+            </div>
+            <button class="random-product-add-to-cart-button" [disabled]="randomProduct.stock <= 0" (click)="addRandomProductToCart($event, randomProduct)">
+              Sepete Ekle
+            </button>
+          </div>
+        </div>
+        <button class="scroll-btn right" (click)="scrollRight()">
+          <!-- Sağ ok ikonu -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
     </div>
   </div>
-</div>
+
+</section>
