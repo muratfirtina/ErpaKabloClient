@@ -86,7 +86,7 @@ $link-color: #0000EE;
     position: relative;
     margin-bottom: 1rem;
     border: 1px solid $border-color;
-    border-radius: 8px;
+    //border-radius: 8px;
     overflow: hidden;
     
     img {
@@ -138,7 +138,7 @@ $link-color: #0000EE;
       opacity: 0.6;
       transition: opacity 0.3s ease, border-color 0.3s ease;
       border: 2px solid transparent;
-      border-radius: 4px;
+      //border-radius: 4px;
       overflow: hidden;
 
       &.active, &:hover {
@@ -238,7 +238,7 @@ $link-color: #0000EE;
         padding: 0.5rem 1rem;
         font-size: 0.9rem;
         border: 1px solid $border-color;
-        border-radius: 4px;
+        //border-radius: 4px;
         background-color: $background-color;
         color: $text-color;
         cursor: pointer;
@@ -277,7 +277,7 @@ $link-color: #0000EE;
           .feature-image {
             width: 60px;
             height: 60px;
-            border-radius: 4px;
+            //border-radius: 4px;
             object-fit: cover;
             margin-bottom: 0.25rem;
             border: 2px solid transparent;
@@ -306,7 +306,7 @@ $link-color: #0000EE;
       align-items: center;
       margin-right: 1rem;
       border: 1px solid $border-color;
-      border-radius: 4px;
+      //border-radius: 4px;
       overflow: hidden;
 
       button {
@@ -347,7 +347,7 @@ $link-color: #0000EE;
     color: $background-color;
     background-color: $primary-color;
     border: none;
-    border-radius: 4px;
+    //border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
 
@@ -471,7 +471,7 @@ $link-color: #0000EE;
     display: flex;
     flex-direction: column;
     border: 1px solid $border-color;
-    border-radius: 8px;
+    //border-radius: 8px;
     cursor: pointer;
     transition: box-shadow 0.3s ease;
     position: relative;
@@ -490,6 +490,14 @@ $link-color: #0000EE;
       height: 227px;
 
       .heart-icon {
+        //dışında yuvarlak bir buton oluşturmak için
+        width: 30px;
+        height: 30px;
+        background-color: rgba(234, 234, 234, 0.549);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         position: absolute;
         top: 10px;
         right: 10px;
@@ -497,8 +505,8 @@ $link-color: #0000EE;
         z-index: 1;
   
         svg {
-          width: 24px;
-          height: 24px;
+          width: 20px;
+          height: 20px;
           transition: all 0.3s ease;
         }
   
@@ -525,7 +533,7 @@ $link-color: #0000EE;
         width: 100%;
         height: 100%;
         object-fit: cover;
-        border-radius: 4px;
+        //border-radius: 4px;
       }
     }
 
@@ -580,7 +588,7 @@ $link-color: #0000EE;
       color: $background-color;
       background-color: $primary-color;
       border: none;
-      border-radius: 4px;
+      //border-radius: 4px;
       cursor: pointer;
       transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
       opacity: 0;
@@ -749,3 +757,4 @@ $link-color: #0000EE;
     text-align: center;
   }
 }
+

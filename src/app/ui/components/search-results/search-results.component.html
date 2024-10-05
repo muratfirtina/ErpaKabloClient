@@ -40,12 +40,11 @@
               <a class="brand-name">{{product.brandName}}
               </a>
               <div class="product-names">
-              <p class="product-name">
-                {{product.name}}
-                <p class="product-title">{{product.title}}
-              </p>
+              <p class="product-name">{{product.name}}</p>
             </div>
+            
             </div>
+            <p class="product-title">{{product.title}}</p>
             <p class="product-price">{{formatCurrency(product.price)}}</p>
             <p class="product-features">
               <ng-container *ngFor="let feature of product.productFeatureValues; let last = last">

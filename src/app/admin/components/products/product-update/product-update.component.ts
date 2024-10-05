@@ -65,7 +65,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   features: Feature[] = [];
   featureValues: { [key: string]: Featurevalue[] } = {};
   relatedProducts: any[] = [];
-  displayedColumns: string[] = ['photo', 'name', 'price', 'stock', 'sku', 'categoryName', 'brandName', 'features'];
+  displayedColumns: string[] = ['photo', 'name', 'price', 'stock', 'sku','title','categoryName', 'brandName', 'features'];
   defaultProductImage = 'assets/product/ecommerce-default-product.png';
   
 

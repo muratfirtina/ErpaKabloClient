@@ -1,1 +1,47 @@
-<p>carousel-update works!</p>
+<div class="carousel-update-container">
+    <h1>Update Carousel</h1>
+  
+    <div class="carousel-list">
+      <h2>Select a Carousel to Update</h2>
+      <ul>
+        <li *ngFor="let carousel of carousels.items" (click)="onCarouselSelect(carousel)">
+          <h5>{{ carousel.name }}</h5>
+          <p>{{ carousel.description }}</p>
+          <img *ngIf="carousel.carouselImageFiles.length > 0" [src]="carousel.carouselImageFiles[0].url" alt="{{ carousel.carouselImageFiles[0].alt }}">
+        </li>
+      </ul>
+    </div>
+  
+    <div class="update-form" *ngIf="selectedCarousel">
+      <h2>Update {{ selectedCarousel.name }}</h2>
+      <form (ngSubmit)="updateCarousel()" #carouselForm="ngForm">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" [(ngModel)]="selectedCarousel.name" class="form-control" required />
+        </div>
+  
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" [(ngModel)]="selectedCarousel.description" class="form-control"></textarea>
+        </div>
+  
+        <div class="form-group">
+          <label for="order">Order</label>
+          <input type="number" id="order" name="order" [(ngModel)]="selectedCarousel.order" class="form-control" required />
+        </div>
+  
+        <div class="form-group">
+          <label for="isActive">Is Active</label>
+          <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="selectedCarousel.isActive" class="form-check-input" />
+        </div>
+  
+        <div class="form-group">
+          <label for="carouselImageFiles">Upload New Images</label>
+          <input type="file" id="carouselImageFiles" (change)="onFileSelected($event)" class="form-control" multiple />
+        </div>
+  
+        <button type="submit" class="btn btn-primary" [disabled]="!carouselForm.valid">Update Carousel</button>
+      </form>
+    </div>
+  </div>
+  

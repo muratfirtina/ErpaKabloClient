@@ -33,4 +33,16 @@ export class CarouselService {
     return await promiseData;
     
   }
+
+  async update(carousel: FormData, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
+    const observable: Observable<any> = this.httpClientService.put({
+      controller: "carousels"
+    }, carousel);
+
+    return firstValueFrom(observable).then(result => {
+      successCallBack();
+    }).catch(error => {
+      errorCallBack(error);
+    });
+  }
 }

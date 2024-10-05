@@ -33,6 +33,7 @@ import { CartService } from 'src/app/services/common/models/cart.service';
 export class ProductDetailComponent extends BaseComponent implements OnInit {
   product: Product | null = null;
   randomProducts: GetListResponse<Product>
+  randomProductsForBrands: GetListResponse<Product>
   user : User
   currentImageIndex = 0;
   defaultProductImage = 'assets/product/ecommerce-default-product.png';
@@ -68,6 +69,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       if (productId) {
         this.loadProduct(productId);
         this.loadRandomProducts(productId);
+        this.loadRandomProductsForBrand(productId);
       } else {
         this.customToastrService.message("Ürün ID'si bulunamadı", "Hata", {
           toastrMessageType: ToastrMessageType.Error,
@@ -204,6 +206,28 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     });
   }
 
+  async addRandomProductForBrandToCart(event: Event, randomProductsForBrand: Product) {
+    event.stopPropagation(); // Ürün detayına yönlendirmeyi engelle
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    let createCartItem: CreateCartItem = new CreateCartItem();
+    createCartItem.productId = randomProductsForBrand.id;
+    createCartItem.quantity = 1;
+    createCartItem.isChecked = true;
+    await this.cartService.add(createCartItem, () => {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message(randomProductsForBrand.name + " Sepete eklendi", "", {
+        toastrMessageType: ToastrMessageType.Success,
+        position: ToastrPosition.TopRight
+      });
+    }, (errorMessage) => {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message("En fazla stok sayısı kadar ürün ekleyebilirsiniz", "", {
+        toastrMessageType: ToastrMessageType.Warning,
+        position: ToastrPosition.TopRight
+      });
+    });
+  }
+  
   findShowcaseImage(productImageFiles: ProductImageFile[]): string {
     if (!productImageFiles) {
       return '';
@@ -371,6 +395,19 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       }
   }
 
+  async loadRandomProductsForBrand(productId: string) {
+    const response = await this.productService.getRandomProductsForBrandByProductId(productId);
+    this.randomProductsForBrands = response;
+    if (this.authService.isAuthenticated) {
+      const productIds = this.randomProductsForBrands.items.map(p => p.id);
+      const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+      
+      this.randomProductsForBrands.items.forEach(product => {
+        product.isLiked = likedProductIds.includes(product.id);
+      });
+    }
+  }
+
   async toggleLike(event: Event, product: Product) {
     event.stopPropagation();
   
@@ -383,11 +420,11 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   
     this.showSpinner(SpinnerType.BallSpinClockwise);
     try {
-      const isLiked = await this.productLikeService.toggleProductLike(product.id);
-      product.isLiked = isLiked; // Burada isLiked değerini ürüne atıyoruz
+      const response = await this.productLikeService.toggleProductLike(product.id);
+      product.isLiked = response;
       this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.customToasterService.message(
-        isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
+        product.isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
         'Başarılı',
         {
           toastrMessageType: ToastrMessageType.Success,
@@ -396,6 +433,80 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       );
     } catch (error) {
       console.error('Error toggling like:', error);
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message(
+        'Beğeni işlemi sırasında bir hata oluştu',
+        'Hata',
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
+    }
+  }
+
+  async toggleLikeRandomProduct(event: Event, randomProduct: Product) {
+    event.stopPropagation();
+  
+    if (!this.authService.isAuthenticated) {
+      this.router.navigate(['/login'], { 
+        queryParams: { returnUrl: this.router.url }
+      });
+      return;
+    }
+  
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    try {
+      const response = await this.productLikeService.toggleProductLike(randomProduct.id);
+      randomProduct.isLiked = response;
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message(
+        randomProduct.isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
+        'Başarılı',
+        {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        }
+      );
+    } catch (error) {
+      console.error('Error toggling like for random product:', error);
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message(
+        'Beğeni işlemi sırasında bir hata oluştu',
+        'Hata',
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
+    }
+  }
+
+  async toggleLikeRandomProductForBrand(event: Event, randomProductsForBrand: Product) {
+    event.stopPropagation();
+  
+    if (!this.authService.isAuthenticated) {
+      this.router.navigate(['/login'], { 
+        queryParams: { returnUrl: this.router.url }
+      });
+      return;
+    }
+  
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    try {
+      const response = await this.productLikeService.toggleProductLike(randomProductsForBrand.id);
+      randomProductsForBrand.isLiked = response;
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message(
+        randomProductsForBrand.isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
+        'Başarılı',
+        {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        }
+      );
+    } catch (error) {
+      console.error('Error toggling like for random product:', error);
       this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.customToasterService.message(
         'Beğeni işlemi sırasında bir hata oluştu',

@@ -183,4 +183,23 @@ export class ProductService {
     return await firstValueFrom(observable);
   }
 
+  async getMostLikedProducts(count: number = 10): Promise<GetListResponse<Product>> {
+    const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
+      controller: "products",
+      action: "most-liked",
+      queryString: `count=${count}`
+    });
+    return await firstValueFrom(observable);
+  }
+
+  async getRandomProductsForBrandByProductId(productId: string): Promise<GetListResponse<Product>> {
+    const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
+      controller: 'products',
+      action: `GetRandomsForBrand/${productId}`
+    });
+    return await firstValueFrom(observable);
+  }
+
+  
+
 }

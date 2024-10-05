@@ -75,6 +75,14 @@
             </mat-error>
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+            <mat-label>Başlık</mat-label>
+            <input matInput formControlName="title" placeholder="Bir başlık girin">
+            <mat-error *ngIf="productForm.get('title').hasError('required')">
+                Başlık zorunludur
+            </mat-error>
+        </mat-form-field>
+
         <div class="full-width">
             <label>Açıklama</label>
             <angular-editor formControlName="description"></angular-editor>
@@ -178,6 +186,11 @@
         <th mat-header-cell *matHeaderCellDef> Marka </th>
         <td mat-cell *matCellDef="let product"> {{product.brandName}} </td>
     </ng-container>
+
+    <ng-container matColumnDef="title">
+        <th mat-header-cell *matHeaderCellDef> Başlık </th>
+        <td mat-cell *matCellDef="let product"> {{product.title}} </td>
+      </ng-container>
 
     <ng-container matColumnDef="features">
         <th mat-header-cell *matHeaderCellDef> Özellikler </th>

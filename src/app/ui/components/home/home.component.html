@@ -39,6 +39,7 @@
 
 <section class="categories">
   <div class="category-place" *ngIf="isMobile">KATEGORİLER</div>
+  <h2 class="category-header">KATEGORİLER</h2>
   <div class="container">
     <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile">
       <!-- Sol ok ikonu -->
@@ -46,14 +47,14 @@
     </button>
 
     <div class="category-grid" #categoryGrid>
-      <div class="category-card" *ngFor="let category of mainCategories">
+      <div class="category-card" *ngFor="let category of mainCategories" [routerLink]="['/category', category.id]">
         <div class="category-image">
           <img [src]="category.categoryImage?.url" [alt]="category.name">
         </div>
         <div class="category-content">
           <h3 class="category-title">{{ category.name }}</h3>
           <p class="category-description">{{ category.title || 'Ürünlerimizi keşfedin' }}</p>
-          <a href="#" class="btn-category">İncele</a>
+          <a class="btn-category" [routerLink]="['/category', category.id]">İncele</a>
         </div>
       </div>
     </div>
@@ -64,3 +65,108 @@
     </button>
   </div>
 </section>
+
+<section class="info-cards">
+  <div class="container">
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="card-image">
+          <img src="../../../../assets/homecard/smddawgolytxwkhqhvll-1280x854.webp" alt="Kalite">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Yüksek Kalite</h3>
+          <p class="card-description">En yüksek kalite standartlarında üretim yapıyoruz.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="card-image">
+          <img src="../../../../assets/homecard/endustri-gorsel-scaled.jpg" alt="İnovasyon">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">İnovasyon</h3>
+          <p class="card-description">Sürekli yenilik ve gelişim odaklı çalışıyoruz.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="card-image">
+          <img src="../../../../assets/homecard/inventario.webp" alt="Müşteri Hizmetleri">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Müşteri Odaklılık</h3>
+          <p class="card-description">Müşteri memnuniyeti bizim önceliğimizdir.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="card-image">
+          <img src="../../../../assets/homecard/dasdasdasdadqqqq.jpeg" alt="Sürdürülebilirlik">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Sürdürülebilirlik</h3>
+          <p class="card-description">Çevre dostu üretim ve sürdürülebilir çözümler sunuyoruz.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="products">
+  <div *ngIf="mostLikedProducts" class="most-liked-products">
+    <h2>EN ÇOK BEĞENİLEN ÜRÜNLER  </h2>
+    <div class="container">
+      <button class="scroll-btn left" (click)="scrollLeft()">
+        <!-- Sol ok ikonu -->
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <div class="product-grid">
+        <div class="most-liked-product-list" #productGrid>
+          <div *ngFor="let mostLikedProduct of mostLikedProducts.items" class="most-liked-product-item" [routerLink]="['/product', mostLikedProduct.id]">
+            <div class="most-liked-product-image">
+              <img [src]="getProductImage(mostLikedProduct)" [alt]="mostLikedProduct.name">
+              <i class="heart-icon" 
+                 [ngClass]="{'liked': mostLikedProduct.isLiked}" 
+                 (click)="toggleLikeMostLikedProduct($event, mostLikedProduct)">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
+                  </path>
+                </svg>
+              </i>
+            </div>
+            <div class="most-liked-product-info">
+                <div class="name-title">
+                  <a class="most-liked-product-brand-name">{{mostLikedProduct.brandName}}
+                  </a>
+                  <div class="most-liked-product-names">
+                  <p class="most-liked-product-name">{{mostLikedProduct.name}}</p>
+                </div>
+                </div>
+              <p class="most-liked-product-title">{{mostLikedProduct.title}}</p>
+              <p class="most-liked-product-price">{{formatCurrency(mostLikedProduct.price)}}</p>
+              <p class="most-liked-product-features">
+                <ng-container *ngFor="let feature of mostLikedProduct.productFeatureValues; let last = last">
+                  {{feature.featureValueName}}{{!last ? ', ' : ''}}
+                </ng-container>
+              </p>
+            </div>
+            <button class="most-liked-product-add-to-cart-button" [disabled]="mostLikedProduct.stock <= 0" (click)="addMostLikedProductToCart($event, mostLikedProduct)">
+              Sepete Ekle
+            </button>
+          </div>
+        </div>
+        <button class="scroll-btn right" (click)="scrollRight()">
+          <!-- Sağ ok ikonu -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>
+

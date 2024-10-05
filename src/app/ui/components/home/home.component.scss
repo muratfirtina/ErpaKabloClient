@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap");
 
+
+
+
 * {
   margin: 0;
   padding: 0;
@@ -40,7 +43,7 @@ body {
 
 .container::-webkit-scrollbar-thumb {
   background: #888;
-  border-radius: 4px;
+  //border-radius: 4px;
 }
 
 .container::-webkit-scrollbar-thumb:hover {
@@ -50,15 +53,23 @@ body {
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
 
 // Variables
-$primary-color: #003366;
-$secondary-color: #f0f0f0;
+$home-primary-color: #003366;
+$home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
-$text-color: #333;
+$home-text-color: #333;
 $light-text: #fff;
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #00a046;
+$link-color: #0000EE;
 
 body {
   font-family: "Roboto", sans-serif;
-  color: $text-color;
+  color: $home-text-color;
   line-height: 1.6;
 }
 
@@ -108,9 +119,7 @@ body {
         position: absolute; // Absolute konumlandırma ile sabitle
         top: 50%; // Yatayda ortala
         left: 15%; // Soldan uzaklık
-        transform: translateY(
-          -50%
-        ); // Dikeyde tam ortalamak için translate kullan
+        transform: translateY(-50%); // Dikeyde tam ortalamak için translate kullan
         flex: 1;
         z-index: 1; // Metnin görüntünün üstünde kalmasını sağla
 
@@ -130,7 +139,7 @@ body {
           background-color: #fcb900;
           color: #000;
           text-decoration: none;
-          border-radius: 5px;
+          //border-radius: 5px;
           transition: background-color 0.3s;
 
           &:hover {
@@ -142,23 +151,20 @@ body {
       .image-content {
         position: relative;
         left: 15%;
+
         img {
           height: 450px;
           object-fit: cover;
-          mask-image: linear-gradient(
-            to right,
-            transparent 0%,
-            white 30%,
-            white 60%,
-            transparent 100%
-          );
-          -webkit-mask-image: linear-gradient(
-            to right,
-            transparent 0%,
-            white 30%,
-            white 60%,
-            transparent 100%
-          );
+          mask-image: linear-gradient(to right,
+              transparent 0%,
+              white 30%,
+              white 60%,
+              transparent 100%);
+          -webkit-mask-image: linear-gradient(to right,
+              transparent 0%,
+              white 30%,
+              white 60%,
+              transparent 100%);
         }
       }
     }
@@ -222,6 +228,39 @@ body {
   position: relative; // Ok butonlarının yerleşimini kolaylaştırır
   background-color: $light-text;
 
+  .category-header {
+    font-size: 1.3rem;
+    color: $home-primary-color;
+    font-weight: 500;
+    margin: 0 auto 0;
+    max-width: 1320px;
+    padding: 0 0 10px;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 4px;
+      background-image: linear-gradient(to bottom, rgba(12, 108, 212, 0), rgba(35, 41, 50, .15) 37%),
+        linear-gradient(to bottom, #0066cc, #0066cc);
+    }
+  }
+
+  .category-title {
+    font-size: 1.3rem;
+    color: $home-primary-color;
+    font-weight: 500;
+    margin: 0 auto 0;
+    max-width: 1320px;
+    padding: 0 0 10px;
+    position: relative;
+
+  }
+
+
   .container {
     display: flex;
     align-items: center;
@@ -267,13 +306,14 @@ body {
       overflow-x: auto;
       padding: 20px 0;
       scroll-behavior: smooth;
-      
+
 
       .category-card {
+        cursor: pointer;
         min-width: 205px;
         min-height: 300px; // Kartların genişliği sabit olmalı
-        background-color: $secondary-color;
-        border-radius: 10px;
+        background-color: $home-secondary-color;
+        //border-radius: 10px;
         overflow: hidden;
         transition: transform 0.3s, box-shadow 0.3s;
 
@@ -290,7 +330,7 @@ body {
           img {
             width: 100%;
             height: 100%;
-            object-fit: none;
+            object-fit: contain;
           }
         }
 
@@ -307,7 +347,7 @@ body {
           line-height: normal;
           font-size: 1rem;
           font-weight: bold;
-          color: $primary-color;
+          color: $home-primary-color;
           margin-bottom: 10px;
         }
 
@@ -323,14 +363,14 @@ body {
         .btn-category {
           display: inline-block;
           padding: 8px 20px;
-          background-color: $primary-color;
+          background-color: $home-primary-color;
           color: $light-text;
           text-decoration: none;
-          border-radius: 5px;
+          //border-radius: 5px;
           transition: background-color 0.3s;
 
           &:hover {
-            background-color: lighten($primary-color, 10%);
+            background-color: lighten($home-primary-color, 10%);
           }
         }
       }
@@ -339,6 +379,12 @@ body {
 }
 
 @media (max-width: 768px) {
+  .info-cards {
+    .card-grid {
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+  }
+
   .categories {
     .category-place {
       position: relative;
@@ -357,12 +403,10 @@ body {
         left: 20px; // Kenar boşluğuna uygun olarak ayarlayın
         width: 100px;
         height: 4px;
-        background-image: linear-gradient(
-          to bottom,
-          rgba(12, 108, 212, 0),
-          rgba(35, 41, 50, 0.15) 37%
-        ),
-        linear-gradient(to bottom, #0066cc, #0066cc);
+        background-image: linear-gradient(to bottom,
+            rgba(12, 108, 212, 0),
+            rgba(35, 41, 50, 0.15) 37%),
+          linear-gradient(to bottom, #0066cc, #0066cc);
       }
     }
 
@@ -371,18 +415,21 @@ body {
 
       .category-grid {
         gap: 0.5rem; // Kartlar arası boşluğu azaltın
+        // Kartın üzerine gelince el simgesi gösterin
 
         .category-card {
+          cursor: pointer;
           display: flex;
           align-items: center;
           flex-direction: column;
           min-width: 110px; // Mobil için minimum genişlik
           min-height: 190px; // Sabit yükseklik
-          border-radius: 5px;
+          //border-radius: 5px;
 
           .category-image {
             width: 60px;
-            height: 60px; 
+            height: 60px;
+
             img {
               width: 100%;
               height: 100%;
@@ -400,14 +447,15 @@ body {
             font-size: 0.9rem; // Yazı boyutunu küçültün
           }
 
-          .category-description{
+          .category-description {
             display: none; // Açıklama ve butonu gizleyin
           }
+
           .btn-category {
-            
+
             opacity: 0; // Başlangıçta gizli
             transform: translateY(10px); // Başlangıçta aşağıda
-              
+
           }
 
         }
@@ -423,16 +471,365 @@ body {
     }
   }
 }
+
 .downbar-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 30px 60px;
-  background-image: linear-gradient(
-      to bottom,
+  background-image: linear-gradient(to bottom,
       rgba(12, 108, 212, 0),
-      rgba(35, 41, 50, 0.15) 37%
-    ),
+      rgba(35, 41, 50, 0.15) 37%),
     linear-gradient(to bottom, #e53935, #e53935);
   color: #fff;
+}
+
+.info-cards {
+  padding: 50px 0;
+  background-color: #f8f9fa;
+
+  .container {
+    width: 1320px;
+    margin: 0 auto;
+  }
+
+  .card-grid {
+    display: flex;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+  }
+
+  .info-card {
+    //width için container ın genişliğinden 90px çıkartıp kalanı 4 e bölmeliyiz
+    width: calc((1320px - 90px) / 4);
+    background-color: #ffffff;
+
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    .card-image {
+      height: 200px;
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+
+    .card-content {
+      padding: 20px;
+      position: relative; // Eklendi
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 20px; // Margin'i arttırdık
+      color: #333;
+      position: relative; // Eklendi
+      display: inline-block; // Eklendi
+      padding-bottom: 10px; // Eklendi
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px; // Çizgi genişliğini ayarlayabilirsiniz
+        height: 4px;
+        background-image: linear-gradient(to bottom, rgba(12, 108, 212, 0), rgba(35, 41, 50, .15) 37%),
+          linear-gradient(to bottom, #0066cc, #0066cc);
+      }
+    }
+  }
+
+  .card-description {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.5;
+  }
+}
+
+.most-liked-products {
+  margin: 2rem auto;
+  max-width: 1420px;
+  padding-top: 2rem;
+
+
+  h2 {
+    font-size: 1.3rem;
+    color: $home-primary-color;
+    font-weight: 500;
+    margin: auto;
+    max-width: 1320px;
+    border-top: 1px solid $border-color;
+    padding: 40px 0px 20px 0px; // Alt padding'i arttırdık
+    position: relative; // Eklendi
+
+
+    &::after {
+      // Eklendi
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100px;
+      height: 4px;
+      background-image: linear-gradient(to bottom, rgba(12, 108, 212, 0), rgba(35, 41, 50, .15) 37%),
+        linear-gradient(to bottom, #0066cc, #0066cc);
+    }
+  }
+
+  .container {
+    max-width: 1420px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+  }
+
+  .scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 1;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    &.left {
+      left: 10px;
+    }
+
+    &.right {
+      right: 10px;
+    }
+  }
+
+  .product-grid {
+    width: 1320px;
+    margin: 0 55px;
+    display: flex;
+    gap: 1rem;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    padding: 20px 0;
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .most-liked-product-list {
+    width: 1320px;
+    display: flex;
+    gap: 12px;
+    scroll-snap-type: x mandatory;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .most-liked-product-item {
+    width: calc((1320px - 12px * 3) / 3);
+    height: 520px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+    //border-radius: 8px;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+    position: relative;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+
+      .most-liked-product-add-to-cart-button {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .most-liked-product-image {
+      width: 100%;
+      height: 50%;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        //border-radius: 4px 4px 0 0;
+      }
+
+      .heart-icon {
+        //dışında yuvarlak bir buton oluşturmak için
+        width: 30px;
+        height: 30px;
+        background-color: rgba(234, 234, 234, 0.549);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+        z-index: 1;
+
+        svg {
+          width: 20px;
+          height: 20px;
+          transition: all 0.3s ease;
+        }
+
+        &.liked {
+          svg {
+            fill: $primary-color;
+            stroke: $primary-color;
+          }
+        }
+
+        &:not(.liked) {
+          svg {
+            stroke: #fff;
+            filter: drop-shadow(0px 0px 1px rgba(0, 0, 0, 0.5));
+          }
+        }
+
+        &:hover {
+          transform: scale(1.1);
+        }
+      }
+    }
+
+    .most-liked-product-info {
+      padding: 1rem;
+      flex-grow: 1;
+
+      .name-title {
+        display: flex;
+
+        .most-liked-product-brand-name {
+          font-size: 1.25rem;
+          margin: 0 4px 0 0;
+          color: $primary-color;
+          font-weight: bold;
+          text-decoration: none;
+        }
+
+        .most-liked-product-product-names {
+          display: flex;
+          flex-direction: row;
+          align-items: baseline;
+
+          .most-liked-product-product-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.2rem;
+            color: $text-color;
+          }
+        }
+      }
+
+      .most-liked-product-price {
+
+        font-size: 0.9rem;
+        font-weight: bold;
+        color: $primary-color;
+        margin-bottom: 0.2rem;
+      }
+
+      .most-liked-product-features {
+
+        font-size: 0.8rem;
+        color: lighten($text-color, 20%);
+      }
+    }
+
+    .most-liked-product-add-to-cart-button {
+      position: absolute;
+      bottom: 6px;
+      left: 0.35rem;
+      right: 0.35rem;
+      padding: 0.45rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: $background-color;
+      background-color: $primary-color;
+      border: none;
+      //border-radius: 4px;
+      cursor: pointer;
+      transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+      opacity: 0;
+      transform: translateY(10px);
+
+      &:hover:not(:disabled) {
+        background-color: darken($primary-color, 10%);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .scroll-btn {
+    position: absolute;
+    color: $background-color;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba($secondary-color, 0.5);
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: rgba($secondary-color, 0.8);
+    }
+
+    &.left {
+      left: 10px;
+    }
+
+    &.right {
+      right: 10px;
+    }
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
 }
