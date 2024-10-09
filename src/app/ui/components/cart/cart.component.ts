@@ -11,6 +11,7 @@ import { UpdateCartItem } from 'src/app/contracts/cart/updateCarItem';
 import { CreateOrder } from 'src/app/contracts/order/createOrder';
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { CartService } from 'src/app/services/common/models/cart.service';
+import { OrderService } from 'src/app/services/common/models/order.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 declare var $: any;
@@ -26,8 +27,7 @@ export class CartComponent extends BaseComponent implements OnInit {
   constructor(
     spinner: NgxSpinnerService,
     private cartService: CartService,
-    
-    //private orderService: OrderService,
+    private orderService: OrderService,
     private toastrService: CustomToastrService,
     private router: Router,
     private dialogService: DialogService
@@ -148,10 +148,53 @@ export class CartComponent extends BaseComponent implements OnInit {
           position: ToastrPosition.TopRight,
         }
       );
+      return;
+    }
+
+    const createOrder: CreateOrder = {
+      address: '----- ----/İstanbul, Türkiye',
+      description: 'Hediye Paketi yapılsın.',
+    };
+    
+    await this.orderService.create(createOrder,
+      () => {
+        this.toastrService.message(
+          'Siparişiniz başarıyla oluşturuldu.',
+          'Siparişiniz alındı',
+          {
+            toastrMessageType: ToastrMessageType.Success,
+            position: ToastrPosition.TopRight,
+          }
+        );
+        this.router.navigate(['/orders']); // Siparişler sayfasına yönlendirme
+      },
+      (error) => {
+        this.toastrService.message(
+          'Sipariş oluşturulurken bir hata oluştu.',
+          'Hata',
+          {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight,
+          }
+        );
+      }
+    );
+  }
+
+  /* async shoppingCompleting() {
+    if (this.selectedItemCount === 0) {
+      this.toastrService.message(
+        'Lütfen sepetinizden en az bir ürün seçiniz.',
+        'Sepetinizde seçili ürün bulunmamaktadır.',
+        {
+          toastrMessageType: ToastrMessageType.Warning,
+          position: ToastrPosition.TopRight,
+        }
+      );
       $('#cartModal').modal('show');
       return;
     }
-    /* this.dialogService.openDialog({
+    this.dialogService.openDialog({
       componentType: ShoppingCompleteDialogComponent,
       data: ShoppingCompleteDialogState.Yes,
       afterClosed: async () => {
@@ -176,8 +219,8 @@ export class CartComponent extends BaseComponent implements OnInit {
           window.location.reload();
         });
       },
-    }); */
-  }
+    });
+  } */
 
   @HostListener('window:mousemove', ['$event'])
   onMouseMove(event: MouseEvent) {

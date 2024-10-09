@@ -15,19 +15,12 @@ import { Breadcrumb, BreadcrumbService } from 'src/app/services/common/breadcrum
 import { Category } from 'src/app/contracts/category/category';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { NgxSpinnerService } from 'ngx-spinner';
-import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
-import { FlatTreeControl } from '@angular/cdk/tree';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatListModule } from '@angular/material/list';
-import { MatSelectModule } from '@angular/material/select';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
+import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
+import { CartService } from 'src/app/services/common/models/cart.service';
 
 
 @Component({
@@ -55,6 +48,7 @@ export class CategoryComponent extends BaseComponent implements OnInit {
   noResults: boolean = false;
   sortOrder: string = '';
   isMobile: boolean = false;
+  quantity: number = 1;
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
@@ -72,6 +66,7 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     private productLikeService: ProductLikeService,
     private authService: AuthService,
     private customToasterService: CustomToastrService,
+    private cartService: CartService,
     spinner: NgxSpinnerService,
   ) {
     super(spinner);
@@ -220,9 +215,26 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
   }
 
-  addToCart(event: Event, product: any) {
+  async addToCart(event: Event, product: any) {
     event.stopPropagation();
-    // Sepete ekleme mantığı
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    let createCartItem = new CreateCartItem();
+    createCartItem.productId = product.id;
+    createCartItem.quantity = this.quantity;
+    createCartItem.isChecked = true;
+    await this.cartService.add(createCartItem, () => {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message(product.name + " Sepete eklendi", "", {
+        toastrMessageType: ToastrMessageType.Success,
+        position: ToastrPosition.TopRight
+      });
+    }, (errorMessage) => {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.customToasterService.message("En fazla stok sayısı kadar ürün ekleyebilirsiniz", "", {
+        toastrMessageType: ToastrMessageType.Warning,
+        position: ToastrPosition.TopRight
+      });
+    });
   }
 
   async toggleLike(event: Event, product: Product) {

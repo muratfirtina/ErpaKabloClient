@@ -22,8 +22,8 @@
 </div>
 
 <section class="categories" *ngIf="subCategories.length > 0">
-  <div class="category-place" *ngIf="isMobile">All Categories For {{category.name}}</div>
-  <h2 class="category-header">All Categories For {{category.name}}</h2>
+  <div class="category-place" *ngIf="isMobile">All Categories For {{category?.name}}</div>
+  <h2 class="category-header">All Categories For {{category?.name}}</h2>
   <div class="container">
     <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile && subCategories.length > 6">
       <!-- Sol ok ikonu -->
@@ -33,17 +33,17 @@
     <div class="category-grid" #categoryGrid>
       <div class="category-card" *ngFor="let category of subCategories" [routerLink]="['/category', category.id]">
         <div class="category-image">
-          <img [src]="category.categoryImage?.url" [alt]="category.name">
+          <img [src]="category.categoryImage?.url" [alt]="category?.name">
         </div>
         <div class="category-content">
-          <h3 class="category-title">{{ category.name }}</h3>
+          <h3 class="category-title">{{ category?.name }}</h3>
           <!-- <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p> -->
           <a class="btn-category" [routerLink]="['/category', category.id]" *ngIf="isMobile">İncele</a>
         </div>
       </div>
     </div>
 
-    <button class="scroll-btn right" (click)="scrollRight()" *ngIf="!isMobile" && subCategories.length > 6>
+    <button class="scroll-btn right" (click)="scrollRight()" *ngIf="!isMobile && subCategories.length > 6">
       <!-- Sağ ok ikonu -->
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
     </button>
@@ -75,7 +75,7 @@
       <div *ngIf="!noResults" class="product-grid">
         <div *ngFor="let product of products" class="product-item" [routerLink]="['/product', product.id]">
           <div class="product-image">
-            <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name">
+            <img [src]="product?.showcaseImage.url || 'assets/product/ecommerce-default-product'" [alt]="product.name">
             <i class="heart-icon" [ngClass]="{'liked': product.isLiked}" (click)="toggleLike($event, product)">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
