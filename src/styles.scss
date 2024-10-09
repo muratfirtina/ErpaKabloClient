@@ -36,10 +36,10 @@
 }
 
 ::ng-deep .mat-mdc-paginator-outer-container {
-  background-color: #1d1c1c;
+  background-color: #003366;
   color: white;
   border-radius: 30px;
-  border: 5px solid #007bff;
+  border: 5px solid #e53935;
 }
 
 .mat-mdc-header-cell {
@@ -51,8 +51,9 @@
 }
 
 ::ng-deep .mat-mdc-paginator-range-actions {
-  background-color: #007bff;
+  background-color: #fff;
   border-radius: 30px;
+  color: #003366;
 }
 
 ::ng-deep .mat-mdc-select-trigger {

@@ -1,12 +1,53 @@
 <app-main-header></app-main-header>
 <app-navbar></app-navbar>
 
-<div class="page-title">
-  <p class="brand-name">{{ brand?.name }}</p>
-</div>
 <div class="breadcrumb">
   <app-breadcrumb></app-breadcrumb>
 </div>
+
+<div class="brand-head" *ngIf="brand.brandImage">
+  <div class="brand-content">
+    
+    <!-- Brand Image varsa gösterecek -->
+    <div class="brand-image" *ngIf="brand.brandImage">
+      <img [src]="brand.brandImage?.url" [alt]="brand?.name">
+    </div>
+  </div>
+</div>
+
+<section class="categories" *ngIf="subCategories.length > 0">
+  <div class="category-place" *ngIf="isMobile">All Categories For {{brand.name}}</div>
+  <div class="category-header">
+    <p>All Categories For</p>
+    <a class="brand-name" [routerLink]="['/brand', brand.id]">{{brand.name}}</a>
+  </div>
+  
+  <div class="container">
+    <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile && subCategories.length > 6">
+      <!-- Sol ok ikonu -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+
+    <div class="category-grid" #categoryGrid>
+      <div class="category-card" *ngFor="let category of subCategories" [routerLink]="['/category', category.id]">
+        <div class="category-image">
+          <img [src]="category.categoryImage?.url" [alt]="category.name">
+        </div>
+        <div class="category-content">
+          <h3 class="category-title">{{ category.name }}</h3>
+          <!-- <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p> -->
+          <a class="btn-category" [routerLink]="['/category', category.id]" *ngIf="isMobile">İncele</a>
+        </div>
+      </div>
+    </div>
+
+    <button class="scroll-btn right" (click)="scrollRight()" *ngIf="!isMobile" && subCategories.length > 6>
+      <!-- Sağ ok ikonu -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+  </div>
+</section>
+
 
 <div class="brand-container">
   <div class="sort-dropdown">

@@ -53,8 +53,8 @@
         </div>
         <div class="category-content">
           <h3 class="category-title">{{ category.name }}</h3>
-          <p class="category-description">{{ category.title || 'Ürünlerimizi keşfedin' }}</p>
-          <a class="btn-category" [routerLink]="['/category', category.id]">İncele</a>
+          <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p>
+          <a class="btn-category" [routerLink]="['/category', category.id]" *ngIf="isMobile">İncele</a>
         </div>
       </div>
     </div>

@@ -86,6 +86,7 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
   async ngOnInit() {
     this.categoryForm = this.fb.group({
       name: ['', Validators.required],
+      title: [''],
       parentCategoryId: [''],
       subCategories: [[]],
       features: [[]],
@@ -115,6 +116,7 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
       if (this.category) {
         this.categoryForm.patchValue({
           name: this.category.name,
+          title : this.category.title,
           parentCategoryId: this.category.parentCategoryId,
           features: this.category.features.map(feat => feat.id),
         });
@@ -156,6 +158,7 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
       const formData = new FormData();
       formData.append('id', this.categoryId);
       formData.append('name', this.categoryForm.get('name').value);
+      formData.append('title', this.categoryForm.get('title').value);
 
       const parentCategoryId = this.categoryForm.get('parentCategoryId').value;
       if (parentCategoryId) {

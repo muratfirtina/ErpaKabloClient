@@ -1,8 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap");
 
-
-
-
 * {
   margin: 0;
   padding: 0;
@@ -65,7 +62,7 @@ $text-color: #484848;
 $border-color: #e0e0e0;
 $hover-color: rgba($primary-color, 0.1);
 $success-color: #00a046;
-$link-color: #0000EE;
+$link-color: #0000ee;
 
 body {
   font-family: "Roboto", sans-serif;
@@ -119,7 +116,9 @@ body {
         position: absolute; // Absolute konumlandırma ile sabitle
         top: 50%; // Yatayda ortala
         left: 15%; // Soldan uzaklık
-        transform: translateY(-50%); // Dikeyde tam ortalamak için translate kullan
+        transform: translateY(
+          -50%
+        ); // Dikeyde tam ortalamak için translate kullan
         flex: 1;
         z-index: 1; // Metnin görüntünün üstünde kalmasını sağla
 
@@ -155,16 +154,20 @@ body {
         img {
           height: 450px;
           object-fit: cover;
-          mask-image: linear-gradient(to right,
-              transparent 0%,
-              white 30%,
-              white 60%,
-              transparent 100%);
-          -webkit-mask-image: linear-gradient(to right,
-              transparent 0%,
-              white 30%,
-              white 60%,
-              transparent 100%);
+          mask-image: linear-gradient(
+            to right,
+            transparent 0%,
+            white 30%,
+            white 60%,
+            transparent 100%
+          );
+          -webkit-mask-image: linear-gradient(
+            to right,
+            transparent 0%,
+            white 30%,
+            white 60%,
+            transparent 100%
+          );
         }
       }
     }
@@ -238,28 +241,20 @@ body {
     position: relative;
 
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100px;
       height: 4px;
-      background-image: linear-gradient(to bottom, rgba(12, 108, 212, 0), rgba(35, 41, 50, .15) 37%),
+      background-image: linear-gradient(
+          to bottom,
+          rgba(12, 108, 212, 0),
+          rgba(35, 41, 50, 0.15) 37%
+        ),
         linear-gradient(to bottom, #0066cc, #0066cc);
     }
   }
-
-  .category-title {
-    font-size: 1.3rem;
-    color: $home-primary-color;
-    font-weight: 500;
-    margin: 0 auto 0;
-    max-width: 1320px;
-    padding: 0 0 10px;
-    position: relative;
-
-  }
-
 
   .container {
     display: flex;
@@ -307,7 +302,6 @@ body {
       padding: 20px 0;
       scroll-behavior: smooth;
 
-
       .category-card {
         cursor: pointer;
         min-width: 205px;
@@ -348,16 +342,24 @@ body {
           font-size: 1rem;
           font-weight: bold;
           color: $home-primary-color;
-          margin-bottom: 10px;
+          margin: 0 auto 0;
+          max-width: 1320px;
+          padding: 0 0 10px;
+          position: relative;
+          height: 40px;
         }
 
         .category-description {
           line-height: normal;
           margin-top: 20px;
-          width: 200px;
+          width: 150px;
           height: 50px;
           font-size: 0.9rem;
           //margin-bottom: 15px;
+          display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3; // Maksimum 3 satır göster
+            overflow: hidden;
         }
 
         .btn-category {
@@ -403,9 +405,11 @@ body {
         left: 20px; // Kenar boşluğuna uygun olarak ayarlayın
         width: 100px;
         height: 4px;
-        background-image: linear-gradient(to bottom,
+        background-image: linear-gradient(
+            to bottom,
             rgba(12, 108, 212, 0),
-            rgba(35, 41, 50, 0.15) 37%),
+            rgba(35, 41, 50, 0.15) 37%
+          ),
           linear-gradient(to bottom, #0066cc, #0066cc);
       }
     }
@@ -452,12 +456,9 @@ body {
           }
 
           .btn-category {
-
             opacity: 0; // Başlangıçta gizli
             transform: translateY(10px); // Başlangıçta aşağıda
-
           }
-
         }
 
         .category-card:hover {
@@ -477,9 +478,11 @@ body {
   justify-content: space-between;
   align-items: center;
   padding: 30px 60px;
-  background-image: linear-gradient(to bottom,
+  background-image: linear-gradient(
+      to bottom,
       rgba(12, 108, 212, 0),
-      rgba(35, 41, 50, 0.15) 37%),
+      rgba(35, 41, 50, 0.15) 37%
+    ),
     linear-gradient(to bottom, #e53935, #e53935);
   color: #fff;
 }
@@ -538,13 +541,17 @@ body {
       padding-bottom: 10px; // Eklendi
 
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: 0;
         left: 0;
         width: 50px; // Çizgi genişliğini ayarlayabilirsiniz
         height: 4px;
-        background-image: linear-gradient(to bottom, rgba(12, 108, 212, 0), rgba(35, 41, 50, .15) 37%),
+        background-image: linear-gradient(
+            to bottom,
+            rgba(12, 108, 212, 0),
+            rgba(35, 41, 50, 0.15) 37%
+          ),
           linear-gradient(to bottom, #0066cc, #0066cc);
       }
     }
@@ -562,7 +569,6 @@ body {
   max-width: 1420px;
   padding-top: 2rem;
 
-
   h2 {
     font-size: 1.3rem;
     color: $home-primary-color;
@@ -573,16 +579,19 @@ body {
     padding: 40px 0px 20px 0px; // Alt padding'i arttırdık
     position: relative; // Eklendi
 
-
     &::after {
       // Eklendi
-      content: '';
+      content: "";
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100px;
       height: 4px;
-      background-image: linear-gradient(to bottom, rgba(12, 108, 212, 0), rgba(35, 41, 50, .15) 37%),
+      background-image: linear-gradient(
+          to bottom,
+          rgba(12, 108, 212, 0),
+          rgba(35, 41, 50, 0.15) 37%
+        ),
         linear-gradient(to bottom, #0066cc, #0066cc);
     }
   }
@@ -666,7 +675,6 @@ body {
 
     &:hover {
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-
 
       .most-liked-product-add-to-cart-button {
         opacity: 1;
@@ -756,7 +764,6 @@ body {
       }
 
       .most-liked-product-price {
-
         font-size: 0.9rem;
         font-weight: bold;
         color: $primary-color;
@@ -764,7 +771,6 @@ body {
       }
 
       .most-liked-product-features {
-
         font-size: 0.8rem;
         color: lighten($text-color, 20%);
       }
@@ -783,7 +789,8 @@ body {
       border: none;
       //border-radius: 4px;
       cursor: pointer;
-      transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease,
+        background-color 0.3s ease;
       opacity: 0;
       transform: translateY(10px);
 

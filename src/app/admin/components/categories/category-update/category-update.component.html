@@ -20,6 +20,14 @@
           <img *ngIf="selectedImageUrl" [src]="selectedImageUrl" alt="Selected Category Image" class="category-image">
           <input type="file" (change)="onFileSelected($event)" accept="image/*">
         </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Kategori Açıklaması</mat-label>
+            
+            <textarea matInput formControlName="title" >{{category.title}}</textarea>
+          </mat-form-field>
+        </div>
         
         <div class="form-row">
           <mat-form-field appearance="outline" class="full-width">

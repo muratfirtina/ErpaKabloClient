@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MainHeaderComponent } from '../main-header/main-header.component';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -18,6 +18,9 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { Category } from 'src/app/contracts/category/category';
+import { CategoryService } from 'src/app/services/common/models/category.service';
+import { GetListResponse } from 'src/app/contracts/getListResponse';
 
 @Component({
   selector: 'app-brand',
@@ -37,6 +40,8 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 export class BrandComponent extends BaseComponent implements OnInit {
   brandId: string;
   brand: Brand;
+  defaultBrandImageUrl: string = 'assets/brand/ecommerce-default-brand.png';
+  subCategories: Category[] = [];
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];
   selectedFilters: { [key: string]: string[] } = {};
@@ -44,12 +49,21 @@ export class BrandComponent extends BaseComponent implements OnInit {
   totalItems: number = 0;
   noResults: boolean = false;
   sortOrder: string = '';
+  isMobile: boolean = false;
+
+  @ViewChild('categoryGrid') categoryGrid!: ElementRef;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkScreenSize();
+  }
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private brandService: BrandService,
     private productService: ProductService,
+    private categoryService: CategoryService,
     private breadcrumbService: BreadcrumbService,
     private productLikeService: ProductLikeService,
     private authService: AuthService,
@@ -65,6 +79,8 @@ export class BrandComponent extends BaseComponent implements OnInit {
       this.loadBrand();
       this.loadAvailableFilters();
       this.loadProducts();
+      this.loadSubCategories();
+      this.checkScreenSize();
     });
   }
 
@@ -76,6 +92,17 @@ export class BrandComponent extends BaseComponent implements OnInit {
       },
       error => {
         console.error('Error loading brand:', error);
+      }
+    );
+  }
+  loadSubCategories() {
+    
+    this.categoryService.getSubCategoriesByBrandId(this.brandId).then(
+      response => {
+        this.subCategories = response.items;
+      },
+      error => {
+        console.error('Error loading subcategories:', error);
       }
     );
   }
@@ -201,5 +228,19 @@ export class BrandComponent extends BaseComponent implements OnInit {
         }
       );
     }
+  }
+
+  private checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
+  }
+
+  scrollLeft() {
+    const grid = this.categoryGrid.nativeElement;
+    grid.scrollBy({ left: -250, behavior: 'smooth' });
+  }
+
+  scrollRight() {
+    const grid = this.categoryGrid.nativeElement;
+    grid.scrollBy({ left: 250, behavior: 'smooth' });
   }
 }

@@ -145,4 +145,19 @@ export class CategoryService {
     return await firstValueFrom(observable);
   }
   
+  async getSubCategories(parentCategoryId: string): Promise<GetListResponse<Category>> {
+    const observable: Observable<GetListResponse<Category>> = this.httpClientService.get<GetListResponse<Category>>({
+      controller: 'categories',
+      action: `GetSubCategoriesByCategoryId/${parentCategoryId}`
+    });
+    return await firstValueFrom(observable);
+  }
+
+  async getSubCategoriesByBrandId(brandId: string): Promise<GetListResponse<Category>> {
+    const observable: Observable<GetListResponse<Category>> = this.httpClientService.get<GetListResponse<Category>>({
+      controller: 'categories',
+      action: `GetSubCategoriesByBrandId/${brandId}`,
+    });
+    return await firstValueFrom(observable);
+  }
 }

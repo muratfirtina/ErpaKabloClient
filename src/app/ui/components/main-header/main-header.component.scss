@@ -31,6 +31,7 @@ $light-bg: #f3f4f6;
 
 .main-header {
   max-width: 1320px;
+  height: 120px;
   margin: auto;
   background-color: white;
   //box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -54,36 +55,32 @@ $light-bg: #f3f4f6;
 
   .logo {
     display: flex;
-    align-items: center;
-  }
-  
-  .logo-image {
-    width: 80px;
-    height: 80px;
-    margin-right: 15px;
-  }
-  
-  .logo-text {
-    display: flex;
     align-items: baseline;
   }
   
-  .tum {
-    font-family: 'Arial Black', sans-serif;
+  .logo-image {
+    width: 250px;
+    margin-right: 5px;
+  }
+
+  .logo-text {
+    display: flex;
+    margin-top: 25px;
+    flex-direction: row;
+    align-items: baseline;
+  }
+
+  .logo-subtext{
     font-style: italic;
-    font-size: 90px;
-    color: #CC0000;
-    line-height: 1;
   }
   
   .in {
     font-family: 'Georgia', serif;
     font-style: oblique;
-    font-size: 68px;
+    font-size: 80px;
     color: #003366;
-    margin-left: 5px;
     vertical-align: super;
-    line-height: 1;
+    line-height: 0.85;
   }
 
   .main-nav {

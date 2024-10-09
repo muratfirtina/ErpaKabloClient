@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MainHeaderComponent } from '../main-header/main-header.component';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -27,6 +27,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { GetListResponse } from 'src/app/contracts/getListResponse';
 
 
 @Component({
@@ -45,6 +46,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 export class CategoryComponent extends BaseComponent implements OnInit {
   categoryId: string;
   category: Category;
+  subCategories: Category[] = [];
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];
   selectedFilters: { [key: string]: string[] } = {};
@@ -52,6 +54,14 @@ export class CategoryComponent extends BaseComponent implements OnInit {
   totalItems: number = 0;
   noResults: boolean = false;
   sortOrder: string = '';
+  isMobile: boolean = false;
+
+  @ViewChild('categoryGrid') categoryGrid!: ElementRef;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkScreenSize();
+  }
 
   constructor(
     private route: ActivatedRoute,
@@ -67,17 +77,19 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     super(spinner);
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.route.params.subscribe(params => {
       this.categoryId = params['id'];
       this.loadCategory();
       this.loadAvailableFilters();
       this.loadProducts();
+      this.loadSubCategories();
+      this.checkScreenSize();
     });
   }
 
-  loadCategory() {
-    this.categoryService.getById(this.categoryId).then(
+  async loadCategory() {
+    await this.categoryService.getById(this.categoryId).then(
       category => {
         this.category = category;
         this.updateBreadcrumbs();
@@ -88,8 +100,19 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     );
   }
 
-  loadAvailableFilters() {
-    this.productService.getAvailableFilters(this.categoryId).subscribe(
+  async loadSubCategories() {
+    await this.categoryService.getSubCategories(this.categoryId).then(
+      (response: GetListResponse<Category>) => {
+        this.subCategories = response.items;
+      },
+      error => {
+        console.error('Error loading subcategories:', error);
+      }
+    );
+  }
+
+  async loadAvailableFilters() {
+    await this.productService.getAvailableFilters(this.categoryId).subscribe(
       filters => {
         this.availableFilters = filters;
       },
@@ -237,5 +260,19 @@ export class CategoryComponent extends BaseComponent implements OnInit {
         }
       );
     }
+  }
+
+  private checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
+  }
+
+  scrollLeft() {
+    const grid = this.categoryGrid.nativeElement;
+    grid.scrollBy({ left: -250, behavior: 'smooth' });
+  }
+
+  scrollRight() {
+    const grid = this.categoryGrid.nativeElement;
+    grid.scrollBy({ left: 250, behavior: 'smooth' });
   }
 }

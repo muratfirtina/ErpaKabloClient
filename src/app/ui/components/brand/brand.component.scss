@@ -1,3 +1,8 @@
+$home-primary-color: #003366;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #fff;
 $primary-color: #e53935;
 $secondary-color: #212121;
 $background-color: #ffffff;
@@ -5,7 +10,7 @@ $text-color: #484848;
 $border-color: #e0e0e0;
 $hover-color: rgba($primary-color, 0.1);
 
-.page-title {
+/* .page-title {
   max-width: 1320px;
   margin: 0.5rem auto;
   padding: 0 2rem;
@@ -15,7 +20,7 @@ $hover-color: rgba($primary-color, 0.1);
     font-size: 1.4rem;
     font-weight: 600;
   }
-}
+} */
 
 .breadcrumb {
   display: flex;
@@ -24,6 +29,74 @@ $hover-color: rgba($primary-color, 0.1);
   padding: 0 1rem;
   font-family: "Roboto", Arial, sans-serif;
   color: $text-color;
+}
+
+.brand-head {
+  max-width: calc(1320px - 2rem);
+  height: 300px;
+  margin: 0 auto;
+  //background-color: $home-primary-color;
+
+  .brand-content {
+    display: flex;
+    justify-content: center;
+    //padding: 0 1rem;
+  }
+
+  .category-info {
+    flex: 1;
+    background-color: $home-primary-color;
+    color: $background-color;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .category-name {
+    position: relative;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+
+    &::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 0px;
+      width: 100px;
+      height: 4px;
+      background-image: linear-gradient(
+          to bottom,
+          rgba(12, 108, 212, 0),
+          rgba(35, 41, 50, 0.15) 37%
+        ),
+        linear-gradient(to bottom, #e53935, #e53935);
+    }
+  }
+
+  .category-desc {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .brand-image {
+    width: 600px;
+    height: 300px;
+    overflow: hidden;
+  }
+
+  .brand-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .no-image{
+    width: 600px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .brand-container {
@@ -251,6 +324,182 @@ mat-paginator {
       .filter-sidebar {
         width: 100%;
         margin-bottom: 20px;
+      }
+    }
+  }
+}
+
+.categories {
+  padding: 20px 0 0 0;
+  position: relative; // Ok butonlarının yerleşimini kolaylaştırır
+  background-color: $light-text;
+
+  .category-header {
+    width: calc(1320px - 2rem);
+    margin: 0 auto;
+    display: flex;
+
+    p{
+      font-size: 1.3rem;
+      color: $home-primary-color;
+      font-weight: 500;
+      padding: 0 0 10px;
+      position: relative;
+      margin-right: 8px;
+  
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100px;
+        height: 4px;
+        background-image: linear-gradient(
+            to bottom,
+            rgba(12, 108, 212, 0),
+            rgba(35, 41, 50, 0.15) 37%
+          ),
+          linear-gradient(to bottom, #0066cc, #0066cc);
+      }
+    }
+
+    .brand-name{
+      font-size: 1.3rem;
+      color: $primary-color;
+      font-weight: 500;
+      padding: 0 0 10px;
+      position: relative;
+      text-decoration: none;
+    }
+    
+  }
+
+  .container {
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+    max-width: 1420px;
+    margin: auto;
+    gap: 20px;
+    //padding: 20px 0 0 0;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #888 #f1f1f1; // Scroll butonlarını konumlandırmak için
+
+    .scroll-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(0, 0, 0, 0.5);
+      color: $light-text;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      z-index: 1;
+
+      svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      &.left {
+        left: 10px;
+      }
+
+      &.right {
+        right: 10px;
+      }
+    }
+
+    .category-grid {
+      width: 1320px;
+      margin: 0 55px;
+      display: flex;
+      gap: 1rem;
+      scroll-snap-type: x mandatory;
+      overflow-x: auto;
+      padding: 20px 0;
+      scroll-behavior: smooth;
+
+      .category-card {
+        cursor: pointer;
+        width: 205px;
+        //min-height: 300px; // Kartların genişliği sabit olmalı
+        background-color: $home-secondary-color;
+        //border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+
+        &:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-image {
+          margin-top: 20px;
+          height: 100px;
+          overflow: hidden;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+          }
+        }
+
+        .category-content {
+          padding: 5px 20px;
+          text-align: center;
+          display: flex;
+          align-items: center;
+          flex-direction: column;
+        }
+
+        .category-title {
+          //margin-top: 20px;
+          line-height: normal;
+          font-size: 1rem;
+          font-weight: bold;
+          color: $home-primary-color;
+          margin: 0 auto 0;
+          max-width: 1320px;
+          padding: 0 0 10px;
+          position: relative;
+        }
+
+        .category-description {
+          line-height: normal;
+          //margin-top: 20px;
+          width: 150px;
+          height: 50px;
+          font-size: 0.9rem;
+          //margin-bottom: 15px;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3; // Maksimum 3 satır göster
+          overflow: hidden;
+        }
+
+        .btn-category {
+          display: inline-block;
+          padding: 8px 20px;
+          background-color: $home-primary-color;
+          color: $light-text;
+          text-decoration: none;
+          //border-radius: 5px;
+          transition: background-color 0.3s;
+
+          &:hover {
+            background-color: lighten($home-primary-color, 10%);
+          }
+        }
       }
     }
   }
