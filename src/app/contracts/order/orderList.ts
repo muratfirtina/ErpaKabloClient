@@ -3,10 +3,9 @@ import { OrderStatus } from "./orderStatus";
 
 export interface OrderList {
     id: string;
-    orderDate: Date;
+    orderDate: Date;    
     orderCode: string;
-    orderStatus: OrderStatus;
+    status: OrderStatus;
     totalPrice: number;
     userName: string;
-    orderItems: OrderItem[];
 }

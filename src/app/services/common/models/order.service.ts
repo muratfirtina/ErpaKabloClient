@@ -9,6 +9,8 @@ import { OrderList } from 'src/app/contracts/order/orderList';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { Observable, firstValueFrom } from 'rxjs';
 import { CreateOrder } from 'src/app/contracts/order/createOrder';
+import { Order } from 'src/app/contracts/order/order';
+import { OrderItem } from 'src/app/contracts/order/orderItem';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +39,8 @@ export class OrderService {
       await promiseData;
     }
 
-  async getAllOrders(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<OrderList>>{
-    const observable : Observable<GetListResponse<OrderList>> = this.httpClientService.get<GetListResponse<OrderList>>({
+  async getAllOrders(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Order>>{
+    const observable : Observable<GetListResponse<Order>> = this.httpClientService.get<GetListResponse<Order>>({
       controller: "orders",
       queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
     });
@@ -47,5 +49,90 @@ export class OrderService {
       .catch(errorCallback);
     return await promiseData;
     
+  }
+
+  async getOrdersByDynamic(pageRequest:PageRequest, dynamicQuery: any, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Order>>{
+    const observable : Observable<GetListResponse<Order>> = this.httpClientService.post<GetListResponse<Order>>({
+      controller: "orders",
+      action: "get-orders-by-dynamic",
+      queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+    }, dynamicQuery);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
+
+  async updateOrder(order: Order, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+    const observable: Observable<any> = this.httpClientService.put({
+      controller: 'orders',
+      action: 'update'
+    }, order);
+
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(() => {
+      if (successCallback) successCallback();
+    }).catch(error => {
+      if (errorCallback) errorCallback(error);
+    });
+
+    await promiseData;
+  }
+
+  async deleteOrder(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+    const observable: Observable<any> = this.httpClientService.delete({
+      controller: 'orders'
+    }, id);
+
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(() => {
+      if (successCallback) successCallback();
+    }).catch(error => {
+      if (errorCallback) errorCallback(error);
+    });
+
+    await promiseData;
+  }
+
+  async getOrderById(id: string, successCallback: (data: any) => void, errorCallback: (error: any) => void): Promise<Order>{
+    const observable : Observable<Order> = this.httpClientService.get<Order>({
+      controller: "orders",
+    }, id);
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
+
+  async updateOrderItem(orderItem: OrderItem, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+    const observable: Observable<any> = this.httpClientService.put({
+      controller: 'orders',
+      action: 'update-item'
+    }, orderItem);
+
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(() => {
+      if (successCallback) successCallback();
+    }).catch(error => {
+      if (errorCallback) errorCallback(error);
+    });
+
+    await promiseData;
+  }
+
+  async deleteOrderItem(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+    const observable: Observable<any> = this.httpClientService.delete({
+      controller: 'orders',
+      action: 'delete-item'
+    }, id);
+
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(() => {
+      if (successCallback) successCallback();
+    }).catch(error => {
+      if (errorCallback) errorCallback(error);
+    });
+
+    await promiseData;
   }
 }

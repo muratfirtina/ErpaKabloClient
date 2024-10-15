@@ -92,6 +92,11 @@ export class SidebarComponent implements OnInit{
       ]
     },
     {
+      title: 'Order',
+      icon: 'shopping_cart',
+      path: 'orders'
+    },
+    {
       title: 'User',
       icon: 'person',
       children: [

@@ -39,6 +39,9 @@ export const routes: Routes = [
           { path: "roles/role-create",loadComponent:()=>import('./admin/components/roles/role-create/role-create.component').then(m=>m.RoleCreateComponent), canActivate: [authGuard]},
           { path: "roles/role-list",loadComponent:()=>import('./admin/components/roles/role-list/role-list.component').then(m=>m.RoleListComponent), canActivate: [authGuard]},
           { path: "authorize-menu",loadComponent:()=>import('./admin/components/authorize-menu/authorize-menu.component').then(m=>m.AuthorizeMenuComponent), canActivate: [authGuard]},
+          { path: "orders",loadComponent:()=>import('./admin/components/orders/orders.component').then(m=>m.OrdersComponent), canActivate: [authGuard]},
+          { path: "orders/:id",loadComponent:()=>import('./admin/components/orders/orders.component').then(m=>m.OrdersComponent), canActivate: [authGuard]},
+
         ],canActivate: [authGuard],
         data: { roles: ['Admin'] }
 

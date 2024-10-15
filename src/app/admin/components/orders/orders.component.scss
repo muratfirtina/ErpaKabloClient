@@ -1,0 +1,197 @@
+.container {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .order-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  .page-title {
+    font-size: 2.5rem;
+    color: #343a40;
+    margin-bottom: 0;
+  }
+  
+  .page-description {
+    font-size: 1.2rem;
+    color: #6c757d;
+    margin-top: 0;
+  }
+  
+  .search-box {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .mat-mdc-cell {
+    text-align: center;
+    align-content: center;
+  }
+  
+  .search-box .form-control {
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+  }
+  
+  .search-box .btn {
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .mat-paginator {
+    margin-top: 20px;
+  }
+  
+  .table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: separate;
+  }
+  
+  .mat-row {
+    transition: background-color 0.3s;
+  }
+  
+  .mat-row:hover {
+    background-color: #f1f1f1;
+  }
+  
+  .app-delete-directive-container,
+  .updateButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
+  
+  .app-delete-directive-container button {
+    margin: 0;
+  }
+  
+  
+  
+  .search-and-table-container mat-form-field,
+  .search-and-table-container table {
+    width: 100%;
+  }
+  
+  ::ng-deep .mat-mdc-form-field-infix {
+    display: flex;
+  }
+  
+  
+  .mat-mdc-select-arrow {
+    margin-right: 5px;
+  }
+  
+  .mat-mdc-select-arrow svg {
+    color: white;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2rem;
+    }
+    
+    .page-description {
+      font-size: 1rem;
+    }
+  
+    .search-and-table-container mat-form-field,
+    .search-and-table-container table {
+      width: 100%;
+    }
+  
+    .updateButton,
+    .app-delete-directive-container {
+      padding: 5px;
+    }
+  
+  }
+  
+  @media (max-width: 576px) {
+    .page-title {
+      font-size: 1.5rem;
+    }
+    
+    .page-description {
+      font-size: 0.9rem;
+    }
+  }
+  
+/* Genel Badge stili */
+.status-badge {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 20px;
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Her durum için farklı renkler */
+  .status-pending {
+    span{background: linear-gradient(135deg, #ffeb3b, #fbc02d);}
+    
+  }
+  
+  .status-processing {
+    span{background: linear-gradient(135deg, #2196f3, #1976d2);}
+    
+  }
+  
+  .status-confirmed {
+    span{background: linear-gradient(135deg, #4caf50, #388e3c);}
+  }
+  
+  .status-rejected {
+    span{background: linear-gradient(135deg, #f44336, #d32f2f);}
+  }
+  
+  .status-delivered {
+    span{background: linear-gradient(135deg, #9c27b0, #7b1fa2);}
+  }
+  
+  .status-completed {
+    span{background: linear-gradient(135deg, #00bcd4, #0097a7);}
+  }
+  
+  .status-shipped {
+    span{background: linear-gradient(135deg, #ff9800, #f57c00);}
+  }
+  
+  .status-cancelled {
+    span{background: linear-gradient(135deg, #607d8b, #455a64);}
+  }
+  
+  .status-refunded {
+    span{background: linear-gradient(135deg, #795548, #5d4037);}
+  }
+  
+  /* Ikonlar için uygun boşluk ve hizalama */
+  .status-badge i {
+    margin-right: 5px;
+  }
+  
+  /* Hover efektiyle interaktif his ver */
+  .status-badge:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+    transition: all 0.3s ease;
+  }
+  
+  

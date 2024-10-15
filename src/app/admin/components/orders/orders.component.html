@@ -1,1 +1,88 @@
-<p>orders works!</p>
+<div class="container mt-5">
+    <div class="row mb-4">
+      <div class="col-md-12 text-center">
+        <h1 class="page-title">Order List</h1>
+        <p class="page-description"></p>
+      </div>
+    </div>
+  
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="search-and-table-container">
+          <form [formGroup]="searchForm" (ngSubmit)="searchOrder(searchForm.get('nameSearch').value)">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Search Order...</mat-label>
+              <input matInput formControlName="nameSearch" (input)="searchOrder(searchForm.get('nameSearch').value)">
+              <button mat-raised-button class="search-button" type="submit">Search</button>
+            </mat-form-field>
+          </form>
+  
+    <div class="row">
+      <div class="col-md-12">
+        <table mat-table [dataSource]="pagedOrders" class="mat-elevation-z8 table table-striped table-hover">
+          <ng-container matColumnDef="No">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">No</th>
+            <td mat-cell *matCellDef="let item; let i = index">{{ (currentPageNo - 1) * pageSize + i + 1 }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="Order Code">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">Order Code</th>
+            <td mat-cell *matCellDef="let item">
+                {{ item.orderCode }}
+            </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="Order Date">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">Order Date</th>
+            <td mat-cell *matCellDef="let item">{{ item.orderDate }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="Order Status">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">Order Status</th>
+            <td mat-cell *matCellDef="let item" [ngClass]="getStatusClass(item.status)">
+                <span class="status-badge">
+                  <i class="material-icons">{{ getStatusIcon(item.status) }}</i> {{ item.status }}
+                </span>
+              </td>
+          </ng-container>
+
+            <ng-container matColumnDef="Total Price">
+                <th mat-header-cell *matHeaderCellDef class="header-cell">Total Price</th>
+                <td mat-cell *matCellDef="let item">{{ item.totalPrice }}</td>
+            </ng-container>
+
+          <ng-container matColumnDef="Detail">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">Detail</th>
+            <td mat-cell *matCellDef="let item">
+                <a [routerLink]="['/admin/orders/', item.id]">
+                    <button mat-mini-fab class="edit-button-list" (click)="openOrderDetail(item.id)">
+                        <mat-icon>edit</mat-icon>
+                    </button>
+                 </a>
+            </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="Delete">
+            <th mat-header-cell *matHeaderCellDef class="header-cell">Delete</th>
+            <td mat-cell *matCellDef="let item">
+              <div class="app-delete-directive-container">
+                <app-delete-directive 
+                [id]="item.id" 
+                [controller]="'orders'" 
+                [itemName]="item.orderCode" 
+                (refresh)="removeOrderFromList($event)">
+              </app-delete-directive>
+            </div>
+          </ng-container>
+  
+  
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+  
+        <mat-paginator [length]="count" [pageSize]="pageSize" [pageIndex]="currentPageNo - 1"
+          [pageSizeOptions]="[5, 10, 20]" (page)="onPageChange($event)">
+        </mat-paginator>
+      </div>
+    </div>
+  </div>

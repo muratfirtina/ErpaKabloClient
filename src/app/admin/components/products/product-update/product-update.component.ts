@@ -252,7 +252,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       formData.append('id', this.productId);
       formData.append('name', updatedProduct.name);
       formData.append('description', updatedProduct.description);
-      formData.append('title', updatedProduct.name);
+      formData.append('title', updatedProduct.title);
       formData.append('categoryId', updatedProduct.categoryId);
       formData.append('brandId', updatedProduct.brandId);
       formData.append('varyantGroupID', updatedProduct.varyantGroupID);
