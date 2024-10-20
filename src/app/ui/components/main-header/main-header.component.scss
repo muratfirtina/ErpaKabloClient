@@ -31,7 +31,7 @@ $light-bg: #f3f4f6;
 
 .main-header {
   max-width: 1320px;
-  height: 120px;
+  height: 170px;
   margin: auto;
   background-color: white;
   //box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -55,11 +55,11 @@ $light-bg: #f3f4f6;
 
   .logo {
     display: flex;
-    align-items: baseline;
+    align-items: end;
   }
   
   .logo-image {
-    width: 250px;
+    width: 170px;
     margin-right: 5px;
   }
 
@@ -86,6 +86,7 @@ $light-bg: #f3f4f6;
   .main-nav {
     .nav-list {
       display: flex;
+      align-items: flex-end;
       list-style: none;
       margin: 0;
       padding: 0;

@@ -1,257 +1,255 @@
-.btn-close{
-    color: #ffffff;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1;
-    text-shadow: 0 1px 0 #ffffff;
-    opacity: 0.5;
-    transition: opacity 0.15s ease-in-out;
-    padding: 0.5rem 1.25rem;
-    margin: -4rem -1.25rem -0.75rem auto;
-}
-.btn-close:focus{
-    box-shadow: 0 0 0 0.25rem rgba(253, 106, 13, 0.316);
-}
+$home-primary-color: #003366;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #fff;
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #00a046;
+$link-color: #0000ee;
 
-.card-img-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 150px;
-    .img-fluid{
-        height: 150px;
-    }
-}
-
-
-#form-check-column{
-    display: flex;
+.modal-content{
+  position: relative;
+    display: contents !important;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: auto;
-    width: 40px;
-    margin-left: 10px;
-    margin-right: 10px;
+    width: 100%;
+    color: var(--bs-modal-color);
+    pointer-events: auto;
+    background-color: var(--bs-modal-bg);
+    background-clip: padding-box;
+    border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
+    border-radius: var(--bs-modal-border-radius);
+    outline: 0;
 }
-.form-check {
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-    height: 20px;
-}
-.card-header {
-    height: 40px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1.25rem;
-    margin-bottom: 0;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-}
+.cart-container {
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  max-width: 1000px;
+  margin: 20px auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
-.form-check-input {
-    margin-left: auto;
-    width: 17px;
-    height: 17px;
-    
-}
-.form-check-input:checked {
-    background-color: rgb(255, 102, 0);
-    border-color: rgb(255, 102, 0);
-}
+  .cart-header {
+    border-bottom: 2px solid #e0e0e0;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    h1 {
+      font-size: 1.5rem;
+      color: #003366;
+    }
+  }
 
-.form-check-input:focus {
-    
-    border-color: rgb(255, 102, 0 ,75%);
-    box-shadow: 0 0 0 0.25rem rgba(253, 106, 13, 0.316);
-}
+  .cart-body {
+    .empty-cart-message {
+      font-size: 1.2rem;
+      color: #e53935;
+    }
 
-.card-title{
-    font-size: 1rem;
-    font-weight: 600;
-}
-.modal-content #cartModal{
-    --bs-modal-width: 950px;
+    .empty-selection-message {
+      font-size: 1rem;
+      color: #ff9900;
+    }
+
+    .cart-item {
+      height: 180px; /* Görselle diğer içerikleri daha düzenli hale getirmek için biraz yükseltilmiş */
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* Görseller ve içerik arasındaki boşluğu ayarlama */
+      margin-bottom: 20px;
+      padding: 15px; /* Kenarlıklardan biraz daha içe çekildi */
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+
+      &-image {
+        margin-left: 20px;
+        flex: 0 0 100px;
+        img {
+          width: 100px;
+          height: 100px;
+          object-fit: cover; /* Görselin düzgün bir şekilde sığmasını sağlıyor */
+          border-radius: 10px;
+        }
+      }
+
+      &-info {
+        width: 250px;
+        flex: 2;
+        padding-left: 20px;
+        .name{
+          display: flex;
+
+        .brand {
+          font-size: 1.2rem;
+          color: $primary-color;
+          
+        }
+
+        h3 {
+          font-size: 1.2rem;
+          color: #003366;
+          margin-left: 4px;
+        }
+      }
+
+        .product-features {
+          p {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+            margin-left: 4px;
+          }
+        }
+      }
+      &-quantity {
+        width: 150px;
+        margin-right: 100px;
+
+        .quantity-controls {
+          display: flex;
+          align-items: center;
+          margin-top: 10px;
+
+          input {
+            width: 60px;
+            padding: 5px;
+            font-size: 1rem;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin: 0 10px;
+            &:focus {
+              border-color: $accent-color;
+              outline: none;
+              box-shadow: 0 0 5px rgba(255, 153, 0, 0.5);
+            }
+          }
+
+          .quantity-remove-item{
+            background-color: $home-primary-color;
+            color: $primary-color;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            &:hover {
+              background-color: darken($home-primary-color, 10%);
+            }
+          }
+
+          button {
+            background-color: $home-primary-color;
+            color: $primary-color;
+            border: none;
+            border-radius: 5px;
+            padding: 5px;
+            cursor: pointer;
+            &:hover {
+              background-color: darken($home-primary-color, 10%);
+            }
+            &:disabled {
+              background-color: $primary-color;
+              cursor: not-allowed;
+            }
+          }
+
+          label {
+            margin: 0 10px;
+            font-size: 1rem;
+          }
+        }
+
+        .item-price {
+          font-size: 1.1rem;
+          font-weight: bold;
+          color: #003366;
+          margin-top: 10px; /* Fiyatın diğer bileşenlerden ayrı olması için boşluk */
+        }
+      }
+
+      &-actions {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        .form-check-input {
+          width: 18px;
+          height: 18px;
+          margin-bottom: 10px;
+        }
+
+        .remove-item {
+          background-color: #e53935;
+          margin-right: 10px;
+          color: #ffffff;
+          border: none;
+          padding: 10px;
+          border-radius: 5px;
+          cursor: pointer;
+          font-size: 0.9rem;
+          &:hover {
+            background-color: darken(#e53935, 10%);
+          }
+        }
+      }
+    }
+  }
+
+  
 }
 
 #cartPriceModal {
-    position: fixed;
-    top: 0;
-    transition: top 0.3s ease-in-out;
-    top: 188px; 
-    right: 200px;
-    
+  position: fixed;
+  top: 20%; /* Sayfanın yukarısından biraz boşluk bırakır */
+  right: 30px; /* Sağ kenara sabitlenir */
+  width: 300px; /* Genişlik ayarlanabilir */
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 100; /* Diğer elemanların üstünde yer alması için */
+  transition: transform 0.3s ease-in-out;
 }
 
-.modal-header{
-    height: 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.75rem 1.25rem;
-    border-top-left-radius: calc(0.3rem - 1px);
-    border-top-right-radius: calc(0.3rem - 1px);
-    border-bottom: none;
-    margin-top: 10px;
-    margin-bottom: -10px;
-}
-.modal-header .btn-close {
-    padding: 0.50rem 1.25rem;
-    margin: -2.0rem -1.25rem -0.75rem auto;
-}
-.modal-footer{
-    
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    border-top-left-radius: calc(0.3rem - 1px);
-    border-top-right-radius: calc(0.3rem - 1px);
-    border-top: none;
-    
-}
-#totalItemCount{
-    height: 35px;
-    border: 1px solid #ffffff;
-    font-size: 10px;
-    margin-left: auto;
-
-}
-#selectedItemCount{
-    flex-direction: row;
-    margin-top: 5px;
-    margin-bottom: -5px;
-    padding-top: 35px ;
-    height: 35px;
-    box-sizing: border-box;
-    border: 1px solid #ffffff;
-    font-size: 12px;
-    font-weight: 600;
-    color: rgb(255, 102, 0)
-}
-#totalSelectedCartPrice{
-    height: 50px;
-    box-sizing: border-box;
-    padding-left: 20px;
-    font-size: 28px;
-    font-weight: 600;
-}
-#continueButton{
-    width: 95%;
-    background-color: rgb(255, 102, 0);
-    border-color: #f8f9fa;
-    color: #ffffff;
-    font-weight: 400;
-    border-radius: 7px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.15s ease-in-out;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    margin-right: 0.5rem;
+#cartPriceModal.active {
+  transform: translateY(0); /* Modal görünür olduğunda */
 }
 
-#cartItem-actions{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    height: 50px;
-    padding: 0.75rem 1.25rem;
-    margin-top: 10px;
-    margin-bottom: -10px;
+.cart-summary {
+  display: flex;
+  flex-direction: column; /* Elemanları dikey hizalar */
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.quantity {
-    width: 85px;
-    height: 30px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    background-color: #ffffff;
-    border: 1px solid #e5e5e5;
-    border-radius: 10px;
-    filter: drop-shadow(0px 1px 0px #efefef)
-      drop-shadow(0px 1px 0.5px rgba(239, 239, 239, 0.5));
-}
-  
-.quantity label {
-    width: 20px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-bottom: 2px;
-    font-size: 13px;
-    font-weight: 700;
-    color: #47484b;
-    margin-left: 4px;
-}
-  
-.quantity button {
-    width: 28px;
-    height: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 0;
-    outline: none;
-    background-color: transparent;
-    border-radius: 26%;
-    
-}
-.quantity button:hover {
-    background-color: #FFEFE5;
-    
+#totalSelectedCartPrice {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #003366;
+  margin-bottom: 20px;
 }
 
-.quantity button svg path {
-    fill: rgb(255, 102, 0);
+#continueButton {
+  width: 100%;
+  background-color: $success-color;
+  color: #ffffff;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: background-color 0.3s;
+  &:hover {
+    background-color: darken(#003366, 10%);
+  }
 }
-
-#removeItemButton{
-    width: 30px;
-    height: 30px;
-    background-color: #ffffff;
-    border: 1px solid #e5e5e5;
-    border-radius: 26%;
-    filter: drop-shadow(0px 1px 0px #efefef)
-      drop-shadow(0px 1px 0.5px rgba(239, 239, 239, 0.5));
-    font-size: 13px;
-    font-weight: 700;
-    color: #47484b;
-    cursor: pointer;
-    transition: all 0.15s ease-in-out;
-}
-#removeItemButton:hover {
-    background-color: #FFEFE5;
-    
-}
-
-#removeItemButton svg path {
-    fill: rgb(255, 102, 0);
-}
-
-#exitmodal{
-    width: 95%;
-    background-color: rgb(255, 102, 0);
-    border-color: #f8f9fa;
-    color: #ffffff;
-    font-weight: 400;
-    border-radius: 7px;
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-    line-height: 1.5;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.15s ease-in-out;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
-    margin-right: 0.5rem;
-}
-
- 

@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import { UserService } from './models/user.service';
+import { Injectable } from "@angular/core";
+import { JwtHelperService } from "@auth0/angular-jwt";
+import { UserService } from "./models/user.service";
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +13,8 @@ export class AuthService {
     private userService: UserService
   ) { }
 
-  async identityCheck() {
-    const token: string = localStorage.getItem("accessToken");
+  async identityCheck(): Promise<void> {
+    const token: string | null = localStorage.getItem("accessToken");
 
     let isExpired: boolean;
     try {
@@ -26,28 +26,9 @@ export class AuthService {
     _isAuthenticated = token != null && !isExpired;
 
     if (_isAuthenticated) {
-      await this.checkAdminRole();
+      // Kullanıcının admin olup olmadığını kontrol et
+      this._isAdmin = await this.userService.isAdmin(); // Asenkron admin kontrolü
     }
-  }
-
-  
-
-  private async checkAdminRole() {
-    const userId = this.getUserId();
-    console.log(userId);
-    if (userId) {
-      const roles = await this.userService.getRolesToUser(userId);
-      this._isAdmin = roles.some(role => role.name === 'admin');
-    }
-  }
-
-  private getUserId(): string | null {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      const decodedToken = this.jwtHelper.decodeToken(token);
-      return decodedToken?.sub; // JWT'deki user id claim'i
-    }
-    return null;
   }
 
   get isAuthenticated(): boolean {
@@ -57,7 +38,6 @@ export class AuthService {
   get isAdmin(): boolean {
     return this._isAdmin;
   }
-  
 }
 
-export let _isAuthenticated: boolean;
+export let _isAuthenticated: boolean = false;

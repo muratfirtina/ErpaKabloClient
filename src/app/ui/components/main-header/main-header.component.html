@@ -2,20 +2,22 @@
     <div class="container">
       <div class="header-content">
             <div class="logo">
-              <img src="assets/homecard/tumin-logo.png" alt="TUMin Logo" class="logo-image">
+              <img src="assets/homecard/4.png" alt="tutrat Logo" class="logo-image">
               <div class="logo-text">
-                <span class="in" translate="no">in</span>
+                <!-- <span class="in" translate="no">in</span> -->
                 <span class="logo-subtext" translate="yes">For All Industrial Products</span>
               </div>
             </div>
         <nav class="main-nav">
           <ul class="nav-list">
+            <!-- Diğer nav itemler -->
             <li *ngIf="authService.isAuthenticated">
               <a routerLink="orders" class="nav-link">
                 <i class="fas fa-clipboard-list"></i>
                 <span>Siparişler</span>
               </a>
             </li>
+
             <li>
               <a class="nav-link" id="cartbutton" aria-current="page" data-bs-toggle="modal" type="button"
                   data-bs-target="#cartModal" *ngIf="authService.isAuthenticated" (click)="loadComponent()">
@@ -30,6 +32,8 @@
 
               </a>
           </li>
+            
+            <!-- Admin Butonu: Sadece Admin kullanıcılara gözüküyor -->
             <li *ngIf="authService.isAuthenticated && authService.isAdmin">
               <a (click)="navigateToAdmin()" class="nav-link">
                 <i class="fas fa-cog"></i>
@@ -38,6 +42,8 @@
             </li>
           </ul>
         </nav>
+
+        
   
         <div class="user-actions">
           <ng-container *ngIf="authService.isAuthenticated; else authButtons">

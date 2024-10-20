@@ -93,6 +93,25 @@ export class CartComponent extends BaseComponent implements OnInit {
     this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
+  onQuantityInput(event: any, cartItem: CartItem) {
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    const inputValue = event.target.value;
+    const parsedValue = parseInt(inputValue, 10);  // Girilen değeri tam sayıya çevir
+  
+    if (!isNaN(parsedValue) && parsedValue > 0) {  // Pozitif tam sayı olup olmadığını kontrol et
+      cartItem.quantity = parsedValue;
+      // Miktara göre toplam fiyatı yeniden hesaplayın
+      cartItem.quantityPrice = cartItem.unitPrice * cartItem.quantity;
+      this.updateTotalCartPrice();  // Toplam fiyatı güncelle
+    } else {
+      // Eğer girilen değer geçerli değilse varsayılan olarak 1 yapın
+      cartItem.quantity = 1;
+    }
+    this.hideSpinner(SpinnerType.BallSpinClockwise);
+  }
+
+  
+
   async removeCartItem(cartItemId: string) {
     
     /* this.dialogService.openDialog({
@@ -152,8 +171,38 @@ export class CartComponent extends BaseComponent implements OnInit {
     }
 
     const createOrder: CreateOrder = {
-      address: '----- ----/İstanbul, Türkiye',
+      id: '',
+      orderDate: new Date(),
+      orderCode: '',
+      status: 0,
+      totalPrice: this.totalSelectedCartPrice,
+      userName: 'test',
+      userAddress: {
+        addressLine1: '----- ----/İstanbul, Türkiye',
+        city: 'İstanbul',
+        country: 'Türkiye',
+        state: 'Üsküdar',
+        postalCode: '34000',
+      },
+      phoneNumber: '1234567890',
       description: 'Hediye Paketi yapılsın.',
+      orderItems: this.cartItems
+  .filter((cartItem) => cartItem.isChecked)
+  .map((cartItem) => {
+    return {
+      id: '',
+      productId: cartItem.productId,
+      productName: cartItem.productName,
+      unitPrice: cartItem.unitPrice,
+      quantity: cartItem.quantity,
+      imageUrl: cartItem.showcaseImage.url,
+      brandName: cartItem.brandName,
+
+      price: cartItem.unitPrice,
+      title: cartItem.title,
+      productFeatureValues: cartItem.productFeatureValues,
+    };
+  }),
     };
     
     await this.orderService.create(createOrder,
@@ -235,4 +284,5 @@ export class CartComponent extends BaseComponent implements OnInit {
       this.isCartPriceModalActive = false;
     }
   }
+
 }

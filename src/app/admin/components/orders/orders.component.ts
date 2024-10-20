@@ -47,7 +47,7 @@ export class OrdersComponent extends BaseComponent implements OnInit {
   pagedOrders: Order[] = [];
   currentPageNo: number = 1;
   totalItems: number = 0;
-  pageSize: number = 20;
+  pageSize: number = 10;
   count: number = 0;
   pages: number = 0;
   displayedColumns: string[] = ['No', 'Order Code', 'Order Date', 'Order Status', 'Total Price','Detail','Delete'];

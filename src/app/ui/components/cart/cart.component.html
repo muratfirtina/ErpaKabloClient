@@ -1,80 +1,48 @@
-<div class="row">
-    <div class="col-md-12">
-        <div class="modal-content" id="cartModal" style="width: 950px;">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Sepetiniz ({{totalItemCount}} ürün)</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="padding-left: 8px; padding-right: 8px; margin-right: 0px;"></button>
+<div class="modal-wrapper">
+    <div class="modal-content">
+        <div class="cart-container">
+            <div class="cart-header">
+                <h1>Sepetiniz ({{ totalItemCount }} ürün)</h1>
             </div>
-            <div class="modal-body">
+            <div class="cart-body">
                 <ng-container *ngIf="totalItemCount === 0">
-                    <h2 class="modal-title">Sepetiniz boş</h2>
+                    <h2 class="empty-cart-message">Sepetiniz boş</h2>
                 </ng-container>
-                <ng-container *ngIf="selectedItemCount === 0">
-                    <ng-container *ngIf="cartIsEmptyMessage === 'Seçili ürün bulunmamaktadır.'">
-                        <p class="modal-title">{{ cartIsEmptyMessage }}</p>
-                    </ng-container>
+
+                <ng-container *ngIf="selectedItemCount === 0 && totalItemCount > 0">
+                    <p class="empty-selection-message">{{ cartIsEmptyMessage }}</p>
                 </ng-container>
-                <div class="card mb3 " *ngFor="let cartItem of cartItems" style="margin-bottom: 20px;">
-                    <div class="card-header bg-transparent"> Başlık gelecek</div>
-                    <div class="row align-items-center">
-                        <div class="col-1" id="form-check-column">
-                            <div class="form-check">
-                                <input type="checkbox" class="form-check-input" id="checkbox{{cartItem.cartItemId}}"
-                                    [checked]="cartItem.isChecked" (change)="toggleItemChecked($event, cartItem)">
-                                <label class="form-check-label" for="checkbox{{cartItem.cartItemId}}"></label>
-                            </div>
-                        </div>
-                        <div class="col-2">
-                            <div class="card-img-container">
 
-                                <div *ngIf="cartItem.showcaseImage?.url && cartItem.showcaseImage?.url.length > 0;"
-                                    class="card-img-container">
-                                    <img [src]="cartItem.showcaseImage?.url"
-                                        class="img-fluid rounded-start" [alt]="cartItem.productName">
-                                </div>
-                                <div *ngIf="!(cartItem.showcaseImage?.url && cartItem.showcaseImage?.url.length > 0)">
-                                    <img src="../../../../../assets/default_product.png" class="img-fluid rounded-start"
-                                        alt="Default Image">
-                                </div>
-                            </div>
-
+                <div *ngFor="let cartItem of cartItems" class="cart-item">
+                    <div id="form-check-column">
+                        <input class="form-check-input" type="checkbox" [checked]="cartItem.isChecked"
+                            (change)="toggleItemChecked($event, cartItem)" />
+                    </div>
+                    <div class="cart-item-image">
+                        <img [src]="cartItem.showcaseImage?.url || 'assets/default_product.png'"
+                            alt="{{ cartItem.productName }}" />
+                    </div>
+                    <div class="cart-item-info">
+                        <div class="name">
+                            <h3 class="brand">{{ cartItem.brandName }}</h3>
+                            <h3>{{ cartItem.productName }}</h3>
                         </div>
-                        <div class="col-5 #card-info" style="margin:inherit">
-                            <div class="card-body">
-                                <h3 class="card-title">{{cartItem.productName}}</h3>
-                                <p class="card-text">Ürün hakkında bilgiler renk - beden vs..</p>
-                                <p class="card-text"><small class="text-body-secondary">satıcıyı buraya tanımla</small>
-                                </p>
-                            </div>
+                        <div class="product-features">
+                            <ng-container *ngFor="let feature of cartItem.productFeatureValues">
+                                <p>{{ feature.featureName }}: {{ feature.featureValueName }}</p>
+                            </ng-container>
                         </div>
-                        <div class="col-4" id="cartItem-actions">
-                            <div class="quantity">
-                                <button (click)="changeQuantity(-1, cartItem)" *ngIf="cartItem.quantity > 1">
-                                    <svg fill="none" viewBox="0 0 24 24" height="14" width="14"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5"
-                                            stroke="rgb(255, 102, 0)" d="M20 12L4 12"></path>
-                                    </svg>
-                                </button>
-                                <button *ngIf="cartItem.quantity === 1" (click)="removeCartItem(cartItem.cartItemId)">
-                                    <svg fill="none" viewBox="0 0 24 24" height="17" width="17"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path fill-rule="evenodd" clip-rule="evenodd"
-                                            d="M3 6V8H5V18C5 19.1046 5.89543 20 7 20H17C18.1046 20 19 19.1046 19 18V8H21V6H3ZM7 8H17V18H7V8ZM9 10H11V16H9V10ZM13 10H15V16H13V10ZM8 4V2H16V4H8Z"
-                                            fill="currentColor" />
-                                    </svg>
-                                </button>
-                                <label>{{ cartItem.quantity }}</label>
-                                <button (click)="changeQuantity(1, cartItem)">
-                                    <svg fill="none" viewBox="0 0 24 24" height="14" width="14"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5"
-                                            stroke="rgb(255, 102, 0)" d="M12 4V20M20 12H4"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="quantityPrice" style="font-size: 16px;">{{cartItem.quantityPrice}} TL</div>
-                            <button id="removeItemButton" (click)="removeCartItem(cartItem.cartItemId)">
+                    </div>
+                    <div class="cart-item-quantity">
+                        <div class="quantity-controls">
+                            <button (click)="changeQuantity(-1, cartItem)" *ngIf="cartItem.quantity > 1">
+                                <svg fill="none" viewBox="0 0 24 24" height="14" width="14"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#fff"
+                                        d="M20 12L4 12"></path>
+                                </svg>
+                            </button>
+                            <button class="quantity-remove-item" *ngIf="cartItem.quantity === 1" (click)="removeCartItem(cartItem.cartItemId)">
                                 <svg fill="none" viewBox="0 0 24 24" height="17" width="17"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <path fill-rule="evenodd" clip-rule="evenodd"
@@ -82,55 +50,33 @@
                                         fill="currentColor" />
                                 </svg>
                             </button>
+                            <input type="number" min="1" step="1" [value]="cartItem.quantity" (input)="onQuantityInput($event, cartItem)" />
+                            <!-- <label>{{ cartItem.quantity }}</label> -->
+                            <button (click)="changeQuantity(1, cartItem)">
+                                <svg fill="none" viewBox="0 0 24 24" height="14" width="14"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#fff"
+                                        d="M12 4V20M20 12H4"></path>
+                                </svg>
+                            </button>
                         </div>
+                        <p class="item-price">{{ cartItem.quantityPrice | currency: 'TRY' }}</p>
+                    </div>
+                    <div class="cart-item-actions">
+                        <button (click)="removeCartItem(cartItem.cartItemId)" class="remove-item">Ürünü Kaldır</button>
                     </div>
                 </div>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="exitmodal" data-bs-dismiss="modal">Alışverişe devam et</button>
             </div>
         </div>
 
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-md-2">
-        <div class="modal-content" id="cartPriceModal" [ngClass]="{ 'active': isCartPriceModalActive }"
-            style="width: 230px; overflow-y: auto; ">
-
-            <div class="modal-header" id="selectedItemCount">
-                <ng-container *ngIf="selectedItemCount > 0">
-                    <p class="modal-title">SEÇİLEN ÜRÜNLER ({{ selectedItemCount }})</p>
-                </ng-container>
-                <ng-container *ngIf="selectedItemCount === 0">
-
-                    <ng-container *ngIf="cartIsEmptyMessage === 'Sepetiniz boş'">
-                        <h5 class="modal-title">{{ cartIsEmptyMessage }}</h5>
-                    </ng-container>
-                    <ng-container *ngIf="cartIsEmptyMessage === 'Seçili ürün bulunmamaktadır.'">
-                        <p class="modal-title">{{ cartIsEmptyMessage }}</p>
-                    </ng-container>
-                </ng-container>
-            </div>
-            <div class="modal-body" id="totalSelectedCartPrice">
-                <p>{{ totalSelectedCartPrice }} TL</p>
-            </div>
-            <div class="modal-footer" id="totalItemCount">
-                <ng-container *ngIf="totalItemCount >=1">
-                    <p class="modal-title" id="totalItemCountText">* Sepetinizdeki Ürün Sayısı ({{ totalItemCount }})</p>
-                </ng-container>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="continueButton" (click)="shoppingCompleting()" >Alışverişi tamamla</button>
+        <!-- CartPriceModal Section - Sticky Modal -->
+        <div class="cart-summary-wrapper">
+            <div id="cartPriceModal" class="cart-summary">
+                <p style="color: #e53935;">Toplam Seçili Ürün Sayısı: {{ selectedItemCount }}</p>
+                <p id="totalSelectedCartPrice">Toplam Fiyat: {{ totalSelectedCartPrice | currency: 'TRY' }}</p>
+                <button id="continueButton" (click)="shoppingCompleting()" class="complete-order-button">Alışverişi
+                    Tamamla</button>
             </div>
         </div>
-
     </div>
 </div>
-
-<script src="./src/bootstrap-input-spinner.js"></script>
-<script>
-    $("input[type='number']").inputSpinner()
-</script>

@@ -95,5 +95,16 @@ export class UserService {
     return (await promiseData).userRoles;
   }
 
+  async isAdmin(): Promise<boolean> {
+    const observable: Observable<boolean> = this.httpClientService.get<boolean>({
+      controller: 'users',
+      action: 'is-admin'
+    });
+    const result = await firstValueFrom(observable);
+    return result
+
+    
+  }
+
 
 }

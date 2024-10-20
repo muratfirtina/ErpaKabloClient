@@ -1,7 +1,9 @@
+import { ProductFeatureValue } from "../product/productDtos/productFeatureValue";
 import { ProductImageFile } from "../product/productImageFile";
 
 export class CartItem {
     cartItemId: string;
+    brandName: string;
     productName: string;
     unitPrice: number;
     quantity: number;
@@ -10,4 +12,6 @@ export class CartItem {
     quantityPrice: number;
     showCase: boolean;
     isChecked: boolean;
+    title: string;
+    productFeatureValues: ProductFeatureValue[];
 }

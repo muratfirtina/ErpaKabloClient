@@ -2,36 +2,29 @@ import { Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Category } from 'src/app/contracts/category/category';
-import { DynamicLoadComponentDirective } from 'src/app/directives/dynamic-load-component.directive';
-import { GetListResponse } from 'src/app/contracts/getListResponse';
-import { CartItem } from 'src/app/contracts/cart/cartItem';
 import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { ComponentName, DynamicloadcomponentService } from 'src/app/services/common/dynamicloadcomponent.service';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { NavbarComponent } from '../navbar/navbar.component';
 import { UserService } from 'src/app/services/common/models/user.service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { CartComponent } from '../cart/cart.component';
-
+import { DynamicLoadComponentDirective } from 'src/app/directives/dynamic-load-component.directive';
 
 @Component({
   selector: 'app-main-header',
   standalone: true,
-  imports: [CommonModule, RouterModule,FormsModule,NgxSpinnerModule, CartComponent ,DynamicLoadComponentDirective],
+  imports: [CommonModule, RouterModule, FormsModule, NgxSpinnerModule, CartComponent, DynamicLoadComponentDirective],
   templateUrl: './main-header.component.html',
-  styleUrls: ['./main-header.component.scss','../../../../styles.scss']
+  styleUrls: ['./main-header.component.scss', '../../../../styles.scss']
 })
 export class MainHeaderComponent implements OnInit {
   @ViewChild(DynamicLoadComponentDirective, { static: true })
   dynamicLoadComponentDirective: DynamicLoadComponentDirective;
 
-  cartItems: CartItem[]
-  cartItemsObservable: Observable<CartItem[]> // Observable'ı tanımla
-
+  cartItems: any[] = [];
   isDropdownOverlayActive: boolean = false;
 
   constructor(
@@ -40,32 +33,25 @@ export class MainHeaderComponent implements OnInit {
     private router: Router,
     private dynamicLoadComponentService: DynamicloadcomponentService,
     private cartService: CartService,
-    private userService: UserService,
     private route: ActivatedRoute,
-    private jwtHelper: JwtHelperService
-    ) {
-    authService.identityCheck();
-    this.cartItemsObservable = cartService.getCartItemsObservable();
-  }
+  ) {}
+
   async ngOnInit() {
+    // `identityCheck` çağrısının tamamlanmasını bekle
     await this.authService.identityCheck();
-    console.log(this.authService.isAdmin);
     if (this.authService.isAuthenticated) {
-      await this.getCartItems();
+      await this.getCartItems(); // Kullanıcı giriş yaptıysa sepetteki ürünleri al
       this.loadComponent();
     }
-    this.cartItemsObservable.subscribe(cartItems => {
-      this.cartItems = cartItems; // Yeni sepet öğelerini güncelle
-    });
   }
-  
+
   async getCartItems() {
-    this.cartItems = await this.cartService.get();
+    this.cartItems = await this.cartService.get(); // Sepet öğelerini al
   }
-  
+
   signOut() {
     localStorage.removeItem("accessToken");
-    this.authService.identityCheck();
+    this.authService.identityCheck(); // Oturumu kapattıktan sonra kimlik doğrulamasını yeniden kontrol et
     this.router.navigate([""]).then(() => {
       location.reload();
     });
@@ -76,15 +62,13 @@ export class MainHeaderComponent implements OnInit {
   }
 
   navigateToLogin() {
-    // Mevcut URL'yi al
-    const currentUrl = this.router.url;
-    
-    // Login sayfasına yönlendir ve mevcut URL'yi returnUrl olarak ekle
-    this.router.navigate(['/login'], { 
+    const currentUrl = this.router.url; // Mevcut URL'yi al
+    this.router.navigate(['/login'], {
       queryParams: { returnUrl: currentUrl },
       relativeTo: this.route
     });
   }
+
   navigateToRegister() {
     const currentUrl = this.router.url;
     this.router.navigate(['/register'], {
@@ -92,7 +76,7 @@ export class MainHeaderComponent implements OnInit {
       relativeTo: this.route
     });
   }
-  
+
   navigateToAdmin() {
     this.router.navigate(['/admin']);
   }
@@ -112,5 +96,4 @@ export class MainHeaderComponent implements OnInit {
   closeDropdown() {
     this.isDropdownOverlayActive = false;
   }
-  
 }
