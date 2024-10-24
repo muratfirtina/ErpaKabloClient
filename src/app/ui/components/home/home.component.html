@@ -37,9 +37,9 @@
 <!-- Categories Section -->
 
 
-<section class="categories">
+<section class="categories" *ngIf="isMobile">
   <div class="category-place" *ngIf="isMobile">KATEGORİLER</div>
-  <h2 class="category-header">KATEGORİLER</h2>
+  <h2 class="category-header"*ngIf="!isMobile">KATEGORİLER</h2>
   <div class="container">
     <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile">
       <!-- Sol ok ikonu -->

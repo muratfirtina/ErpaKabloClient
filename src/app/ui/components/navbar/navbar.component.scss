@@ -7,15 +7,15 @@
   font-size: 14px;
   position: static;
   z-index: 1000;
-  max-width: 1320px;
   margin: auto;
 
   .top-bar {
     background-color: #003366;
+    padding: 0 0 0 275px;
     color: white;
     display: flex;
     align-items: center;
-    padding-right: 20px;
+    //padding-right: 20px;
     height: 64px;
 
     .all-products-dropdown {
@@ -220,11 +220,9 @@
   }
 
   .dropdown-overlay {
-    position: fixed; // absolute yerine fixed kullanıyoruz
-    top: 184px;
-    left: 0;
-    right: 0;
-    bottom: 0; // Ekranın altına kadar uzansın
+    position: relative;
+    padding-left: 290px;
+    padding-right: 290px;
     z-index: 999;
     background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
@@ -239,7 +237,7 @@
     .main-content {
       display: flex;
       background-color: white;
-      max-height: 600px;
+      max-height:fit-content;
       overflow-y: auto;
 
       .categories-list {
@@ -275,7 +273,7 @@
       .subcategories {
         background-color: #ebebeb;
         padding-right: 20px;
-        min-width: 380px;
+        min-width: 340px;
 
         .subcategory-header {
           display: flex;
@@ -286,7 +284,7 @@
 
           h3 {
             margin: 0;
-            font-size: 1.1rem;
+            font-size: 15px;
             font-weight: bold;
             position: relative;
             left: 20px;

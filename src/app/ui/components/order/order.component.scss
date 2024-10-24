@@ -97,27 +97,56 @@ app-breadcrumb {
       margin-bottom: 15px;
       border-radius: 8px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-
+    
       .order-summary {
         display: flex;
         align-items: center;
         justify-content: space-between;
         cursor: pointer;
-
-        img {
-          width: 80px;
-          height: 80px;
-          object-fit: cover;
-          margin-right: 15px;
+      
+        .order-images {
+          display: flex;
+          gap: 5px;
+      
+          .order-item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border: 1px solid #c6c6c6;
+            border-radius: 5px;
+          }
         }
-
+      
         .order-info {
           flex-grow: 1;
           p {
             margin: 0;
           }
+      
+          .order-status {
+            display: flex;
+            align-items: center;
+      
+            .status-icon {
+              margin-right: 5px;
+              display: inline-flex;
+              align-items: center;
+            }
+      
+            .completed {
+              color: green;
+            }
+      
+            .cancelled {
+              color: red;
+            }
+      
+            .pending {
+              color: orange;
+            }
+          }
         }
-
+      
         .expand-button {
           background: transparent;
           border: none;
@@ -129,22 +158,22 @@ app-breadcrumb {
           }
         }
       }
-
+    
       .order-details {
         margin-top: 20px;
-
+    
         .order-item {
           display: flex;
           align-items: center;
           margin-bottom: 15px;
-
+    
           img {
             width: 60px;
             height: 60px;
             margin-right: 15px;
             object-fit: cover;
           }
-
+    
           p {
             margin: 0;
           }
