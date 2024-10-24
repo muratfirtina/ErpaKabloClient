@@ -106,5 +106,14 @@ export class UserService {
     
   }
 
+  async getCurrentUser(){
+    const observable: Observable<UserDto> = this.httpClientService.get<UserDto>({
+      controller: 'users',
+      action: 'current-user'
+    });
+
+    return await firstValueFrom(observable);
+  }
+
 
 }

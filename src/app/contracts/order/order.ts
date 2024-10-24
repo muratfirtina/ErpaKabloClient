@@ -13,4 +13,5 @@ export interface Order{
     phoneNumber: string;
     description: string;
     orderItems: OrderItem[];
+    expanded?: boolean;
 }

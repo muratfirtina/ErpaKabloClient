@@ -13,6 +13,14 @@ export class AuthService {
     private userService: UserService
   ) { }
 
+  getUserNameSurname(): string | null {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return null;
+
+    const decodedToken = this.jwtHelper.decodeToken(token);
+    return decodedToken ? decodedToken['NameSurname'] : null;  // NameSurname'i token'dan alıyoruz
+  }
+
   async identityCheck(): Promise<void> {
     const token: string | null = localStorage.getItem("accessToken");
 

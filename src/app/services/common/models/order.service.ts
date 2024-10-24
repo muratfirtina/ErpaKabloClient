@@ -11,6 +11,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { CreateOrder } from 'src/app/contracts/order/createOrder';
 import { Order } from 'src/app/contracts/order/order';
 import { OrderItem } from 'src/app/contracts/order/orderItem';
+import { OrderStatus } from 'src/app/contracts/order/orderStatus';
 
 @Injectable({
   providedIn: 'root'
@@ -135,4 +136,16 @@ export class OrderService {
 
     await promiseData;
   }
+  async getOrdersByUser(pageRequest:PageRequest,searchTerm: string, dateRange :string, orderStatus:OrderStatus, successCallback: (data: any) => void, errorCallback: (error: any) => void): Promise<GetListResponse<Order>>{
+    const observable : Observable<GetListResponse<Order>> = this.httpClientService.get<GetListResponse<Order>>({
+      controller: "orders",
+      action: "user-orders",
+      queryString: `orderStatus=${orderStatus}&dateRange=${dateRange}&searchTerm=${searchTerm}&pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+    });
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
 }
+

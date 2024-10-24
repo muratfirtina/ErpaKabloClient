@@ -1,0 +1,84 @@
+$home-primary-color: #003366;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #fff;
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #00a046;
+$link-color: #0000ee;
+$border-color: #e0e0e0;
+
+.sidebar {
+    width: 245px;
+    height: 100vh; /* Yüksekliği ekranın tamamını kaplar */
+    padding: 20px;
+
+    .side-bar-menu{
+
+      margin-top: 30px;
+      a{
+        position: relative;
+        color: $text-color;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+        font-style: normal;
+        font-stretch: normal;
+        line-height: 2.29;
+        display: flex;
+        align-items: baseline;
+        padding: 5px 0;
+        transition: color 0.3s;
+        cursor: pointer;
+        &:hover {
+          color: #ff0000;
+        }
+
+        p{
+          margin-left: 1rem;
+        }
+      }
+    }
+
+    .account-info {
+      display: flex;
+      align-items: baseline;
+
+      p{
+        margin-left: 1rem;
+        font-size: 18px;
+        font-weight: 500;
+        color: $text-color;
+      }
+    }
+  
+    ul {
+      list-style-type: none;
+      padding: 0;
+  
+      li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        color: $text-color;
+        transition: color 0.3s;
+  
+        &:hover {
+          color: #ff0000;
+        }
+  
+        i {
+          margin-right: 10px;
+          font-size: 20px;
+        }
+      }
+    }
+  }

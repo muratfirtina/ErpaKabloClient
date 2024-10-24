@@ -1,77 +1,58 @@
 <header class="main-header">
-    <div class="container">
-      <div class="header-content">
-            <div class="logo">
-              <img src="assets/homecard/4.png" alt="tutrat Logo" class="logo-image">
-              <div class="logo-text">
-                <!-- <span class="in" translate="no">in</span> -->
-                <span class="logo-subtext" translate="yes">For All Industrial Products</span>
-              </div>
-            </div>
-        <nav class="main-nav">
-          <ul class="nav-list">
-            <!-- Diğer nav itemler -->
-            <li *ngIf="authService.isAuthenticated">
-              <a routerLink="orders" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Siparişler</span>
-              </a>
-            </li>
-
-            <li>
-              <a class="nav-link" id="cartbutton" aria-current="page" data-bs-toggle="modal" type="button"
-                  data-bs-target="#cartModal" *ngIf="authService.isAuthenticated" (click)="loadComponent()">
-                  <span class="position-absolute translate-middle badge rounded-pill bg-danger">{{
-                      cartItems?.length || 0 }}</span>
-                  <svg id="cartsvg" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                      class="bi bi-cart4" viewBox="0 0 16 16">
-                      <path
-                          d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l.5 2H5V5H3.14zM6 5v2h2V5H6zm3 0v2h2V5H9zm3 0v2h1.36l.5-2H12zm1.11 3H12v2h.61l.5-2zM11 8H9v2h2V8zM8 8H6v2h2V8zM5 8H3.89l.5 2H5V8zm0 5a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z" />
-                  </svg>
-                  <span class="icon-text">Sepetiniz</span>
-
-              </a>
-          </li>
-            
-            <!-- Admin Butonu: Sadece Admin kullanıcılara gözüküyor -->
-            <li *ngIf="authService.isAuthenticated && authService.isAdmin">
-              <a (click)="navigateToAdmin()" class="nav-link">
-                <i class="fas fa-cog"></i>
-                <span>Admin</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-
-        
-  
-        <div class="user-actions">
-          <ng-container *ngIf="authService.isAuthenticated; else authButtons">
-            <button class="btn btn-cart" (click)="loadComponent()" data-bs-toggle="modal" data-bs-target="#cartModal" [attr.data-count]="cartItems?.length || 0">
-              <i class="fas fa-shopping-cart"></i>
-              <span class="btn-text">Sepet</span>
-            </button>
-            <button class="btn btn-signout" (click)="signOut()">
-              <i class="fas fa-sign-out-alt"></i>
-              <span class="btn-text">Çıkış</span>
-            </button>
-          </ng-container>
-          <ng-template #authButtons>
-            <div class="auth-buttons">
-              <a (click)="navigateToLogin()" class="btn btn-login">
-                <i class="fas fa-user-check"></i>
-                <span class="btn-text">Giriş</span>
-              </a>
-              <a (click)="navigateToRegister()" class="btn btn-register">
-                <i class="fas fa-user-plus"></i>
-                <span class="btn-text">Kayıt Ol</span>
-              </a>
-            </div>
-          </ng-template>
+  <div class="container">
+    <div class="header-content">
+      <div class="logo">
+        <img src="assets/homecard/4.png" alt="tutrat Logo" class="logo-image">
+        <div class="logo-text">
+          <span class="logo-subtext" translate="yes">For All Industrial Products</span>
         </div>
       </div>
+
+      <div class="user-actions">
+        <ng-container *ngIf="authService.isAuthenticated; else authButtons">
+          <!-- My Account Dropdown -->
+          <div class="dropdown">
+            <button #accountButton class="btn btn-account" (click)="toggleDropdown()">
+              <i class="fas fa-user"></i> My Account <i class="fas fa-caret-down"></i>
+            </button>
+            <ul [class.show]="isDropdownVisible" class="dropdown-menu">
+              <li><a class="dropdown-item" routerLink="/order"><i class="fas fa-box"></i> My Orders</a></li>
+              <li><a class="dropdown-item" routerLink="/profile"><i class="fas fa-user-circle"></i> User Info</a></li>
+              <li><a class="dropdown-item" routerLink="/favorites"><i class="fas fa-heart"></i> My Favorites</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" (click)="signOut()"><i class="fas fa-sign-out-alt"></i> Exit</a></li>
+            </ul>
+          </div>
+
+          <button class="btn btn-cart" (click)="loadComponent()" data-bs-toggle="modal" data-bs-target="#cartModal" [attr.data-count]="cartItems?.length || 0">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="btn-text">Basket</span>
+          </button>
+
+          <button *ngIf="authService.isAuthenticated && authService.isAdmin" class="btn btn-admin">
+            <a (click)="navigateToAdmin()" class="nav-link">
+              <i class="fas fa-cog"></i>
+              <span>Admin</span>
+            </a>
+          </button>
+        </ng-container>
+
+        <ng-template #authButtons>
+          <div class="auth-buttons">
+            <a (click)="navigateToLogin()" class="btn btn-login">
+              <i class="fas fa-user-check"></i>
+              <span class="btn-text">Sign In</span>
+            </a>
+            <a (click)="navigateToRegister()" class="btn btn-register">
+              <i class="fas fa-user-plus"></i>
+              <span class="btn-text">Register</span>
+            </a>
+          </div>
+        </ng-template>
+      </div>
     </div>
-  </header>
+  </div>
+</header>
   
   <!-- Modal for cart -->
   <div class="modal-wrapper">

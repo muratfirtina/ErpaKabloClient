@@ -1,1 +1,68 @@
-<p>order works!</p>
+<app-main-header></app-main-header>
+<app-navbar></app-navbar>
+<app-breadcrumb></app-breadcrumb>
+<div class="container">
+<app-user-sidebar></app-user-sidebar>
+<div class="orders-page">
+  <div class="orders-navigation">
+    <input 
+      type="text" 
+      placeholder="Sipariş Ara..." 
+      [(ngModel)]="searchQuery" 
+      (input)="searchOrders()" 
+    />
+
+    <div class="order-filters">
+      <button (click)="filterByStatus(OrderStatus.All)" [ngClass]="{'active': statusFilter === OrderStatus.All}">Tüm Siparişler</button>
+      <button (click)="filterByStatus(OrderStatus.Pending)" [ngClass]="{'active': statusFilter === OrderStatus.Pending}">Devam Edenler</button>
+      <button (click)="filterByStatus(OrderStatus.Cancelled)" [ngClass]="{'active': statusFilter === OrderStatus.Cancelled}">İptaller</button>
+      <button (click)="filterByStatus(OrderStatus.Refunded)" [ngClass]="{'active': statusFilter === OrderStatus.Refunded}">İadeler</button>
+      
+      <!-- Tarih aralığı seçimi -->
+      <select (change)="filterByDateRange($event)">
+        <option value="all">Tüm Siparişler</option>
+        <option value="30">Son 30 gün</option>
+        <option value="180">Son 6 ay</option>
+        <option value="365">Son 1 yıl</option>
+        <option value="older1">1 yıl önce</option>
+        <option value="older2">2 yıl önce</option>
+        <option value="older3">3 yıl önce</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Sipariş listesi -->
+  <div *ngFor="let order of orders" class="order-card">
+    <div class="order-summary" (click)="toggleOrderDetails(order)">
+      <img [src]="order.orderItems[0]?.showcaseImage?.url" alt="Product Image" />
+      <div class="order-info">
+        <p>Sipariş No: {{ order.orderCode }}</p>
+        <p>Durum: {{ order.status }}</p>
+        <p>Tarih: {{ order.orderDate | date }}</p>
+        <p>Toplam Fiyat: {{ order.totalPrice | currency:'TRY' }}</p>
+      </div>
+      <button class="expand-button" [class.expanded]="order.expanded">↓</button>
+    </div>
+
+    <!-- Detaylar -->
+    <div *ngIf="order.expanded" class="order-details">
+      <div *ngFor="let item of order.orderItems" class="order-item">
+        <img [src]="item.showcaseImage?.url" alt="{{ item.productName }}" />
+        <div>
+          <p>{{ item.productName }} - {{ item.title }}</p>
+          <p>Marka: {{ item.brandName }}</p>
+          <p>Adet: {{ item.quantity }}</p>
+          <p>Fiyat: {{ item.price | currency:'TRY' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sayfalama -->
+  <mat-paginator [length]="totalItems"
+                 [pageSize]="pageRequest.pageSize"
+                 [pageSizeOptions]="[5, 10, 25, 100]"
+                 (page)="onPageChange($event)">
+  </mat-paginator>
+</div>
+</div>

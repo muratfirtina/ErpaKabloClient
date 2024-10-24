@@ -55,5 +55,6 @@ export const routes: Routes = [
        {path: "category/:id",loadComponent:()=>import('./ui/components/category/category.component').then(m=>m.CategoryComponent)},
        {path: "brand/:id",loadComponent:()=>import('./ui/components/brand/brand.component').then(m=>m.BrandComponent)},
        {path: "unauthorized",loadComponent:()=>import('./ui/components/unauthorized/unauthorized.component').then(m=>m.UnauthorizedComponent)},
+       {path: "order",loadComponent:()=>import('./ui/components/order/order.component').then(m=>m.OrderComponent)},
 
 ];
