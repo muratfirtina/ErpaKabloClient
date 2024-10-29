@@ -1,16 +1,16 @@
-<div class="navbar-container">
+<!-- <div class="navbar-container">
   <nav class="industrial-navbar">
   <div class="row">
     <div class="top-bar">
       <div class="all-products-dropdown">
         <button class="dropdown-toggle" (click)="toggleAllProducts()">
-          Tüm Ürünler
+          All Products
           <span class="dropdown-arrow" [class.open]="isAllProductsOpen"></span>
         </button>
       </div>
       <div class="search-bar">
         <form [formGroup]="searchForm" (click)="onSearchSubmit($event)">
-          <input type="text" formControlName="searchTerm" placeholder="Ürün, kategori veya marka ara..."
+          <input type="text" formControlName="searchTerm" placeholder="Search for products, categories or brands"
             (focus)="onSearchFocus()" (blur)="onSearchBlur()">
           <button class="search-button">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
@@ -23,8 +23,8 @@
         <div class="search-dropdown" *ngIf="isSearchFocused">
           <div class="recent-searches" *ngIf="recentSearches.length > 0">
             <div class="recent-searches-header">
-              <h4>Son Aramalar</h4>
-              <span class="clear-history" (click)="clearSearchHistory()">Arama Geçmişini Temizle</span>
+              <h4>Recent Searches</h4>
+              <span class="clear-history" (click)="clearSearchHistory()">Clear Search History</span>
             </div>
             <ul>
               <li *ngFor="let search of recentSearches" (click)="searchForm.get('searchTerm').setValue(search)">{{ search }}</li>
@@ -87,7 +87,7 @@
       <div class="subcategories" *ngIf="!showOnlyMainCategories">
         <div class="subcategory-header" *ngIf="selectedCategory">
           <h3>{{ selectedCategory.name }}</h3>
-          <a href="#" class="view-all">Hepsini Gör →</a>
+          <a href="#" class="view-all">Show All →</a>
         </div>
         <ul class="subcategory-list" *ngIf="selectedCategory">
           <li *ngFor="let subCategory of selectedCategory.subcategories" (click)="navigateToCategory(subCategory.id)">
@@ -102,8 +102,8 @@
       </div>
       <div class="recommended-products" *ngIf="!showOnlyMainCategories && selectedCategory && recommendedProducts?.items?.length > 0">
         <div class="recommended-header">
-          <h3>Tavsiye Edilenler {{ selectedCategory.name }}</h3>
-          <a href="#" class="view-all">Hepsini Gör →</a>
+          <h3>Recommended {{ selectedCategory.name }}</h3>
+          <a href="#" class="view-all">Show All →</a>
         </div>
         <div class="product-grid">
           <div class="product-item" *ngFor="let product of recommendedProducts.items" (click)="navigateToSearchResult('product',product.id)">
@@ -126,4 +126,177 @@
   </div>
   </div>
 </nav>
+</div> -->
+
+<div class="navbar-container">
+  <nav class="industrial-navbar">
+    <div class="row">
+      <div class="top-bar">
+        <!-- Hamburger Menu (Mobile) -->
+        <button class="hamburger-menu" (click)="toggleMobileMenu()" [class.open]="isMobileMenuOpen"
+          aria-label="Toggle menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <!-- All Products Dropdown (Desktop) -->
+        <div class="all-products-dropdown">
+          <button class="dropdown-toggle" (click)="toggleAllProducts()">
+            All Products
+            <span class="dropdown-arrow" [class.open]="isAllProductsOpen"></span>
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+          <form [formGroup]="searchForm" (click)="onSearchSubmit($event)">
+            <input type="text" formControlName="searchTerm" placeholder="Search for products, categories or brands"
+              (focus)="onSearchFocus()" (blur)="onSearchBlur()">
+            <button class="search-button">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search"
+                viewBox="0 0 16 16">
+                <path
+                  d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+              </svg>
+            </button>
+          </form>
+          <div class="search-dropdown" *ngIf="isSearchFocused">
+            <div class="recent-searches" *ngIf="recentSearches.length > 0">
+              <div class="recent-searches-header">
+                <h4>Recent Searches</h4>
+                <span class="clear-history" (click)="clearSearchHistory()">Clear Search History</span>
+              </div>
+              <ul>
+                <li *ngFor="let search of recentSearches" (click)="searchForm.get('searchTerm').setValue(search)">{{
+                  search }}</li>
+              </ul>
+            </div>
+            <div class="search-results">
+              <div class="products" *ngIf="searchResults.products.length > 0">
+                <h4>Ürünler</h4>
+                <ul>
+                  <li *ngFor="let product of searchResults.products" (click)="onProductClick(product)">
+                    <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name"
+                      class="product-thumbnail">
+                    <div class="product-info">
+                      <span class="product-name">{{ product.name }}</span>
+                      <span class="product-features">
+                        <ng-container *ngFor="let feature of product.productFeatureValues; let last = last">
+                          {{ feature.featureValueName }}{{ !last ? ', ' : '' }}
+                        </ng-container>
+                      </span>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+              <div class="categories" *ngIf="searchResults.categories.length > 0">
+                <h4>Kategoriler</h4>
+                <ul>
+                  <li *ngFor="let category of searchResults.categories"
+                    (click)="navigateToSearchResult('category', category.id)">
+                    <img [src]="category.categoryImage?.url || 'assets/default-category-image.png'"
+                      [alt]="category.name" class="category-thumbnail">
+                    <span>{{ category.name }}</span>
+                  </li>
+                </ul>
+              </div>
+              <div class="brands" *ngIf="searchResults.brands.length > 0">
+                <h4>Markalar</h4>
+                <ul>
+                  <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult('brand', brand.id)">
+                    <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" [alt]="brand.name"
+                      class="brand-thumbnail">
+                    <span>{{ brand.name }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-menu-overlay" [class.open]="isMobileMenuOpen" (click)="closeMobileMenu()">
+    </div>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" [class.open]="isMobileMenuOpen">
+      <div class="mobile-menu-header">
+        <h3>Kategoriler</h3>
+        <button class="close-menu" (click)="closeMobileMenu()" aria-label="Close menu">
+          ×
+        </button>
+      </div>
+      <ul class="mobile-categories">
+        <li *ngFor="let category of topLevelCategories">
+          <a (click)="navigateToCategory(category.id)">
+            <span class="category-name">{{ category.name }}</span>
+            <span class="arrow">›</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+
+    <!-- Desktop Dropdown Overlay remains the same -->
+    <div class="dropdown-overlay" [class.open]="isAllProductsOpen" (click)="closeDropdownIfClickedOutside($event)">
+      <div class="main-content" (click)="$event.stopPropagation()">
+        <div class="categories-list">
+          <ul>
+            <li *ngFor="let category of topLevelCategories"
+              (mouseenter)="!showOnlyMainCategories && selectCategory(category)"
+              (click)="navigateToCategory(category.id)" [class.active]="category === selectedCategory">
+              {{ category.name }}
+            </li>
+          </ul>
+        </div>
+        <div class="subcategories" *ngIf="!showOnlyMainCategories">
+          <div class="subcategory-header" *ngIf="selectedCategory">
+            <h3>{{ selectedCategory.name }}</h3>
+            <a href="#" class="view-all">Show All →</a>
+          </div>
+          <ul class="subcategory-list" *ngIf="selectedCategory">
+            <li *ngFor="let subCategory of selectedCategory.subcategories" (click)="navigateToCategory(subCategory.id)">
+              {{ subCategory.name }}
+              <ul class="nested-subcategories"
+                *ngIf="subCategory.subcategories && subCategory.subcategories.length > 0">
+                <li *ngFor="let nestedSubCategory of subCategory.subcategories"
+                  (click)="navigateToCategory(nestedSubCategory.id); $event.stopPropagation()">
+                  {{ nestedSubCategory.name }}
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        <div class="recommended-products"
+          *ngIf="!showOnlyMainCategories && selectedCategory && recommendedProducts?.items?.length > 0">
+          <div class="recommended-header">
+            <h3>Recommended {{ selectedCategory.name }}</h3>
+            <a href="#" class="view-all">Show All →</a>
+          </div>
+          <div class="product-grid">
+            <div class="product-item" *ngFor="let product of recommendedProducts.items"
+              (click)="navigateToSearchResult('product',product.id)">
+              <img [src]="product?.showcaseImage?.url" [alt]="product.name">
+              
+              <div class="product-info">
+                <div class="product-header">
+                  <p class="brand-name">{{ product.brandName}}</p>
+                  <p class="product-name">{{ product.name }}</p>
+                </div>
+                <p>{{ product.title }}</p>
+                <p class="stock-status" [class.in-stock]="product.stock > 0">
+                  {{ product.stock > 0 ? 'In stock' : 'Out of stock' }}
+                </p>
+                <p class="price">₺{{ product.price }} <span>each</span></p>
+                <a href="#" class="sign-in">Sign in for your price</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-1"></div>
+    </div>
+  </nav>
 </div>

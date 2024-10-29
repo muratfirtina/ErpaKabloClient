@@ -1,82 +1,106 @@
-<div class="modal-wrapper">
-    <div class="modal-content">
-        <div class="cart-container">
-            <div class="cart-header">
-                <h1>Sepetiniz ({{ totalItemCount }} ürün)</h1>
-            </div>
-            <div class="cart-body">
-                <ng-container *ngIf="totalItemCount === 0">
-                    <h2 class="empty-cart-message">Sepetiniz boş</h2>
-                </ng-container>
+<div class="cart-drawer" [class.open]="isOpen">
+  <div class="cart-header">
+    <h2>Cart ({{ totalItemCount }} product)</h2>
+    <button class="close-button" (click)="close()">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
 
-                <ng-container *ngIf="selectedItemCount === 0 && totalItemCount > 0">
-                    <p class="empty-selection-message">{{ cartIsEmptyMessage }}</p>
-                </ng-container>
+  <div class="cart-body">
+    <ng-container *ngIf="totalItemCount === 0">
+      <div class="text-center py-5">
+        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+        <p class="h6 text-muted">Cart is empty</p>
+      </div>
+    </ng-container>
 
-                <div *ngFor="let cartItem of cartItems" class="cart-item">
-                    <div id="form-check-column">
-                        <input class="form-check-input" type="checkbox" [checked]="cartItem.isChecked"
-                            (change)="toggleItemChecked($event, cartItem)" />
-                    </div>
-                    <div class="cart-item-image">
-                        <img [src]="cartItem.showcaseImage?.url || 'assets/default_product.png'"
-                            alt="{{ cartItem.productName }}" />
-                    </div>
-                    <div class="cart-item-info">
-                        <div class="name">
-                            <h3 class="brand">{{ cartItem.brandName }}</h3>
-                            <h3>{{ cartItem.productName }}</h3>
-                        </div>
-                        <div class="product-features">
-                            <ng-container *ngFor="let feature of cartItem.productFeatureValues">
-                                <p>{{ feature.featureName }}: {{ feature.featureValueName }}</p>
-                            </ng-container>
-                        </div>
-                    </div>
-                    <div class="cart-item-quantity">
-                        <div class="quantity-controls">
-                            <button (click)="changeQuantity(-1, cartItem)" *ngIf="cartItem.quantity > 1">
-                                <svg fill="none" viewBox="0 0 24 24" height="14" width="14"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#fff"
-                                        d="M20 12L4 12"></path>
-                                </svg>
-                            </button>
-                            <button class="quantity-remove-item" *ngIf="cartItem.quantity === 1" (click)="removeCartItem(cartItem.cartItemId)">
-                                <svg fill="none" viewBox="0 0 24 24" height="17" width="17"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M3 6V8H5V18C5 19.1046 5.89543 20 7 20H17C18.1046 20 19 19.1046 19 18V8H21V6H3ZM7 8H17V18H7V8ZM9 10H11V16H9V10ZM13 10H15V16H13V10ZM8 4V2H16V4H8Z"
-                                        fill="currentColor" />
-                                </svg>
-                            </button>
-                            <input type="number" min="1" step="1" [value]="cartItem.quantity" (input)="onQuantityInput($event, cartItem)" />
-                            <!-- <label>{{ cartItem.quantity }}</label> -->
-                            <button (click)="changeQuantity(1, cartItem)">
-                                <svg fill="none" viewBox="0 0 24 24" height="14" width="14"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#fff"
-                                        d="M12 4V20M20 12H4"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <p class="item-price">{{ cartItem.quantityPrice | currency: 'TRY' }}</p>
-                    </div>
-                    <div class="cart-item-actions">
-                        <button (click)="removeCartItem(cartItem.cartItemId)" class="remove-item">Ürünü Kaldır</button>
-                    </div>
-                </div>
-            </div>
+    <ng-container *ngIf="selectedItemCount === 0 && totalItemCount > 0">
+      <div class="alert alert-warning text-center">
+        {{ cartIsEmptyMessage }}
+      </div>
+    </ng-container>
+
+    <div *ngFor="let cartItem of cartItems" class="cart-item">
+      <div class="cart-item-select">
+        <input type="checkbox" 
+               class="form-check-input" 
+               [checked]="cartItem.isChecked"
+               (change)="toggleItemChecked($event, cartItem)" />
+      </div>
+
+      <div class="cart-item-main">
+        <div class="cart-item-image">
+          <img [src]="cartItem.showcaseImage?.url || 'assets/default_product.png'" 
+               [alt]="cartItem.productName">
         </div>
 
-        <!-- CartPriceModal Section - Sticky Modal -->
-        <div class="cart-summary-wrapper">
-            <div id="cartPriceModal" class="cart-summary">
-                <p style="color: #e53935;">Toplam Seçili Ürün Sayısı: {{ selectedItemCount }}</p>
-                <p id="totalSelectedCartPrice">Toplam Fiyat: {{ totalSelectedCartPrice | currency: 'TRY' }}</p>
-                <button id="continueButton" (click)="shoppingCompleting()" class="complete-order-button">Alışverişi
-                    Tamamla</button>
+        <div class="cart-item-details">
+          <div class="product-header">
+            <div class="product-title">
+              <h3 class="brand">{{ cartItem.brandName }}</h3>
+              <h3 class="name">{{ cartItem.productName }}</h3>
             </div>
+          </div>
+
+          <div class="product-features">
+            <div class="feature-item" *ngFor="let feature of cartItem.productFeatureValues">
+              <span class="feature-label">{{ feature.featureName }}:</span>
+              <span class="feature-value">{{ feature.featureValueName }}</span>
+            </div>
+          </div>
+
+          <div class="product-price-controls">
+            <div class="price-info">
+              <div class="unit-price">
+                <span class="price-label">U.Price:</span>
+                <span class="price-value">{{ cartItem.unitPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+              </div>
+              <div class="total-price">
+                <span class="price-label">Total:</span>
+                <span class="price-value">{{ cartItem.quantityPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+              </div>
+            </div>
+
+            <div class="controls-wrapper">
+              <div class="quantity-controls">
+                <button (click)="changeQuantity(-1, cartItem)" 
+                        [class.delete-btn]="cartItem.quantity === 1">
+                  <i class="fas" [class.fa-minus]="cartItem.quantity > 1" 
+                              [class.fa-trash]="cartItem.quantity === 1"></i>
+                </button>
+                <input type="number" 
+                       [value]="cartItem.quantity" 
+                       (input)="onQuantityInput($event, cartItem)" 
+                       min="1">
+                <button (click)="changeQuantity(1, cartItem)">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+
+              <button class="remove-button" (click)="removeCartItem(cartItem.cartItemId)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
+
+  <div class="cart-footer">
+    <div class="cart-summary">
+      <div class="selected-count">
+        Selected Products: {{ selectedItemCount }}
+      </div>
+      <div class="total-price">
+        <span>Total Price:</span>
+        <span>{{ totalSelectedCartPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+      </div>
+    </div>
+    <button class="checkout-button" 
+            (click)="shoppingCompleting()" 
+            [disabled]="selectedItemCount === 0">
+            Proceed To Purchase
+    </button>
+  </div>
 </div>

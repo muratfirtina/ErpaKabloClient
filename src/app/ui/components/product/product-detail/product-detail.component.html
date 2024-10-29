@@ -4,7 +4,18 @@
   <app-breadcrumb></app-breadcrumb>
 </div>
 
-<div *ngIf="!product" class="loading">Ürün yükleniyor...</div>
+<div *ngIf="!product" class="product-skeleton">
+  <div class="image-skeleton"></div>
+  <div class="info-skeleton">
+    <div class="title-skeleton"></div>
+    <div class="title-skeleton" style="width: 60%"></div>
+    <div class="price-skeleton"></div>
+    <div class="features-skeleton">
+      <div class="feature" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+    <div class="button-skeleton"></div>
+  </div>
+</div>
 <div *ngIf="product" class="product-detail-container">
   <div class="product-image-gallery">
     <div class="main-image" (click)="toggleImageZoom()">

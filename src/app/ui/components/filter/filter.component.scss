@@ -1,58 +1,117 @@
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins";
+
+$home-primary-color: #003366;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #fff;
 $primary-color: #e53935;
 $secondary-color: #212121;
 $background-color: #ffffff;
 $text-color: #484848;
 $border-color: #e0e0e0;
 $hover-color: rgba($primary-color, 0.1);
+$success-color: #00a046;
+$link-color: #0000ee;
+
+// Filter container styles
+.filter-sidebar {
+  @include media-breakpoint-up(md) {
+    position: sticky;
+    top: 20px;
+    width: 250px;
+    max-height: calc(100vh - 40px);
+  }
+}
+
+.btn-primary{
+  background-color: $home-primary-color;
+  border-color: $home-primary-color;
+}
 
 .filter-container {
   background-color: $background-color;
   border: 1px solid $border-color;
-  
   padding: 1rem;
   font-family: "Roboto", Arial, sans-serif;
-  position: sticky;
-  top: 20px;
-  width: 245px;
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
 
-  h2 {
-    font-size: 1.2rem;
-    color: $secondary-color;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
+  @include media-breakpoint-down(md) {
+    border: none;
+    padding: 0;
   }
 
   .filter-groups-container {
-    overflow-y: auto;
-    max-height: calc(100vh - 120px);
+    @include media-breakpoint-up(md) {
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+    }
   }
 
   .filter-group {
-    margin-bottom: 0.3rem;
+    margin-bottom: 1rem;
 
-    h3 {
-      font-size: 0.9rem;
-      color: $secondary-color;
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 0.75rem 0;
       border-bottom: 1px solid $border-color;
-      //border-top: 1px solid $border-color;
-      padding-top: 0.5rem;
-    }
 
-    .category-tree {
-      list-style-type: none;
-      padding-left: 0;
-
-      .category-item {
-        margin-bottom: 0.3rem;
+      &:hover {
+        background-color: rgba($primary-color, 0.05);
       }
 
+      .filter-title {
+        font-size: 0.9rem;
+        color: $secondary-color;
+        margin: 0;
+        
+        @include media-breakpoint-down(md) {
+          font-size: 1rem;
+        }
+      }
+
+      i {
+        font-size: 0.8rem;
+        color: $secondary-color;
+        transition: transform 0.3s ease;
+      }
+    }
+
+    .filter-content {
+      overflow: hidden;
+      max-height: 1000px; // Yüksek bir değer
+      transition: max-height 0.3s ease-in-out;
+      padding: 0.5rem 0;
+
+      &.collapsed {
+        max-height: 0;
+        padding: 0;
+      }
+    }
+  }
+
+  // Category tree styles
+  .category-tree {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+
+    .category-item {
       .category-header {
         display: flex;
         align-items: center;
+        padding: 0.5rem;
         cursor: pointer;
-        
+        transition: background-color 0.2s;
+
+        @include media-breakpoint-down(md) {
+          padding: 0.75rem;
+        }
+
         &:hover {
           background-color: $hover-color;
         }
@@ -60,112 +119,157 @@ $hover-color: rgba($primary-color, 0.1);
         .toggle-btn {
           background: none;
           border: none;
-          cursor: pointer;
-          font-size: 0.6rem;
+          padding: 0.25rem 0.5rem;
+          font-size: 0.75rem;
           color: $secondary-color;
-          padding: 0.2rem;
-          margin-right: 0.1rem;
 
-          &:hover {
-            background-color: $hover-color;
+          @include media-breakpoint-down(md) {
+            padding: 0.5rem;
+            font-size: 0.875rem;
           }
         }
 
         .category-name {
           font-size: 0.8rem;
-          color: $text-color;
+          
+          @include media-breakpoint-down(md) {
+            font-size: 0.9rem;
+          }
 
           &.selected {
-            font-weight: bold;
             color: $primary-color;
+            font-weight: 500;
           }
         }
       }
 
       .subcategory-list {
-        list-style-type: none;
         padding-left: 1.5rem;
-        margin-top: 0.3rem;
+      }
+    }
+  }
+
+  // Checkbox and radio styles
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+
+    @include media-breakpoint-down(md) {
+      padding: 0.75rem;
+    }
+
+    &:hover {
+      background-color: $hover-color;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      margin-right: 0.75rem;
+      
+      @include media-breakpoint-down(md) {
+        transform: scale(1.2);
       }
     }
 
-    .checkbox-label {
+    .checkbox-text {
+      font-size: 0.8rem;
+      
+      @include media-breakpoint-down(md) {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  // Price filter styles
+  .price-filter {
+    .custom-range {
       display: flex;
-      align-items: center;
-      margin-bottom: 0.3rem;
-      cursor: pointer;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
 
-      input[type="checkbox"], input[type="radio"] {
-        margin-right: 0.5rem;
-      }
+      .price-input {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid $border-color;
+        font-size: 0.9rem;
 
-      .checkbox-text {
-        font-size: 0.8rem;
-        color: $text-color;
-      }
-
-      &:hover {
-        background-color: $hover-color;
-      }
-    }
-
-    .checkbox-group, .predefined-ranges {
-      &.scrollable {
-        max-height: 200px;
-        overflow-y: auto;
-        padding-right: 10px;
-
-        &::-webkit-scrollbar {
-          width: 5px;
+        @include media-breakpoint-down(md) {
+          padding: 0.75rem;
+          font-size: 1rem;
         }
 
-        &::-webkit-scrollbar-track {
-          background: $border-color;
-        }
-
-        &::-webkit-scrollbar-thumb {
-          background: $secondary-color;
+        &:focus {
+          outline: none;
+          border-color: $primary-color;
         }
       }
-    }
 
-    .price-filter {
-      .custom-range {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-bottom: 1rem;
+      .apply-button {
+        width: 100%;
+        padding: 0.5rem;
+        background-color: $primary-color;
+        color: white;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s;
 
-        .price-input {
-          flex: 1;
-          min-width: 0;
-          padding: 0.5rem;
-          border: 1px solid $border-color;
-          //border-radius: 4px;
-          font-size: 0.9rem;
-
-          &:focus {
-            outline: none;
-            border-color: $primary-color;
-          }
+        @include media-breakpoint-down(md) {
+          padding: 0.75rem;
         }
 
-        .apply-button {
-          flex: 1 0 100%;
-          padding: 0.5rem;
-          background-color: $primary-color;
-          color: $background-color;
-          border: none;
-          //border-radius: 4px;
-          font-size: 0.9rem;
-          cursor: pointer;
-          transition: background-color 0.3s ease;
+        &:hover {
+          background-color: darken($primary-color, 10%);
+        }
 
-          &:hover {
-            background-color: darken($primary-color, 10%);
-          }
+        svg {
+          width: 16px;
+          height: 16px;
         }
       }
     }
+  }
+
+  // Scrollable areas
+  .scrollable {
+    max-height: 200px;
+    overflow-y: auto;
+    
+    @include media-breakpoint-down(md) {
+      max-height: none;
+    }
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $border-color;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $secondary-color;
+    }
+  }
+}
+
+// Offcanvas customization
+.offcanvas {
+  .offcanvas-header {
+    background-color: $background-color;
+    border-bottom: 1px solid $border-color;
+
+    .offcanvas-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: $secondary-color;
+    }
+  }
+
+  .offcanvas-body {
+    padding: 1rem;
   }
 }

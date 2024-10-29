@@ -1,64 +1,56 @@
 <app-main-header></app-main-header>
 <app-navbar></app-navbar>
-<div class="breadcrumb">
-  <app-breadcrumb></app-breadcrumb>
-</div>
 
-<div class="search-results-container">
-  <h2>Arama Sonuçları: "{{ searchTerm }}"</h2>
-  <p>{{ totalItems }} ürün bulundu</p>
-
-  <div class="sort-dropdown">
-    <label for="sort-select">Sırala:</label>
-    <select id="sort-select" (change)="onSortChange($event)">
-      <option value="">Varsayılan</option>
-      <option value="price_asc">Fiyat (Düşükten Yükseğe)</option>
-      <option value="price_desc">Fiyat (Yüksekten Düşüğe)</option>
-    </select>
+<div class="container-xxl">
+  <div class="breadcrumb">
+    <app-breadcrumb></app-breadcrumb>
   </div>
 
-  <div class="search-content">
-    <app-filter [availableFilters]="availableFilters" (filterChange)="onFilterChange($event)"></app-filter>
-
-    <div class="results-area">
-      <div *ngIf="noResults" class="no-results">
-        <p>Üzgünüz, "{{ searchTerm }}" için sonuç bulunamadı.</p>
-      </div>
-
-      <div *ngIf="!noResults" class="product-list">
-        <div *ngFor="let product of products" class="product-item" [routerLink]="['/product', product.id]">
-          <div class="product-image">
-            <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name">
-            <i class="heart-icon" [ngClass]="{'liked': product.isLiked}" (click)="toggleLike($event, product)">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-            </i>
-          </div>
-          <div class="product-info">
-            <div class="name-title">
-              <a class="brand-name">{{product.brandName}}
-              </a>
-              <div class="product-names">
-              <p class="product-name">{{product.name}}</p>
-            </div>
-            
-            </div>
-            <p class="product-title">{{product.title}}</p>
-            <p class="product-price">{{formatCurrency(product.price)}}</p>
-            <p class="product-features">
-              <ng-container *ngFor="let feature of product.productFeatureValues; let last = last">
-                {{feature.featureValueName}}{{!last ? ', ' : ''}}
-              </ng-container>
-            </p>
-          </div>
-          <button class="product-add-to-cart-button" [disabled]="product.stock <= 0" (click)="addToCart(product)">
-            Sepete Ekle
-          </button>
+  <!-- Main Content Area -->
+  <div class="row">
+    <!-- Sorting and Total Items -->
+    <div class="col-12 mb-3">
+      <h2>Search Result: "{{ searchTerm }}"</h2>
+      <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <p class="total-items mb-0">{{ totalItems }} product found</p>
+        <div class="sort-dropdown">
+          <label for="sort-select" class="me-2">Sorted by:</label>
+          <select id="sort-select" class="form-select" (change)="onSortChange($event)">
+            <option value="">Default</option>
+            <option value="price_asc">Price (Low - High)</option>
+            <option value="price_desc">Price (High - Low)</option>
+          </select>
         </div>
       </div>
+    </div>
 
-      <mat-paginator [length]="totalItems" [pageSize]="pageRequest.pageSize" [pageSizeOptions]="[5, 10, 25, 100]"
-        (page)="onPageChange($event)" *ngIf="totalItems > 0">
+    <!-- Filter Sidebar -->
+    <div class="col-md-3 mb-4 mb-md-0">
+      <app-filter [availableFilters]="availableFilters" 
+                 [selectedFilters]="selectedFilters"
+                 (filterChange)="onFilterChange($event)">
+      </app-filter>
+    </div>
+
+    <!-- Product List -->
+    <div class="col-md-9">
+      <div *ngIf="noResults" class="no-results">
+        <p>Sorry, no results were found for "{{ searchTerm }}".</p>
+      </div>
+
+      <app-ui-product-list 
+        *ngIf="!noResults" 
+        [products]="products">
+      </app-ui-product-list>
+      
+      <mat-paginator 
+        [length]="totalItems" 
+        [pageSize]="pageRequest.pageSize" 
+        [pageSizeOptions]="[5, 10, 25, 100]"
+        (page)="onPageChange($event)" 
+        *ngIf="totalItems > 0"
+        class="mt-3">
       </mat-paginator>
     </div>
+  </div>
+</div>

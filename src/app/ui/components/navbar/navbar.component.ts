@@ -43,6 +43,8 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   private categorySubject = new Subject<string>();
   private categoryCache: Map<string, GetListResponse<Product>> = new Map();
 
+  isMobileMenuOpen: boolean = false;
+
   isSearchFocused: boolean = false;
   recentSearches: string[] = [];
   searchResults: {
@@ -422,12 +424,58 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     this.closeAllProducts();
   }
   
-  navigateToCategory(categoryId: string) {
+  /* navigateToCategory(categoryId: string) {
     this.router.navigate(['/category', categoryId]);
     this.closeAllProducts();
-  }
+  } */
   onProductClick(product: Product) {
     console.log('Product clicked:', product);
     this.navigateToSearchResult('product', product.id);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    if (window.innerWidth > 768) {
+      this.closeMobileMenu();
+    }
+  }
+
+  // ESC tuşu ile menüyü kapatma
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.closeMobileMenu();
+    }
+  }
+
+  toggleMobileMenu() {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.updateBodyScroll();
+  }
+
+  closeMobileMenu() {
+    this.isMobileMenuOpen = false;
+    this.updateBodyScroll();
+  }
+
+  private updateBodyScroll() {
+    if (this.isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }
+
+  // Component destroy olduğunda scroll'u geri getir
+  ngOnDestroy() {
+    document.body.style.overflow = 'auto';
+  }
+
+  // Mevcut navigateToCategory metodunu güncelle
+  navigateToCategory(categoryId: string) {
+    this.router.navigate(['/category', categoryId]);
+    this.closeAllProducts();
+    this.isMobileMenuOpen = false; // Mobile menüyü kapat
+    document.body.style.overflow = 'auto';
   }
 }

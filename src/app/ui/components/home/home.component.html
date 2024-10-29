@@ -1,5 +1,5 @@
 <app-main-header></app-main-header>
-<app-navbar [showOnlyMainCategories]="isMobile"></app-navbar>
+<app-navbar></app-navbar>
 
 <!-- Professional Carousel Section -->
 <section class="hero-carousel d-none d-md-block">
@@ -31,21 +31,15 @@
   </div>
 </section>
 
-<div class="downbar-container">
-</div>
-
+<!-- <div class="downbar-container" *ngIf="isMobile"></div>
+ -->
 <!-- Categories Section -->
 
 
-<section class="categories" *ngIf="isMobile">
-  <div class="category-place" *ngIf="isMobile">KATEGORİLER</div>
+<section class="categories">
+  
   <h2 class="category-header"*ngIf="!isMobile">KATEGORİLER</h2>
   <div class="container">
-    <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile">
-      <!-- Sol ok ikonu -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    </button>
-
     <div class="category-grid" #categoryGrid>
       <div class="category-card" *ngFor="let category of mainCategories" [routerLink]="['/category', category.id]">
         <div class="category-image">
@@ -58,11 +52,6 @@
         </div>
       </div>
     </div>
-
-    <button class="scroll-btn right" (click)="scrollRight()" *ngIf="!isMobile">
-      <!-- Sağ ok ikonu -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-    </button>
   </div>
 </section>
 
@@ -113,13 +102,7 @@
   <div *ngIf="mostLikedProducts" class="most-liked-products">
     <h2>EN ÇOK BEĞENİLEN ÜRÜNLER  </h2>
     <div class="container">
-      <button class="scroll-btn left" (click)="scrollLeft()">
-        <!-- Sol ok ikonu -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
+
       <div class="product-grid">
         <div class="most-liked-product-list" #productGrid>
           <div *ngFor="let mostLikedProduct of mostLikedProducts.items" class="most-liked-product-item" [routerLink]="['/product', mostLikedProduct.id]">
@@ -157,13 +140,7 @@
             </button>
           </div>
         </div>
-        <button class="scroll-btn right" (click)="scrollRight()">
-          <!-- Sağ ok ikonu -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
+
       </div>
     </div>
   </div>

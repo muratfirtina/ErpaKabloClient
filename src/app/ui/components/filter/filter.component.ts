@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnChanges, Input, Output, EventEmitter, SimpleChanges, PipeTransform, Pipe } from "@angular/core";
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+import { Offcanvas } from 'bootstrap';
 import { FilterGroup, FilterType } from "src/app/contracts/product/filter/filters";
 
 @Pipe({
@@ -38,6 +40,7 @@ export class FilterComponent implements OnChanges {
   filterForm: FormGroup;
   categoryTree: CategoryNode[] = [];
   customPriceRange: { min: string, max: string } = { min: '', max: '' };
+  collapsedState: { [key: string]: boolean } = {};
 
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({});
@@ -47,6 +50,9 @@ export class FilterComponent implements OnChanges {
     if (changes['availableFilters'] || changes['selectedFilters']) {
       this.initializeFilters();
       this.buildCategoryTree();
+      this.availableFilters.forEach(filter => {
+        this.collapsedState[filter.key] = false;
+      });
     }
   }
 
@@ -200,9 +206,7 @@ export class FilterComponent implements OnChanges {
     this.updateSelectedFilters();
   }
 
-  emitFilterChange() {
-    this.filterChange.emit(this.selectedFilters);
-  }
+  
 
   applyCustomPriceRange() {
     const priceFilter = this.availableFilters.find(f => f.key === 'Price');
@@ -219,5 +223,32 @@ export class FilterComponent implements OnChanges {
         this.emitFilterChange();
       }
     }
+  }
+
+  closeOffcanvas() {
+    const offcanvas = document.getElementById('filterOffcanvas');
+    if (offcanvas) {
+      const bsOffcanvas = Offcanvas.getInstance(offcanvas);
+      if (bsOffcanvas) {
+        bsOffcanvas.hide();
+      }
+    }
+  }
+
+  // Filtre değişikliklerinde offcanvas'ı kapatma
+  emitFilterChange() {
+    this.filterChange.emit(this.selectedFilters);
+    if (window.innerWidth < 768) { // md breakpoint
+      this.closeOffcanvas();
+    }
+  }
+
+  toggleCollapse(filterKey: string) {
+    this.collapsedState[filterKey] = !this.collapsedState[filterKey];
+  }
+
+  // Collapse durumunu kontrol eden metod
+  isCollapsed(filterKey: string): boolean {
+    return this.collapsedState[filterKey];
   }
 }

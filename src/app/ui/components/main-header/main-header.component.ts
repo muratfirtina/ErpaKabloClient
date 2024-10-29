@@ -9,27 +9,32 @@ import { CartService } from 'src/app/services/common/models/cart.service';
 import { ComponentName, DynamicloadcomponentService } from 'src/app/services/common/dynamicloadcomponent.service';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { UserService } from 'src/app/services/common/models/user.service';
-import { JwtHelperService } from '@auth0/angular-jwt';
 import { CartComponent } from '../cart/cart.component';
-import { DynamicLoadComponentDirective } from 'src/app/directives/dynamic-load-component.directive';
 import { CartItem } from 'src/app/contracts/cart/cartItem';
+import { UserDto } from 'src/app/contracts/user/userDto';
 
 @Component({
   selector: 'app-main-header',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, NgxSpinnerModule, CartComponent, DynamicLoadComponentDirective],
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    FormsModule, 
+    NgxSpinnerModule, 
+    CartComponent
+  ],
   templateUrl: './main-header.component.html',
-  styleUrls: ['./main-header.component.scss', '../../../../styles.scss']
+  styleUrls: ['./main-header.component.scss']
 })
 export class MainHeaderComponent implements OnInit {
-  @ViewChild(DynamicLoadComponentDirective, { static: true })
-  dynamicLoadComponentDirective: DynamicLoadComponentDirective;
-
-  @ViewChild('accountButton') accountButton: ElementRef; // Account butonuna referans
+  @ViewChild('accountButton') accountButton: ElementRef;
 
   cartItems: CartItem[];
   cartItemsObservable: Observable<CartItem[]>;
   isDropdownVisible: boolean = false;
+  isCartOpen: boolean = false;
+  currentUser: UserDto | null = null;
+  isLoading: boolean = true;
 
   constructor(
     public authService: AuthService,
@@ -37,28 +42,48 @@ export class MainHeaderComponent implements OnInit {
     private router: Router,
     private cartService: CartService,
     private route: ActivatedRoute,
-    private dynamicLoadComponentService: DynamicloadcomponentService,
-    private elementRef: ElementRef // HTML elemanlarına erişim için kullanıyoruz
+    private userService: UserService,
+    private elementRef: ElementRef
   ) {
-    authService.identityCheck();
-    this.cartItemsObservable = cartService.getCartItemsObservable();
+    
   }
 
   async ngOnInit() {
     await this.authService.identityCheck();
     if (this.authService.isAuthenticated) {
-      await this.getCartItems();
+      this.cartService.getCartItemsObservable().subscribe(
+        items => {
+          this.cartItems = items;
+        }
+      );
+      await this.getCurrentUser();
     }
 
-    // Dışarıya tıklayınca dropdown menüsünü kapatma işlevi
     document.addEventListener('click', this.handleClickOutside.bind(this));
   }
 
   async getCartItems() {
     this.cartItems = await this.cartService.get();
   }
-  loadComponent() {
-    this.dynamicLoadComponentService.loadComponent(ComponentName.CartComponent, this.dynamicLoadComponentDirective.viewContainerRef);
+
+  async getCurrentUser() {
+    this.isLoading = true;
+    try {
+      this.currentUser = await this.userService.getCurrentUser();
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  toggleCart() {
+    this.isCartOpen = !this.isCartOpen;
+    if (this.isCartOpen) {
+      document.body.style.overflow = 'hidden'; // Prevent scrolling when cart is open
+    } else {
+      document.body.style.overflow = ''; // Restore scrolling when cart is closed
+    }
   }
 
   toggleDropdown() {
@@ -71,23 +96,23 @@ export class MainHeaderComponent implements OnInit {
 
   handleClickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement;
+    if (!target.closest('.dropdown-menu') && !this.accountButton?.nativeElement.contains(target)) {
+      this.closeDropdown();
+    }
+  }
 
-    // Dropdown ya da account butonuna tıklanmadıysa dropdown'u kapat
-    if (!target.closest('.dropdown-menu') && !this.accountButton.nativeElement.contains(target)) {
+  @HostListener('window:keydown.escape')
+  onEscPress() {
+    if (this.isCartOpen) {
+      this.toggleCart();
+    }
+    if (this.isDropdownVisible) {
       this.closeDropdown();
     }
   }
 
   signOut() {
-    localStorage.removeItem("accessToken");
-    this.authService.identityCheck();
-    this.router.navigate([""]).then(() => {
-      location.reload();
-    });
-    this.toastrService.message("Logged out successfully", "Log Out", {
-      toastrMessageType: ToastrMessageType.Warning,
-      position: ToastrPosition.TopRight
-    });
+    this.authService.logout();
   }
 
   navigateToLogin() {
@@ -109,6 +134,9 @@ export class MainHeaderComponent implements OnInit {
   navigateToAdmin() {
     this.router.navigate(['/admin']);
   }
-}
 
-  
+  ngOnDestroy() {
+    document.body.style.overflow = ''; // Restore scrolling when component is destroyed
+    document.removeEventListener('click', this.handleClickOutside.bind(this));
+  }
+}

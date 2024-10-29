@@ -1,29 +1,30 @@
+import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, HostListener, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { BaseUrl } from 'src/app/contracts/baseUrl';
 import { CartItem } from 'src/app/contracts/cart/cartItem';
 import { IsCheckedCartItem } from 'src/app/contracts/cart/isCheckedCartItem';
 import { UpdateCartItem } from 'src/app/contracts/cart/updateCarItem';
 import { CreateOrder } from 'src/app/contracts/order/createOrder';
+import { CartItemRemoveDialogComponent, CartItemRemoveDialogState } from 'src/app/dialogs/cart-item-remove-dialog/cart-item-remove-dialog.component';
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { OrderService } from 'src/app/services/common/models/order.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
-declare var $: any;
-
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule,RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './cart.component.html',
-  styleUrl: './cart.component.scss'
+  styleUrls: ['./cart.component.scss']
 })
 export class CartComponent extends BaseComponent implements OnInit {
+  @Input() isOpen = false;
+  @Output() closeCart = new EventEmitter<void>();
+
   constructor(
     spinner: NgxSpinnerService,
     private cartService: CartService,
@@ -37,18 +38,20 @@ export class CartComponent extends BaseComponent implements OnInit {
 
   totalItemCount: number;
   totalSelectedCartPrice: number;
-  baseUrl: BaseUrl;
   cartItems: CartItem[];
-  isCartPriceModalActive = false;
   selectedItemCount: number = 0;
   cartIsEmptyMessage: string;
 
   async ngOnInit(): Promise<void> {
     this.showSpinner(SpinnerType.BallSpinClockwise);
-    
     await this.getCartItems();
     this.updateSelectedItemCount();
     this.hideSpinner(SpinnerType.BallSpinClockwise);
+  }
+
+  close() {
+    this.isOpen = false;
+    this.closeCart.emit();
   }
 
   async getCartItems(): Promise<void> {
@@ -86,7 +89,7 @@ export class CartComponent extends BaseComponent implements OnInit {
 
       await this.cartService.updateQuantity(updateCartItem);
       cartItem.quantityPrice = cartItem.unitPrice * quantity;
-      cartItem.quantity = quantity; // Güncellenen quantity değerini ata
+      cartItem.quantity = quantity;
     }
 
     this.updateTotalCartPrice();
@@ -96,46 +99,61 @@ export class CartComponent extends BaseComponent implements OnInit {
   onQuantityInput(event: any, cartItem: CartItem) {
     this.showSpinner(SpinnerType.BallSpinClockwise);
     const inputValue = event.target.value;
-    const parsedValue = parseInt(inputValue, 10);  // Girilen değeri tam sayıya çevir
-  
-    if (!isNaN(parsedValue) && parsedValue > 0) {  // Pozitif tam sayı olup olmadığını kontrol et
+    const parsedValue = parseInt(inputValue, 10);
+
+    if (!isNaN(parsedValue) && parsedValue > 0) {
       cartItem.quantity = parsedValue;
-      // Miktara göre toplam fiyatı yeniden hesaplayın
       cartItem.quantityPrice = cartItem.unitPrice * cartItem.quantity;
-      this.updateTotalCartPrice();  // Toplam fiyatı güncelle
+      this.updateTotalCartPrice();
     } else {
-      // Eğer girilen değer geçerli değilse varsayılan olarak 1 yapın
       cartItem.quantity = 1;
     }
     this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
-  
-
   async removeCartItem(cartItemId: string) {
-    
-    /* this.dialogService.openDialog({
+    this.dialogService.openDialog({
       componentType: CartItemRemoveDialogComponent,
       data: CartItemRemoveDialogState.Yes,
-      afterClosed: async () => {
-        this.showSpinner(SpinnerType.BallSpinClockwise);
-
-        try {
-          await this.cartService.remove(cartItemId);
-          this.cartItems = this.cartItems.filter(
-            (item) => item.cartItemId !== cartItemId
-          );
-          this.updateSelectedItemCount();
-          this.updateTotalCartPrice();
-          this.totalItemCount = this.cartItems.length;
-        } catch (error) {
-          console.log('Error occurred while removing cart item:', error);
-        } finally {
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-        }
-        
+      options: {
+        width: '400px'
       },
-    }); */
+      afterClosed: async (result) => {
+        if (result === CartItemRemoveDialogState.Yes) {
+          this.showSpinner(SpinnerType.BallSpinClockwise);
+          
+          try {
+            await this.cartService.remove(cartItemId);
+            this.cartItems = this.cartItems.filter(
+              (item) => item.cartItemId !== cartItemId
+            );
+            this.updateSelectedItemCount();
+            this.updateTotalCartPrice();
+            this.totalItemCount = this.cartItems.length;
+            
+            this.toastrService.message(
+              'The product has been successfully removed from the cart',
+              'Success',
+              {
+                toastrMessageType: ToastrMessageType.Success,
+                position: ToastrPosition.TopRight
+              }
+            );
+          } catch (error) {
+            this.toastrService.message(
+              'An error occurred while removing the product from the cart.',
+              'Error',
+              {
+                toastrMessageType: ToastrMessageType.Error,
+                position: ToastrPosition.TopRight
+              }
+            );
+          } finally {
+            this.hideSpinner(SpinnerType.BallSpinClockwise);
+          }
+        }
+      }
+    });
   }
 
   updateTotalCartPrice() {
@@ -152,16 +170,16 @@ export class CartComponent extends BaseComponent implements OnInit {
     if (this.selectedItemCount === 0) {
       const cartIsEmpty = this.cartItems.length === 0;
       this.cartIsEmptyMessage = cartIsEmpty
-        ? 'Sepetiniz boş'
-        : 'Seçili ürün bulunmamaktadır.';
+        ? 'Cart is Empty'
+        : 'The selected product is not available.';
     }
   }
 
   async shoppingCompleting() {
     if (this.selectedItemCount === 0) {
       this.toastrService.message(
-        'Lütfen sepetinizden en az bir ürün seçiniz.',
-        'Sepetinizde seçili ürün bulunmamaktadır.',
+        'Please select at least one product from your cart.',
+        'There are no selected products in your cart.',
         {
           toastrMessageType: ToastrMessageType.Warning,
           position: ToastrPosition.TopRight,
@@ -187,22 +205,21 @@ export class CartComponent extends BaseComponent implements OnInit {
       phoneNumber: '1234567890',
       description: 'Hediye Paketi yapılsın.',
       orderItems: this.cartItems
-  .filter((cartItem) => cartItem.isChecked)
-  .map((cartItem) => {
-    return {
-      id: '',
-      productId: cartItem.productId,
-      productName: cartItem.productName,
-      unitPrice: cartItem.unitPrice,
-      quantity: cartItem.quantity,
-      imageUrl: cartItem.showcaseImage.url,
-      brandName: cartItem.brandName,
-
-      price: cartItem.unitPrice,
-      title: cartItem.title,
-      productFeatureValues: cartItem.productFeatureValues,
-    };
-  }),
+        .filter((cartItem) => cartItem.isChecked)
+        .map((cartItem) => {
+          return {
+            id: '',
+            productId: cartItem.productId,
+            productName: cartItem.productName,
+            unitPrice: cartItem.unitPrice,
+            quantity: cartItem.quantity,
+            imageUrl: cartItem.showcaseImage.url,
+            brandName: cartItem.brandName,
+            price: cartItem.unitPrice,
+            title: cartItem.title,
+            productFeatureValues: cartItem.productFeatureValues,
+          };
+        }),
     };
     
     await this.orderService.create(createOrder,
@@ -215,7 +232,7 @@ export class CartComponent extends BaseComponent implements OnInit {
             position: ToastrPosition.TopRight,
           }
         );
-        this.router.navigate(['/orders']); // Siparişler sayfasına yönlendirme
+        this.router.navigate(['/orders']);
       },
       (error) => {
         this.toastrService.message(
@@ -230,59 +247,17 @@ export class CartComponent extends BaseComponent implements OnInit {
     );
   }
 
-  /* async shoppingCompleting() {
-    if (this.selectedItemCount === 0) {
-      this.toastrService.message(
-        'Lütfen sepetinizden en az bir ürün seçiniz.',
-        'Sepetinizde seçili ürün bulunmamaktadır.',
-        {
-          toastrMessageType: ToastrMessageType.Warning,
-          position: ToastrPosition.TopRight,
-        }
-      );
-      $('#cartModal').modal('show');
-      return;
-    }
-    this.dialogService.openDialog({
-      componentType: ShoppingCompleteDialogComponent,
-      data: ShoppingCompleteDialogState.Yes,
-      afterClosed: async () => {
-        this.showSpinner(SpinnerType.BallSpinClockwise);
-        const order: CreateOrder = new CreateOrder();
-        order.address = '----- ----/İstanbul, Türkiye';
-        order.description = 'Hediye Paketi yapılsın.';
-        await this.orderService.create(order);
-        this.hideSpinner(SpinnerType.BallSpinClockwise);
-        this.toastrService.message(
-          'Siparişiniz başarıyla oluşturuldu.',
-          'Siparişiniz alındı',
-          {
-            toastrMessageType: ToastrMessageType.Info,
-            position: ToastrPosition.TopRight,
-          }
-        );
-        $('#cartModal').modal('hide');
-        $('body').removeClass('modal-open');
-        $('.modal-backdrop').remove();
-        this.router.navigate(['/']).then(() => {
-          window.location.reload();
-        });
-      },
-    });
-  } */
-
-  @HostListener('window:mousemove', ['$event'])
-  onMouseMove(event: MouseEvent) {
-    const modal = document.getElementById('cartPriceModal');
-    const windowHeight = window.innerHeight;
-    const modalHeight = modal.offsetHeight;
-    const scrollTop = window.scrollY || document.documentElement.scrollTop;
-
-    if (scrollTop + windowHeight - event.clientY > modalHeight) {
-      this.isCartPriceModalActive = true;
-    } else {
-      this.isCartPriceModalActive = false;
-    }
+  @HostListener('document:keydown.escape')
+  onEscapePress() {
+    this.close();
   }
 
+  @HostListener('click', ['$event'])
+  onClick(event: MouseEvent) {
+    // Drawer dışına tıklandığında kapatma işlevi
+    const target = event.target as HTMLElement;
+    if (target.classList.contains('cart-drawer-backdrop')) {
+      this.close();
+    }
+  }
 }

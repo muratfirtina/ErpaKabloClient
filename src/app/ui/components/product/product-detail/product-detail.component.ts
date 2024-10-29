@@ -169,6 +169,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     createCartItem.productId = product.id;
     createCartItem.quantity = this.quantity;
     createCartItem.isChecked = true;
+    console.log('Adding to cart with quantity:', this.quantity);
     await this.cartService.add(createCartItem, () => {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.customToasterService.message(product.name + " Sepete eklendi", "", {

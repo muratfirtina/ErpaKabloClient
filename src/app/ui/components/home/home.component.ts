@@ -18,6 +18,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
 import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
 import { CartService } from 'src/app/services/common/models/cart.service';
+import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 
 @Component({
   selector: 'app-home',
@@ -51,6 +52,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
     private productLikeService: ProductLikeService,
     private router: Router,
     private customToasterService: CustomToastrService,
+    private productOperations: ProductOperationsService,
     private authService: AuthService,
     private cartService: CartService
   ) {
@@ -125,73 +127,16 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
     this.isMobile = window.innerWidth < 768;
   }
 
-  scrollLeft() {
-    const grid = this.categoryGrid.nativeElement;
-    grid.scrollBy({ left: -250, behavior: 'smooth' });
-  }
 
-  scrollRight() {
-    const grid = this.categoryGrid.nativeElement;
-    grid.scrollBy({ left: 250, behavior: 'smooth' });
-  }
 
   async toggleLikeMostLikedProduct(event: Event, mostLikedProduct: Product) {
     event.stopPropagation();
-  
-    if (!this.authService.isAuthenticated) {
-      this.router.navigate(['/login'], { 
-        queryParams: { returnUrl: this.router.url }
-      });
-      return;
-    }
-  
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    try {
-      const response = await this.productLikeService.toggleProductLike(mostLikedProduct.id);
-      mostLikedProduct.isLiked = response;
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        mostLikedProduct.isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
-        'Başarılı',
-        {
-          toastrMessageType: ToastrMessageType.Success,
-          position: ToastrPosition.TopRight
-        }
-      );
-    } catch (error) {
-      console.error('Error toggling like for product:', error);
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        'Beğeni işlemi sırasında bir hata oluştu',
-        'Hata',
-        {
-          toastrMessageType: ToastrMessageType.Error,
-          position: ToastrPosition.TopRight
-        }
-      );
-    }
+    await this.productOperations.toggleLike(mostLikedProduct);
   }
 
   async addMostLikedProductToCart(event: Event, mostLikedProduct: Product) {
-    event.stopPropagation(); // Ürün detayına yönlendirmeyi engelle
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    let createCartItem: CreateCartItem = new CreateCartItem();
-    createCartItem.productId = mostLikedProduct.id;
-    createCartItem.quantity = 1;
-    createCartItem.isChecked = true;
-    await this.cartService.add(createCartItem, () => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(mostLikedProduct.name + " Sepete eklendi", "", {
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-    }, (errorMessage) => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message("En fazla stok sayısı kadar ürün ekleyebilirsiniz", "", {
-        toastrMessageType: ToastrMessageType.Warning,
-        position: ToastrPosition.TopRight
-      });
-    });
+    event.stopPropagation();
+    await this.productOperations.addToCart(mostLikedProduct);
   }
 
   formatCurrency(value: number | undefined): string {

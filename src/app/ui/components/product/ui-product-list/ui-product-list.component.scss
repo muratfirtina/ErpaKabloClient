@@ -1,0 +1,29 @@
+.product-list {
+    &.list-view {
+      .row > div {
+        width: 100%;
+       max-width: 100%;
+        flex: 0 0 100%;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .product-list {
+      .row > div {
+        width: 50%;
+        max-width: 50%;
+        flex: 0 0 50%;
+      }
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .product-list {
+      .row > div {
+        width: 100%;
+        max-width: 50%;
+        flex: 0 0 100%;
+      }
+    }
+  }

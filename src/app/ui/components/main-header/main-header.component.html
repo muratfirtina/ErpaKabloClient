@@ -13,22 +13,57 @@
           <!-- My Account Dropdown -->
           <div class="dropdown">
             <button #accountButton class="btn btn-account" (click)="toggleDropdown()">
-              <i class="fas fa-user"></i> My Account <i class="fas fa-caret-down"></i>
+              <i class="fas fa-user"></i>
+              <ng-container *ngIf="!isLoading; else loadingTemplate">
+                {{ currentUser?.userName | uppercase }}
+              </ng-container>
+              <ng-template #loadingTemplate>
+                <span class="skeleton-text"></span>
+              </ng-template>
+              <i class="fas fa-caret-down"></i>
             </button>
-            <ul [class.show]="isDropdownVisible" class="dropdown-menu">
-              <li><a class="dropdown-item" routerLink="/order"><i class="fas fa-box"></i> My Orders</a></li>
-              <li><a class="dropdown-item" routerLink="/profile"><i class="fas fa-user-circle"></i> User Info</a></li>
-              <li><a class="dropdown-item" routerLink="/favorites"><i class="fas fa-heart"></i> My Favorites</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" (click)="signOut()"><i class="fas fa-sign-out-alt"></i> Exit</a></li>
+
+            <ul [class.show]="isDropdownVisible" class="dropdown-menu" [class.loading]="isLoading">
+              <ng-container *ngIf="!isLoading; else loadingMenu">
+                <li><a class="dropdown-item" routerLink="/order"><i class="fas fa-box"></i> My Orders</a></li>
+                <li><a class="dropdown-item" routerLink="/profile"><i class="fas fa-user-circle"></i> User Info</a></li>
+                <li><a class="dropdown-item" routerLink="/favorites"><i class="fas fa-heart"></i> My Favorites</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" (click)="signOut()"><i class="fas fa-sign-out-alt"></i> Exit</a></li>
+              </ng-container>
+
+              <ng-template #loadingMenu>
+                <li>
+                  <div class="skeleton-item" style="width: 70%;"></div>
+                </li>
+                <li>
+                  <div class="skeleton-item" style="width: 60%;"></div>
+                </li>
+                <li>
+                  <div class="skeleton-item" style="width: 65%;"></div>
+                </li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li>
+                  <div class="skeleton-item" style="width: 50%;"></div>
+                </li>
+              </ng-template>
             </ul>
           </div>
 
-          <button class="btn btn-cart" (click)="loadComponent()" data-bs-toggle="modal" data-bs-target="#cartModal" [attr.data-count]="cartItems?.length || 0">
+          <!-- Cart Button -->
+          <button class="btn btn-cart" [class.has-items]="cartItems?.length > 0" (click)="toggleCart()">
             <i class="fas fa-shopping-cart"></i>
-            <span class="btn-text">Basket</span>
+            <span class="btn-text">Cart</span>
+            <span class="position-absolute start-200 badge rounded-pill bg-danger" *ngIf="cartItems?.length > 0">
+              {{ cartItems.length }}
+            </span>
           </button>
 
+          <!-- Admin Button -->
           <button *ngIf="authService.isAuthenticated && authService.isAdmin" class="btn btn-admin">
             <a (click)="navigateToAdmin()" class="nav-link">
               <i class="fas fa-cog"></i>
@@ -53,27 +88,12 @@
     </div>
   </div>
 </header>
-  
-  <!-- Modal for cart -->
-  <div class="modal-wrapper">
-    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="cartModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl">
-        <ng-template appDynamicLoadComponent></ng-template>
-      </div>
-    </div>
-  </div>
-  
-  <ngx-spinner name="s1" type="ball-spin-clockwise-fade"></ngx-spinner>
 
-  <div class="modal-wrapper">
-    <div class="modal fade" id="cartModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <ng-template appDynamicLoadComponent></ng-template>
-        </div>
-    </div>
-    <div class="modal fade" id="cartPriceModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-sm">
-            <ng-template appDynamicLoadComponent></ng-template>
-        </div>
-    </div>
-</div>
+<!-- Cart Component -->
+<app-cart 
+  *ngIf="isCartOpen" 
+  [isOpen]="isCartOpen" 
+  (closeCart)="toggleCart()"
+></app-cart>
+
+<ngx-spinner name="s1" type="ball-spin-clockwise-fade"></ngx-spinner>

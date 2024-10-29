@@ -1,66 +1,112 @@
-<div class="filter-container">
-  <form [formGroup]="filterForm" (ngSubmit)="onFilterChange()">
-    <div class="filter-groups-container">
-      <div *ngFor="let filter of availableFilters" class="filter-group">
-        <h3>{{ filter.displayName }}</h3>
-        <ng-container [ngSwitch]="filter.type">
-          <ng-container *ngSwitchCase="FilterType.Checkbox">
-            <ng-container *ngIf="filter.key === 'Category'; else regularCheckbox">
-              <ul class="category-tree">
-                <ng-container *ngTemplateOutlet="
-                    categoryTreeNode;
-                    context: { nodes: categoryTree }
-                  "></ng-container>
-              </ul>
-            </ng-container>
-            <ng-template #regularCheckbox>
-              <div class="checkbox-group scrollable">
-                <label *ngFor="let option of filter.options" class="checkbox-label">
-                  <input type="checkbox" [checked]="isSelected(filter.key, option.value)"
-                    (change)="toggleFilter(filter.key, option.value)" />
-                  <span class="checkbox-text">{{ option.displayValue }}</span>
-                </label>
-              </div>
-            </ng-template>
-          </ng-container>
-          <ng-container *ngSwitchCase="FilterType.Range">
-            <div *ngIf="filter.key === 'Price'" class="price-filter" [formGroupName]="filter.key">
-              <div class="custom-range">
-                <input type="number" formControlName="min" placeholder="En az" class="price-input" />
-                <input type="number" formControlName="max" placeholder="En çok" class="price-input" />
-                <button type="button" (click)="applyCustomPriceRange()" class="apply-button">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                    class="bi bi-search">
-                    <path
-                      d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                  </svg>
-                </button>
-              </div>
-              <div class="predefined-ranges scrollable">
-                <label *ngFor="let option of filter.options" class="checkbox-label">
-                  <input type="radio" [value]="option.value" 
-                         [checked]="isSelected(filter.key, option.value)"
-                         (change)="selectPriceRange(option.value)" />
-                  <span class="checkbox-text">{{ option.displayValue }}</span>
-                </label>
-              </div>
-            </div>
-          </ng-container>
-        </ng-container>
-      </div>
+<div class="d-block d-md-none">
+  <!-- Mobile Filter Button -->
+  <button class="btn btn-primary w-100 mb-3" type="button" 
+          data-bs-toggle="offcanvas" 
+          data-bs-target="#filterOffcanvas" 
+          aria-controls="filterOffcanvas">
+    <i class="fas fa-filter me-2"></i>Filtreleri Göster
+  </button>
+
+  <!-- Mobile Filter Offcanvas -->
+  <div class="offcanvas offcanvas-start" 
+       tabindex="-1" 
+       id="filterOffcanvas" 
+       aria-labelledby="filterOffcanvasLabel">
+    <div class="offcanvas-header border-bottom">
+      <h5 class="offcanvas-title" id="filterOffcanvasLabel">Filtreler</h5>
+      <button type="button" class="btn-close text-reset" 
+              data-bs-dismiss="offcanvas" 
+              aria-label="Close"></button>
     </div>
-  </form>
+    <div class="offcanvas-body">
+      <ng-container [ngTemplateOutlet]="filterContent"></ng-container>
+    </div>
+  </div>
 </div>
+
+<!-- Desktop Filter -->
+<div class="d-none d-md-block filter-sidebar">
+  <ng-container [ngTemplateOutlet]="filterContent"></ng-container>
+</div>
+
+<!-- Filter Content Template -->
+<ng-template #filterContent>
+  <div class="filter-container">
+    <form [formGroup]="filterForm" (ngSubmit)="onFilterChange()">
+      <div class="filter-groups-container">
+        <div *ngFor="let filter of availableFilters" class="filter-group">
+          <!-- Başlık kısmı tıklanabilir yapıldı -->
+          <div class="filter-header" (click)="toggleCollapse(filter.key)">
+            <h3 class="filter-title">{{ filter.displayName }}</h3>
+            <i class="fas" [class.fa-chevron-down]="!isCollapsed(filter.key)" 
+                         [class.fa-chevron-right]="isCollapsed(filter.key)"></i>
+          </div>
+          
+          <!-- Collapse içeriği -->
+          <div class="filter-content" [class.collapsed]="isCollapsed(filter.key)">
+            <ng-container [ngSwitch]="filter.type">
+              <ng-container *ngSwitchCase="FilterType.Checkbox">
+                <ng-container *ngIf="filter.key === 'Category'; else regularCheckbox">
+                  <ul class="category-tree">
+                    <ng-container *ngTemplateOutlet="categoryTreeNode; context: { nodes: categoryTree }">
+                    </ng-container>
+                  </ul>
+                </ng-container>
+                <ng-template #regularCheckbox>
+                  <div class="checkbox-group scrollable">
+                    <label *ngFor="let option of filter.options" class="checkbox-label">
+                      <input type="checkbox" 
+                             [checked]="isSelected(filter.key, option.value)"
+                             (change)="toggleFilter(filter.key, option.value)" />
+                      <span class="checkbox-text">{{ option.displayValue }}</span>
+                    </label>
+                  </div>
+                </ng-template>
+              </ng-container>
+              <ng-container *ngSwitchCase="FilterType.Range">
+                <div *ngIf="filter.key === 'Price'" class="price-filter" [formGroupName]="filter.key">
+                  <div class="custom-range">
+                    <input type="number" formControlName="min" placeholder="En az" class="price-input" />
+                    <input type="number" formControlName="max" placeholder="En çok" class="price-input" />
+                    <button type="button" (click)="applyCustomPriceRange()" class="apply-button">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
+                        class="bi bi-search">
+                        <path
+                          d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="predefined-ranges scrollable">
+                    <label *ngFor="let option of filter.options" class="checkbox-label">
+                      <input type="radio" [value]="option.value" 
+                             [checked]="isSelected(filter.key, option.value)"
+                             (change)="selectPriceRange(option.value)" />
+                      <span class="checkbox-text">{{ option.displayValue }}</span>
+                    </label>
+                  </div>
+                </div>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</ng-template>
+
+<!-- Category Tree Template -->
 <ng-template #categoryTreeNode let-nodes="nodes">
   <li *ngFor="let node of nodes" class="category-item">
     <div class="category-header" (click)="selectCategory(node, $event)">
-      <button *ngIf="node.children?.length" type="button" class="toggle-btn" (click)="toggleNode(node); $event.stopPropagation()">
+      <button *ngIf="node.children?.length" type="button" class="toggle-btn" 
+              (click)="toggleNode(node); $event.stopPropagation()">
         {{ node.expanded ? "▼" : "▶" }}
       </button>
       <span class="category-name" [class.selected]="node.selected">{{ node.name }}</span>
     </div>
     <ul *ngIf="node.children?.length && node.expanded" class="subcategory-list">
-      <ng-container *ngTemplateOutlet="categoryTreeNode; context: { nodes: node.children }"></ng-container>
+      <ng-container *ngTemplateOutlet="categoryTreeNode; context: { nodes: node.children }">
+      </ng-container>
     </ul>
   </li>
 </ng-template>

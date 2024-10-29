@@ -35,6 +35,39 @@ export class UserAuthService {
     }
     callBackFunction();
   } 
+  
+  async logout(callBackFunction?: () => void): Promise<boolean> {
+    try {
+      const observable: Observable<any> = this.httpClientService.post({
+        controller: "auth",
+        action: "logout"
+      }, {});
+
+      await firstValueFrom(observable);
+
+      // Local storage'ı temizle
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("userId");
+
+      this.toastrService.message("Logged out successfully", "Success", {
+        toastrMessageType: ToastrMessageType.Success,
+        position: ToastrPosition.TopRight
+      });
+
+      if (callBackFunction) callBackFunction();
+      return true;
+    } catch (error) {
+      this.toastrService.message("Logout failed", "Error", {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+      return false;
+    }
+  }
+  
+
+  
 
   async refreshTokenLogin(refreshToken: string, callBackFunction?:(state) => void): Promise<any> {
     const observable: Observable<any | TokenResponse> = this.httpClientService.post<any | TokenResponse>({

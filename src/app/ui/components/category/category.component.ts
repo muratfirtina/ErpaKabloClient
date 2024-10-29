@@ -21,6 +21,8 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
 import { CartService } from 'src/app/services/common/models/cart.service';
+import { UiProductListComponent } from '../product/ui-product-list/ui-product-list.component';
+import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 
 
 @Component({
@@ -28,7 +30,8 @@ import { CartService } from 'src/app/services/common/models/cart.service';
   standalone: true,
   imports: [CommonModule,
     MainHeaderComponent,
-    NavbarComponent, 
+    NavbarComponent,
+    UiProductListComponent, 
     MatPaginatorModule, 
     FilterComponent,
     RouterModule,
@@ -67,6 +70,7 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     private authService: AuthService,
     private customToasterService: CustomToastrService,
     private cartService: CartService,
+    private productOperations: ProductOperationsService,
     spinner: NgxSpinnerService,
   ) {
     super(spinner);
@@ -215,64 +219,6 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
   }
 
-  async addToCart(event: Event, product: any) {
-    event.stopPropagation();
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    let createCartItem = new CreateCartItem();
-    createCartItem.productId = product.id;
-    createCartItem.quantity = this.quantity;
-    createCartItem.isChecked = true;
-    await this.cartService.add(createCartItem, () => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(product.name + " Sepete eklendi", "", {
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-    }, (errorMessage) => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message("En fazla stok sayısı kadar ürün ekleyebilirsiniz", "", {
-        toastrMessageType: ToastrMessageType.Warning,
-        position: ToastrPosition.TopRight
-      });
-    });
-  }
-
-  async toggleLike(event: Event, product: Product) {
-    event.stopPropagation();
-  
-    if (!this.authService.isAuthenticated) {
-      this.router.navigate(['/login'], { 
-        queryParams: { returnUrl: this.router.url }
-      });
-      return;
-    }
-  
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    try {
-      const isLiked = await this.productLikeService.toggleProductLike(product.id);
-      product.isLiked = isLiked;
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
-        'Başarılı',
-        {
-          toastrMessageType: ToastrMessageType.Success,
-          position: ToastrPosition.TopRight
-        }
-      );
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        'Beğeni işlemi sırasında bir hata oluştu',
-        'Hata',
-        {
-          toastrMessageType: ToastrMessageType.Error,
-          position: ToastrPosition.TopRight
-        }
-      );
-    }
-  }
 
   private checkScreenSize() {
     this.isMobile = window.innerWidth < 768;

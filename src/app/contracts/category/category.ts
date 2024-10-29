@@ -10,5 +10,5 @@ export class Category{
     checked?: boolean;
     expanded?: boolean;
     products?: Product[];
-    categoryImage: CategoryImageFile;
+    categoryImage?: CategoryImageFile;
 }

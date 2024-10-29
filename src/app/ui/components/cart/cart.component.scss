@@ -1,3 +1,4 @@
+// Variables
 $home-primary-color: #003366;
 $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
@@ -12,244 +13,521 @@ $hover-color: rgba($primary-color, 0.1);
 $success-color: #00a046;
 $link-color: #0000ee;
 
-.modal-content{
-  position: relative;
-    display: contents !important;
-    flex-direction: column;
-    width: 100%;
-    color: var(--bs-modal-color);
-    pointer-events: auto;
-    background-color: var(--bs-modal-bg);
-    background-clip: padding-box;
-    border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
-    border-radius: var(--bs-modal-border-radius);
-    outline: 0;
+// Breakpoints
+$mobile-sm: 320px;
+$mobile: 480px;
+$tablet: 768px;
+$laptop: 1024px;
+$desktop: 1200px;
+$widescreen: 1400px;
+
+// Mixins
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == mobile-sm {
+    @media (min-width: $mobile-sm) { @content; }
+  }
+  @if $breakpoint == mobile {
+    @media (min-width: $mobile) { @content; }
+  }
+  @if $breakpoint == tablet {
+    @media (min-width: $tablet) { @content; }
+  }
+  @if $breakpoint == laptop {
+    @media (min-width: $laptop) { @content; }
+  }
+  @if $breakpoint == desktop {
+    @media (min-width: $desktop) { @content; }
+  }
+  @if $breakpoint == widescreen {
+    @media (min-width: $widescreen) { @content; }
+  }
 }
-.cart-container {
-  padding: 20px;
-  background-color: #f5f5f5;
-  border-radius: 10px;
-  max-width: 1000px;
-  margin: 20px auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+.cart-drawer {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 100%; // Mobile first - full width on small screens
+  height: 100vh;
+  background: #fff;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+  transition: right 0.3s ease-in-out;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+
+  @include respond-to(mobile) {
+    width: 90%;
+  }
+
+  @include respond-to(tablet) {
+    width: 480px;
+  }
+
+  @include respond-to(laptop) {
+    width: 520px;
+  }
+
+  @include respond-to(desktop) {
+    width: 580px;
+  }
+
+  &.open {
+    right: 0;
+  }
 
   .cart-header {
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-    h1 {
-      font-size: 1.5rem;
-      color: #003366;
+    padding: 16px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @include respond-to(tablet) {
+      padding: 20px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: $home-primary-color;
+
+      @include respond-to(tablet) {
+        font-size: 1.5rem;
+      }
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #666;
+      transition: color 0.2s;
+      padding: 8px;
+
+      @include respond-to(tablet) {
+        font-size: 1.5rem;
+      }
+
+      &:hover {
+        color: $primary-color;
+      }
     }
   }
 
   .cart-body {
+    flex: 1;
+    overflow-y: auto;
+    //padding: 16px;
+
+    @include respond-to(tablet) {
+      padding: 20px;
+    }
+
     .empty-cart-message {
-      font-size: 1.2rem;
-      color: #e53935;
+      font-size: 1.1rem;
+      color: $primary-color;
+      text-align: center;
+      padding: 20px;
+
+      @include respond-to(tablet) {
+        font-size: 1.2rem;
+      }
     }
 
     .empty-selection-message {
-      font-size: 1rem;
-      color: #ff9900;
+      font-size: 0.9rem;
+      color: $accent-color;
+      text-align: center;
+      padding: 15px;
+
+      @include respond-to(tablet) {
+        font-size: 1rem;
+      }
     }
 
     .cart-item {
-      height: 180px; /* Görselle diğer içerikleri daha düzenli hale getirmek için biraz yükseltilmiş */
       display: flex;
-      align-items: center;
-      justify-content: space-between; /* Görseller ve içerik arasındaki boşluğu ayarlama */
-      margin-bottom: 20px;
-      padding: 15px; /* Kenarlıklardan biraz daha içe çekildi */
-      background-color: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+      gap: 12px;
+      padding: 10px;
+      background: white;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      border: 1px solid #eee;
+      transition: all 0.2s ease;
 
-      &-image {
-        margin-left: 20px;
-        flex: 0 0 100px;
-        img {
-          width: 100px;
-          height: 100px;
-          object-fit: cover; /* Görselin düzgün bir şekilde sığmasını sağlıyor */
-          border-radius: 10px;
-        }
+      @include respond-to(tablet) {
+        gap: 16px;
+        padding: 10px;
       }
 
-      &-info {
-        width: 250px;
-        flex: 2;
-        padding-left: 20px;
-        .name{
-          display: flex;
-
-        .brand {
-          font-size: 1.2rem;
-          color: $primary-color;
-          
-        }
-
-        h3 {
-          font-size: 1.2rem;
-          color: #003366;
-          margin-left: 4px;
-        }
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
       }
 
-        .product-features {
-          p {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 5px;
-            margin-left: 4px;
-          }
-        }
-      }
-      &-quantity {
-        width: 150px;
-        margin-right: 100px;
-
-        .quantity-controls {
-          display: flex;
-          align-items: center;
-          margin-top: 10px;
-
-          input {
-            width: 60px;
-            padding: 5px;
-            font-size: 1rem;
-            text-align: center;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin: 0 10px;
-            &:focus {
-              border-color: $accent-color;
-              outline: none;
-              box-shadow: 0 0 5px rgba(255, 153, 0, 0.5);
-            }
-          }
-
-          .quantity-remove-item{
-            background-color: $home-primary-color;
-            color: $primary-color;
-            border: none;
-            border-radius: 5px;
-            padding: 5px;
-            cursor: pointer;
-            &:hover {
-              background-color: darken($home-primary-color, 10%);
-            }
-          }
-
-          button {
-            background-color: $home-primary-color;
-            color: $primary-color;
-            border: none;
-            border-radius: 5px;
-            padding: 5px;
-            cursor: pointer;
-            &:hover {
-              background-color: darken($home-primary-color, 10%);
-            }
-            &:disabled {
-              background-color: $primary-color;
-              cursor: not-allowed;
-            }
-          }
-
-          label {
-            margin: 0 10px;
-            font-size: 1rem;
-          }
-        }
-
-        .item-price {
-          font-size: 1.1rem;
-          font-weight: bold;
-          color: #003366;
-          margin-top: 10px; /* Fiyatın diğer bileşenlerden ayrı olması için boşluk */
-        }
-      }
-
-      &-actions {
+      .cart-item-select {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
         align-items: center;
 
         .form-check-input {
-          width: 18px;
-          height: 18px;
-          margin-bottom: 10px;
+          width: 16px;
+          height: 16px;
+          border: 2px solid $home-primary-color;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          @include respond-to(tablet) {
+            width: 16px;
+            height: 16px;
+          }
+
+          &:checked {
+            background-color: $home-primary-color;
+            border-color: $home-primary-color;
+          }
+        }
+      }
+
+      .cart-item-main {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+
+        @include respond-to(tablet) {
+          flex-direction: row;
+          gap: 20px;
         }
 
-        .remove-item {
-          background-color: #e53935;
-          margin-right: 10px;
-          color: #ffffff;
-          border: none;
-          padding: 10px;
-          border-radius: 5px;
-          cursor: pointer;
-          font-size: 0.9rem;
-          &:hover {
-            background-color: darken(#e53935, 10%);
+        .cart-item-image {
+          width: 100%;
+          height: 160px;
+
+          @include respond-to(tablet) {
+            width: 100px;
+            height: 100px;
+          }
+
+          border-radius: 8px;
+          overflow: hidden;
+          background: #f8f8f8;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+
+            &:hover {
+              transform: scale(1.05);
+            }
+          }
+          @media screen {
+            
+          }
+        }
+
+        .cart-item-details {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+
+          .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+
+            .product-title {
+              display: flex;
+              gap: 8px;
+              align-items: baseline;
+              flex-wrap: wrap;
+
+              .brand {
+                font-size: 1rem;
+                font-weight: 600;
+                color: $primary-color;
+                margin: 0;
+
+                @include respond-to(tablet) {
+                  font-size: 1.1rem;
+                }
+              }
+
+              .name {
+                font-size: 0.9rem;
+                color: $text-color;
+                margin: 0;
+
+                @include respond-to(tablet) {
+                  font-size: 1rem;
+                }
+              }
+            }
+          }
+
+          .product-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+
+            @include respond-to(tablet) {
+              gap: 12px;
+            }
+
+            .feature-item {
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              background: #f8f8f8;
+              padding: 4px 8px;
+              border-radius: 4px;
+              font-size: 0.85rem;
+
+              @include respond-to(tablet) {
+                gap: 6px;
+                padding: 4px 10px;
+                font-size: 0.9rem;
+              }
+
+              .feature-label {
+                color: #666;
+                white-space: nowrap;
+              }
+
+              .feature-value {
+                font-weight: 500;
+                color: $text-color;
+              }
+            }
+          }
+
+          .product-price-controls {
+            display: grid;
+            grid-template-columns: 1fr;
+            //gap: 12px;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+
+            @include respond-to(tablet) {
+              grid-template-columns: 1fr auto;
+              //gap: 20px;
+            }
+
+            .price-info {
+              display: flex;
+              flex-direction: column;
+              grid-template-columns: auto 1fr;
+              //gap: 8px;
+              min-width: 182px;
+
+              @include respond-to(tablet) {
+                min-width: 182px;
+                gap: 4px;
+              }
+
+              .unit-price, .total-price {
+                display: grid;
+                grid-template-columns: 60px 1fr;
+                align-items: center;
+                gap: 8px;
+
+                .price-label {
+                  font-size: 0.85rem;
+                  color: #666;
+                  white-space: nowrap;
+
+                  @include respond-to(tablet) {
+                    font-size: 0.9rem;
+                  }
+                }
+
+                .price-value {
+                  font-weight: 600;
+                  color: $home-primary-color;
+                  text-align: right;
+                }
+              }
+
+              .total-price .price-value {
+                font-size: 1rem;
+                color: $primary-color;
+
+                @include respond-to(tablet) {
+                  font-size: 1.1rem;
+                }
+              }
+            }
+
+            .controls-wrapper {
+              display: flex;
+              align-items: center;
+              padding: 0 0 0 10px;
+              //gap: 12px;
+              justify-content: space-between;
+
+              @include respond-to(tablet) {
+                justify-content: flex-end;
+              }
+
+              .quantity-controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                background: #f8f8f8;
+                padding: 4px;
+                border-radius: 6px;
+                min-width: fit-content;
+
+                button {
+                  width: 28px;
+                  height: 28px;
+
+                  @include respond-to(tablet) {
+                    width: 32px;
+                    height: 32px;
+                  }
+
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  border: none;
+                  border-radius: 4px;
+                  background: $home-primary-color;
+                  color: white;
+                  cursor: pointer;
+                  transition: all 0.2s ease;
+
+                  &:hover {
+                    background: darken($home-primary-color, 10%);
+                  }
+
+                  &.delete-btn {
+                    background: $primary-color;
+
+                    &:hover {
+                      background: darken($primary-color, 10%);
+                    }
+                  }
+                }
+
+                input {
+                  width: 40px;
+                  height: 28px;
+
+                  @include respond-to(tablet) {
+                    width: 45px;
+                    height: 32px;
+                  }
+
+                  text-align: center;
+                  border: 1px solid #ddd;
+                  border-radius: 4px;
+                  font-size: 0.9rem;
+                  color: $text-color;
+
+                  &:focus {
+                    outline: none;
+                    border-color: $home-primary-color;
+                  }
+                }
+              }
+
+              .remove-button {
+                width: 28px;
+                height: 28px;
+
+                @include respond-to(tablet) {
+                  width: 32px;
+                  height: 32px;
+                }
+
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: none;
+                border-radius: 4px;
+                background: none;
+                color: #999;
+                cursor: pointer;
+                transition: all 0.2s ease;
+
+                &:hover {
+                  color: $primary-color;
+                  background: #f0f0f0;
+                }
+              }
+            }
           }
         }
       }
     }
   }
 
-  
-}
+  .cart-footer {
+    padding: 16px;
+    border-top: 1px solid #e0e0e0;
+    background: #f9f9f9;
 
-#cartPriceModal {
-  position: fixed;
-  top: 20%; /* Sayfanın yukarısından biraz boşluk bırakır */
-  right: 30px; /* Sağ kenara sabitlenir */
-  width: 300px; /* Genişlik ayarlanabilir */
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 100; /* Diğer elemanların üstünde yer alması için */
-  transition: transform 0.3s ease-in-out;
-}
+    @include respond-to(tablet) {
+      padding: 20px;
+    }
 
-#cartPriceModal.active {
-  transform: translateY(0); /* Modal görünür olduğunda */
-}
+    .cart-summary {
+      margin-bottom: 15px;
 
-.cart-summary {
-  display: flex;
-  flex-direction: column; /* Elemanları dikey hizalar */
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
-  background-color: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
+      .selected-count {
+        font-size: 0.85rem;
+        color: $primary-color;
+        margin-bottom: 8px;
 
-#totalSelectedCartPrice {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #003366;
-  margin-bottom: 20px;
-}
+        @include respond-to(tablet) {
+          font-size: 0.9rem;
+        }
+      }
 
-#continueButton {
-  width: 100%;
-  background-color: $success-color;
-  color: #ffffff;
-  padding: 10px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1.2rem;
-  font-weight: 600;
-  transition: background-color 0.3s;
-  &:hover {
-    background-color: darken(#003366, 10%);
+      .total-price {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: $home-primary-color;
+
+        @include respond-to(tablet) {
+          font-size: 1.2rem;
+        }
+      }
+    }
+
+    .checkout-button {
+      width: 100%;
+      padding: 12px;
+      background: $success-color;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      @include respond-to(tablet) {
+        font-size: 1.1rem;
+      }
+
+      &:hover {
+        background: darken($success-color, 5%);
+      }
+
+      &:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    }
   }
 }
