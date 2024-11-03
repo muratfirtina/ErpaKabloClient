@@ -63,10 +63,12 @@
 
             <div class="controls-wrapper">
               <div class="quantity-controls">
-                <button (click)="changeQuantity(-1, cartItem)" 
-                        [class.delete-btn]="cartItem.quantity === 1">
-                  <i class="fas" [class.fa-minus]="cartItem.quantity > 1" 
-                              [class.fa-trash]="cartItem.quantity === 1"></i>
+                <button 
+                  (click)="cartItem.quantity === 1 ? removeCartItem(cartItem.cartItemId) : changeQuantity(-1, cartItem)" 
+                  [class.delete-btn]="cartItem.quantity === 1">
+                  <i class="fas" 
+                     [class.fa-minus]="cartItem.quantity > 1" 
+                     [class.fa-trash]="cartItem.quantity === 1"></i>
                 </button>
                 <input type="number" 
                        [value]="cartItem.quantity" 

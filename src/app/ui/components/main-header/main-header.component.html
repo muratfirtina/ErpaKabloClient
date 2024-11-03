@@ -8,7 +8,7 @@
         </div>
       </div>
 
-      <div class="user-actions">
+      <div class="user-actions d-none d-lg-flex">
         <ng-container *ngIf="authService.isAuthenticated; else authButtons">
           <!-- My Account Dropdown -->
           <div class="dropdown">
@@ -25,13 +25,31 @@
 
             <ul [class.show]="isDropdownVisible" class="dropdown-menu" [class.loading]="isLoading">
               <ng-container *ngIf="!isLoading; else loadingMenu">
-                <li><a class="dropdown-item" routerLink="/order"><i class="fas fa-box"></i> My Orders</a></li>
-                <li><a class="dropdown-item" routerLink="/profile"><i class="fas fa-user-circle"></i> User Info</a></li>
-                <li><a class="dropdown-item" routerLink="/favorites"><i class="fas fa-heart"></i> My Favorites</a></li>
+                <li><a class="dropdown-item" routerLink="/order">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#484848" class="bi bi-box-seam" viewBox="0 0 16 16">
+                    <path d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2zm3.564 1.426L5.596 5 8 5.961 14.154 3.5zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464z"/>
+                  </svg>
+                   My Orders</a></li>
+                <li><a class="dropdown-item" routerLink="/user"><i class="bi bi-person-vcard">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#484848" class="bi bi-person-vcard" viewBox="0 0 16 16">
+                    <path d="M5 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4m4-2.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5M9 8a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 9 8m1 2.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5"/>
+                    <path d="M2 2a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zM1 4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H8.96q.04-.245.04-.5C9 10.567 7.21 9 5 9c-2.086 0-3.8 1.398-3.984 3.181A1 1 0 0 1 1 12z"/>
+                  </svg>
+                </i> User Info</a></li>
+                <li><a class="dropdown-item" routerLink="/favorites">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#484848" class="bi bi-heart" viewBox="0 0 16 16">
+                    <path d="m8 2.748-.717-.737C5.6.281 2.514.878 1.4 3.053c-.523 1.023-.641 2.5.314 4.385.92 1.815 2.834 3.989 6.286 6.357 3.452-2.368 5.365-4.542 6.286-6.357.955-1.886.838-3.362.314-4.385C13.486.878 10.4.28 8.717 2.01zM8 15C-7.333 4.868 3.279-3.04 7.824 1.143q.09.083.176.171a3 3 0 0 1 .176-.17C12.72-3.042 23.333 4.867 8 15"/>
+                  </svg>
+                   My Favorites</a></li>
                 <li>
                   <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" (click)="signOut()"><i class="fas fa-sign-out-alt"></i> Exit</a></li>
+                <li><a class="dropdown-item" (click)="signOut()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#484848" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                  </svg>
+                Exit</a></li>
               </ng-container>
 
               <ng-template #loadingMenu>

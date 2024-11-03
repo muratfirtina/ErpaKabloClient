@@ -9,6 +9,6 @@ export enum OrderStatus {
     Completed = 5,  // Sipariş tamamlandı
     Shipped = 6,    // Sipariş gönderildi
     Cancelled = 7,  // Sipariş iptal edildi
-    Refunded = 8,    // Sipariş iade edildi
+    Returned = 8,    // Sipariş iade edildi
     All = 9         // Tümü
 }

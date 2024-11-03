@@ -12,7 +12,6 @@ $hover-color: rgba($primary-color, 0.1);
 $success-color: #00a046;
 $link-color: #0000ee;
 
-
 .breadcrumb {
   display: flex;
   max-width: 1320px;
@@ -22,8 +21,15 @@ $link-color: #0000ee;
   color: $text-color;
 }
 
+.category-image-wrapper{
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+
 .category-head {
-  max-width: calc(1320px - 2rem);
+  //max-width: calc(1320px - 2rem);
   height: 300px;
   margin: 0 auto;
   background-color: $home-primary-color;
@@ -37,7 +43,7 @@ $link-color: #0000ee;
     flex: 1;
     background-color: $home-primary-color;
     color: $background-color;
-    padding: 2rem;
+    //padding: 2rem;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -147,7 +153,7 @@ $link-color: #0000ee;
     color: $home-primary-color;
     font-weight: 500;
     margin: 0 auto 0;
-    width: calc(1320px - 2rem);
+    //width: calc(1320px - 2rem);
     padding: 0 0 10px;
     position: relative;
 

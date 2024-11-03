@@ -23,6 +23,7 @@ import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { UiProductListComponent } from '../product/ui-product-list/ui-product-list.component';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
+import { DownbarComponent } from '../downbar/downbar.component';
 
 
 @Component({
@@ -35,7 +36,8 @@ import { ProductOperationsService } from 'src/app/services/ui/product/product-op
     MatPaginatorModule, 
     FilterComponent,
     RouterModule,
-    BreadcrumbComponent],
+    BreadcrumbComponent,
+    DownbarComponent],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })

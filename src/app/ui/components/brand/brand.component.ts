@@ -21,6 +21,8 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 import { Category } from 'src/app/contracts/category/category';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
+import { UiProductListComponent } from '../product/ui-product-list/ui-product-list.component';
+import { DownbarComponent } from '../downbar/downbar.component';
 
 @Component({
   selector: 'app-brand',
@@ -32,7 +34,9 @@ import { GetListResponse } from 'src/app/contracts/getListResponse';
     MatPaginatorModule, 
     FilterComponent,
     RouterModule,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    UiProductListComponent,
+    DownbarComponent
   ],
   templateUrl: './brand.component.html',
   styleUrls: ['./brand.component.scss']

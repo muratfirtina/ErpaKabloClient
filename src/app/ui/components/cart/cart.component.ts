@@ -13,6 +13,7 @@ import { DialogService } from 'src/app/services/common/dialog.service';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { OrderService } from 'src/app/services/common/models/order.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { OrderStatus } from 'src/app/contracts/order/orderStatus';
 
 @Component({
   selector: 'app-cart',
@@ -192,15 +193,18 @@ export class CartComponent extends BaseComponent implements OnInit {
       id: '',
       orderDate: new Date(),
       orderCode: '',
-      status: 0,
+      status: OrderStatus.All,
       totalPrice: this.totalSelectedCartPrice,
       userName: 'test',
       userAddress: {
+        id: '',
+        name: 'test',
         addressLine1: '----- ----/İstanbul, Türkiye',
         city: 'İstanbul',
         country: 'Türkiye',
         state: 'Üsküdar',
         postalCode: '34000',
+        isDefault: true,
       },
       phoneNumber: '1234567890',
       description: 'Hediye Paketi yapılsın.',

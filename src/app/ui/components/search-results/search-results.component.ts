@@ -23,11 +23,23 @@ import { AuthService } from 'src/app/services/common/auth.service';
 import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
 import { UiProductListComponent } from '../product/ui-product-list/ui-product-list.component';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
+import { DownbarComponent } from '../downbar/downbar.component';
+import { ProductListComponent } from "../../../admin/components/products/product-list/product-list.component";
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-search-results',
   standalone: true,
-  imports: [CommonModule,MatPaginatorModule,NavbarComponent,MainHeaderComponent,BreadcrumbComponent,UiProductListComponent,FilterComponent, RouterModule],
+  imports: [CommonModule,
+    MatPaginatorModule,
+    MatIconModule,
+    NavbarComponent,
+    MainHeaderComponent,
+    BreadcrumbComponent,
+    UiProductListComponent,
+    FilterComponent,
+    RouterModule,
+    DownbarComponent, ProductListComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss'
 })

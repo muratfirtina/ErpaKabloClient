@@ -1,114 +1,115 @@
-<app-main-header></app-main-header>
-<app-navbar></app-navbar>
+<!-- brand.component.html -->
+<div class="page-wrapper">
+  <app-main-header></app-main-header>
+  <app-navbar></app-navbar>
 
-<div class="breadcrumb">
-  <app-breadcrumb></app-breadcrumb>
-</div>
-
-<div class="brand-head" *ngIf="brand.brandImage">
-  <div class="brand-content">
-    
-    <!-- Brand Image varsa gösterecek -->
-    <div class="brand-image" *ngIf="brand.brandImage">
-      <img [src]="brand.brandImage?.url" [alt]="brand?.name">
+  <div class="container-xxl main-content">
+    <!-- Breadcrumb -->
+    <div class="row mb-3">
+      <div class="col-12">
+        <app-breadcrumb></app-breadcrumb>
+      </div>
     </div>
-  </div>
-</div>
 
-<section class="categories" *ngIf="subCategories.length > 0">
-  <div class="category-place" *ngIf="isMobile">All Categories For {{brand.name}}</div>
-  <div class="category-header">
-    <p>All Categories For</p>
-    <a class="brand-name" [routerLink]="['/brand', brand.id]">{{brand.name}}</a>
-  </div>
-  
-  <div class="container">
-    <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile && subCategories.length > 6">
-      <!-- Sol ok ikonu -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    </button>
-
-    <div class="category-grid" #categoryGrid>
-      <div class="category-card" *ngFor="let category of subCategories" [routerLink]="['/category', category.id]">
-        <div class="category-image">
-          <img [src]="category.categoryImage?.url" [alt]="category.name">
-        </div>
-        <div class="category-content">
-          <h3 class="category-title">{{ category.name }}</h3>
-          <!-- <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p> -->
-          <a class="btn-category" [routerLink]="['/category', category.id]" *ngIf="isMobile">İncele</a>
+    <!-- Brand Header Banner -->
+    <div class="row mb-4" *ngIf="brand?.brandImage">
+      <div class="col-12">
+        <div class="brand-banner">
+          <img [src]="brand.brandImage?.url" 
+               [alt]="brand?.name"
+               class="img-fluid brand-banner-img">
         </div>
       </div>
     </div>
 
-    <button class="scroll-btn right" (click)="scrollRight()" *ngIf="!isMobile" && subCategories.length > 6>
-      <!-- Sağ ok ikonu -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-    </button>
-  </div>
-</section>
-
-
-<div class="brand-container">
-  <div class="sort-dropdown">
-    <label for="sort-select">Sırala:</label>
-    <select id="sort-select" (change)="onSortChange($event)">
-      <option value="">Varsayılan</option>
-      <option value="price_asc">Fiyat (Düşükten Yükseğe)</option>
-      <option value="price_desc">Fiyat (Yüksekten Düşüğe)</option>
-    </select>
-  </div>
-  <p class="total-items">{{ totalItems }} ürün bulundu</p>
-  <div class="brand-content">
-    <app-filter 
-      [availableFilters]="availableFilters"
-      [selectedFilters]="selectedFilters"
-      (filterChange)="onFilterChange($event)">
-    </app-filter>
-
-    <div class="product-list">
-      <div *ngIf="noResults" class="no-results">
-        <p>Üzgünüz, bu markada ürün bulunamadı.</p>
+    <!-- Categories Section -->
+    <section class="categories" *ngIf="subCategories.length > 0">
+      <div class="category-header">
+        <p>All Categories For</p>
+        <a class="brand-name" [routerLink]="['/brand', brand.id]">{{brand.name}}</a>
       </div>
+      <div class="container">
+        <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile && subCategories.length > 6">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
 
-      <div *ngIf="!noResults" class="product-grid">
-        <div *ngFor="let product of products" class="product-item" [routerLink]="['/product', product.id]">
-          <div class="product-image">
-            <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name">
-            <i class="heart-icon" [ngClass]="{'liked': product.isLiked}" (click)="toggleLike($event, product)">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-              </svg>
-            </i>
-          </div>
-          <div class="product-info">
-            <div class="name-title">
-              <a class="brand-name">{{product.brandName}}</a>
-              <div class="product-names">
-                <p class="product-name">{{product.name}}</p>
-              </div>
+        <div class="category-grid" #categoryGrid>
+          <div class="category-card" *ngFor="let category of subCategories" [routerLink]="['/category', category.id]">
+            <div class="category-image">
+              <img [src]="category.categoryImage?.url" [alt]="category.name">
             </div>
-            <p class="product-title">{{product.title}}</p>
-            <p class="product-price">{{formatCurrency(product.price)}}</p>
-            <p class="product-features">
-              <ng-container *ngFor="let feature of product.productFeatureValues; let last = last">
-                {{feature.featureValueName}}{{!last ? ', ' : ''}}
-              </ng-container>
-            </p>
+            <div class="category-content">
+              <h3 class="category-title">{{ category.name }}</h3>
+              <a class="btn-category" [routerLink]="['/category', category.id]" *ngIf="isMobile">İncele</a>
+            </div>
           </div>
-          <button class="product-add-to-cart-button" [disabled]="product.stock <= 0" (click)="addToCart($event, product)">
-            Sepete Ekle
-          </button>
+        </div>
+
+        <button class="scroll-btn right" (click)="scrollRight()" *ngIf="!isMobile && subCategories.length > 6">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- Products Section -->
+    <div class="row">
+      <!-- Sort and Total Items -->
+      <div class="col-12 mb-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+          <p class="mb-0 text-secondary small">{{ totalItems }} ürün bulundu</p>
+          <div class="d-flex align-items-center">
+            <label for="sort-select" class="me-2">Sırala:</label>
+            <select id="sort-select" 
+                    class="form-select form-select-sm w-auto" 
+                    (change)="onSortChange($event)">
+              <option value="">Varsayılan</option>
+              <option value="price_asc">Fiyat (Düşükten Yükseğe)</option>
+              <option value="price_desc">Fiyat (Yüksekten Düşüğe)</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <mat-paginator 
-        [length]="totalItems" 
-        [pageSize]="pageRequest.pageSize" 
-        [pageSizeOptions]="[5, 10, 25, 100]"
-        (page)="onPageChange($event)" 
-        *ngIf="totalItems > 0">
-      </mat-paginator>
+      <!-- Filter Sidebar -->
+      <div class="col-md-3 mb-4">
+        <app-filter [availableFilters]="availableFilters" 
+                   [selectedFilters]="selectedFilters"
+                   (filterChange)="onFilterChange($event)">
+        </app-filter>
+      </div>
+
+      <!-- Product List -->
+      <div class="col-md-9 product-list-container">
+        <!-- No Results Message -->
+        <div *ngIf="noResults" class="alert alert-light text-center">
+          <p class="mb-0">Üzgünüz, bu markada ürün bulunamadı.</p>
+        </div>
+
+        <!-- Product Grid -->
+        <app-ui-product-list 
+          *ngIf="!noResults" 
+          [products]="products">
+        </app-ui-product-list>
+
+        <!-- Pagination -->
+        <div class="mt-4 bg-white">
+          <mat-paginator 
+            [length]="totalItems" 
+            [pageSize]="pageRequest.pageSize" 
+            [pageSizeOptions]="[5, 10, 25, 100]"
+            (page)="onPageChange($event)" 
+            *ngIf="totalItems > 0">
+          </mat-paginator>
+        </div>
+      </div>
     </div>
   </div>
+
+  <app-downbar></app-downbar>
 </div>

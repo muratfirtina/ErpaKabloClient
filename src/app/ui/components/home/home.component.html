@@ -31,11 +31,6 @@
   </div>
 </section>
 
-<!-- <div class="downbar-container" *ngIf="isMobile"></div>
- -->
-<!-- Categories Section -->
-
-
 <section class="categories">
   
   <h2 class="category-header"*ngIf="!isMobile">KATEGORİLER</h2>
@@ -48,55 +43,12 @@
         <div class="category-content">
           <h3 class="category-title">{{ category.name }}</h3>
           <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p>
-          <a class="btn-category" [routerLink]="['/category', category.id]" *ngIf="isMobile">İncele</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<section class="info-cards">
-  <div class="container">
-    <div class="card-grid">
-      <div class="info-card">
-        <div class="card-image">
-          <img src="../../../../assets/homecard/smddawgolytxwkhqhvll-1280x854.webp" alt="Kalite">
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">Yüksek Kalite</h3>
-          <p class="card-description">En yüksek kalite standartlarında üretim yapıyoruz.</p>
-        </div>
-      </div>
-      <div class="info-card">
-        <div class="card-image">
-          <img src="../../../../assets/homecard/endustri-gorsel-scaled.jpg" alt="İnovasyon">
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">İnovasyon</h3>
-          <p class="card-description">Sürekli yenilik ve gelişim odaklı çalışıyoruz.</p>
-        </div>
-      </div>
-      <div class="info-card">
-        <div class="card-image">
-          <img src="../../../../assets/homecard/inventario.webp" alt="Müşteri Hizmetleri">
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">Müşteri Odaklılık</h3>
-          <p class="card-description">Müşteri memnuniyeti bizim önceliğimizdir.</p>
-        </div>
-      </div>
-      <div class="info-card">
-        <div class="card-image">
-          <img src="../../../../assets/homecard/dasdasdasdadqqqq.jpeg" alt="Sürdürülebilirlik">
-        </div>
-        <div class="card-content">
-          <h3 class="card-title">Sürdürülebilirlik</h3>
-          <p class="card-description">Çevre dostu üretim ve sürdürülebilir çözümler sunuyoruz.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
 <section class="products">
   <div *ngIf="mostLikedProducts" class="most-liked-products">
@@ -144,6 +96,49 @@
       </div>
     </div>
   </div>
-
 </section>
+
+<section class="info-cards">
+  <div class="container">
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="card-image">
+          <img src="../../../../assets/homecard/smddawgolytxwkhqhvll-1280x854.webp" alt="Kalite">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Yüksek Kalite</h3>
+          <p class="card-description">En yüksek kalite standartlarında üretim yapıyoruz.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="card-image">
+          <img src="../../../../assets/homecard/endustri-gorsel-scaled.jpg" alt="İnovasyon">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">İnovasyon</h3>
+          <p class="card-description">Sürekli yenilik ve gelişim odaklı çalışıyoruz.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="card-image">
+          <img src="../../../../assets/homecard/inventario.webp" alt="Müşteri Hizmetleri">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Müşteri Odaklılık</h3>
+          <p class="card-description">Müşteri memnuniyeti bizim önceliğimizdir.</p>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="card-image">
+          <img src="../../../../assets/homecard/dasdasdasdadqqqq.jpeg" alt="Sürdürülebilirlik">
+        </div>
+        <div class="card-content">
+          <h3 class="card-title">Sürdürülebilirlik</h3>
+          <p class="card-description">Çevre dostu üretim ve sürdürülebilir çözümler sunuyoruz.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<app-downbar></app-downbar>
 

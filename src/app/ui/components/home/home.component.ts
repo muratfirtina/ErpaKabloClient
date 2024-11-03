@@ -19,11 +19,12 @@ import { ProductLikeService } from 'src/app/services/common/models/product-like.
 import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
+import { DownbarComponent } from '../downbar/downbar.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MainHeaderComponent, CommonModule, NavbarComponent,RouterModule],
+  imports: [MainHeaderComponent, CommonModule, NavbarComponent,RouterModule,DownbarComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

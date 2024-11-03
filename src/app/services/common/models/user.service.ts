@@ -115,5 +115,17 @@ export class UserService {
     return await firstValueFrom(observable);
   }
 
+  async changePassword(currentPassword: string, newPassword: string) {
+    const observable: Observable<any> = this.httpClientService.post({
+      controller: "users",
+      action: "change-password"
+    }, {
+      currentPassword,
+      newPassword
+    });
+  
+    return await firstValueFrom(observable);
+  }
+
 
 }

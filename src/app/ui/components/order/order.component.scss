@@ -11,8 +11,14 @@ $border-color: #e0e0e0;
 $hover-color: rgba($primary-color, 0.1);
 $success-color: #00a046;
 $link-color: #0000ee;
-$border-color: #e0e0e0;
 
+// Status Colors
+$status-warning: #ffa726;  // Turuncu-sarı
+$status-success: #4caf50;  // Yeşil
+$status-danger: #e53935;   // Kırmızı
+$status-info: #2196f3;     // Mavi
+
+// Layout Components
 app-breadcrumb {
   display: flex;
   max-width: 1320px;
@@ -22,163 +28,342 @@ app-breadcrumb {
   color: $text-color;
 }
 
-.container {
-
-  app-user-sidebar {
-    flex: 0 0 245px;
-  }
-
-  display: flex;
-  gap: 16px;
+app-user-sidebar {
+  display: none;
+  flex: 0 0 245px;
   
-  .orders-page {
-    padding: 20px;
-    flex: 1;
+  @media (min-width: 992px) {
+    display: block;
+  }
+}
 
-    .orders-navigation {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+// Main Container Styles
+.orders-container {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
 
-      input {
-        padding: 10px;
-        height: 32px;
-        width: 30%;
-        border: 1px solid #e0e0e0;
-        border-radius: 5px;
-      }
+  .search-filter-container {
+    // Search Box Styles
+    .search-box {
+      max-width: 300px;
+      margin-bottom: 1rem;
 
-      .order-filters {
-        
-
-        button {
-          height: 32px;
-          margin-right: 10px;
-          padding: 0px 15px;
-          background-color: white;
-          border: 1px solid grey;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: border-color 0.3s ease;
-
-          &:hover {
-            border: 2px solid $primary-color;
-            
-          }
-
-          &.active {
-            
-            color: $text-color;
-            border: 2px solid $primary-color;
-          }
+      .input-group {
+        .input-group-text {
+          border-color: $border-color;
+          background-color: transparent;
         }
 
-        // select için stil
-        select {
-          height: 32px;
-          margin-left: 10px;
-          padding: 0px 15px;
-          background-color: white;
-          border: 1px solid grey;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: border-color 0.3s ease;
+        input {
+          border-color: $border-color;
           
-          &:hover {
+          &:focus {
+            box-shadow: none;
             border-color: $primary-color;
+            
+            + .input-group-text {
+              border-color: $primary-color;
+            }
           }
         }
       }
     }
 
-    .order-card {
+    // Filter Buttons Styles
+    .filter-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+
+      .order-filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+
+        .btn {
+          padding: 8px 16px;
+          border: 1px solid $border-color;
+          background: $background-color;
+          color: $text-color;
+          font-size: 14px;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+
+          &:hover {
+            border-color: $primary-color;
+            color: $primary-color;
+          }
+
+          &.active {
+            background: $primary-color;
+            color: white;
+            border-color: $primary-color;
+          }
+        }
+
+        select.btn {
+          padding-right: 24px;
+          background-image: url("data:image/svg+xml,...");
+          background-repeat: no-repeat;
+          background-position: right 8px center;
+          background-size: 12px;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          appearance: none;
+        }
+      }
+    }
+  }
+
+  // Orders List Styles
+  .orders-list {
+    .order-item {
       background: white;
-      padding: 20px;
-      margin-bottom: 15px;
+      border: 1px solid $border-color;
       border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-    
-      .order-summary {
+      margin-bottom: 1rem;
+      overflow: hidden;
+      transition: all 0.3s ease;
+
+      &:hover {
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      }
+
+      // Order Header Styles
+      .order-header {
+        padding: 16px;
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        gap: 20px;
         cursor: pointer;
-      
-        .order-images {
-          display: flex;
-          gap: 5px;
-      
-          .order-item-image {
-            width: 60px;
-            height: 60px;
-            object-fit: contain;
-            border: 1px solid #c6c6c6;
-            border-radius: 5px;
+
+        .order-thumbnail {
+          position: relative;
+          width: 60px;
+          height: 60px;
+          flex-shrink: 0;
+
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+          }
+
+          .more-items {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: $primary-color;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 12px;
           }
         }
-      
+
         .order-info {
-          flex-grow: 1;
-          p {
-            margin: 0;
+          flex: 1;
+
+          .order-number {
+            color: $text-color;
+            margin-bottom: 4px;
+            font-size: 14px;
           }
-      
+
           .order-status {
-            display: flex;
-            align-items: center;
-      
-            .status-icon {
-              margin-right: 5px;
-              display: inline-flex;
-              align-items: center;
+            font-size: 14px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+          
+            &.status-warning:hover {
+              background-color: rgba($status-warning, 0.1);
             }
-      
-            .completed {
-              color: green;
+            
+            &.status-success:hover {
+              background-color: rgba($status-success, 0.1);
             }
-      
-            .cancelled {
-              color: red;
+            
+            &.status-danger:hover {
+              background-color: rgba($status-danger, 0.1);
             }
-      
-            .pending {
-              color: orange;
+            
+            &.status-info:hover {
+              background-color: rgba($status-info, 0.1);
             }
           }
         }
-      
-        .expand-button {
-          background: transparent;
+
+        .order-date {
+          color: $text-color;
+          font-size: 14px;
+        }
+
+        .order-price {
+          font-size: 16px;
+          min-width: 100px;
+          text-align: right;
+        }
+
+        .btn-expand {
+          background: none;
           border: none;
-          font-size: 1.5rem;
-          transform: rotate(0);
-          transition: transform 0.3s ease;
-          &.expanded {
+          padding: 8px;
+          color: $text-color;
+          transition: transform 0.3s;
+
+          i {
+            transition: transform 0.3s ease;
+          }
+
+          &.expanded i {
             transform: rotate(180deg);
           }
         }
       }
-    
+
+      // Order Details Styles
       .order-details {
-        margin-top: 20px;
-    
-        .order-item {
+        border-top: 1px solid $border-color;
+        padding: 16px;
+        background: #f9f9f9;
+
+        .order-item-detail {
           display: flex;
-          align-items: center;
-          margin-bottom: 15px;
-    
+          gap: 16px;
+          padding: 12px;
+          border-bottom: 1px solid $border-color;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
           img {
             width: 60px;
             height: 60px;
-            margin-right: 15px;
             object-fit: cover;
+            border-radius: 4px;
           }
-    
-          p {
-            margin: 0;
+
+          .item-info {
+            flex: 1;
+
+            .item-brand {
+              color: $primary-color;
+              font-size: 14px;
+              margin-bottom: 4px;
+            }
+
+            .item-name {
+              font-weight: 500;
+              margin-bottom: 2px;
+            }
+
+            .item-title {
+              color: $text-color;
+              font-size: 14px;
+            }
+          }
+
+          .item-price {
+            text-align: right;
+            max-width: 76px;
+
+            .item-quantity {
+              font-size: 14px;
+              color: $text-color;
+              margin-bottom: 4px;
+            }
+
+            .price-value {
+              font-weight: 500;
+              color: $success-color;
+            }
+          }
+        }
+
+        // Address and Notes Styles
+        .shipping-address,
+        .order-notes {
+          background: white;
+          border-radius: 6px;
+          padding: 12px;
+          margin-top: 12px;
+
+          .address-header,
+          .notes-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: $text-color;
+            font-weight: 500;
+
+            i {
+              font-size: 18px;
+            }
+          }
+
+          .address-content,
+          .notes-content {
+            padding-left: 26px;
+            color: $text-color;
+            font-size: 14px;
           }
         }
       }
     }
   }
+
+  // Responsive Design
+  @media (max-width: 768px) {
+    .order-header {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .order-thumbnail {
+        width: 80px;
+        height: 80px;
+      }
+
+      .order-info,
+      .order-date,
+      .order-price {
+        width: 100%;
+      }
+
+      .order-price {
+        text-align: left !important;
+      }
+    }
+
+    .filter-buttons .order-filters {
+      flex-direction: column;
+      width: 100%;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Pagination Styles
+::ng-deep .mat-paginator {
+  background: transparent;
+  
+  .mat-paginator-container {
+    min-height: 48px;
+    padding: 0 8px;
+  }
+}
+
+// Loading Spinner Styles
+.spinner-border {
+  width: 2rem;
+  height: 2rem;
 }

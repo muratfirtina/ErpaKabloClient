@@ -1,27 +1,23 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { UserService } from 'src/app/services/common/models/user.service';
 
 @Component({
-  selector: 'app-user-sidebar',
+  selector: 'app-desktop-user-sidebar',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './user-sidebar.component.html',
-  styleUrl: './user-sidebar.component.scss'
+  templateUrl: './desktop-user-sidebar.component.html',
+  styleUrl: './desktop-user-sidebar.component.scss'
 })
-export class UserSidebarComponent implements OnInit {
-
-  @Input() isOpen = false;
-  @Output() closeSidebar = new EventEmitter<void>();
-
+export class DesktopUserSidebarComponent implements OnInit {
   userNameSurname: string | undefined;
 
   constructor(
     private router: Router,
     private userService: UserService,
-    public authService: AuthService // public yapıldı ki template'de kullanabilelim
+    public authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -34,28 +30,20 @@ export class UserSidebarComponent implements OnInit {
     }
   }
 
-  close() {
-    this.closeSidebar.emit();
-  }
-
   navigateTo(path: string): void {
     this.router.navigate([`/${path}`]);
-    this.close(); // Yönlendirme sonrası sidebar'ı kapat
   }
 
   navigateToLogin() {
     this.router.navigate(['/login']);
-    this.close();
   }
 
   navigateToRegister() {
     this.router.navigate(['/register']);
-    this.close();
   }
 
   logout(): void {
     this.authService.logout();
-    this.close(); // Çıkış yapınca sidebar'ı kapat
     this.router.navigate(['/']); // Ana sayfaya yönlendir
   }
 }

@@ -448,10 +448,10 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     }
   }
 
-  toggleMobileMenu() {
+  /* toggleMobileMenu() {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
     this.updateBodyScroll();
-  }
+  } */
 
   closeMobileMenu() {
     this.isMobileMenuOpen = false;

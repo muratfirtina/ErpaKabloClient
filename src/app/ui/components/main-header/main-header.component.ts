@@ -49,22 +49,38 @@ export class MainHeaderComponent implements OnInit {
   }
 
   async ngOnInit() {
-    await this.authService.identityCheck();
-    if (this.authService.isAuthenticated) {
-      this.cartService.getCartItemsObservable().subscribe(
-        items => {
-          this.cartItems = items;
-        }
-      );
-      await this.getCurrentUser();
+    try {
+      await this.authService.identityCheck();
+      
+      if (this.authService.isAuthenticated) {
+        // Önce sepet verilerini yükle
+        await this.loadInitialCartItems();
+        
+        // Sonra observable'a subscribe ol
+        this.cartService.getCartItemsObservable().subscribe(
+          items => {
+            this.cartItems = items;
+          }
+        );
+        
+        await this.getCurrentUser();
+      }
+    } catch (error) {
+      console.error('Error in ngOnInit:', error);
     }
 
     document.addEventListener('click', this.handleClickOutside.bind(this));
   }
 
-  async getCartItems() {
-    this.cartItems = await this.cartService.get();
+  private async loadInitialCartItems() {
+    try {
+      const items = await this.cartService.get();
+      this.cartItems = items;
+    } catch (error) {
+      console.error('Error loading initial cart items:', error);
+    }
   }
+
 
   async getCurrentUser() {
     this.isLoading = true;
@@ -113,6 +129,7 @@ export class MainHeaderComponent implements OnInit {
 
   signOut() {
     this.authService.logout();
+    window.location.reload();
   }
 
   navigateToLogin() {

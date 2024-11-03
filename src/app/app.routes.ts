@@ -56,5 +56,7 @@ export const routes: Routes = [
        {path: "brand/:id",loadComponent:()=>import('./ui/components/brand/brand.component').then(m=>m.BrandComponent)},
        {path: "unauthorized",loadComponent:()=>import('./ui/components/unauthorized/unauthorized.component').then(m=>m.UnauthorizedComponent)},
        {path: "order",loadComponent:()=>import('./ui/components/order/order.component').then(m=>m.OrderComponent)},
+       {path: "user",loadComponent:()=>import('./ui/components/user/user.component').then(m=>m.UserComponent)},
+       {path: "downbar",loadComponent:()=>import('./ui/components/downbar/downbar.component').then(m=>m.DownbarComponent)},
 
 ];

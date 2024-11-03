@@ -37,8 +37,8 @@ export const appConfig: ApplicationConfig = {
           tokenGetter: () => {
             return localStorage.getItem("accessToken");
           },
-          allowedDomains: ["localhost:5199"],
-          disallowedRoutes: ["localhost:5199/api/auth/login"]
+          allowedDomains: ["localhost:5199", "192.168.0.10:5199"],
+          disallowedRoutes: ["localhost:5199/api/auth/login", "192.168.0.10:5199/api/auth/login"]
         }
       }
     ),),SafeUrlPipe,SafeHtmlPipe,
