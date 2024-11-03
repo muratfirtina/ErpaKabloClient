@@ -40,4 +40,12 @@ export class UserAddressService {
     const promiseData = firstValueFrom(observable);
     return await promiseData;
   }
+
+  async setDefaultAddress(id: string) {
+    const observable: Observable<any> = this.httpClientService.put({
+        controller: 'useraddresses',
+        action: `${id}/set-default`
+    }, {});
+    return await firstValueFrom(observable);
+}
 }

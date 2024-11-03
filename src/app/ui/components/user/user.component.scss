@@ -283,6 +283,21 @@ $link-color: #0000ee;
     font-weight: 500;
     padding: 0.35em 0.65em;
     border-radius: 0.375rem;
+
+    .badge.default-badge {
+      background-color: $success-color;
+      color: $light-text;
+  }
+  
+    .btn-outline-success {
+      color: $success-color;
+      border-color: $success-color;
+      
+      &:hover {
+          background-color: $success-color;
+          color: $light-text;
+      }
+  }
   }
 
   .btn-actions {
@@ -290,6 +305,7 @@ $link-color: #0000ee;
     gap: 0.5rem;
   }
 }
+
 
 // Modal Styles
 .modal {

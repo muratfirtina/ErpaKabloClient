@@ -27,7 +27,8 @@ export class UserPhoneService {
 
   async updatePhone(id: string, phone: UserPhone) {
     const observable: Observable<UserPhone> = this.httpClientService.put({
-      controller: 'phonenumbers'
+      controller: 'phonenumbers',
+      action: id
     }, phone);
     return await firstValueFrom(observable);
   }
@@ -35,8 +36,14 @@ export class UserPhoneService {
   async deletePhone(id: string) {
     const observable: Observable<UserPhone> = this.httpClientService.delete({
       controller: 'phonenumbers',
-      action: id
     },id);
+    return await firstValueFrom(observable);
+  }
+  async setDefaultPhone(id: string) {
+    const observable: Observable<any> = this.httpClientService.put({
+      controller: 'phonenumbers',
+      action: `${id}/set-default`
+    }, {});
     return await firstValueFrom(observable);
   }
 }

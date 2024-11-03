@@ -289,6 +289,22 @@ export class UserComponent extends BaseComponent implements OnInit {
     }
   }
 
+  async setDefaultAddress(id: string) {
+    try {
+        await this.addressService.setDefaultAddress(id);
+        this.toastr.message('Default address updated successfully', 'Success', {
+            toastrMessageType: ToastrMessageType.Success,
+            position: ToastrPosition.TopRight
+        });
+        this.loadAddresses();
+    } catch (error) {
+        this.toastr.message('Failed to update default address', 'Error', {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight
+        });
+    }
+}
+
   showAddPhoneForm() {
     this.isEditMode = false;
     this.currentItemId = null;
@@ -383,7 +399,8 @@ export class UserComponent extends BaseComponent implements OnInit {
           });
         }
         
-        $('#phoneModal').modal('hide');
+        const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('phoneModal'));
+        modal.hide();
         this.loadPhoneNumbers();
         this.phoneForm.reset();
       } catch (error) {
@@ -392,6 +409,22 @@ export class UserComponent extends BaseComponent implements OnInit {
           position: ToastrPosition.TopRight
         });
       }
+    }
+  }
+
+  async setDefaultPhone(id: string) {
+    try {
+      await this.phoneService.setDefaultPhone(id);
+      this.toastr.message('Default phone number updated successfully', 'Success', {
+        toastrMessageType: ToastrMessageType.Success,
+        position: ToastrPosition.TopRight
+      });
+      this.loadPhoneNumbers();
+    } catch (error) {
+      this.toastr.message('Failed to update default phone number', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
     }
   }
 
