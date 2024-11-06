@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -53,6 +53,7 @@ export class CartComponent extends BaseComponent implements OnInit {
   close() {
     this.isOpen = false;
     this.closeCart.emit();
+    document.body.style.overflow = 'auto';
   }
 
   async getCartItems(): Promise<void> {
@@ -207,7 +208,9 @@ export class CartComponent extends BaseComponent implements OnInit {
 
   @HostListener('document:keydown.escape')
   onEscapePress() {
-    this.close();
+    if (this.isOpen) {
+      this.close();
+    }
   }
 
   @HostListener('click', ['$event'])
@@ -217,5 +220,23 @@ export class CartComponent extends BaseComponent implements OnInit {
     if (target.classList.contains('cart-drawer-backdrop')) {
       this.close();
     }
+  }
+
+  setPageScroll() {
+    if (this.isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isOpen']) {
+      this.setPageScroll();
+    }
+  }
+
+  ngOnDestroy() {
+    document.body.style.overflow = 'auto'; // Component yok edildiğinde scroll'u geri aç
   }
 }

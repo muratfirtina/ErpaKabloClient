@@ -12,6 +12,7 @@ import { UserService } from 'src/app/services/common/models/user.service';
 import { CartComponent } from '../cart/cart.component';
 import { CartItem } from 'src/app/contracts/cart/cartItem';
 import { UserDto } from 'src/app/contracts/user/userDto';
+import { UserSidebarComponent } from '../user/user-sidebar/user-sidebar.component';
 
 @Component({
   selector: 'app-main-header',
@@ -21,7 +22,8 @@ import { UserDto } from 'src/app/contracts/user/userDto';
     RouterModule, 
     FormsModule, 
     NgxSpinnerModule, 
-    CartComponent
+    CartComponent,
+    UserSidebarComponent
   ],
   templateUrl: './main-header.component.html',
   styleUrls: ['./main-header.component.scss']
@@ -31,10 +33,11 @@ export class MainHeaderComponent implements OnInit {
 
   cartItems: CartItem[];
   cartItemsObservable: Observable<CartItem[]>;
-  isDropdownVisible: boolean = false;
   isCartOpen: boolean = false;
+  isSidebarOpen: boolean = false;
   currentUser: UserDto | null = null;
   isLoading: boolean = true;
+  isMobile: boolean = false;
 
   constructor(
     public authService: AuthService,
@@ -53,10 +56,8 @@ export class MainHeaderComponent implements OnInit {
       await this.authService.identityCheck();
       
       if (this.authService.isAuthenticated) {
-        // Önce sepet verilerini yükle
         await this.loadInitialCartItems();
         
-        // Sonra observable'a subscribe ol
         this.cartService.getCartItemsObservable().subscribe(
           items => {
             this.cartItems = items;
@@ -68,8 +69,6 @@ export class MainHeaderComponent implements OnInit {
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
-
-    document.addEventListener('click', this.handleClickOutside.bind(this));
   }
 
   private async loadInitialCartItems() {
@@ -102,29 +101,31 @@ export class MainHeaderComponent implements OnInit {
     }
   }
 
-  toggleDropdown() {
-    this.isDropdownVisible = !this.isDropdownVisible;
-  }
-
-  closeDropdown() {
-    this.isDropdownVisible = false;
-  }
-
-  handleClickOutside(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-    if (!target.closest('.dropdown-menu') && !this.accountButton?.nativeElement.contains(target)) {
-      this.closeDropdown();
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
+    if (this.isSidebarOpen) {
+      document.body.style.overflow = 'hidden';
     }
   }
+
+  closeSidebar() {
+    this.isSidebarOpen = false;
+    document.body.style.overflow = 'auto';
+  }
+
 
   @HostListener('window:keydown.escape')
   onEscPress() {
     if (this.isCartOpen) {
       this.toggleCart();
     }
-    if (this.isDropdownVisible) {
-      this.closeDropdown();
+    if (this.isSidebarOpen) {
+      this.closeSidebar();
     }
+  }
+
+  ngOnDestroy() {
+    document.body.style.overflow = '';
   }
 
   async signOut() {
@@ -152,8 +153,4 @@ export class MainHeaderComponent implements OnInit {
     this.router.navigate(['/admin']);
   }
 
-  ngOnDestroy() {
-    document.body.style.overflow = ''; // Restore scrolling when component is destroyed
-    document.removeEventListener('click', this.handleClickOutside.bind(this));
-  }
 }
