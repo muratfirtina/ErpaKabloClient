@@ -49,6 +49,8 @@ export class UserAuthService {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("userId");
+      localStorage.clear();
+      sessionStorage.clear();
 
       this.toastrService.message("Logged out successfully", "Success", {
         toastrMessageType: ToastrMessageType.Success,

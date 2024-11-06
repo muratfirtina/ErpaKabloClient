@@ -1,0 +1,242 @@
+// order-summary.component.scss
+.order-summary-page {
+  background-color: #f8fafc;
+  padding: 2rem 0;
+  min-height: calc(100vh - 160px);
+
+  .success-message {
+    text-align: center;
+    margin-bottom: 3rem;
+
+    .success-icon {
+      color: #059669;
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      color: #1f2937;
+      font-size: 1.875rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .order-code {
+      color: #4b5563;
+      font-size: 1.125rem;
+
+      strong {
+        color: #059669;
+      }
+    }
+  }
+
+  .order-details {
+    display: flex;
+    gap: 1rem;
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+
+    @media screen and (max-width: 768px) {
+      display: block;
+        
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 2rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 1rem;
+    }
+
+    .products-section {
+      margin-bottom: 2rem;
+
+      .product-list {
+        .product-item {
+          display: flex;
+          align-items: start;
+          padding: 1rem;
+          border: 1px solid #e5e7eb;
+          border-radius: 0.5rem;
+          margin-bottom: 1rem;
+          
+
+          .product-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+          }
+
+          .product-info {
+            flex: 1;
+            padding: 0 1rem;
+
+            .brand {
+              font-weight: 600;
+              color: #059669;
+              font-size: 0.875rem;
+            }
+
+            .name {
+              font-weight: 500;
+              color: #1f2937;
+              margin: 0.25rem 0;
+            }
+
+            .title {
+              color: #6b7280;
+              font-size: 0.875rem;
+            }
+
+            .features {
+              margin-top: 0.5rem;
+              font-size: 0.875rem;
+              color: #4b5563;
+            }
+          }
+
+          .price-info {
+            text-align: right;
+
+            .quantity {
+              color: #6b7280;
+              font-size: 0.875rem;
+            }
+
+            .price {
+              font-weight: 600;
+              color: #059669;
+              margin-top: 0.25rem;
+            }
+          }
+        }
+      }
+    }
+
+    .delivery-section {
+      margin-bottom: 2rem;
+
+      .info-card {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+
+        h4 {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #374151;
+          margin-bottom: 1rem;
+        }
+
+        p {
+          color: #4b5563;
+          margin-bottom: 0.5rem;
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    .notes-section {
+      margin-bottom: 2rem;
+
+      .note-content {
+        background: #f8fafc;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        color: #4b5563;
+        font-size: 0.875rem;
+      }
+    }
+
+    .price-summary {
+      .summary-items {
+        background: #f8fafc;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+
+        .summary-item {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 0.75rem;
+          color: #4b5563;
+
+          &.total {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            font-weight: 600;
+            color: #1f2937;
+
+            span:last-child {
+              color: #059669;
+              font-size: 1.125rem;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+
+    .btn {
+      padding: 0.75rem 2rem;
+      font-weight: 500;
+
+      &-outline-primary {
+        border-color: #059669;
+        color: #059669;
+
+        &:hover {
+          background: #059669;
+          color: white;
+        }
+      }
+
+      &-primary {
+        background: #059669;
+        border-color: #059669;
+
+        &:hover {
+          background: darken(#059669, 5%);
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .delivery-section {
+      .info-card {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+      }
+    }
+
+    .action-buttons {
+      padding-bottom: 55px;
+      flex-direction: column;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+}

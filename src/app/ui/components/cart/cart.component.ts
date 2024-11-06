@@ -188,67 +188,21 @@ export class CartComponent extends BaseComponent implements OnInit {
       );
       return;
     }
-
-    const createOrder: CreateOrder = {
-      id: '',
-      orderDate: new Date(),
-      orderCode: '',
-      status: OrderStatus.All,
-      totalPrice: this.totalSelectedCartPrice,
-      userName: 'test',
-      userAddress: {
-        id: '',
-        name: 'test',
-        addressLine1: '----- ----/İstanbul, Türkiye',
-        city: 'İstanbul',
-        country: 'Türkiye',
-        state: 'Üsküdar',
-        postalCode: '34000',
-        isDefault: true,
-      },
-      phoneNumber: '1234567890',
-      description: 'Hediye Paketi yapılsın.',
-      orderItems: this.cartItems
-        .filter((cartItem) => cartItem.isChecked)
-        .map((cartItem) => {
-          return {
-            id: '',
-            productId: cartItem.productId,
-            productName: cartItem.productName,
-            unitPrice: cartItem.unitPrice,
-            quantity: cartItem.quantity,
-            imageUrl: cartItem.showcaseImage.url,
-            brandName: cartItem.brandName,
-            price: cartItem.unitPrice,
-            title: cartItem.title,
-            productFeatureValues: cartItem.productFeatureValues,
-          };
-        }),
+  
+    // Seçili ürünleri ve toplam fiyatı OrderPage'e geçirelim
+    const selectedItems = this.cartItems.filter(item => item.isChecked);
+    const orderData = {
+      selectedItems: selectedItems,
+      totalPrice: this.totalSelectedCartPrice
     };
-    
-    await this.orderService.create(createOrder,
-      () => {
-        this.toastrService.message(
-          'Siparişiniz başarıyla oluşturuldu.',
-          'Siparişiniz alındı',
-          {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight,
-          }
-        );
-        this.router.navigate(['/orders']);
-      },
-      (error) => {
-        this.toastrService.message(
-          'Sipariş oluşturulurken bir hata oluştu.',
-          'Hata',
-          {
-            toastrMessageType: ToastrMessageType.Error,
-            position: ToastrPosition.TopRight,
-          }
-        );
-      }
-    );
+  
+    // OrderPage'e yönlendirme yaparken verileri state üzerinden geçirelim
+    this.router.navigate(['/order-page'], { 
+      state: { orderData }
+    });
+  
+    // Cart drawer'ı kapatalım
+    this.close();
   }
 
   @HostListener('document:keydown.escape')

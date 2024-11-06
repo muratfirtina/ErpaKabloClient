@@ -127,9 +127,9 @@ export class MainHeaderComponent implements OnInit {
     }
   }
 
-  signOut() {
-    this.authService.logout();
-    window.location.reload();
+  async signOut() {
+    await this.authService.logout();
+    await this.router.navigate(['']); 
   }
 
   navigateToLogin() {

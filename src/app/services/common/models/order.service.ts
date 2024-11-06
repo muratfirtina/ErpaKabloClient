@@ -24,20 +24,20 @@ export class OrderService {
     private router:Router,
     private productService: ProductService) { }
 
-    async create(createOrder: CreateOrder, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+    async create(createOrder: CreateOrder, successCallback?: (response: any) => void, errorCallback?: (errorMessage: string) => void): Promise<any> {
       const observable: Observable<any> = this.httpClientService.post({
         controller: 'orders',
         action: 'convert-cart-to-order'
       }, createOrder);
-  
+    
       const promiseData = firstValueFrom(observable);
-      promiseData.then(() => {
-        if (successCallback) successCallback();
+      promiseData.then((response) => {
+        if (successCallback) successCallback(response);
       }).catch(error => {
         if (errorCallback) errorCallback(error);
       });
-  
-      await promiseData;
+    
+      return await promiseData;
     }
 
   async getAllOrders(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Order>>{
@@ -118,7 +118,7 @@ export class OrderService {
       if (errorCallback) errorCallback(error);
     });
 
-    await promiseData;
+    return await promiseData;
   }
 
   async deleteOrderItem(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
@@ -145,6 +145,19 @@ export class OrderService {
     const promiseData = firstValueFrom(observable);
     promiseData.then(successCallback)
       .catch(errorCallback);
+    return await promiseData;
+  }
+
+  async getUserOrderById(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<Order> {
+    const observable: Observable<Order> = this.httpClientService.get<Order>({
+      controller: "orders",
+      action: "user-order"
+    }, id);
+  
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+  
     return await promiseData;
   }
 }

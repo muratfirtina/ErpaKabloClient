@@ -6,9 +6,9 @@ import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { UserAddress } from 'src/app/contracts/user/userAddress';
 import { UserDto } from 'src/app/contracts/user/userDto';
-import { UserPhone } from 'src/app/contracts/user/userPhone';
+
 import { UserAddressService } from 'src/app/services/common/models/user-address.service';
-import { UserPhoneService } from 'src/app/services/common/models/user-phone.service';
+
 import { UserService } from 'src/app/services/common/models/user.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import * as bootstrap from 'bootstrap'; 
@@ -16,6 +16,8 @@ import { MainHeaderComponent } from '../main-header/main-header.component';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { UserSidebarComponent } from './user-sidebar/user-sidebar.component';
 import { DownbarComponent } from '../downbar/downbar.component';
+import { PhoneNumber } from 'src/app/contracts/user/phoneNumber';
+import { PhoneNumberService } from 'src/app/services/common/models/phone-number.service';
 
 
 declare var $: any;
@@ -30,7 +32,7 @@ declare var $: any;
 export class UserComponent extends BaseComponent implements OnInit {
   user: UserDto | null = null;
   addresses: UserAddress[] = [];
-  phoneNumbers: UserPhone[] = [];
+  phoneNumbers: PhoneNumber[] = [];
   
   passwordForm: FormGroup;
   addressForm: FormGroup;
@@ -60,7 +62,7 @@ export class UserComponent extends BaseComponent implements OnInit {
     private formBuilder: FormBuilder,
     private userService: UserService,
     private addressService: UserAddressService,
-    private phoneService: UserPhoneService,
+    private phoneService: PhoneNumberService,
     private toastr: CustomToastrService,
     spinner: NgxSpinnerService
   ) {
@@ -313,7 +315,7 @@ export class UserComponent extends BaseComponent implements OnInit {
     modal.show();
   }
 
-  editPhone(phone: UserPhone) {
+  editPhone(phone: PhoneNumber) {
     this.isEditMode = true;
     this.currentItemId = phone.id;
     this.phoneForm.patchValue({
@@ -376,7 +378,7 @@ export class UserComponent extends BaseComponent implements OnInit {
   async savePhone() {
     if (this.phoneForm.valid) {
       try {
-        const phoneData: Omit<UserPhone, 'id'> = {
+        const phoneData: Omit<PhoneNumber, 'id'> = {
           name: this.phoneForm.get('name')?.value,
           number: this.phoneForm.get('number')?.value,
           isDefault: this.phoneForm.get('isDefault')?.value ?? false
@@ -392,7 +394,7 @@ export class UserComponent extends BaseComponent implements OnInit {
             position: ToastrPosition.TopRight
           });
         } else {
-          await this.phoneService.addPhone(phoneData as UserPhone);
+          await this.phoneService.addPhone(phoneData as PhoneNumber);
           this.toastr.message('New phone number added', 'Success', {
             toastrMessageType: ToastrMessageType.Success,
             position: ToastrPosition.TopRight

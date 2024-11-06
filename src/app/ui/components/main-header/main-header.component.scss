@@ -14,7 +14,7 @@ $background-color: #ffffff;
 $text-color: #484848;
 $border-color: #e0e0e0;
 $hover-color: rgba($primary-color, 0.1);
-$success-color: #00a046;
+$success-color: #059669;
 $link-color: #0000ee;
 
 $breakpoint-mobile: 480px;
@@ -146,7 +146,7 @@ $breakpoint-large: 1400px;
       color: $text-color; // Varsayılan renk
   
       &.has-items {
-        color: darkgreen; // Sepette ürün varken renk
+        color: $success-color; // Sepette ürün varken renk
       }
   
       .fas {

@@ -1,0 +1,461 @@
+<!-- order-page.component.html -->
+<app-main-header></app-main-header>
+<app-navbar></app-navbar>
+
+<div class="order-page">
+    <div class="container">
+        <h1 class="page-title">Complete Your Order</h1>
+
+        <div class="order-container">
+            <!-- Products Section -->
+            <section class="mb-2">
+                <h2 class="section-title">
+                    <i class="fas fa-shopping-cart"></i>
+                    Selected Items
+                </h2>
+
+                <!-- Product List -->
+<div class="product-list">
+    <div *ngFor="let item of orderData?.selectedItems" class="product-item">
+        <div class="row g-0">
+            <!-- Product Image -->
+            <div class="col-auto">
+                <img [src]="item.showcaseImage?.url || 'assets/default-product.png'"
+                     [alt]="item.productName" 
+                     class="product-image">
+            </div>
+
+            <!-- Product Details -->
+            <div class="col">
+                <div class="product-details">
+                    <!-- Brand & Title -->
+                    <div class="header-section">
+                        <div class="brand">{{item.brandName}}</div>
+                        <div class="name">{{item.productName}}</div>
+                        <div class="title">{{item.title}}</div>
+                    </div>
+
+                    <!-- Product Features -->
+                    <div class="features-section">
+                        <div class="features-grid">
+                            <div *ngFor="let feature of item.productFeatureValues" class="feature-item">
+                                <span class="feature-name">{{feature.featureName}}:</span>
+                                <span class="feature-value">{{feature.featureValueName}}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Price Information -->
+                    <div class="price-section">
+                        <div class="quantity-info">
+                            Quantity: <span class="quantity-value">{{item.quantity}}</span>
+                        </div>
+                        <div class="price-details">
+                            <div class="unit-price">
+                                <span class="price-label">U.Price:</span>
+                                <span class="price-value">{{item.unitPrice | currency:'USD':'symbol':'1.2-2'}}</span>
+                            </div>
+                            <div class="total-price">
+                                <span class="price-label">Total:</span>
+                                <span class="price-value">{{item.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+            </section>
+
+            <!-- Delivery Information -->
+            <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+                <!-- Address Selection -->
+                <section class="mb-4">
+                    <h2 class="section-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Delivery Address
+                    </h2>
+
+                    <div class="form-select-container">
+                        <label for="addressSelect">Select Delivery Address</label>
+                        <select id="addressSelect" class="form-select" formControlName="addressId" [class.is-invalid]="orderForm.get('addressId')?.errors?.['required'] && 
+                                      orderForm.get('addressId')?.touched">
+                            <option value="">Choose an address...</option>
+                            <option *ngFor="let address of addresses" [value]="address.id">
+                                {{address.name}} - {{address.addressLine1}}, {{address.city}}
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a delivery address
+                        </div>
+                        <a href="javascript:void(0)" class="add-new-btn" (click)="openAddressModal()">
+                            <i class="fas fa-plus"></i>
+                            Add New Address
+                        </a>
+                    </div>
+
+                    <!-- Selected Address Preview -->
+                    <div *ngIf="getSelectedAddress()" class="selected-preview mt-3">
+                        <div class="card" style="background-color: #f8fafc;">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">Selected Address</h6>
+                                <p class="card-text">
+                                    {{getSelectedAddress()?.addressLine1}}<br>
+                                    <ng-container *ngIf="getSelectedAddress()?.addressLine2">
+                                        {{getSelectedAddress()?.addressLine2}}<br>
+                                    </ng-container>
+                                    {{getSelectedAddress()?.city}}, {{getSelectedAddress()?.state}}
+                                    {{getSelectedAddress()?.postalCode}}<br>
+                                    {{getSelectedAddress()?.country}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Phone Selection -->
+                <section class="mb-4">
+                    <h2 class="section-title">
+                        <i class="fas fa-phone"></i>
+                        Contact Phone
+                    </h2>
+
+                    <div class="form-select-container">
+                        <label for="phoneSelect">Select Contact Phone</label>
+                        <select id="phoneSelect" class="form-select" formControlName="phoneNumberId" [class.is-invalid]="orderForm.get('phoneNumberId')?.errors?.['required'] && 
+                                      orderForm.get('phoneNumberId')?.touched">
+                            <option value="">Choose a phone number...</option>
+                            <option *ngFor="let phone of phones" [value]="phone.id">
+                                {{phone.name}} - {{phone.number}}
+                            </option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Please select a contact phone
+                        </div>
+                        <a href="javascript:void(0)" class="add-new-btn" (click)="openPhoneModal()">
+                            <i class="fas fa-plus"></i>
+                            Add New Phone
+                        </a>
+                    </div>
+
+                    <!-- Selected Phone Preview -->
+                    <div *ngIf="getSelectedPhone()" class="selected-preview mt-3">
+                        <div class="card" style="background-color: #f8fafc;">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">Selected Phone</h6>
+                                <p class="card-text">
+                                    {{getSelectedPhone()?.name}}: {{getSelectedPhone()?.number}}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Order Notes -->
+                <section class="mb-4">
+                    <h2 class="section-title">
+                        <i class="fas fa-comment-alt"></i>
+                        Order Notes
+                    </h2>
+
+                    <div class="order-notes">
+                        <textarea formControlName="description" class="form-control"
+                            placeholder="Add any special instructions for your order...">
+            </textarea>
+                    </div>
+                </section>
+
+                <!-- Order Summary -->
+                <section class="order-summary">
+                    <h2 class="section-title mb-4">
+                        <i class="fas fa-receipt"></i>
+                        Order Summary
+                    </h2>
+
+                    <div class="summary-item">
+                        <span>Subtotal</span>
+                        <span>{{orderData?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Shipping</span>
+                        <span>Free</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span>Total</span>
+                        <span>{{orderData?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
+                    </div>
+                </section>
+
+                <!-- Submit Button -->
+                <button type="submit" class="submit-button" [disabled]="orderForm.invalid">
+                    <i class="fas fa-check mr-2"></i>
+                    Complete Order
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Address Modal -->
+<div class="modal" [class.show]="showAddressModal" *ngIf="showAddressModal" tabindex="-1" role="dialog" aria-labelledby="addressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-map-marker-alt mr-2" style="color: #059669;"></i>
+                    Add New Address
+                </h5>
+                <button type="button" class="close" style="margin: 0px 0 8px 20px;" (click)="closeAddressModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form [formGroup]="addressForm" (ngSubmit)="onAddressSubmit()">
+                <div class="modal-body">
+                    <!-- Address Name -->
+                    <div class="form-group">
+                        <label>Address Name</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-tag"></i>
+                                </span>
+                            </div>
+                            <input type="text" formControlName="name" class="form-control"
+                                placeholder="e.g., Home, Work, etc." [class.is-invalid]="addressForm.get('name')?.errors?.['required'] && 
+                                     addressForm.get('name')?.touched">
+                        </div>
+                        <div class="invalid-feedback">
+                            Address name is required
+                        </div>
+                    </div>
+
+                    <!-- Address Line 1 -->
+                    <div class="form-group">
+                        <label>Street Address</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-map-signs"></i>
+                                </span>
+                            </div>
+                            <input type="text" formControlName="addressLine1" class="form-control"
+                                placeholder="Enter street address" [class.is-invalid]="addressForm.get('addressLine1')?.errors?.['required'] && 
+                                     addressForm.get('addressLine1')?.touched">
+                        </div>
+                        <div class="invalid-feedback">
+                            Street address is required
+                        </div>
+                    </div>
+
+                    <!-- Address Line 2 -->
+                    <div class="form-group">
+                        <label>Apartment, Suite, etc. (optional)</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-building"></i>
+                                </span>
+                            </div>
+                            <input type="text" formControlName="addressLine2" class="form-control"
+                                placeholder="Apartment or suite number">
+                        </div>
+                    </div>
+
+                    <!-- City and State -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>City</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-city"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text" formControlName="city" class="form-control" [class.is-invalid]="addressForm.get('city')?.errors?.['required'] && 
+                                         addressForm.get('city')?.touched">
+                                </div>
+                                <div class="invalid-feedback">
+                                    City is required
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>State/Province</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-map"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text" formControlName="state" class="form-control" [class.is-invalid]="addressForm.get('state')?.errors?.['required'] && 
+                                         addressForm.get('state')?.touched">
+                                </div>
+                                <div class="invalid-feedback">
+                                    State is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Postal Code and Country -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Postal Code</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-mail-bulk"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text" formControlName="postalCode" class="form-control"
+                                        [class.is-invalid]="(addressForm.get('postalCode')?.errors?.['required'] || 
+                                          addressForm.get('postalCode')?.errors?.['invalidPostalCode']) && 
+                                          addressForm.get('postalCode')?.touched">
+                                </div>
+                                <div class="invalid-feedback">
+                                    <span *ngIf="addressForm.get('postalCode')?.errors?.['required']">
+                                        Postal code is required
+                                    </span>
+                                    <span *ngIf="addressForm.get('postalCode')?.errors?.['invalidPostalCode']">
+                                        Please enter a valid postal code
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Country</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-globe"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text" formControlName="country" class="form-control"
+                                        [class.is-invalid]="addressForm.get('country')?.errors?.['required'] && 
+                                         addressForm.get('country')?.touched">
+                                </div>
+                                <div class="invalid-feedback">
+                                    Country is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Set as Default -->
+                    <div class="form-group mb-0">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="defaultAddress"
+                                formControlName="isDefault">
+                            <label class="custom-control-label" for="defaultAddress">
+                                Set as default address
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closeAddressModal()">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="addressForm.invalid">
+                        <i class="fas fa-check mr-2"></i>
+                        Save Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Phone Modal -->
+<div class="modal" [class.show]="showPhoneModal" *ngIf="showPhoneModal" tabindex="-1" role="dialog" aria-labelledby="phoneModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-phone mr-2" style="color: #059669;"></i>
+                    Add New Phone
+                </h5>
+                <button type="button" class="close" style="margin: 0px 0 8px 20px;" (click)="closePhoneModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form [formGroup]="phoneForm" (ngSubmit)="onPhoneSubmit()">
+                <div class="modal-body">
+                    <!-- Phone Name -->
+                    <div class="form-group">
+                        <label>Phone Name</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-tag"></i>
+                                </span>
+                            </div>
+                            <input type="text" formControlName="name" class="form-control"
+                                placeholder="e.g., Mobile, Home, Work, etc." [class.is-invalid]="phoneForm.get('name')?.errors?.['required'] && 
+                                     phoneForm.get('name')?.touched">
+                        </div>
+                        <div class="invalid-feedback">
+                            Phone name is required
+                        </div>
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                            </div>
+                            <input type="tel" formControlName="number" class="form-control"
+                                placeholder="Enter 10-digit phone number" [class.is-invalid]="(phoneForm.get('number')?.errors?.['required'] || 
+                                      phoneForm.get('number')?.errors?.['invalidPhone']) && 
+                                      phoneForm.get('number')?.touched">
+                        </div>
+                        <div class="invalid-feedback">
+                            <span *ngIf="phoneForm.get('number')?.errors?.['required']">
+                                Phone number is required
+                            </span>
+                            <span *ngIf="phoneForm.get('number')?.errors?.['invalidPhone']">
+                                Please enter a valid 10-digit phone number
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Set as Default -->
+                    <div class="form-group mb-0">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="defaultPhone"
+                                formControlName="isDefault">
+                            <label class="custom-control-label" for="defaultPhone">
+                                Set as default phone number
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" (click)="closePhoneModal()">
+                        <i class="fas fa-times mr-2"></i>
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary" [disabled]="phoneForm.invalid">
+                        <i class="fas fa-check mr-2"></i>
+                        Save Phone
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<app-downbar></app-downbar>

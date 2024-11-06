@@ -55,8 +55,14 @@ export const routes: Routes = [
        {path: "category/:id",loadComponent:()=>import('./ui/components/category/category.component').then(m=>m.CategoryComponent)},
        {path: "brand/:id",loadComponent:()=>import('./ui/components/brand/brand.component').then(m=>m.BrandComponent)},
        {path: "unauthorized",loadComponent:()=>import('./ui/components/unauthorized/unauthorized.component').then(m=>m.UnauthorizedComponent)},
-       {path: "order",loadComponent:()=>import('./ui/components/order/order.component').then(m=>m.OrderComponent)},
-       {path: "user",loadComponent:()=>import('./ui/components/user/user.component').then(m=>m.UserComponent)},
+       {path: "order",loadComponent:()=>import('./ui/components/order/order.component').then(m=>m.OrderComponent),canActivate: [authGuard]},
+       {path: "order-page",loadComponent:()=>import('./ui/components/order/order-page/order-page.component').then(m=>m.OrderPageComponent),canActivate: [authGuard]},
+       {
+        path: "order-summary/:orderId", // orderId parametresi ekledik
+        loadComponent:()=>import('./ui/components/order/order-summary/order-summary.component')
+          .then(m=>m.OrderSummaryComponent),
+        canActivate: [authGuard]
+      },       {path: "user",loadComponent:()=>import('./ui/components/user/user.component').then(m=>m.UserComponent),canActivate: [authGuard]},
        {path: "downbar",loadComponent:()=>import('./ui/components/downbar/downbar.component').then(m=>m.DownbarComponent)},
 
 ];

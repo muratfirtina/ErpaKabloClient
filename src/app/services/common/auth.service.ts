@@ -17,17 +17,27 @@ export class AuthService {
     private router: Router
   ) { }
 
-  async logout() {
-    try {
-      const result = await this.userAuthService.logout();
-      if (result) {
-        this._isAdmin = false;
-        _isAuthenticated = false;
-        await this.router.navigate(["/"]);
-      }
-    } catch (error) {
-      console.error('Logout error:', error);
+  /* async login(userNameOrEmail: string, password: string): Promise<void> {
+    const tokenResponse = await this.userAuthService.login(userNameOrEmail, password);
+
+    if (tokenResponse) {
+      localStorage.setItem("accessToken", tokenResponse.accessToken);
+      localStorage.setItem("refreshToken", tokenResponse.refreshToken);
     }
+  } */
+
+   async logout() {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    _isAuthenticated = false;
+    this._isAdmin = false;
+    return new Promise<void>((resolve) => {
+      this.router.navigate(['/'])
+        .then(() => {
+          window.location.href = '/'; // Tam sayfa yenileme
+          resolve();
+        });
+    });
   }
 
   getUserNameSurname(): string | null {

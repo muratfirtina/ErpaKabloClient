@@ -1,3 +1,4 @@
+import { PhoneNumber } from "../user/phoneNumber";
 import { UserAddress } from "../user/userAddress";
 import { OrderItem } from "./orderItem";
 import { OrderStatus } from "./orderStatus";
@@ -10,7 +11,7 @@ export interface Order{
     totalPrice: number;
     userName: string;
     userAddress: UserAddress;
-    phoneNumber: string;
+    phoneNumber: PhoneNumber;
     description: string;
     orderItems: OrderItem[];
     expanded?: boolean;
