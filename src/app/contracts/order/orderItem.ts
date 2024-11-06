@@ -12,6 +12,8 @@ export interface OrderItem{
     //isChecked: boolean;
     productFeatureValues: ProductFeatureValue[];
     showcaseImage?: ProductImageFile; 
+    updatedPrice?: number; // Opsiyonel olarak güncellenen fiyatı tutar
+    leadTime?: number;      // Opsiyonel olarak teslim süresini tutar
 
     markedForDeletion?: boolean;  // Opsiyonel olarak silinip silinmeye işaret eder
     markedForUpdate?: boolean;    // Opsiyonel olarak güncellenip güncellenmeyeceğini işaret eder

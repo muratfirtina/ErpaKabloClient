@@ -1,10 +1,11 @@
-<div class="order-detail-dialog" *ngIf="order">
+<div class="order-detail-dialog">
   <h2>Order Details: {{ order.orderCode }}</h2>
 
   <form [formGroup]="orderForm">
     <!-- Order Information -->
     <div class="order-info">
-      <mat-form-field>
+      <!-- Status ve Note bir satırda -->
+      <mat-form-field appearance="outline">
         <mat-label>Order Status</mat-label>
         <mat-select formControlName="status">
           <mat-option *ngFor="let status of orderStatuses" [value]="status">
@@ -13,82 +14,135 @@
         </mat-select>
       </mat-form-field>
 
-      <div>
-        <strong>User Name:</strong> {{ order.userName }}
+      <!-- Genel Bilgiler -->
+      <div class="info-card">
+        <strong>User Name</strong>
+        {{ order.userName }}
       </div>
 
-      <div>
-        <strong>Total Price:</strong> {{ totalPrice | currency }}
+      <div class="info-card">
+        <strong>Address</strong>
+        {{ order.userAddress?.addressLine1 }},
+        {{ order.userAddress?.city }}, {{ order.userAddress?.postalCode }}
+          <strong>Phone</strong>
+          {{ order.phoneNumber?.number }}
       </div>
 
-      <div>
-        <strong>User Address:</strong> {{ order.userAddress?.addressLine1 }},
-        {{ order.userAddress?.city }},
-        {{ order.userAddress?.postalCode }},
-        {{ order.userAddress?.country }}
-      </div>
 
-      <mat-form-field>
+      <!-- Description ve Admin Note tam genişlikte -->
+      <mat-form-field appearance="outline" class="full-width" style="width: 500px;">
         <mat-label>Description</mat-label>
-        <input matInput formControlName="description" placeholder="Order Description" />
+        <input matInput formControlName="description">
       </mat-form-field>
 
-      <div>
-        <strong>Phone Number:</strong> {{ order.phoneNumber?.number }}
+      <mat-form-field appearance="outline" class="full-width" style="width: 500px;">
+        <mat-label>Admin Note</mat-label>
+        <textarea matInput formControlName="adminNote" rows="2"></textarea>
+      </mat-form-field>
+
+      <div class="info-card">
+        <strong>Total Price</strong>
+        {{ totalPrice | currency }}
+      </div>
+
+      <div class="info-card">
+        <strong>Updated Total Price : </strong>
+        {{ updatedTotalPrice | currency }}
       </div>
     </div>
 
     <!-- Order Items -->
     <div class="order-items">
       <h3>Order Items</h3>
-      <table mat-table [dataSource]="order.orderItems" class="mat-elevation-z8">
+      <div class="table-container">
+        <table mat-table [dataSource]="order.orderItems">
+          <ng-container matColumnDef="image">
+            <th mat-header-cell *matHeaderCellDef>Image</th>
+            <td mat-cell *matCellDef="let item">
+              <img [src]="item.showcaseImage.url" alt="Product Image">
+            </td>
+          </ng-container>
 
-        <!-- Image Column -->
-        <ng-container matColumnDef="image">
-          <th mat-header-cell *matHeaderCellDef>Image</th>
-          <td mat-cell *matCellDef="let item">
-            <img [src]="item.showcaseImage.url" alt="Product Image" />
-          </td>
-        </ng-container>
-        <!-- Product Name Column -->
-        <ng-container matColumnDef="productName">
-          <th mat-header-cell *matHeaderCellDef>Product</th>
-          <td mat-cell *matCellDef="let item">{{ item.productName }}</td>
-        </ng-container>
+          <ng-container matColumnDef="productName">
+            <th mat-header-cell *matHeaderCellDef>Product</th>
+            <td mat-cell *matCellDef="let item">{{ item.productName }}</td>
+          </ng-container>
 
-        <!-- Quantity Column -->
-        <ng-container matColumnDef="quantity">
-          <th mat-header-cell *matHeaderCellDef>Quantity</th>
-          <td mat-cell *matCellDef="let item">
-            <mat-form-field class="quantity-input">
-              <input matInput type="number" [(ngModel)]="item.quantity" (ngModelChange)="updateQuantity(item, item.quantity)" [ngModelOptions]="{standalone: true}"/>
-            </mat-form-field>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="quantity">
+            <th mat-header-cell *matHeaderCellDef>Qty</th>
+            <td mat-cell *matCellDef="let item" class="quantity-col">
+              <mat-form-field appearance="outline" class="quantity-input">
+                <input matInput type="number" min="1"
+                       [(ngModel)]="item.quantity" 
+                       (ngModelChange)="updateQuantity(item, $event)"
+                       [ngModelOptions]="{standalone: true}">
+              </mat-form-field>
+            </td>
+          </ng-container>
 
-        <!-- Price Column -->
-        <ng-container matColumnDef="price">
-          <th mat-header-cell *matHeaderCellDef>Price</th>
-          <td mat-cell *matCellDef="let item">{{ item.price | currency }}</td>
-        </ng-container>
+          <ng-container matColumnDef="price">
+            <th mat-header-cell *matHeaderCellDef class="mobile-hide">U.Price</th>
+            <td mat-cell *matCellDef="let item" class="mobile-hide">
+              {{ item.price | currency }}
+            </td>
+          </ng-container>
+          
+          <ng-container matColumnDef="tPrice">
+            <th mat-header-cell *matHeaderCellDef class="mobile-hide">T.Price</th>
+            <td mat-cell *matCellDef="let item" class="mobile-hide">
+              {{ item.price*item.quantity | currency }}
+            </td>
+          </ng-container>
 
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let item">
-            <button mat-button color="warn" (click)="removeOrderItem(item)">Remove</button>
-          </td>
-        </ng-container>
+          <ng-container matColumnDef="updatedPrice">
+            <th mat-header-cell *matHeaderCellDef>New Price</th>
+            <td mat-cell *matCellDef="let item" class="price-col">
+              <mat-form-field appearance="outline" class="price-input">
+                <input matInput type="number" min="0"
+                       [(ngModel)]="item.updatedPrice"
+                       (ngModelChange)="updatePrice(item, $event)"
+                       [ngModelOptions]="{standalone: true}">
+              </mat-form-field>
+            </td>
+          </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="['image', 'productName', 'quantity', 'price', 'actions']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['image','productName', 'quantity', 'price', 'actions']"></tr>
-      </table>
+          <ng-container matColumnDef="leadTime">
+            <th mat-header-cell *matHeaderCellDef class="mobile-hide">Lead Time</th>
+            <td mat-cell *matCellDef="let item" class="mobile-hide">
+              <mat-form-field appearance="outline" class="leadtime-input">
+                <input matInput type="number" min="0"
+                       [(ngModel)]="item.leadTime"
+                       (ngModelChange)="updateLeadTime(item, $event)"
+                       [ngModelOptions]="{standalone: true}">
+              </mat-form-field>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let item">
+              <button mat-icon-button color="warn" (click)="removeOrderItem(item)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="['image', 'productName', 'quantity', 'price','tPrice', 'updatedPrice', 'leadTime', 'actions']; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: ['image', 'productName', 'quantity', 'price', 'tPrice' , 'updatedPrice', 'leadTime', 'actions']"></tr>
+        </table>
+      </div>
     </div>
 
-    <!-- Confirm Button -->
+    <!-- Action Buttons -->
     <div class="action-buttons">
-      <button mat-raised-button color="primary" (click)="confirmChanges()">Confirm</button>
-      <button mat-raised-button color="accent" (click)="dialogRef.close()">Cancel</button>
+      <button mat-raised-button (click)="dialogRef.close()">
+        <mat-icon>close</mat-icon>
+        Cancel
+      </button>
+      <button mat-raised-button color="primary" (click)="confirmChanges()">
+        <mat-icon>check</mat-icon>
+        Confirm
+      </button>
     </div>
   </form>
 </div>

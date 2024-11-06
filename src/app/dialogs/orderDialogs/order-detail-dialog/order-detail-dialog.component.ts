@@ -40,6 +40,7 @@ export class OrderDetailDialogComponent implements OnInit {
   order: Order;
   orderStatuses = Object.keys(OrderStatus).filter((key) => !isNaN(Number(OrderStatus[key]))); // Enum'dan status değerleri alınıyor.
   totalPrice: number;
+  updatedTotalPrice: number = 0;
 
   constructor(
     public dialogRef: MatDialogRef<OrderDetailDialogComponent>,
@@ -58,11 +59,12 @@ export class OrderDetailDialogComponent implements OnInit {
         position: ToastrPosition.TopRight
       });
     });
-
-    // Form oluştur
+  
+    // Form oluştur ve mevcut değerleri set et
     this.orderForm = this.fb.group({
-      status: [this.order.status],
+      status: [this.order.status], // Mevcut status'u set et
       description: [this.order.description],
+      adminNote: [this.order.adminNote],
       userAddress: this.fb.group({
         addressLine1: [this.order.userAddress?.addressLine1],
         city: [this.order.userAddress?.city],
@@ -70,8 +72,9 @@ export class OrderDetailDialogComponent implements OnInit {
         country: [this.order.userAddress?.country]
       })
     });
-
+  
     this.calculateTotalPrice();
+    this.calculateUpdatedTotalPrice();
   }
 
   // Toplam fiyatı hesaplar
@@ -79,6 +82,16 @@ export class OrderDetailDialogComponent implements OnInit {
     this.totalPrice = this.order.orderItems
       .filter(item => !item.markedForDeletion) // Silinecek ürünleri dikkate almaz
       .reduce((acc, item) => acc + (item.price * item.quantity), 0);
+  }
+
+  calculateUpdatedTotalPrice() {
+    this.updatedTotalPrice = this.order.orderItems
+      .filter(item => !item.markedForDeletion) // Silinecek ürünleri dışarıda bırak
+      .reduce((acc, item) => {
+        // Eğer updatedPrice varsa onu, yoksa normal price'ı kullan
+        const price = item.updatedPrice;
+        return acc + (price * item.quantity);
+      }, 0);
   }
 
   // Siparişi güncelleme işlemi
@@ -89,7 +102,7 @@ export class OrderDetailDialogComponent implements OnInit {
         if (item.markedForDeletion) {
           await this.orderService.deleteOrderItem(item.id);
         } else if (item.markedForUpdate) {
-          await this.orderService.updateOrderItem(item);
+          await this.orderService.updateOrderItemDetails(item);
         }
       }
 
@@ -142,6 +155,7 @@ export class OrderDetailDialogComponent implements OnInit {
       item.quantity = newQuantity;
       item.markedForUpdate = true; // Güncelleme işaretleniyor
       this.calculateTotalPrice(); // Toplam fiyat yeniden hesaplanıyor
+      this.calculateUpdatedTotalPrice();
     } else {
       this.toastrService.message("Geçersiz miktar veya stok yetersiz.", "Hata", {
         toastrMessageType: ToastrMessageType.Error,
@@ -149,6 +163,73 @@ export class OrderDetailDialogComponent implements OnInit {
       });
     }
   }
+
+  updatePrice(item: OrderItem, newPrice: number) {
+    if (newPrice > 0) {
+      item.updatedPrice = newPrice;
+      item.markedForUpdate = true; // Güncelleme işaretleniyor
+      this.calculateTotalPrice(); // Toplam fiyat yeniden hesaplanıyor
+    } else {
+      this.toastrService.message("Geçersiz fiyat.", "Hata", {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+    }
+  }
+
+  updateLeadTime(item: OrderItem, newLeadTime: number) {
+    if (newLeadTime > 0) {
+      item.leadTime = newLeadTime;
+      item.markedForUpdate = true; // Güncelleme işaretleniyor
+    } else {
+      this.toastrService.message("Geçersiz teslim süresi.", "Hata", {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+    }
+  }
+
+  /* async confirmChanges() {
+    const dialogRef = this.dialog.open(OrderDetailConfirmDialogComponent, { width: '400px' });
+    dialogRef.afterClosed().subscribe(async result => {
+      if (result === 'confirm') {
+        try {
+          const formValue = this.orderForm.value;
+          const updatedOrder = {
+            ...this.order,
+            ...formValue,
+            adminNote: formValue.adminNote,
+            orderItems: this.order.orderItems.map(item => ({
+              ...item,
+              updatedPrice: item.updatedPrice,
+              leadTime: item.leadTime
+            }))
+          };
+
+          await this.orderService.updateOrder(updatedOrder, 
+            () => {
+              this.toastrService.message("Order updated successfully", "Success", {
+                toastrMessageType: ToastrMessageType.Success,
+                position: ToastrPosition.TopRight
+              });
+              this.dialogRef.close({ action: 'update' });
+            },
+            (error) => {
+              this.toastrService.message(error, "Error", {
+                toastrMessageType: ToastrMessageType.Error,
+                position: ToastrPosition.TopRight
+              });
+            }
+          );
+        } catch (error) {
+          this.toastrService.message("An error occurred while updating order", "Error", {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight
+          });
+        }
+      }
+    });
+  } */
 
   // Değişiklikleri onayla işlemi
   async confirmChanges() {

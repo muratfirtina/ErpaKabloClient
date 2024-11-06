@@ -15,4 +15,6 @@ export interface Order{
     description: string;
     orderItems: OrderItem[];
     expanded?: boolean;
+    adminNote?: string;
+
 }

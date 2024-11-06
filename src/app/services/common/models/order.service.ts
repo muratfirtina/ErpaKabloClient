@@ -64,7 +64,7 @@ export class OrderService {
     return await promiseData;
   }
 
-  async updateOrder(order: Order, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+  /* async updateOrder(order: Order, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
     const observable: Observable<any> = this.httpClientService.put({
       controller: 'orders',
       action: 'update'
@@ -78,7 +78,7 @@ export class OrderService {
     });
 
     await promiseData;
-  }
+  } */
 
   async deleteOrder(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
     const observable: Observable<any> = this.httpClientService.delete({
@@ -105,7 +105,7 @@ export class OrderService {
     return await promiseData;
   }
 
-  async updateOrderItem(orderItem: OrderItem, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+  async updateOrderItemDetails(orderItem: OrderItem, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
     const observable: Observable<any> = this.httpClientService.put({
       controller: 'orders',
       action: 'update-item'
@@ -160,5 +160,22 @@ export class OrderService {
   
     return await promiseData;
   }
+
+  async updateOrder(order: Order, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+    const observable: Observable<any> = this.httpClientService.put({
+      controller: 'orders',
+      action: 'update'
+    },order);
+
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(() => {
+      if (successCallback) successCallback();
+    }).catch(error => {
+      if (errorCallback) errorCallback(error);
+    });
+
+    await promiseData;
+  }
+
 }
 
