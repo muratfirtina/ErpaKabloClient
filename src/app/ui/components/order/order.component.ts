@@ -11,9 +11,9 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { MainHeaderComponent } from '../main-header/main-header.component';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
-import { DesktopUserSidebarComponent } from '../user/desktop-user-sidebar/desktop-user-sidebar.component';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { DesktopUserSidebarComponent } from '../user/desktop-user-sidebar/desktop-user-sidebar.component';
 
 @Component({
   selector: 'app-order',

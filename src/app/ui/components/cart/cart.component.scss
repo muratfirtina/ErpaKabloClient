@@ -1,9 +1,9 @@
 // Variables
-$home-primary-color: #003366;
+$home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
 $home-text-color: #333;
-$light-text: #fff;
+$light-text: #e0e0e0;
 $primary-color: #e53935;
 $secondary-color: #212121;
 $background-color: #ffffff;
@@ -12,7 +12,6 @@ $border-color: #e0e0e0;
 $hover-color: rgba($primary-color, 0.1);
 $success-color: #059669;
 $link-color: #0000ee;
-
 // Breakpoints
 $mobile-sm: 320px;
 $mobile: 480px;
@@ -47,14 +46,15 @@ $widescreen: 1400px;
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100vw;  // 100% yerine 100vw kullan
+  height: 100vh; // 100% yerine 100vh kullan
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-  z-index: 1040; // Drawer'dan düşük ama diğer elementlerden yüksek
-
+  z-index: 1040;
+  pointer-events: auto; // Bu önemli
+  
   &.open {
     opacity: 1;
     visibility: visible;
@@ -547,6 +547,29 @@ $widescreen: 1400px;
       &:disabled {
         background: #ccc;
         cursor: not-allowed;
+      }
+    }
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .cart-drawer {
+    background: $home-primary-color;
+
+    .cart-header {
+      color:$light-text;
+      h2{
+        color:$primary-color;
+      }
+      //background: linear-gradient(135deg, darken($primary-color, 10%), darken($primary-color, 20%));
+    }
+    .cart-footer {
+      background: $home-primary-color;
+
+      .cart-summary {
+
+        .total-price {
+          color: $home-secondary-color;
+        }
       }
     }
   }

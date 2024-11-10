@@ -1,8 +1,8 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, Subject, map, takeUntil } from 'rxjs';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { CartService } from 'src/app/services/common/models/cart.service';
@@ -13,6 +13,10 @@ import { CartComponent } from '../cart/cart.component';
 import { CartItem } from 'src/app/contracts/cart/cartItem';
 import { UserDto } from 'src/app/contracts/user/userDto';
 import { UserSidebarComponent } from '../user/user-sidebar/user-sidebar.component';
+import { AnimationService } from 'src/app/services/common/animation.service';
+import { DrawerType, DrawerService } from 'src/app/services/common/drawer.service';
+import { StoreService } from 'src/app/services/common/store.service';
+import { ThemeService } from 'src/app/services/common/theme.service';
 
 @Component({
   selector: 'app-main-header',
@@ -23,32 +27,40 @@ import { UserSidebarComponent } from '../user/user-sidebar/user-sidebar.componen
     FormsModule, 
     NgxSpinnerModule, 
     CartComponent,
-    UserSidebarComponent
+    UserSidebarComponent,
   ],
   templateUrl: './main-header.component.html',
   styleUrls: ['./main-header.component.scss']
 })
-export class MainHeaderComponent implements OnInit {
-  @ViewChild('accountButton') accountButton: ElementRef;
-
+export class MainHeaderComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   cartItems: CartItem[];
-  cartItemsObservable: Observable<CartItem[]>;
-  isCartOpen: boolean = false;
-  isSidebarOpen: boolean = false;
+ 
   currentUser: UserDto | null = null;
   isLoading: boolean = true;
-  isMobile: boolean = false;
+  isDarkTheme = false;
+  DrawerType = DrawerType;
+  logoUrl = 'assets/homecard/TUMdex.png';
+  topline = 'assets/homecard/top-line.png';
+  companySlogan = 'For All Industrial Products';
+  
+  drawerState$ = this.drawerService.getDrawerState();
+  cartItems$ = this.store.select('cart').pipe(map(cart => cart.items));
+  userData$ = this.store.select('user').pipe(map(user => user.data));
 
   constructor(
-    public authService: AuthService,
-    private toastrService: CustomToastrService,
-    private router: Router,
+    private drawerService: DrawerService,
+    private themeService: ThemeService,
+    private store: StoreService,
     private cartService: CartService,
-    private route: ActivatedRoute,
     private userService: UserService,
-    private elementRef: ElementRef
-  ) {
-    
+    public authService: AuthService,
+    public animationService: AnimationService
+  ) {}
+
+  createRipple(event: MouseEvent): void {
+    const element = event.currentTarget as HTMLElement;
+    this.animationService.createRippleEffect(event, element);
   }
 
   async ngOnInit() {
@@ -69,6 +81,18 @@ export class MainHeaderComponent implements OnInit {
     } catch (error) {
       console.error('Error in ngOnInit:', error);
     }
+
+    this.themeService.getCurrentTheme()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(theme => {
+        this.isDarkTheme = theme.isDark;
+      });
+
+    this.store.select('theme')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(theme => {
+        this.isDarkTheme = theme.isDark;
+      });
   }
 
   private async loadInitialCartItems() {
@@ -79,7 +103,6 @@ export class MainHeaderComponent implements OnInit {
       console.error('Error loading initial cart items:', error);
     }
   }
-
 
   async getCurrentUser() {
     this.isLoading = true;
@@ -92,65 +115,20 @@ export class MainHeaderComponent implements OnInit {
     }
   }
 
-  toggleCart() {
-    this.isCartOpen = !this.isCartOpen;
-    if (this.isCartOpen) {
-      document.body.style.overflow = 'hidden'; // Prevent scrolling when cart is open
-    } else {
-      document.body.style.overflow = ''; // Restore scrolling when cart is closed
-    }
+  toggleDrawer(type: DrawerType): void {
+    this.drawerService.toggle(type);
   }
 
-  toggleSidebar() {
-    this.isSidebarOpen = !this.isSidebarOpen;
-    if (this.isSidebarOpen) {
-      document.body.style.overflow = 'hidden';
-    }
+  closeDrawer(): void {
+    this.drawerService.close();
   }
 
-  closeSidebar() {
-    this.isSidebarOpen = false;
-    document.body.style.overflow = 'auto';
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
-
-  @HostListener('window:keydown.escape')
-  onEscPress() {
-    if (this.isCartOpen) {
-      this.toggleCart();
-    }
-    if (this.isSidebarOpen) {
-      this.closeSidebar();
-    }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
-
-  ngOnDestroy() {
-    document.body.style.overflow = '';
-  }
-
-  async signOut() {
-    await this.authService.logout();
-    await this.router.navigate(['']); 
-  }
-
-  navigateToLogin() {
-    const currentUrl = this.router.url;
-    this.router.navigate(['/login'], {
-      queryParams: { returnUrl: currentUrl },
-      relativeTo: this.route
-    });
-  }
-
-  navigateToRegister() {
-    const currentUrl = this.router.url;
-    this.router.navigate(['/register'], {
-      queryParams: { returnUrl: currentUrl },
-      relativeTo: this.route
-    });
-  }
-
-  navigateToAdmin() {
-    this.router.navigate(['/admin']);
-  }
-
 }

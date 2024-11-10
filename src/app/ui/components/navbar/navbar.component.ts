@@ -109,9 +109,15 @@ export class NavbarComponent extends BaseComponent implements OnInit {
 
   onSearchSubmit(event: Event) {
     event.preventDefault();
-    const searchTerm = this.searchForm.get('searchTerm').value;
-    if (searchTerm && searchTerm.trim() !== '') {
-      this.router.navigate(['/search'], { queryParams: { q: searchTerm } });
+    const searchTerm = this.searchForm.get('searchTerm')?.value?.trim();
+    
+    if (searchTerm) {
+      this.router.navigate(['/search'], { 
+        queryParams: { q: searchTerm } 
+      }).then(() => {
+        this.searchForm.reset();
+        this.isSearchFocused = false;
+      });
     }
   }
 

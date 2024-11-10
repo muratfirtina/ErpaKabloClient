@@ -7,6 +7,9 @@ import { DeleteDialogState } from 'src/app/dialogs/delete-dialog/delete-dialog.c
   providedIn: 'root'
 })
 export class DialogService {
+  openConfirmationDialog(arg0: { title: string; message: string; confirmText: string; cancelText: string; onConfirm: () => Promise<void>; }) {
+    throw new Error('Method not implemented.');
+  }
 
   private isDialogOpen = false;
 

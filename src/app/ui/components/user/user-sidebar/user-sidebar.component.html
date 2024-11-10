@@ -1,80 +1,76 @@
-<div class="sidebar-overlay" [class.active]="isOpen" (click)="close()"></div>
-<div class="sidebar" [class.active]="isOpen">
-  <!-- Authenticated User -->
+<div class="sidebar-overlay" [class.active]="isOpen" (click)="onOverlayClick($event)"></div>
+
+<aside class="sidebar" [class.active]="isOpen" role="complementary" aria-label="User menu">
+  <!-- Authenticated User Content -->
   <ng-container *ngIf="authService.isAuthenticated; else notAuthenticated">
-    <div class="sidebar-header">
-      <h5>
+    <div class="sidebar-header" role="banner">
+      <div class="user-info">
         <div class="user-avatar">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
             <circle cx="12" cy="8" r="4"/>
             <path d="M20 21a8 8 0 1 0-16 0"/>
           </svg>
         </div>
-        {{ userNameSurname }}
-      </h5>
-      <button class="close-btn" (click)="close()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M18 6L6 18M6 6l12 12"/>
-        </svg>
-      </button>
-    </div>
-
-    <div class="sidebar-content">
-      <!-- Orders Section -->
-      <div class="menu-section">
-        <div class="section-title">Siparişler & Favoriler</div>
-        <div class="menu-item" (click)="navigateTo('order')">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M20 7h-9M20 11h-9M20 15h-9M3 7h2v2H3zM3 11h2v2H3zM3 15h2v2H3z"/>
-          </svg>
-          <span>Siparişlerim</span>
-        </div>
-        <div class="menu-item" (click)="navigateTo('favorites')">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-          </svg>
-          <span>Favorilerim</span>
+        <div class="user-details">
+          <h2>{{ userNameSurname }}</h2>
+          <p class="user-email">{{ (userData$ | async)?.email }}</p>
+          <span *ngIf="isAdmin" class="admin-badge">Admin</span>
         </div>
       </div>
+      <button 
+    class="close-btn"
+    (click)="close()"
+    [attr.aria-label]="'Close menu'">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M18 6L6 18M6 6l12 12"/>
+    </svg>
+  </button>
+    </div>
 
-      <!-- Account Section -->
+    <nav class="sidebar-content" role="navigation">
       <div class="menu-section">
-        <div class="section-title">Hesap</div>
-        <div class="menu-item" (click)="navigateTo('user')">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-          </svg>
-          <span>Kullanıcı Bilgilerim</span>
-        </div>
-        <div class="menu-item" (click)="navigateTo('addresses')">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-          <span>Adreslerim</span>
-        </div>
-        <div class="menu-item danger" (click)="logout()">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>
-          </svg>
-          <span>Çıkış Yap</span>
+        <div class="menu-items">
+          <button 
+            *ngFor="let item of menuItems"
+            class="menu-item"
+            [class.active]="isActiveRoute(item.route)"
+            [class.admin-item]="item.label === 'Admin Panel'"
+            (click)="navigateTo(item.route)"
+            [attr.aria-label]="item.label"
+            [attr.aria-current]="isActiveRoute(item.route) ? 'page' : undefined">
+            
+            <div class="item-icon">
+              <i [class]="item.icon"></i>
+            </div>
+            
+            <div class="item-content">
+              <span class="item-label">{{ item.label }}</span>
+            </div>
+            
+            <div class="item-indicator">
+              <svg 
+                *ngIf="item.route !== 'logout'"
+                xmlns="http://www.w3.org/2000/svg" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor">
+                <path d="M9 18l6-6-6-6"/>
+              </svg>
+            </div>
+          </button>
         </div>
       </div>
-    </div>
+    </nav>
   </ng-container>
 
   <!-- Not Authenticated Template -->
   <ng-template #notAuthenticated>
     <div class="sidebar-header">
-      <h5>
-        <div class="user-avatar">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M20 21a8 8 0 1 0-16 0"/>
-          </svg>
-        </div>
-        Hesabım
-      </h5>
-      <button class="close-btn" (click)="close()">
+      <h2 style="font-size: x-large;">My Account</h2>
+      <button 
+        class="close-btn" 
+        (click)="close()"
+        [attr.aria-label]="'Close menu'">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path d="M18 6L6 18M6 6l12 12"/>
         </svg>
@@ -82,29 +78,40 @@
     </div>
 
     <div class="sidebar-content">
-      <div class="menu-section">
-        <div class="section-title">Hesap İşlemleri</div>
-        <p class="text-center text-muted p-4">
-          Siparişlerinizi takip etmek ve daha fazla özellikten yararlanmak için giriş yapın.
-        </p>
+      <div class="auth-content">
+        <div class="auth-message">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 8v4M12 16h.01"/>
+          </svg>
+          <h3>Sign in to your account</h3>
+          <p>Access your orders, favorites and more</p>
+        </div>
+
+        <div class="auth-buttons">
+          <button 
+            class="btn-login"
+            (click)="navigateToLogin()"
+            [attr.aria-label]="'Sign in to your account'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+            </svg>
+            <span>Sign In</span>
+          </button>
+
+          <button 
+            class="btn-register"
+            (click)="navigateToRegister()"
+            [attr.aria-label]="'Create new account'">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M19 8v6M16 11h6"/>
+            </svg>
+            <span>Create Account</span>
+          </button>
+        </div>
       </div>
     </div>
-
-    <div class="auth-buttons">
-      <button class="auth-btn login" (click)="navigateToLogin()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
-        </svg>
-        <span>Giriş Yap</span>
-      </button>
-      <button class="auth-btn register" (click)="navigateToRegister()">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M19 8v6M16 11h6"/>
-        </svg>
-        <span>Kayıt Ol</span>
-      </button>
-    </div>
   </ng-template>
-</div>
+</aside>

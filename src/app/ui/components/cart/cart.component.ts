@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -14,6 +14,11 @@ import { CartService } from 'src/app/services/common/models/cart.service';
 import { OrderService } from 'src/app/services/common/models/order.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { OrderStatus } from 'src/app/contracts/order/orderStatus';
+import { Subject } from 'rxjs';
+import { DrawerService } from 'src/app/services/common/drawer.service';
+import { ThemeService } from 'src/app/services/common/theme.service';
+import { BaseDrawerComponent } from '../base-drawer.component';
+import { AnimationService } from 'src/app/services/common/animation.service';
 
 @Component({
   selector: 'app-cart',
@@ -22,19 +27,24 @@ import { OrderStatus } from 'src/app/contracts/order/orderStatus';
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss']
 })
-export class CartComponent extends BaseComponent implements OnInit {
-  @Input() isOpen = false;
+export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestroy {
   @Output() closeCart = new EventEmitter<void>();
+  private destroy$ = new Subject<void>();
 
   constructor(
-    spinner: NgxSpinnerService,
     private cartService: CartService,
     private orderService: OrderService,
     private toastrService: CustomToastrService,
     private router: Router,
-    private dialogService: DialogService
+    private dialogService: DialogService,
+    private drawerService: DrawerService,
+    elementRef: ElementRef,
+    animationService: AnimationService,
+    themeService: ThemeService,
+    spinner: NgxSpinnerService,
+
   ) {
-    super(spinner);
+    super(spinner,elementRef, animationService,themeService);
   }
 
   totalItemCount: number;
@@ -50,10 +60,13 @@ export class CartComponent extends BaseComponent implements OnInit {
     this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
-  close() {
+  override close() {
     this.isOpen = false;
     this.closeCart.emit();
+    // Body overflow'ı düzelt
     document.body.style.overflow = 'auto';
+    // Drawer service'i kullanarak tam kapanmayı sağla
+    this.drawerService.close();
   }
 
   async getCartItems(): Promise<void> {
@@ -237,6 +250,17 @@ export class CartComponent extends BaseComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    document.body.style.overflow = 'auto'; // Component yok edildiğinde scroll'u geri aç
+    // Tüm subscription'ları temizle
+    this.destroy$.next();
+    this.destroy$.complete();
+    
+    // Body stillerini temizle
+    document.body.style.overflow = 'auto';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    
+    // Drawer'ı kapat
+    this.drawerService.close();
   }
 }

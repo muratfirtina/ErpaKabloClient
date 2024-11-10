@@ -12,14 +12,12 @@
 
           <!-- Search Bar -->
           <div class="search-bar flex-grow-1 mx-2 mx-lg-4">
-            <form class="d-flex w-100" [formGroup]="searchForm" (click)="onSearchSubmit($event)">
-              <input type="text" 
-                     class="form-control" 
-                     formControlName="searchTerm" 
-                     placeholder="Search for products, categories or brands"
-                     (focus)="onSearchFocus()" 
-                     (blur)="onSearchBlur()">
-              <button class="search-button">
+            <form class="d-flex w-100" [formGroup]="searchForm" (submit)="onSearchSubmit($event)">
+              <input type="text" class="form-control" formControlName="searchTerm"
+                placeholder="Search for products, categories or brands" 
+                (focus)="onSearchFocus()"
+                (blur)="onSearchBlur()">
+              <button type="submit" class="search-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                 </svg>
@@ -48,9 +46,8 @@
                   <h4>Ürünler</h4>
                   <ul>
                     <li *ngFor="let product of searchResults.products" (click)="onProductClick(product)">
-                      <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" 
-                           [alt]="product.name"
-                           class="product-thumbnail">
+                      <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name"
+                        class="product-thumbnail">
                       <div class="product-info">
                         <span class="product-name">{{ product.name }}</span>
                         <span class="product-features">
@@ -67,11 +64,10 @@
                 <div class="categories" *ngIf="searchResults.categories.length > 0">
                   <h4>Kategoriler</h4>
                   <ul>
-                    <li *ngFor="let category of searchResults.categories" 
-                        (click)="navigateToSearchResult('category', category.id)">
+                    <li *ngFor="let category of searchResults.categories"
+                      (click)="navigateToSearchResult('category', category.id)">
                       <img [src]="category.categoryImage?.url || 'assets/default-category-image.png'"
-                           [alt]="category.name" 
-                           class="category-thumbnail">
+                        [alt]="category.name" class="category-thumbnail">
                       <span>{{ category.name }}</span>
                     </li>
                   </ul>
@@ -81,11 +77,9 @@
                 <div class="brands" *ngIf="searchResults.brands.length > 0">
                   <h4>Markalar</h4>
                   <ul>
-                    <li *ngFor="let brand of searchResults.brands" 
-                        (click)="navigateToSearchResult('brand', brand.id)">
-                      <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'"
-                           [alt]="brand.name"
-                           class="brand-thumbnail">
+                    <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult('brand', brand.id)">
+                      <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" [alt]="brand.name"
+                        class="brand-thumbnail">
                       <span>{{ brand.name }}</span>
                     </li>
                   </ul>
@@ -93,6 +87,19 @@
               </div>
             </div>
           </div>
+
+          <div class="nav-right" style="display: flex; flex-direction: row; align-items: center; padding: 12px; margin-left: 24px;">
+            <!-- Brands -->
+            <div class="brands d-none d-lg-block">
+              <button class="btn" style="color: #e0e0e0; border: none;">Brands</button>
+            </div>
+            <span style="color:#e0e0e0;">|</span>
+            <!-- About Us -->
+            <div class="about-us d-none d-lg-block">
+              <button class="btn" style="color: #e0e0e0; border: none;">About Us</button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
@@ -104,9 +111,8 @@
         <div class="categories-list">
           <ul>
             <li *ngFor="let category of topLevelCategories"
-                (mouseenter)="!showOnlyMainCategories && selectCategory(category)"
-                (click)="navigateToCategory(category.id)"
-                [class.active]="category === selectedCategory">
+              (mouseenter)="!showOnlyMainCategories && selectCategory(category)"
+              (click)="navigateToCategory(category.id)" [class.active]="category === selectedCategory">
               {{ category.name }}
             </li>
           </ul>
@@ -119,13 +125,12 @@
             <a href="#" class="view-all">Show All →</a>
           </div>
           <ul class="subcategory-list" *ngIf="selectedCategory">
-            <li *ngFor="let subCategory of selectedCategory.subcategories" 
-                (click)="navigateToCategory(subCategory.id)">
+            <li *ngFor="let subCategory of selectedCategory.subcategories" (click)="navigateToCategory(subCategory.id)">
               {{ subCategory.name }}
-              <ul class="nested-subcategories" 
-                  *ngIf="subCategory.subcategories && subCategory.subcategories.length > 0">
+              <ul class="nested-subcategories"
+                *ngIf="subCategory.subcategories && subCategory.subcategories.length > 0">
                 <li *ngFor="let nestedSubCategory of subCategory.subcategories"
-                    (click)="navigateToCategory(nestedSubCategory.id); $event.stopPropagation()">
+                  (click)="navigateToCategory(nestedSubCategory.id); $event.stopPropagation()">
                   {{ nestedSubCategory.name }}
                 </li>
               </ul>
@@ -135,14 +140,14 @@
 
         <!-- Recommended Products -->
         <div class="recommended-products"
-             *ngIf="!showOnlyMainCategories && selectedCategory && recommendedProducts?.items?.length > 0">
+          *ngIf="!showOnlyMainCategories && selectedCategory && recommendedProducts?.items?.length > 0">
           <div class="recommended-header">
             <h3>Recommended {{ selectedCategory.name }}</h3>
             <a href="#" class="view-all">Show All →</a>
           </div>
           <div class="product-grid">
             <div class="product-item" *ngFor="let product of recommendedProducts.items"
-                 (click)="navigateToSearchResult('product',product.id)">
+              (click)="navigateToSearchResult('product',product.id)">
               <img [src]="product?.showcaseImage?.url" [alt]="product.name">
               <div class="product-info">
                 <div class="product-header">

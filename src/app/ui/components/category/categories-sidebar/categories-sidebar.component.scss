@@ -1,50 +1,139 @@
+$home-primary-color: #333333;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #e0e0e0;
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #059669;
+$link-color: #0000ee;
+
 .sidebar-overlay {
-    position: fixed;
-    top: 0;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  z-index: 1001;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  &.active {
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-   
+  }
+
+  .sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0; // Header'ın küçülmesini engelle
+
+    h5 {
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+  }
+
+  .sidebar-content {
+    flex-grow: 1;
+    overflow-y: auto; // İçerik taşarsa scroll bar ekle
+    padding-bottom: 68px; // Downbar'ın yüksekliği kadar padding
+
+   .category-button{
+      background: white;
+      color: black;
+      border: none;
+      width: 100%;
+
+      &:hover {
+        background-color: #f5f5f5;
+        color: black;
+      }
+    }
+
+    // Mobil scrollbar stilini özelleştir
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+  }
+
+  .menu-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 10px;
+    //border-bottom: 1px solid #eee;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .sidebar-overlay {
+    background-color:$home-primary-color
+  }
+  
+  .sidebar {
+    background-color:$home-primary-color;
+
     &.active {
       opacity: 1;
       visibility: visible;
+      border-right: 1px solid $home-secondary-color;
     }
-   }
-   
-   .sidebar {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 280px;
-    height: 100%;
-    background-color: white;
-    z-index: 1001;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-   
-    &.active {
-      left: 0;
-    }
-   
+  
     .sidebar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 20px;
-      border-bottom: 1px solid #eee;
-      flex-shrink: 0; // Header'ın küçülmesini engelle
-   
+      color: $light-text;
+  
       h5 {
+        color: $light-text;
         margin: 0;
         font-weight: 500;
       }
-   
+  
       .close-btn {
         background: none;
         border: none;
@@ -52,37 +141,44 @@
         cursor: pointer;
       }
     }
-   
+  
     .sidebar-content {
       flex-grow: 1;
       overflow-y: auto; // İçerik taşarsa scroll bar ekle
       padding-bottom: 68px; // Downbar'ın yüksekliği kadar padding
-      
+  
       // Mobil scrollbar stilini özelleştir
+      .category-button{
+        background: $home-primary-color;
+        color: $light-text;
+        border: none;
+      }
       &::-webkit-scrollbar {
         width: 4px;
       }
-      
+  
       &::-webkit-scrollbar-track {
         background: #f1f1f1;
       }
-      
+  
       &::-webkit-scrollbar-thumb {
         background: #888;
         border-radius: 4px;
       }
     }
-   
+  
     .menu-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      border-bottom: 1px solid #eee;
-      cursor: pointer;
-   
+      color: $light-text;
+  
       &:hover {
-        background-color: #f5f5f5;
+        background: rgba($primary-color, 0.15);
+        color: $primary-color;
+      }
+
+      &.active {
+        background: rgba($primary-color, 0.2);
+        color: $primary-color;
       }
     }
-   }
+  }
+}

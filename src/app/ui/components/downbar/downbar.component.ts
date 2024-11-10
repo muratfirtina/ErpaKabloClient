@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { UserSidebarComponent } from '../user/user-sidebar/user-sidebar.component';
 import { SidebarComponent } from "../../../admin/layout/components/sidebar/sidebar.component";
 import { CategoriesSidebarComponent } from '../category/categories-sidebar/categories-sidebar.component';
+import { ThemeService } from 'src/app/services/common/theme.service';
 
 @Component({
   selector: 'app-downbar',
@@ -17,9 +18,14 @@ import { CategoriesSidebarComponent } from '../category/categories-sidebar/categ
   styleUrl: './downbar.component.scss'
 })
 export class DownbarComponent implements OnInit {
-  private router = inject(Router);
-  private authService = inject(AuthService);
-  private cartService = inject(CartService);
+
+  constructor(
+    private authService: AuthService,
+    private cartService: CartService,
+    private router: Router,
+    private themeService: ThemeService,
+  ) {}
+
 
   cartItemCount: number = 0;
   isCartOpen: boolean = false;
