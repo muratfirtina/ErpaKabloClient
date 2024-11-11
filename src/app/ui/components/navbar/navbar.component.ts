@@ -57,6 +57,8 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   private searchCache: Product[] = [];
   private currentSearchTerm: string = '';
 
+  searchTerm: string = '';
+
   @Input() showOnlyMainCategories: boolean = false;
 
 
@@ -73,6 +75,14 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     this.setupSearchSubject();
     this.createSearchForm();
   }
+
+  onSearch(): void {
+    if (this.searchTerm.trim()) {
+        this.router.navigate(['/search'], {
+            queryParams: { term: this.searchTerm }
+        });
+    }
+}
 
   private setupCategorySubject() {
     this.categorySubject

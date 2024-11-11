@@ -48,7 +48,7 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];
   selectedFilters: { [key: string]: string[] } = {};
-  pageRequest: PageRequest = { pageIndex: 0, pageSize: 10 };
+  pageRequest: PageRequest = { pageIndex: 0, pageSize: 50 };
   totalItems: number = 0;
   noResults: boolean = false;
   sortOrder: string = '';
@@ -80,41 +80,52 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
     });
   }
 
-  loadAvailableFilters() {
-    this.productService.getAvailableFilters(this.searchTerm).subscribe(
-      filters => {
-        this.availableFilters = filters;
-      },
-      error => {
-        console.error('Error loading filters:', error);
-      }
-    );
-  }
-
-  async searchProducts() {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+  async loadAvailableFilters() {
     try {
-      const response = await this.productService.filterProducts(this.searchTerm, this.selectedFilters, this.pageRequest, this.sortOrder);
+        const filters = await this.productService.getAvailableFilters(this.searchTerm);
+        this.availableFilters = filters;
+    } catch (error) {
+        console.error('Error loading filters:', error);
+    }
+}
+
+async searchProducts() {
+  this.showSpinner(SpinnerType.BallSpinClockwise);
+  try {
+      // Önce ürünleri al
+      const response = await this.productService.filterProducts(
+          this.searchTerm,
+          this.selectedFilters, 
+          this.pageRequest, 
+          this.sortOrder
+      );
+      
       this.products = response.items;
       this.totalItems = response.count;
       this.noResults = this.products.length === 0;
 
-      if (this.authService.isAuthenticated) {
-        const productIds = this.products.map(p => p.id);
-        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-        
-        this.products.forEach(product => {
-          product.isLiked = likedProductIds.includes(product.id);
-        });
+      // Eğer ürünler bulunduysa, bu ürünler için mevcut filtreleri al
+      if (!this.noResults) {
+          const filters = await this.productService.getAvailableFilters(this.searchTerm);
+          this.availableFilters = filters;
       }
 
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-    } catch (error) {
+      if (this.authService.isAuthenticated) {
+          const productIds = this.products.map(p => p.id);
+          const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+          
+          this.products.forEach(product => {
+              product.isLiked = likedProductIds.includes(product.id);
+          });
+      }
+
+  } catch (error) {
       console.error('Error fetching products:', error);
       this.noResults = true;
+  } finally {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
-    }
   }
+}
 
   onFilterChange(filters: { [key: string]: string[] }) {
     this.selectedFilters = { ...filters };

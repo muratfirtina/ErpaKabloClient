@@ -48,7 +48,7 @@ export class CategoryComponent extends BaseComponent implements OnInit {
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];
   selectedFilters: { [key: string]: string[] } = {};
-  pageRequest: PageRequest = { pageIndex: 0, pageSize: 10 };
+  pageRequest: PageRequest = { pageIndex: 0, pageSize: 50 };
   totalItems: number = 0;
   noResults: boolean = false;
   sortOrder: string = '';
@@ -113,15 +113,13 @@ export class CategoryComponent extends BaseComponent implements OnInit {
   }
 
   async loadAvailableFilters() {
-    await this.productService.getAvailableFilters(this.categoryId).subscribe(
-      filters => {
+    try {
+        const filters = await this.productService.getAvailableFilters(this.categoryId);
         this.availableFilters = filters;
-      },
-      error => {
+    } catch (error) {
         console.error('Error loading filters:', error);
-      }
-    );
-  }
+    }
+}
 
  async loadProducts() {
     this.showSpinner(SpinnerType.BallSpinClockwise);

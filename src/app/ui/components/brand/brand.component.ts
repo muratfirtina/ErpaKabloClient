@@ -111,16 +111,14 @@ export class BrandComponent extends BaseComponent implements OnInit {
     );
   }
 
-  loadAvailableFilters() {
-    this.productService.getAvailableFilters(this.brandId).subscribe(
-      filters => {
+  async loadAvailableFilters() {
+    try {
+        const filters = await this.productService.getAvailableFilters(this.brandId);
         this.availableFilters = filters;
-      },
-      error => {
+    } catch (error) {
         console.error('Error loading filters:', error);
-      }
-    );
-  }
+    }
+}
 
   async loadProducts() {
     this.showSpinner(SpinnerType.BallSpinClockwise);

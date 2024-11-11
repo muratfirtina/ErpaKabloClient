@@ -137,17 +137,18 @@ export class ProductService {
     return await firstValueFrom(observable);
   }
 
-  getAvailableFilters(searchTerm?: string): Observable<FilterGroup[]> {
+  async getAvailableFilters(searchTerm?: string): Promise<FilterGroup[]> {
     let queryString = '';
     if (searchTerm) {
-      queryString = `searchTerm=${searchTerm}`;
+        queryString = `searchTerm=${searchTerm}`;
     }
-    return this.httpClientService.get<FilterGroup[]>({
-      controller: 'products',
-      action: 'filters',
-      queryString: queryString
+    const observable = this.httpClientService.get<FilterGroup[]>({
+        controller: 'products',
+        action: 'filters',
+        queryString: queryString
     });
-  }
+    return await firstValueFrom(observable);
+} 
 
   async searchProducts(searchTerm: string, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<Product>> {
     const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
