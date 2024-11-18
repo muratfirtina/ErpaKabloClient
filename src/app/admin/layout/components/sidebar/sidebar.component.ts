@@ -37,6 +37,8 @@ export class SidebarComponent implements OnInit{
 
   constructor(private authService: AuthService, private router:Router, private toastrService:CustomToastrService) { }
 
+  logoUrl = 'assets/homecard/TUMdex.png';
+
   sidebarItems: SidebarItem[] = [
     {
       title: 'Home Page',

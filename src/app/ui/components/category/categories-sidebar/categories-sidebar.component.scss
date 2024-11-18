@@ -48,13 +48,15 @@ $link-color: #0000ee;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: 20px 35px 20px 20px;
     border-bottom: 1px solid #eee;
     flex-shrink: 0; // Header'ın küçülmesini engelle
 
     h5 {
       margin: 0;
       font-weight: 500;
+      padding-left: 10px;
+      padding-top: 10px;
     }
 
     .close-btn {
@@ -68,7 +70,7 @@ $link-color: #0000ee;
   .sidebar-content {
     flex-grow: 1;
     overflow-y: auto; // İçerik taşarsa scroll bar ekle
-    padding-bottom: 68px; // Downbar'ın yüksekliği kadar padding
+    padding: 0 15px 60px 15px;
 
    .category-button{
       background: white;
@@ -101,7 +103,7 @@ $link-color: #0000ee;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px 10px;
+    padding: 10px 10px;
     //border-bottom: 1px solid #eee;
     cursor: pointer;
 

@@ -3,7 +3,7 @@
     <button type="button" class="sidebar-burger" (click)="toggleSidebar()">
       <mat-icon>menu</mat-icon>
     </button>
-    <img src="assets/logo.svg" *ngIf="isExpanded" />
+    <img [src]="logoUrl" *ngIf="isExpanded" />
   </header>
   <ul>
     <li *ngFor="let item of sidebarItems">

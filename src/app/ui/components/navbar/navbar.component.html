@@ -10,10 +10,15 @@
             </button>
           </div>
 
+          <!-- Brands Button (Mobile) -->
+          <div class="brands d-lg-none mobile-brands">
+            <button class="btn" routerLink="/brands-page">Brands</button>
+          </div>
+
           <!-- Search Bar -->
           <div class="search-bar flex-grow-1 mx-2 mx-lg-4">
             <form class="d-flex w-100" [formGroup]="searchForm" (submit)="onSearchSubmit($event)">
-              <input type="text" class="form-control" formControlName="searchTerm"
+              <input type="text" class="form-control search-input" formControlName="searchTerm"
                 placeholder="Search for products, categories or brands" 
                 (focus)="onSearchFocus()"
                 (blur)="onSearchBlur()">
@@ -43,7 +48,7 @@
               <div class="search-results">
                 <!-- Products -->
                 <div class="products" *ngIf="searchResults.products.length > 0">
-                  <h4>Ürünler</h4>
+                  <h4>Products</h4>
                   <ul>
                     <li *ngFor="let product of searchResults.products" (click)="onProductClick(product)">
                       <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name"
@@ -62,7 +67,7 @@
 
                 <!-- Categories -->
                 <div class="categories" *ngIf="searchResults.categories.length > 0">
-                  <h4>Kategoriler</h4>
+                  <h4>Categories</h4>
                   <ul>
                     <li *ngFor="let category of searchResults.categories"
                       (click)="navigateToSearchResult('category', category.id)">
@@ -75,7 +80,7 @@
 
                 <!-- Brands -->
                 <div class="brands" *ngIf="searchResults.brands.length > 0">
-                  <h4>Markalar</h4>
+                  <h4>Brands</h4>
                   <ul>
                     <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult('brand', brand.id)">
                       <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" [alt]="brand.name"
@@ -88,15 +93,15 @@
             </div>
           </div>
 
-          <div class="nav-right" style="display: flex; flex-direction: row; align-items: center; padding: 12px; margin-left: 24px;">
-            <!-- Brands -->
+          <div class="nav-right">
+            <!-- Brands (Desktop) -->
             <div class="brands d-none d-lg-block">
-              <button class="btn" style="color: #e0e0e0; border: none;">Brands</button>
+              <button class="btn" routerLink="/brands-page">Brands</button>
             </div>
-            <span style="color:#e0e0e0;">|</span>
+            <span class="d-none d-lg-block" style="color:#e0e0e0;">|</span>
             <!-- About Us -->
             <div class="about-us d-none d-lg-block">
-              <button class="btn" style="color: #e0e0e0; border: none;">About Us</button>
+              <button class="btn">About Us</button>
             </div>
           </div>
 
@@ -155,11 +160,11 @@
                   <p class="product-name">{{ product.name }}</p>
                 </div>
                 <p>{{ product.title }}</p>
-                <p class="stock-status" [class.in-stock]="product.stock > 0">
+                <!-- <p class="stock-status" [class.in-stock]="product.stock > 0">
                   {{ product.stock > 0 ? 'In stock' : 'Out of stock' }}
                 </p>
                 <p class="price">₺{{ product.price }} <span>each</span></p>
-                <a href="#" class="sign-in">Sign in for your price</a>
+                <a href="#" class="sign-in">Sign in for your price</a> -->
               </div>
             </div>
           </div>

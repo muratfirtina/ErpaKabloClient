@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClientService } from '../http-client.service';
-import { CustomToastrService } from '../../ui/custom-toastr.service';
+import { CustomToastrService, ToastrMessageType } from '../../ui/custom-toastr.service';
 import { CreateUser } from 'src/app/contracts/user/createUser';
 import { User } from 'src/app/contracts/user/user';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable, TimeoutError, firstValueFrom, retry, timeout } from 'rxjs';
 import { UserDto } from 'src/app/contracts/user/userDto';
 import { RoleDto } from 'src/app/contracts/user/roleDto';
 import { PageRequest } from 'src/app/contracts/pageRequest';
@@ -16,12 +16,21 @@ export class UserService {
 
   constructor(private httpClientService: HttpClientService, private toastrService : CustomToastrService) { }
 
- async create(user:User): Promise<CreateUser> {
-    const observable: Observable<CreateUser | User> = this.httpClientService.post<CreateUser | User>({
-      controller: "users"
-    }, user);
+  async create(user: User): Promise<CreateUser> {
+    
+      const observable: Observable<CreateUser> = this.httpClientService.post<CreateUser>({
+        controller: "users"
+      }, user).pipe(
+        timeout(10000), // 10 saniye timeout
+        retry(1)        // Bir kez yeniden dene
+      );
 
-    return await firstValueFrom(observable) as CreateUser;
+      const response = await firstValueFrom(observable);
+      if (!response) {
+        throw new Error('No response from server');
+      }
+      return response;
+
   }
 
   async updateForgotPassword(password:string, passwordConfirm:string, userId:string, resetToken:string, successCallBack?: () => void, errorCallBack?: (error) => void){

@@ -14,6 +14,7 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { DesktopUserSidebarComponent } from '../user/desktop-user-sidebar/desktop-user-sidebar.component';
+import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 
 @Component({
   selector: 'app-order',
@@ -26,7 +27,8 @@ import { DesktopUserSidebarComponent } from '../user/desktop-user-sidebar/deskto
     MainHeaderComponent, 
     BreadcrumbComponent, 
     DesktopUserSidebarComponent, 
-    DownbarComponent
+    DownbarComponent,
+    BreadcrumbComponent
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss']
@@ -44,6 +46,7 @@ export class OrderComponent extends BaseComponent implements OnInit {
 
   constructor(
     spinner: NgxSpinnerService,
+    private breadcrumbService: BreadcrumbService,
     private orderService: OrderService,
     private toastr: CustomToastrService
   ) {
@@ -51,6 +54,9 @@ export class OrderComponent extends BaseComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
+    this.breadcrumbService.setBreadcrumbs([
+      { label: 'Orders', url: '/order' }
+    ]);
     await this.loadOrders();
   }
 

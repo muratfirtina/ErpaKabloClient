@@ -48,7 +48,7 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];
   selectedFilters: { [key: string]: string[] } = {};
-  pageRequest: PageRequest = { pageIndex: 0, pageSize: 50 };
+  pageRequest: PageRequest = { pageIndex: 0, pageSize: 20 };
   totalItems: number = 0;
   noResults: boolean = false;
   sortOrder: string = '';

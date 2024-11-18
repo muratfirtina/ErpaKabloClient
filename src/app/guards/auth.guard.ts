@@ -2,8 +2,10 @@ import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot } from '@angular/router';
 import { AuthService } from '../services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../services/ui/custom-toastr.service';
+import { Roles } from '../constants/roles';
+import { RouteData } from '../contracts/route-data';
 
-export const authGuard: CanActivateFn = async (route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+export const authGuard: CanActivateFn = async (route: ActivatedRouteSnapshot & { data: RouteData }, state: RouterStateSnapshot) => {
   const authService = inject(AuthService);
   const router = inject(Router);
   const toastrService = inject(CustomToastrService);
@@ -26,7 +28,7 @@ export const authGuard: CanActivateFn = async (route: ActivatedRouteSnapshot, st
 
   // Kullanıcı giriş yapmışsa ve admin kontrolü gerekiyorsa
   if (authService.isAuthenticated) {
-    if (route.data && route.data['Admin'] && !authService.isAdmin) {
+    if (route.data && route.data[Roles.ADMIN] && !authService.isAdmin) {
       toastrService.message("Yalnızca admin yetkisine sahip kullanıcılar erişebilir.", "Yetkisiz Erişim", {
         toastrMessageType: ToastrMessageType.Warning,
         position: ToastrPosition.TopRight

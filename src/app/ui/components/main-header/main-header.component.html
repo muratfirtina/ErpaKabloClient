@@ -3,7 +3,7 @@
     <div class="header-content">
       <!-- Logo Section -->
       <div class="logo" (click)="createRipple($event)">
-        <img [src]="logoUrl" alt="Company Logo" class="logo-image">
+        <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/home" style="cursor: pointer;">
         <div class="logo-text">
           <span class="logo-subtext">{{companySlogan}}</span>
         </div>

@@ -31,10 +31,10 @@
       <div class="menu-section">
         <div class="menu-items">
           <button 
-            *ngFor="let item of menuItems"
+            *ngFor="let item of visibleMenuItems"
             class="menu-item"
             [class.active]="isActiveRoute(item.route)"
-            [class.admin-item]="item.label === 'Admin Panel'"
+            [class.admin-item]="item.roles?.includes(Roles.ADMIN)"
             (click)="navigateTo(item.route)"
             [attr.aria-label]="item.label"
             [attr.aria-current]="isActiveRoute(item.route) ? 'page' : undefined">

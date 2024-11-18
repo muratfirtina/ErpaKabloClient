@@ -11,6 +11,7 @@ import { AnimationService } from 'src/app/services/common/animation.service';
 import { ThemeService } from 'src/app/services/common/theme.service';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { DrawerService } from 'src/app/services/common/drawer.service';
+import { Roles } from 'src/app/contracts/user/roles';
 
 interface UserData {
   name: string;
@@ -23,6 +24,8 @@ interface MenuItem {
   label: string;
   icon: string;
   route: string;
+  roles?: Roles[];
+
 }
 
 @Component({
@@ -36,17 +39,37 @@ export class UserSidebarComponent extends BaseDrawerComponent implements OnInit 
   @Output() closeCart = new EventEmitter<void>();
 
   userNameSurname: string | undefined;
-
   userData$: Observable<UserData | null>;
   currentRoute: string = '';
-  isAdmin: boolean = false;
 
-  menuItems = [
-    { label: 'My Orders', icon: 'fas fa-box', route: '/order' },
-    { label: 'My Profile', icon: 'fas fa-user', route: '/user' },
-    { label: 'Favorites', icon: 'fas fa-heart', route: '/favorites' },
-    { label: 'Sign Out', icon: 'fas fa-sign-out-alt', route: 'logout' }
+  readonly Roles = Roles;
+
+  // isAdmin getter'ı
+  get isAdmin(): boolean {
+    return this.authService.isAdmin;
+  }
+  
+  // Tüm menü itemlarını burada tanımlayalım
+  readonly menuItems: MenuItem[] = [
+    { id: 1,label: 'Admin Panel', icon: 'fas fa-user-shield', route: '/admin',roles: [Roles.ADMIN] },
+    { id: 2,label: 'My Orders', icon: 'fas fa-box', route: '/order'},
+    { id: 3,label: 'My Profile', icon: 'fas fa-user', route: '/user'},
+    { id: 4,label: 'Favorites', icon: 'fas fa-heart', route: '/favorites'},
+    { id: 5,label: 'Sign Out', icon: 'fas fa-sign-out-alt', route: 'logout'}
   ];
+
+  // Görüntülenecek menü itemlarını filtreleyen getter
+   get visibleMenuItems(): MenuItem[] {
+    return this.menuItems.filter(item => {
+      if (!item.roles) return true;
+      
+      if (item.roles.includes(Roles.ADMIN)) {
+        return this.isAdmin;
+      }
+      
+      return true;
+    });
+  }
 
   constructor(
     elementRef: ElementRef,
@@ -60,21 +83,11 @@ export class UserSidebarComponent extends BaseDrawerComponent implements OnInit 
     private drawerService: DrawerService,
     public authService: AuthService
   ) {
-    super(spinner,elementRef, animationService,themeService);
+    super(spinner, elementRef, animationService, themeService);
     this.userData$ = this.store.select('user').pipe(
       map(userState => userState.data as UserData)
     );
     this.currentRoute = this.router.url;
-    this.isAdmin = this.authService.isAdmin;
-    
-    // Admin kontrolü yapılıp, admin menü öğesi ekleniyor
-    if (this.isAdmin) {
-      this.menuItems.unshift({
-        label: 'Admin Panel',
-        icon: 'fas fa-user-shield',
-        route: '/admin'
-      });
-    }
   }
 
   ngOnInit(): void {

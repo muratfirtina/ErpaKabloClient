@@ -178,7 +178,7 @@ export class BrandComponent extends BaseComponent implements OnInit {
   updateBreadcrumbs() {
     if (this.brand) {
       const breadcrumbs: Breadcrumb[] = [
-        { label: 'Markalar', url: '/brands' },
+        { label: 'Brands', url: '/brands' },
         { label: this.brand.name, url: `/brand/${this.brand.id}` }
       ];
       this.breadcrumbService.setBreadcrumbs(breadcrumbs);
@@ -211,8 +211,8 @@ export class BrandComponent extends BaseComponent implements OnInit {
       product.isLiked = isLiked;
       this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.customToasterService.message(
-        isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
-        'Başarılı',
+        isLiked ? 'Product Like' : 'Product Like Romeved',
+        'Success',
         {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight
@@ -222,8 +222,8 @@ export class BrandComponent extends BaseComponent implements OnInit {
       console.error('Error toggling like:', error);
       this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.customToasterService.message(
-        'Beğeni işlemi sırasında bir hata oluştu',
-        'Hata',
+        'An error occurred while processing your request.',
+        'Error',
         {
           toastrMessageType: ToastrMessageType.Error,
           position: ToastrPosition.TopRight

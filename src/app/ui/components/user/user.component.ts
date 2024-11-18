@@ -18,6 +18,8 @@ import { UserSidebarComponent } from './user-sidebar/user-sidebar.component';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { PhoneNumber } from 'src/app/contracts/user/phoneNumber';
 import { PhoneNumberService } from 'src/app/services/common/models/phone-number.service';
+import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
+import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 
 
 declare var $: any;
@@ -25,7 +27,7 @@ declare var $: any;
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MainHeaderComponent,NavbarComponent,UserSidebarComponent,DownbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainHeaderComponent,NavbarComponent,UserSidebarComponent,DownbarComponent,BreadcrumbComponent],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })
@@ -64,6 +66,7 @@ export class UserComponent extends BaseComponent implements OnInit {
     private addressService: UserAddressService,
     private phoneService: PhoneNumberService,
     private toastr: CustomToastrService,
+    private breadcrumbService: BreadcrumbService,
     spinner: NgxSpinnerService
   ) {
     super(spinner);
@@ -115,6 +118,9 @@ export class UserComponent extends BaseComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.breadcrumbService.setBreadcrumbs([
+      { label: 'User', url: '/user' }
+    ]);
     this.loadUserData();
     this.loadAddresses();
     this.loadPhoneNumbers();

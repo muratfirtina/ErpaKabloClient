@@ -6,4 +6,5 @@ export class Brand{
     name: string;
     brandImage: BrandImageFile;
     products:Product[];
+    productCount:number;
 }

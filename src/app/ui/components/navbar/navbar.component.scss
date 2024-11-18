@@ -48,6 +48,19 @@ $breakpoint-large: 1400px;
     align-items: center;
     height: 64px;
 
+    .mobile-brands {
+      button {
+        color: #e0e0e0;
+        border: none;
+        padding: 0 10px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        background: transparent;
+      }
+    }
+
     @media (max-width: $breakpoint-tablet) {
       padding: 0 15px;
       height: 56px;
@@ -57,10 +70,12 @@ $breakpoint-large: 1400px;
       flex-direction: row;
       align-items: center;
       padding: 12px;
-      margin-left: 24px;
+      //margin-left: 24px;
 
-      @media (max-width: $breakpoint-laptop) {
-        display: none;
+      @media (max-width: $breakpoint-tablet) {
+        .brands {
+          display: none;  // Mobilde sağdaki Brands butonunu gizle
+        }
       }
 
       .brands, .about-us {
@@ -136,33 +151,47 @@ $breakpoint-large: 1400px;
         }
       }
 
-      input {
-        flex-grow: 1;
-        padding: 10px;
-        border: none;
-        font-size: 14px;
-        height: 40px;
+      .search-input {
+        padding-right: 40px; // Button için yer açıyoruz
         width: 100%;
-
-        @media (max-width: $breakpoint-mobile) {
-          height: 36px;
-          font-size: 13px;
-          padding: 8px;
+        height: 40px;
+        border-radius: 4px;
+        border: 1px solid $border-color;
+    
+        &:focus {
+          box-shadow: none;
+          border-color: $primary-color;
+          outline: none;
+        }
+    
+        &::placeholder {
+          color: #999;
+          font-size: 14px;
         }
       }
-
+    
       .search-button {
-        background-color: white;
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 40px;
         border: none;
-        padding: 0 15px;
-        cursor: pointer;
-        height: 40px;
+        background: transparent;
         display: flex;
         align-items: center;
-
-        @media (max-width: $breakpoint-mobile) {
-          height: 36px;
-          padding: 0 10px;
+        justify-content: center;
+        cursor: pointer;
+        color: #666;
+        transition: color 0.2s ease;
+    
+        &:hover {
+          color: $primary-color;
+        }
+    
+        svg {
+          width: 16px;
+          height: 16px;
         }
       }
 
@@ -584,6 +613,26 @@ $breakpoint-large: 1400px;
             }
           }
         }
+      }
+    }
+  }
+
+  @media (max-width: $breakpoint-tablet) {
+    .industrial-navbar .top-bar {
+      padding: 0 10px;
+      gap: 5px;
+  
+      .mobile-brands {
+        order: 1;  // Sıralamayı ayarla
+      }
+  
+      .search-bar {
+        order: 2;  // Sıralamayı ayarla
+        margin: 0 5px;
+      }
+  
+      .nav-right {
+        order: 3;  // Sıralamayı ayarla
       }
     }
   }

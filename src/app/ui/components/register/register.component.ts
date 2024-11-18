@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CreateUser } from 'src/app/contracts/user/createUser';
@@ -10,11 +10,12 @@ import { AuthService } from 'src/app/services/common/auth.service';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
 import { UserService } from 'src/app/services/common/models/user.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { DownbarComponent } from '../downbar/downbar.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule,],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule,DownbarComponent,RouterModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -33,6 +34,7 @@ export class RegisterComponent extends BaseComponent implements OnInit {
     super(spinner);
   }
 
+  logoUrl = 'assets/homecard/TUMdex.png';
   frm: FormGroup;
   passwordRequirements = {
     uppercase: false,
