@@ -273,3 +273,149 @@ $link-color: #0000ee;
     padding: 1rem;
   }
 }
+
+// Var olan değişkenlere dokunmuyoruz, zaten import edilmiş durumda
+
+@media (prefers-color-scheme: dark) {
+  .filter-container {
+    background-color: $home-primary-color;
+    border-color: rgba($light-text, 0.1);
+
+    .filter-group {
+      .filter-header {
+        border-bottom-color: rgba($light-text, 0.1);
+        
+        &:hover {
+          background-color: rgba($primary-color, 0.1);
+        }
+
+        .filter-title {
+          color: $light-text;
+        }
+
+        i {
+          color: $light-text;
+        }
+      }
+    }
+
+    // Category tree styles
+    .category-tree {
+      .category-item {
+        .category-header {
+          &:hover {
+            background-color: rgba($primary-color, 0.1);
+          }
+
+          .toggle-btn {
+            color: $light-text;
+          }
+
+          .category-name {
+            color: $light-text;
+
+            &.selected {
+              color: $primary-color;
+            }
+          }
+        }
+      }
+    }
+
+    // Checkbox and radio styles
+    .checkbox-label {
+      color: $light-text;
+
+      &:hover {
+        background-color: rgba($primary-color, 0.1);
+      }
+
+      input[type="checkbox"],
+      input[type="radio"] {
+        border-color: $light-text;
+        
+        &:checked {
+          background-color: $primary-color;
+          border-color: $primary-color;
+        }
+      }
+
+      .checkbox-text {
+        color: $light-text;
+      }
+    }
+
+    // Price filter styles
+    .price-filter {
+      .custom-range {
+        .price-input {
+          background-color: $home-primary-color;
+          border-color: rgba($light-text, 0.2);
+          color: $light-text;
+
+          &:focus {
+            border-color: $primary-color;
+          }
+        }
+
+        .apply-button {
+          background-color: $primary-color;
+          color: $light-text;
+
+          &:hover {
+            background-color: darken($primary-color, 10%);
+          }
+        }
+      }
+    }
+
+    // Scrollable areas
+    .scrollable {
+      &::-webkit-scrollbar-track {
+        background: rgba($light-text, 0.1);
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba($light-text, 0.3);
+
+        &:hover {
+          background: rgba($light-text, 0.5);
+        }
+      }
+    }
+  }
+
+  // Offcanvas customization for dark mode
+  .offcanvas {
+    background-color: $home-primary-color;
+
+    .offcanvas-header {
+      background-color: $home-primary-color;
+      border-bottom-color: rgba($light-text, 0.1);
+
+      .offcanvas-title {
+        color: $light-text;
+      }
+
+      .btn-close {
+        filter: invert(1) grayscale(100%) brightness(200%);
+      }
+    }
+
+    .offcanvas-body {
+      background-color: $home-primary-color;
+    }
+  }
+
+  // Mobile filter button dark mode
+  .btn-primary {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    color: $light-text;
+
+    &:hover {
+      background-color: darken($primary-color, 10%);
+      border-color: darken($primary-color, 10%);
+    }
+  }
+}

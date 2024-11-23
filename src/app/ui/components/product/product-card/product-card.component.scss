@@ -15,11 +15,10 @@ $link-color: #0000ee;
 .product-card {
   display: flex;
   flex-direction: column;
-  min-height: 450px; // min-height kullanarak daha esnek bir yapı
-  height: 100%; // Parent container'a göre height
+  min-height: 450px;
+  height: 100%;
   border: 1px solid $border-color;
   background-color: $background-color;
-  //border-radius: 8px;
   overflow: hidden;
   transition: box-shadow 0.3s ease, transform 0.3s ease;
   position: relative;
@@ -42,27 +41,26 @@ $link-color: #0000ee;
   .product-image {
     position: relative;
     width: 100%;
-    height: 240px;
+    height: 227px;
     overflow: hidden;
 
     @media (max-width: 1399px) {
-      height: 240px;
+      height: 227px;
     }
 
     @media (max-width: 991px) {
-      height: 240px;
+      height: 227px;
     }
 
     @media (max-width: 767px) {
-      height: 140px; // Mobilde daha büyük
+      height: 227px;
     }
 
     img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
       transition: transform 0.3s ease;
-      //padding: 1rem;
     }
 
     &:hover img {
@@ -73,7 +71,7 @@ $link-color: #0000ee;
       position: absolute;
       top: 1rem;
       right: 1rem;
-      width: 40px; // Biraz daha büyük buton
+      width: 40px;
       height: 40px;
       background-color: rgba(255, 255, 255, 0.9);
       border: none;
@@ -87,7 +85,7 @@ $link-color: #0000ee;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
       svg {
-        width: 22px; // Biraz daha büyük icon
+        width: 22px;
         height: 22px;
         transition: all 0.3s ease;
       }
@@ -123,16 +121,19 @@ $link-color: #0000ee;
 
       .product-name {
         color: $secondary-color;
-        font-weight: 500;
-        font-size: 1.1rem;
+        font-weight: bold;
+        font-size: 0.8rem;
         margin-top: 0.25rem;
         line-height: 1.4;
       }
     }
 
     .product-title {
-      color: $text-color;
-      font-size: 0.95rem;
+      color: rgb(123, 123, 123);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 16px;
       line-height: 1.5;
       margin: 0;
       display: -webkit-box;
@@ -142,8 +143,8 @@ $link-color: #0000ee;
     }
 
     .product-price {
-      font-size: 1.35rem;
-      font-weight: 700;
+      font-size: 0.9rem;
+      font-weight: bold;
       color: $primary-color;
       margin: 0;
     }
@@ -159,58 +160,117 @@ $link-color: #0000ee;
   .product-add-to-cart-button {
     width: calc(100% - 0.7rem);
     position: relative;
-      bottom: 6px;
-      left: 0.35rem;
-      right: 0.35rem;
-      padding: 0.45rem;
-      font-size: 1rem;
-      font-weight: bold;
-      color: $background-color;
+    bottom: 6px;
+    left: 0.35rem;
+    right: 0.35rem;
+    padding: 0.45rem;
+    font-size: 1rem;
+    font-weight: bold;
+    color: $background-color;
+    background-color: $primary-color;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+
+    &:hover:not(:disabled) {
+      background-color: darken($primary-color, 10%);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  // Dark mode styles
+  @media (prefers-color-scheme: dark) {
+    background-color: $home-primary-color;
+    border-color: rgba($light-text, 0.1);
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .product-image {
+      background-color: rgba($light-text, 0.05);
+
+      .heart-icon {
+        background-color: rgba($home-primary-color, 0.9);
+        
+        svg {
+          stroke: $light-text;
+        }
+
+        &.liked {
+          background-color: rgba($primary-color, 0.2);
+          svg {
+            fill: $primary-color;
+            stroke: $primary-color;
+          }
+        }
+
+        &:hover {
+          background-color: rgba($primary-color, 0.2);
+          svg {
+            stroke: $primary-color;
+          }
+        }
+      }
+    }
+
+    .product-info {
+      .name-title {
+        .brand-name {
+          color: $primary-color;
+        }
+
+        .product-name {
+          color: $light-text;
+        }
+      }
+
+      .product-title {
+        color: rgba($light-text, 0.9);
+      }
+
+      .product-price {
+        color: $primary-color;
+      }
+
+      .product-features {
+        color: rgba($light-text, 0.6);
+      }
+    }
+
+    .product-add-to-cart-button {
+      color: $light-text;
       background-color: $primary-color;
-      border: none;
-      //border-radius: 4px;
-      cursor: pointer;
-      transition: opacity 0.3s ease, transform 0.3s ease,
-        background-color 0.3s ease;
-      opacity: 0;
-      transform: translateY(10px);
 
       &:hover:not(:disabled) {
         background-color: darken($primary-color, 10%);
       }
 
       &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
+        background-color: rgba($light-text, 0.1);
+        color: rgba($light-text, 0.5);
       }
-    @media (max-width: 768px) {
-      opacity: 1;
-      transform: none;
     }
   }
 }
 
-// Liste görünümü için özel stiller
+// Liste görünümü için dark mode
 .list-view {
   .product-card {
-    flex-direction: row;
-    height: 200px;
-    
-    .product-image {
-      width: 200px;
-      height: 100%;
-    }
-    
-    .product-info {
-      flex: 1;
-    }
-    
-    .product-add-to-cart-button {
-      position: absolute;
-      bottom: 1.25rem;
-      right: 1.25rem;
-      width: auto;
-      margin: 0;
+    @media (prefers-color-scheme: dark) {
+      background-color: $home-primary-color;
+      border-color: rgba($light-text, 0.1);
     }
   }
 }

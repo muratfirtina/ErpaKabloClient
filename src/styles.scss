@@ -19,10 +19,12 @@ $link-color: #0000ee;
   min-height: 200px;
 }
 
-.mat-typography{
+.mat-typography {
   background: white;
-  //background: rgb(248, 250, 252);
   
+  @media (prefers-color-scheme: dark) {
+    background: #1a1a1a;
+  }
 }
 .app-container {
   background: white;
@@ -49,6 +51,12 @@ $link-color: #0000ee;
   background-color: green !important;
   color: #fff !important;
 }
+
+::ng-deep .mat-mdc-paginator{
+  margin-bottom: 55.5px;
+}
+
+
 
 ::ng-deep .mat-mdc-paginator-outer-container {
   background-color: #333333;
@@ -219,4 +227,21 @@ ngx-editor ::ng-deep .NgxEditor {
   &:focus {
     top: 0;
   }
+}
+
+.cdk-overlay-container {
+  z-index: 2000 !important; // Cart drawer'dan daha yüksek
+}
+
+.cdk-global-overlay-wrapper {
+  z-index: 2000 !important;
+}
+
+.mat-mdc-dialog-container {
+  z-index: 2000 !important;
+}
+
+// Dialog arka planı için
+.cdk-overlay-backdrop {
+  z-index: 1999 !important; // Dialog container'dan bir düşük
 }

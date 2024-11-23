@@ -77,7 +77,7 @@ export class OrderComponent extends BaseComponent implements OnInit {
         },
         (error) => {
           console.error('Error loading orders:', error);
-          this.toastr.message('Siparişler yüklenirken bir hata oldu', 'Hata',{
+          this.toastr.message('Orders loading error', 'Error',{
             toastrMessageType: ToastrMessageType.Error,
             position: ToastrPosition.TopRight
             
@@ -90,7 +90,7 @@ export class OrderComponent extends BaseComponent implements OnInit {
       this.orders = response.items;
       this.totalItems = response.count;
     } catch (error) {
-      this.toastr.message('Siparişler yüklenirken bir hata oldu', 'Hata',{
+      this.toastr.message('Orders loading error', 'Error',{
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
         

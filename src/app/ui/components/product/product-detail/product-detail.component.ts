@@ -1,4 +1,5 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+// product-detail.component.ts
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -16,25 +17,35 @@ import { BreadcrumbComponent } from '../../breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
-import { ProductLike } from 'src/app/contracts/productLike/productLike';
 import { User } from 'src/app/contracts/user/user';
-import { PageRequest } from 'src/app/contracts/pageRequest';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
-import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
-import { CartService } from 'src/app/services/common/models/cart.service';
+import { DownbarComponent } from '../../downbar/downbar.component';
+import { ProductGridComponent } from '../product-grid/product-grid.component';
+import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.component.html',
   styleUrls: ['./product-detail.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, MainHeaderComponent, NavbarComponent, SafeHtmlPipe, ProductDetailTabsComponent,RouterModule,BreadcrumbComponent]
+  imports: [
+    CommonModule, 
+    FormsModule, 
+    MainHeaderComponent, 
+    NavbarComponent, 
+    SafeHtmlPipe, 
+    ProductDetailTabsComponent,
+    RouterModule,
+    BreadcrumbComponent,
+    DownbarComponent,
+    ProductGridComponent
+  ]
 })
 export class ProductDetailComponent extends BaseComponent implements OnInit {
   product: Product | null = null;
-  randomProducts: GetListResponse<Product>
-  randomProductsForBrands: GetListResponse<Product>
-  user : User
+  randomProducts: GetListResponse<Product>;
+  randomProductsForBrands: GetListResponse<Product>;
+  user: User;
   currentImageIndex = 0;
   defaultProductImage = 'assets/product/ecommerce-default-product.png';
   selectedFeatures: { [key: string]: string } = {};
@@ -56,8 +67,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     private breadcrumbService: BreadcrumbService,
     private authService: AuthService,
     private productLikeService: ProductLikeService,
-    private customToasterService: CustomToastrService,
-    private cartService: CartService,
+    private productOperations: ProductOperationsService,
     spinner: NgxSpinnerService
   ) {
     super(spinner);
@@ -85,10 +95,24 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     this.activeTab = tabName;
   }
 
+  async toggleLike(event: Event, product: Product) {
+    event.stopPropagation();
+    await this.productOperations.toggleLike(product);
+  }
+
+  async addToCart(product: Product) {
+    await this.productOperations.addToCart(product, this.quantity);
+  }
+
+  // Tıklanabilir kartlar için
+  onCardClick(productId: string) {
+    this.router.navigate(['/product', productId]);
+  }
+  
   async loadProduct(productId: string) {
     this.showSpinner(SpinnerType.BallSpinClockwise);
     try {
-      this.product = await this.productService.getById(productId, () => {}, () => {});
+      this.product = await this.productService.getById(productId,()=>{},()=>{});
       if (this.product) {
         this.product.relatedProducts = Array.isArray(this.product.relatedProducts) ? this.product.relatedProducts : [];
         this.initializeSelectedFeatures();
@@ -111,6 +135,31 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     }
   }
 
+  async loadRandomProducts(productId: string) {
+    const response = await this.productService.getRandomProductsByProductId(productId);
+    this.randomProducts = response;
+    if (this.authService.isAuthenticated) {
+      const productIds = this.randomProducts.items.map(p => p.id);
+      const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+      this.randomProducts.items.forEach(product => {
+        product.isLiked = likedProductIds.includes(product.id);
+      });
+    }
+  }
+
+  async loadRandomProductsForBrand(productId: string) {
+    const response = await this.productService.getRandomProductsForBrandByProductId(productId);
+    this.randomProductsForBrands = response;
+    if (this.authService.isAuthenticated) {
+      const productIds = this.randomProductsForBrands.items.map(p => p.id);
+      const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+      this.randomProductsForBrands.items.forEach(product => {
+        product.isLiked = likedProductIds.includes(product.id);
+      });
+    }
+  }
+
+  // Ürün özelliklerini yönetme metodları
   initializeAllFeatures() {
     if (this.product && this.product.relatedProducts) {
       const allProducts = [this.product, ...this.product.relatedProducts];
@@ -127,118 +176,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     }
   }
 
-  getFeatureImage(featureName: string, featureValue: string): string {
-    if (this.visualFeatures.includes(featureName.toLowerCase())) {
-      const featureImages = this.getFeatureImages(featureName);
-      const matchingImage = featureImages.find(img => img.value === featureValue);
-      return matchingImage ? matchingImage.imageUrl : this.defaultProductImage;
-    }
-    return '';
-  }
-
   determineVisualFeatures() {
     this.visualFeatures = ['renk'];
-  }
-
-  getFeatureImages(featureName: string): { value: string, imageUrl: string }[] {
-    if (!this.product || !this.product.relatedProducts || !this.sortedAvailableFeatures[featureName]) return [];
-
-    const selectedNumara = this.selectedFeatures['Numara'];
-    const allProducts = [this.product, ...this.product.relatedProducts];
-    const sortedFeatureValues = this.sortedAvailableFeatures[featureName];
-
-    return sortedFeatureValues.map(featureValue => {
-      const matchingProduct = allProducts.find(product => 
-        product.productFeatureValues.some(f => f.featureName === 'Numara' && f.featureValueName === selectedNumara) &&
-        product.productFeatureValues.some(f => f.featureName.toLowerCase() === featureName.toLowerCase() && f.featureValueName === featureValue)
-      );
-
-      let imageUrl = this.defaultProductImage;
-      if (matchingProduct) {
-        imageUrl = this.findShowcaseImage(matchingProduct.productImageFiles) || 
-                   (matchingProduct.showcaseImage ? matchingProduct.showcaseImage.url : this.defaultProductImage);
-      }
-
-      return { value: featureValue, imageUrl };
-    });
-  }
-
-  async addToCart(product: Product) {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    let createCartItem = new CreateCartItem();
-    createCartItem.productId = product.id;
-    createCartItem.quantity = this.quantity;
-    createCartItem.isChecked = true;
-    console.log('Adding to cart with quantity:', this.quantity);
-    await this.cartService.add(createCartItem, () => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(product.name + " Sepete eklendi", "", {
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-    }, (errorMessage) => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message("En fazla stok sayısı kadar ürün ekleyebilirsiniz", "", {
-        toastrMessageType: ToastrMessageType.Warning,
-        position: ToastrPosition.TopRight
-      });
-    });
-  }
-
-  async addRandomProductToCart(event: Event, randomProduct: Product) {
-    event.stopPropagation(); // Ürün detayına yönlendirmeyi engelle
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    let createCartItem: CreateCartItem = new CreateCartItem();
-    createCartItem.productId = randomProduct.id;
-    createCartItem.quantity = 1;
-    createCartItem.isChecked = true;
-    await this.cartService.add(createCartItem, () => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(randomProduct.name + " Sepete eklendi", "", {
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-    }, (errorMessage) => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message("En fazla stok sayısı kadar ürün ekleyebilirsiniz", "", {
-        toastrMessageType: ToastrMessageType.Warning,
-        position: ToastrPosition.TopRight
-      });
-    });
-  }
-
-  async addRandomProductForBrandToCart(event: Event, randomProductsForBrand: Product) {
-    event.stopPropagation(); // Ürün detayına yönlendirmeyi engelle
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    let createCartItem: CreateCartItem = new CreateCartItem();
-    createCartItem.productId = randomProductsForBrand.id;
-    createCartItem.quantity = 1;
-    createCartItem.isChecked = true;
-    await this.cartService.add(createCartItem, () => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(randomProductsForBrand.name + " Sepete eklendi", "", {
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-    }, (errorMessage) => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message("En fazla stok sayısı kadar ürün ekleyebilirsiniz", "", {
-        toastrMessageType: ToastrMessageType.Warning,
-        position: ToastrPosition.TopRight
-      });
-    });
-  }
-  
-  findShowcaseImage(productImageFiles: ProductImageFile[]): string {
-    if (!productImageFiles) {
-      return '';
-    }
-    const showcaseImage = productImageFiles.find(img => img.showcase === true);
-    if (showcaseImage) {
-      return showcaseImage.url;
-    } else {
-      return '';
-    }
   }
 
   initializeSelectedFeatures() {
@@ -259,47 +198,71 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
 
   sortFeatureValues(featureName: string, values: string[]): string[] {
     if (featureName.toLowerCase() === 'numara' || featureName.toLowerCase() === 'beden') {
-      return values.sort((a, b) => {
-        const numA = parseFloat(a);
-        const numB = parseFloat(b);
-        return numA - numB;
-      });
-    } else {
-      return values.sort();
+      return values.sort((a, b) => parseFloat(a) - parseFloat(b));
     }
+    return values.sort();
   }
 
-  onFeatureSelect(featureName: string, featureValue: string) {
-    if (this.isFeatureValueSelected(featureName, featureValue)) {
-      return;
+  // Görsel özellikler için metodlar
+  getFeatureImage(featureName: string, featureValue: string): string {
+    if (this.visualFeatures.includes(featureName.toLowerCase())) {
+      const featureImages = this.getFeatureImages(featureName);
+      const matchingImage = featureImages.find(img => img.value === featureValue);
+      return matchingImage ? matchingImage.imageUrl : this.defaultProductImage;
     }
+    return '';
+  }
+
+  getFeatureImages(featureName: string): { value: string, imageUrl: string }[] {
+    if (!this.product || !this.product.relatedProducts || !this.sortedAvailableFeatures[featureName]) 
+      return [];
+
+    const selectedNumara = this.selectedFeatures['Numara'];
+    const allProducts = [this.product, ...this.product.relatedProducts];
+    const sortedFeatureValues = this.sortedAvailableFeatures[featureName];
+
+    return sortedFeatureValues.map(featureValue => {
+      const matchingProduct = allProducts.find(product => 
+        product.productFeatureValues.some(f => 
+          f.featureName === 'Numara' && f.featureValueName === selectedNumara) &&
+        product.productFeatureValues.some(f => 
+          f.featureName.toLowerCase() === featureName.toLowerCase() && 
+          f.featureValueName === featureValue)
+      );
+
+      let imageUrl = this.defaultProductImage;
+      if (matchingProduct) {
+        imageUrl = this.findShowcaseImage(matchingProduct.productImageFiles) || 
+                  (matchingProduct.showcaseImage ? matchingProduct.showcaseImage.url : 
+                  this.defaultProductImage);
+      }
+
+      return { value: featureValue, imageUrl };
+    });
+  }
+
+  // Özellik seçimi ve kontrolü
+  onFeatureSelect(featureName: string, featureValue: string) {
+    if (this.isFeatureValueSelected(featureName, featureValue)) return;
     
     this.selectedFeatures[featureName] = featureValue;
     const matchingProduct = this.findMatchingProduct();
     if (matchingProduct) {
       this.loadProduct(matchingProduct.id);
     } else {
-      this.customToastrService.message("Seçilen özelliklere uygun ürün bulunamadı", "Bilgi", {
-        toastrMessageType: ToastrMessageType.Info,
-        position: ToastrPosition.TopRight
-      });
+      this.customToastrService.message(
+        "Seçilen özelliklere uygun ürün bulunamadı", 
+        "Bilgi",
+        {
+          toastrMessageType: ToastrMessageType.Info,
+          position: ToastrPosition.TopRight
+        }
+      );
     }
   }
 
   isFeatureValueSelected(featureName: string, featureValue: string): boolean {
     return this.selectedFeatures[featureName] === featureValue;
-  }
-
-  isFeatureValueAvailable(featureName: string, featureValue: string): boolean {
-    if (this.product) {
-      const allProducts = [this.product, ...(Array.isArray(this.product.relatedProducts) ? this.product.relatedProducts : [])];
-      return allProducts.some(variant =>
-        variant.productFeatureValues.some(feature =>
-          feature.featureName === featureName && feature.featureValueName === featureValue
-        )
-      );
-    }
-    return false;
   }
 
   findMatchingProduct(): Product | null {
@@ -313,18 +276,14 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     ) || null;
   }
 
+  // Resim yönetimi metodları
   resetCurrentImageIndex() {
     this.currentImageIndex = 0;
-    if (this.product && (!this.product.productImageFiles || this.product.productImageFiles.length === 0)) {
+    if (this.product && (!this.product.productImageFiles || 
+        this.product.productImageFiles.length === 0)) {
       this.currentImageIndex = -1;
     }
   }
-
-  onRelatedProductClick(relatedProduct: Product) {
-    this.loadProduct(relatedProduct.id);
-  }
-
-  
 
   toggleImageZoom() {
     this.isImageZoomed = !this.isImageZoomed;
@@ -332,7 +291,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
 
   nextImage(event: Event) {
     event.stopPropagation();
-    if (this.product && this.product.productImageFiles && this.currentImageIndex < this.product.productImageFiles.length - 1) {
+    if (this.product?.productImageFiles && 
+        this.currentImageIndex < this.product.productImageFiles.length - 1) {
       this.currentImageIndex++;
     }
   }
@@ -345,23 +305,47 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   }
 
   selectImage(index: number) {
-    if (this.product && this.product.productImageFiles && index >= 0 && index < this.product.productImageFiles.length) {
+    if (this.product?.productImageFiles && 
+        index >= 0 && 
+        index < this.product.productImageFiles.length) {
       this.currentImageIndex = index;
     }
   }
 
-  getProductImage(product: Product): string {
-    if (product.showcaseImage ) {
-      return product.showcaseImage.url;
-    }
-    return this.defaultProductImage;
+  findShowcaseImage(productImageFiles: ProductImageFile[]): string {
+    if (!productImageFiles) return '';
+    const showcaseImage = productImageFiles.find(img => img.showcase === true);
+    return showcaseImage ? showcaseImage.url : '';
   }
 
+  // Yardımcı metodlar
   formatCurrency(value: number | undefined): string {
     if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
+    return new Intl.NumberFormat('tr-TR', { 
+      style: 'currency', 
+      currency: 'TRY' 
+    }).format(value);
   }
 
+  updateBreadcrumbs() {
+    if (!this.product) return;
+    this.breadcrumbService.setBreadcrumbs([
+      { 
+        label: this.product.categoryName, 
+        url: `/category/${this.product.categoryId}` 
+      },
+      { 
+        label: this.product.brandName, 
+        url: `/brand/${this.product.brandId}` 
+      },
+      { 
+        label: this.product.name + ' ' + this.product.title, 
+        url: `/product/${this.product.id}` 
+      }
+    ]);
+  }
+
+  // Miktar kontrolü
   increaseQuantity() {
     if (this.quantity < 10) {
       this.quantity++;
@@ -373,161 +357,42 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       this.quantity--;
     }
   }
-
-  updateBreadcrumbs() {
-    this.breadcrumbService.setBreadcrumbs([
-      { label: this.product.categoryName, url: `/category/${this.product.categoryId}` },
-      { label: this.product.brandName, url: `/brand/${this.product.brandId}` },
-      { label: this.product.name + ' ' + this.product.title, url: `/product/${this.product.id}` }
-    ]);
-  }
-  
-
-  async loadRandomProducts(productId: string) {
-      const response = await this.productService.getRandomProductsByProductId(productId);
-      this.randomProducts = response;
-      if (this.authService.isAuthenticated) {
-        const productIds = this.randomProducts.items.map(p => p.id);
-        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-        
-        this.randomProducts.items.forEach(product => {
-          product.isLiked = likedProductIds.includes(product.id);
-        });
-      }
-  }
-
-  async loadRandomProductsForBrand(productId: string) {
-    const response = await this.productService.getRandomProductsForBrandByProductId(productId);
-    this.randomProductsForBrands = response;
-    if (this.authService.isAuthenticated) {
-      const productIds = this.randomProductsForBrands.items.map(p => p.id);
-      const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-      
-      this.randomProductsForBrands.items.forEach(product => {
-        product.isLiked = likedProductIds.includes(product.id);
-      });
+  getProductImage(product: Product): string {
+    if (product.showcaseImage) {
+      return product.showcaseImage.url;
     }
-  }
-
-  async toggleLike(event: Event, product: Product) {
-    event.stopPropagation();
-  
-    if (!this.authService.isAuthenticated) {
-      this.router.navigate(['/login'], { 
-        queryParams: { returnUrl: this.router.url }
-      });
-      return;
-    }
-  
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    try {
-      const response = await this.productLikeService.toggleProductLike(product.id);
-      product.isLiked = response;
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        product.isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
-        'Başarılı',
-        {
-          toastrMessageType: ToastrMessageType.Success,
-          position: ToastrPosition.TopRight
-        }
-      );
-    } catch (error) {
-      console.error('Error toggling like:', error);
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        'Beğeni işlemi sırasında bir hata oluştu',
-        'Hata',
-        {
-          toastrMessageType: ToastrMessageType.Error,
-          position: ToastrPosition.TopRight
-        }
-      );
-    }
-  }
-
-  async toggleLikeRandomProduct(event: Event, randomProduct: Product) {
-    event.stopPropagation();
-  
-    if (!this.authService.isAuthenticated) {
-      this.router.navigate(['/login'], { 
-        queryParams: { returnUrl: this.router.url }
-      });
-      return;
-    }
-  
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    try {
-      const response = await this.productLikeService.toggleProductLike(randomProduct.id);
-      randomProduct.isLiked = response;
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        randomProduct.isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
-        'Başarılı',
-        {
-          toastrMessageType: ToastrMessageType.Success,
-          position: ToastrPosition.TopRight
-        }
-      );
-    } catch (error) {
-      console.error('Error toggling like for random product:', error);
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        'Beğeni işlemi sırasında bir hata oluştu',
-        'Hata',
-        {
-          toastrMessageType: ToastrMessageType.Error,
-          position: ToastrPosition.TopRight
-        }
-      );
-    }
-  }
-
-  async toggleLikeRandomProductForBrand(event: Event, randomProductsForBrand: Product) {
-    event.stopPropagation();
-  
-    if (!this.authService.isAuthenticated) {
-      this.router.navigate(['/login'], { 
-        queryParams: { returnUrl: this.router.url }
-      });
-      return;
-    }
-  
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    try {
-      const response = await this.productLikeService.toggleProductLike(randomProductsForBrand.id);
-      randomProductsForBrand.isLiked = response;
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        randomProductsForBrand.isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
-        'Başarılı',
-        {
-          toastrMessageType: ToastrMessageType.Success,
-          position: ToastrPosition.TopRight
-        }
-      );
-    } catch (error) {
-      console.error('Error toggling like for random product:', error);
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.customToasterService.message(
-        'Beğeni işlemi sırasında bir hata oluştu',
-        'Hata',
-        {
-          toastrMessageType: ToastrMessageType.Error,
-          position: ToastrPosition.TopRight
-        }
-      );
-    }
+    return this.defaultProductImage;
   }
 
   scrollLeft() {
-    const grid = this.productGrid.nativeElement;
-    grid.scrollBy({ left: -250, behavior: 'smooth' });
+    if (this.productGrid) {
+      this.productGrid.nativeElement.scrollBy({ left: -250, behavior: 'smooth' });
+    }
   }
 
   scrollRight() {
-    const grid = this.productGrid.nativeElement;
-    grid.scrollBy({ left: 250, behavior: 'smooth' });
+    if (this.productGrid) {
+      this.productGrid.nativeElement.scrollBy({ left: 250, behavior: 'smooth' });
+    }
   }
-  
+
+  // Ürün işlemleri
+  async toggleLikeRandomProductForBrand(event: Event, product: Product) {
+    event.stopPropagation();
+    await this.productOperations.toggleLike(product);
+  }
+
+  async addRandomProductForBrandToCart(event: Event, product: Product) {
+    event.stopPropagation();
+    await this.productOperations.addToCart(product);
+  }
+
+  // ProductOperationsService kullanımına geçiş
+  async onProductAddToCart(product: Product) {
+    await this.productOperations.addToCart(product);
+  }
+
+  async onProductLike(product: Product) {
+    await this.productOperations.toggleLike(product);
+  }
 }

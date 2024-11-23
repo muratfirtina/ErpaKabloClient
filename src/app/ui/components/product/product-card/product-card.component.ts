@@ -14,6 +14,7 @@ import { ProductOperationsService } from 'src/app/services/ui/product/product-op
 export class ProductCardComponent {
   @Input() product!: Product;
   @Input() listView: boolean = false;
+  @Input() gridView: boolean = false;
 
   constructor(private productOperations: ProductOperationsService) {}
 

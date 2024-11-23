@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClientService } from '../http-client.service';
 import { AuthService } from '../auth.service';
-import { CustomToastrService } from '../../ui/custom-toastr.service';
-import { Router } from '@angular/router';
-import { ProductService } from './product.service';
 import { CartItem } from 'src/app/contracts/cart/cartItem';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
@@ -19,9 +16,6 @@ export class CartService {
   constructor(
     private httpClientService: HttpClientService,
     private authService: AuthService,
-    private customToastrService: CustomToastrService,
-    private router: Router,
-    private productService: ProductService
   ) {
     // Only load initial cart items if user is authenticated
     if (this.authService.isAuthenticated) {

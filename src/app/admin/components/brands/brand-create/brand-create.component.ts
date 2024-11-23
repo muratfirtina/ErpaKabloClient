@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { BrandService } from 'src/app/services/common/models/brand.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,7 +16,7 @@ import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/fi
 @Component({
   selector: 'app-brand-create',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, BrandcreateconfrimDialogComponent],
+  imports: [CommonModule, NgxSpinnerModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, BrandcreateconfrimDialogComponent],
   templateUrl: './brand-create.component.html',
   styleUrls: ['./brand-create.component.scss', '../../../../../styles.scss']
 })
@@ -40,41 +40,73 @@ export class BrandCreateComponent extends BaseComponent implements OnInit {
     });
   }
 
-  onSubmit() {
+  async onSubmit() {
     if (this.brandForm.valid) {
-      this.openDialog(this.brandForm.value.name);
+      await this.openDialog(this.brandForm.value.name);
     }
   }
 
-  openDialog(formValue: any): void {
+  async openDialog(formValue: any): Promise<void> {
     const dialogRef = this.dialog.open(BrandcreateconfrimDialogComponent, {
       width: '500px',
-      data: { name: formValue }
+      data: { name: formValue },
+      disableClose: true
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(async result => {
       if (result) {
-        this.createBrand(formValue);
+        await this.createBrand(formValue);
       }
     });
   }
 
-  createBrand(name: string) {
+  async createBrand(name: string) {
+    // Disable form and button interaction
+    this.brandForm.disable();
+    const dialogButtons = document.querySelectorAll('button');
+    dialogButtons.forEach(button => button.disabled = true);
+   
+    // Show spinner before starting the operation
     this.showSpinner(SpinnerType.BallSpinClockwise);
-
+   
     const formData = new FormData();
     formData.append('name', name);
     if (this.selectedFile) {
       formData.append('BrandImage', this.selectedFile, this.selectedFile.name);
     }
-
-    this.brandService.create(formData, () => {
+   
+    try {
+      await this.brandService.create(formData, 
+        () => {
+          // Success callback
+          this.toastrService.message(
+            `Marka Başarıyla Oluşturuldu`,
+            `${name}`,
+            {
+              toastrMessageType: ToastrMessageType.Success,
+              position: ToastrPosition.TopRight
+            }
+          );
+        },
+        errorMessage => {
+          // Error callback
+          this.toastrService.message(
+            'Marka oluşturulurken bir hata oluştu',
+            'Hata',
+            {
+              toastrMessageType: ToastrMessageType.Error,
+              position: ToastrPosition.TopRight
+            }
+          );
+        }
+      );
+    } finally {
+      // Re-enable form and button interaction
+      this.brandForm.enable();
+      dialogButtons.forEach(button => button.disabled = false);
+      // Hide spinner after operation completes
       this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.toastrService.message(`Marka Başarıyla Oluşturuldu`, `${name}`, { toastrMessageType: ToastrMessageType.Success, position: ToastrPosition.TopRight });
-    }, (error) => {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-      this.toastrService.message('Marka oluşturulurken bir hata oluştu', 'Hata', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
-    });
+    }
   }
 
   openFileUploadDialog(): void {

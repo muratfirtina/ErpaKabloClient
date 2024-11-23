@@ -29,7 +29,7 @@
                 <input 
                   type="text" 
                   class="form-control border-start-0" 
-                  placeholder="Siparişlerimde ara"
+                  placeholder="Search orders.."
                   [(ngModel)]="searchQuery" 
                   (input)="searchOrders()"
                 >
@@ -45,35 +45,35 @@
                   (click)="filterByStatus(OrderStatus.All)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.All)}"
                 >
-                  Tüm Siparişler
+                  All Orders
                 </button>
                 <button 
                   class="btn" 
                   (click)="filterByStatus(OrderStatus.Processing)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.Processing)}"
                 >
-                  Devam Edenler
+                  Orders in progress
                 </button>
                 <button 
                   class="btn" 
                   (click)="filterByStatus(OrderStatus.Cancelled)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.Cancelled)}"
                 >
-                  İptaller
+                  Cancelled
                 </button>
                 <button 
                   class="btn" 
                   (click)="filterByStatus(OrderStatus.Returned)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.Returned)}"
                 >
-                  İadeler
+                  Returned
                 </button>
                 <button 
                   class="btn" 
                   (click)="filterByStatus(OrderStatus.Completed)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.Completed)}"
                 >
-                  Tamamlananlar
+                  Completed
                 </button>
 
                 <!-- Date Range Filter -->
@@ -82,13 +82,13 @@
                   (change)="filterByDateRange($event)"
                   [ngModel]="dateRange"
                 >
-                  <option value="all">Tüm Zamanlar</option>
-                  <option value="30">Son 30 gün</option>
-                  <option value="180">Son 6 ay</option>
-                  <option value="365">Son 1 yıl</option>
-                  <option value="older1">1 yıl önce</option>
-                  <option value="older2">2 yıl önce</option>
-                  <option value="older3">3 yıl önce</option>
+                  <option value="all">All Time</option>
+                  <option value="30">Last 30 days</option>
+                  <option value="180">last 6 months</option>
+                  <option value="365">last 1 year</option>
+                  <option value="older1">1 year ago</option>
+                  <option value="older2">2 year ago</option>
+                  <option value="older3">3 year ago</option>
                 </select>
               </div>
             </div>
@@ -97,7 +97,7 @@
             <div class="orders-list" *ngIf="!loading">
               <!-- No Orders Message -->
               <div class="no-orders" *ngIf="orders.length === 0">
-                <p class="text-center text-muted my-5">Henüz sipariş bulunmamaktadır.</p>
+                <p class="text-center text-muted my-5">There are no orders yet.</p>
               </div>
 
               <!-- Orders -->
@@ -119,7 +119,7 @@
                   <!-- Order Info -->
                   <div class="order-info">
                     <div class="order-number">
-                      Sipariş no: <span class="fw-semibold">{{order.orderCode}}</span>
+                      Order No: <span class="fw-semibold">{{order.orderCode}}</span>
                     </div>
                     <div class="order-status fw-semibold"  [ngClass]="getStatusColorClass(order.status)">
                       <!-- Status Icons -->
@@ -220,7 +220,7 @@
 
                     <!-- Price Info -->
                     <div class="item-price">
-                      <div class="item-quantity">Adet: {{item.quantity}}</div>
+                      <div class="item-quantity">Quantity: {{item.quantity}}</div>
                       <div class="price-value">{{item.price | currency:'USD':'symbol-narrow':'1.2-2'}}</div>
                     </div>
                   </div>
@@ -229,7 +229,7 @@
                   <div class="shipping-address mt-3" *ngIf="order.userAddress">
                     <div class="address-header">
                       <i class="bi bi-geo-alt"></i>
-                      <span>Teslimat Adresi</span>
+                      <span>Delivery Address</span>
                     </div>
                     <div class="address-content">
                       <p class="mb-1">{{order.userAddress.name}}</p>
@@ -242,7 +242,7 @@
                   <div class="order-notes mt-3" *ngIf="order.description">
                     <div class="notes-header">
                       <i class="bi bi-sticky"></i>
-                      <span>Sipariş Notu</span>
+                      <span>Order Description</span>
                     </div>
                     <div class="notes-content">
                       <p class="mb-0">{{order.description}}</p>

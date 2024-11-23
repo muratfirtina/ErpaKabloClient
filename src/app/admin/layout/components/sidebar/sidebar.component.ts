@@ -41,6 +41,11 @@ export class SidebarComponent implements OnInit{
 
   sidebarItems: SidebarItem[] = [
     {
+      title: 'Dashboard',
+      icon: 'admin_panel_settings',
+      path: 'dashboard'
+    },
+    {
       title: 'Home Page',
       icon: 'home',
       path: ''

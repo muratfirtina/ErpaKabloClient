@@ -51,51 +51,11 @@
 
 
 <section class="products">
-  <div *ngIf="mostLikedProducts" class="most-liked-products">
-    <h2>EN ÇOK BEĞENİLEN ÜRÜNLER  </h2>
-    <div class="container">
-
-      <div class="product-grid">
-        <div class="most-liked-product-list" #productGrid>
-          <div *ngFor="let mostLikedProduct of mostLikedProducts.items" class="most-liked-product-item" [routerLink]="['/product', mostLikedProduct.id]">
-            <div class="most-liked-product-image">
-              <img [src]="getProductImage(mostLikedProduct)" [alt]="mostLikedProduct.name">
-              <i class="heart-icon" 
-                 [ngClass]="{'liked': mostLikedProduct.isLiked}" 
-                 (click)="toggleLikeMostLikedProduct($event, mostLikedProduct)">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                  </path>
-                </svg>
-              </i>
-            </div>
-            <div class="most-liked-product-info">
-                <div class="name-title">
-                  <a class="most-liked-product-brand-name">{{mostLikedProduct.brandName}}
-                  </a>
-                  <div class="most-liked-product-names">
-                  <p class="most-liked-product-name">{{mostLikedProduct.name}}</p>
-                </div>
-                </div>
-              <p class="most-liked-product-title">{{mostLikedProduct.title}}</p>
-              <p class="most-liked-product-price">{{formatCurrency(mostLikedProduct.price)}}</p>
-              <p class="most-liked-product-features">
-                <ng-container *ngFor="let feature of mostLikedProduct.productFeatureValues; let last = last">
-                  {{feature.featureValueName}}{{!last ? ', ' : ''}}
-                </ng-container>
-              </p>
-            </div>
-            <button class="most-liked-product-add-to-cart-button" [disabled]="mostLikedProduct.stock <= 0" (click)="addMostLikedProductToCart($event, mostLikedProduct)">
-              Sepete Ekle
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
+  <app-product-grid 
+    *ngIf="mostLikedProducts"
+    [products]="mostLikedProducts.items"
+    [title]="'Most Liked Products'">
+  </app-product-grid>
 </section>
 
 <section class="info-cards">

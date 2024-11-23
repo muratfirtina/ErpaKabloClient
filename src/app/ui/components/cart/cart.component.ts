@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -7,18 +7,16 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CartItem } from 'src/app/contracts/cart/cartItem';
 import { IsCheckedCartItem } from 'src/app/contracts/cart/isCheckedCartItem';
 import { UpdateCartItem } from 'src/app/contracts/cart/updateCarItem';
-import { CreateOrder } from 'src/app/contracts/order/createOrder';
 import { CartItemRemoveDialogComponent, CartItemRemoveDialogState } from 'src/app/dialogs/cart-item-remove-dialog/cart-item-remove-dialog.component';
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { CartService } from 'src/app/services/common/models/cart.service';
-import { OrderService } from 'src/app/services/common/models/order.service';
+import { CartStateService } from 'src/app/services/common/models/cart-state.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
-import { OrderStatus } from 'src/app/contracts/order/orderStatus';
-import { Subject } from 'rxjs';
 import { DrawerService } from 'src/app/services/common/drawer.service';
 import { ThemeService } from 'src/app/services/common/theme.service';
 import { BaseDrawerComponent } from '../base-drawer.component';
 import { AnimationService } from 'src/app/services/common/animation.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cart',
@@ -27,13 +25,20 @@ import { AnimationService } from 'src/app/services/common/animation.service';
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss']
 })
-export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestroy {
+export class CartComponent extends BaseDrawerComponent implements OnInit, OnDestroy {
   @Output() closeCart = new EventEmitter<void>();
-  private destroy$ = new Subject<void>();
+  
+  totalItemCount: number;
+  totalSelectedCartPrice: number;
+  cartItems: CartItem[];
+  selectedItemCount: number = 0;
+  cartIsEmptyMessage: string;
+  
+  private cartMetricsSubscription: Subscription;
 
   constructor(
     private cartService: CartService,
-    private orderService: OrderService,
+    private cartStateService: CartStateService,
     private toastrService: CustomToastrService,
     private router: Router,
     private dialogService: DialogService,
@@ -41,17 +46,18 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
     elementRef: ElementRef,
     animationService: AnimationService,
     themeService: ThemeService,
-    spinner: NgxSpinnerService,
-
+    spinner: NgxSpinnerService
   ) {
-    super(spinner,elementRef, animationService,themeService);
+    super(spinner, elementRef, animationService, themeService);
+    
+    // Sepet metriklerini dinle
+    this.cartMetricsSubscription = this.cartStateService.getCartMetrics()
+      .subscribe(metrics => {
+        this.totalItemCount = metrics.totalItems;
+        this.selectedItemCount = metrics.selectedItems;
+        this.totalSelectedCartPrice = metrics.selectedItemsPrice;
+      });
   }
-
-  totalItemCount: number;
-  totalSelectedCartPrice: number;
-  cartItems: CartItem[];
-  selectedItemCount: number = 0;
-  cartIsEmptyMessage: string;
 
   async ngOnInit(): Promise<void> {
     this.showSpinner(SpinnerType.BallSpinClockwise);
@@ -63,9 +69,7 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
   override close() {
     this.isOpen = false;
     this.closeCart.emit();
-    // Body overflow'ı düzelt
     document.body.style.overflow = 'auto';
-    // Drawer service'i kullanarak tam kapanmayı sağla
     this.drawerService.close();
   }
 
@@ -73,8 +77,15 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
     this.cartItems = await this.cartService.get();
     this.totalItemCount = this.cartItems.length;
 
+    // CartItem'ları güncelle ve CartStateService'e kaydet
     this.cartItems.forEach((cartItem) => {
       cartItem.quantityPrice = cartItem.unitPrice * cartItem.quantity;
+    });
+
+    // Cart State'i başlangıçta güncelle
+    this.cartStateService.updateCartData({
+      selectedItems: this.cartItems,
+      totalPrice: this.calculateTotalPrice(this.cartItems)
     });
 
     this.totalSelectedCartPrice = this.cartItems
@@ -82,15 +93,40 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
       .reduce((sum, cartItem) => sum + cartItem.quantityPrice, 0);
   }
 
+  private calculateTotalPrice(items: CartItem[]): number {
+    return items.reduce((sum, item) => sum + item.quantityPrice, 0);
+  }
+
   toggleItemChecked(event: any, cartItem: CartItem) {
     cartItem.isChecked = event.target.checked;
-    this.updateTotalCartPrice();
-    this.updateSelectedItemCount();
-
+    
+    // Önce CartStateService'i güncelle
+    const currentCart = this.cartStateService.getCartData();
+    if (currentCart) {
+      const updatedItems = currentCart.selectedItems.map(item => 
+        item.cartItemId === cartItem.cartItemId ? { ...item, isChecked: event.target.checked } : item
+      );
+  
+      this.cartStateService.updateCartData({
+        ...currentCart,
+        selectedItems: updatedItems
+      });
+    }
+  
+    // Sonra backend'e gönder
     const isCheckedCartItem: IsCheckedCartItem = new IsCheckedCartItem();
     isCheckedCartItem.cartItemId = cartItem.cartItemId;
     isCheckedCartItem.isChecked = cartItem.isChecked;
     this.cartService.updateCartItem(isCheckedCartItem);
+    
+    this.updateSelectedItemCount();
+    this.updateTotalCartPrice();
+  }
+  
+  updateTotalCartPrice() {
+    this.totalSelectedCartPrice = this.cartItems
+      .filter((cartItem) => cartItem.isChecked)
+      .reduce((sum, cartItem) => sum + cartItem.quantityPrice, 0);
   }
 
   async changeQuantity(change: number, cartItem: CartItem) {
@@ -98,6 +134,8 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
     const quantity: number = cartItem.quantity + change;
 
     if (quantity >= 1) {
+      this.cartStateService.updateItemQuantity(cartItem.cartItemId, quantity);
+      
       const updateCartItem: UpdateCartItem = new UpdateCartItem();
       updateCartItem.cartItemId = cartItem.cartItemId;
       updateCartItem.quantity = quantity;
@@ -107,7 +145,6 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
       cartItem.quantity = quantity;
     }
 
-    this.updateTotalCartPrice();
     this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
@@ -117,12 +154,13 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
     const parsedValue = parseInt(inputValue, 10);
 
     if (!isNaN(parsedValue) && parsedValue > 0) {
+      this.cartStateService.updateItemQuantity(cartItem.cartItemId, parsedValue);
       cartItem.quantity = parsedValue;
       cartItem.quantityPrice = cartItem.unitPrice * cartItem.quantity;
-      this.updateTotalCartPrice();
     } else {
       cartItem.quantity = 1;
     }
+    
     this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
@@ -139,11 +177,15 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
           
           try {
             await this.cartService.remove(cartItemId);
-            this.cartItems = this.cartItems.filter(
-              (item) => item.cartItemId !== cartItemId
-            );
+            this.cartItems = this.cartItems.filter(item => item.cartItemId !== cartItemId);
+            
+            // CartState'i güncelle
+            this.cartStateService.updateCartData({
+              selectedItems: this.cartItems,
+              totalPrice: this.calculateTotalPrice(this.cartItems)
+            });
+            
             this.updateSelectedItemCount();
-            this.updateTotalCartPrice();
             this.totalItemCount = this.cartItems.length;
             
             this.toastrService.message(
@@ -171,16 +213,8 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
     });
   }
 
-  updateTotalCartPrice() {
-    this.totalSelectedCartPrice = this.cartItems
-      .filter((cartItem) => cartItem.isChecked)
-      .reduce((sum, cartItem) => sum + cartItem.quantityPrice, 0);
-  }
-
   updateSelectedItemCount() {
-    this.selectedItemCount = this.cartItems.filter(
-      (cartItem) => cartItem.isChecked
-    ).length;
+    this.selectedItemCount = this.cartItems.filter(cartItem => cartItem.isChecked).length;
 
     if (this.selectedItemCount === 0) {
       const cartIsEmpty = this.cartItems.length === 0;
@@ -202,20 +236,19 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
       );
       return;
     }
-  
-    // Seçili ürünleri ve toplam fiyatı OrderPage'e geçirelim
+
     const selectedItems = this.cartItems.filter(item => item.isChecked);
-    const orderData = {
-      selectedItems: selectedItems,
+    const cartData = {
+      selectedItems,
       totalPrice: this.totalSelectedCartPrice
     };
-  
-    // OrderPage'e yönlendirme yaparken verileri state üzerinden geçirelim
-    this.router.navigate(['/order-page'], { 
-      state: { orderData }
-    });
-  
-    // Cart drawer'ı kapatalım
+
+    // State service'i güncelle
+    this.cartStateService.updateCartData(cartData);
+    
+    // Navigate et
+    this.router.navigate(['/cart-page']);
+    
     this.close();
   }
 
@@ -228,7 +261,6 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
 
   @HostListener('click', ['$event'])
   onClick(event: MouseEvent) {
-    // Drawer dışına tıklandığında kapatma işlevi
     const target = event.target as HTMLElement;
     if (target.classList.contains('cart-drawer-backdrop')) {
       this.close();
@@ -243,24 +275,16 @@ export class CartComponent extends BaseDrawerComponent implements OnInit,OnDestr
     }
   }
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['isOpen']) {
-      this.setPageScroll();
-    }
-  }
-
   ngOnDestroy() {
-    // Tüm subscription'ları temizle
-    this.destroy$.next();
-    this.destroy$.complete();
+    if (this.cartMetricsSubscription) {
+      this.cartMetricsSubscription.unsubscribe();
+    }
     
-    // Body stillerini temizle
     document.body.style.overflow = 'auto';
     document.body.style.position = '';
     document.body.style.top = '';
     document.body.style.width = '';
     
-    // Drawer'ı kapat
     this.drawerService.close();
   }
 }

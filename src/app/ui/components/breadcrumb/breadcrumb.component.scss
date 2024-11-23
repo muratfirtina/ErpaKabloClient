@@ -1,3 +1,17 @@
+$home-primary-color: #333333;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #fff;
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #059669;
+$link-color: #0000ee;
+
 .breadcrumb {
   display: flex;
   list-style: none;
@@ -38,5 +52,40 @@
 
   .active {
     color: rgb(80 98 116 / 75%);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .breadcrumb {
+    background-color: $home-primary-color; // Cart'ta kullanılan koyu arka plan
+    border: 1px solid rgba($light-text, 0.1); // Hafif bir sınır ekledik
+
+    .breadcrumb-item {
+      &:not(:last-child)::after {
+        // SVG rengini açık tema için değiştiriyoruz
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23e0e0e0' class='bi bi-chevron-right' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708'/%3E%3C/svg%3E");
+      }
+    }
+
+    a {
+      color: $light-text; // Cart'ta kullanılan açık metin rengi
+      
+      &:hover {
+        color: $primary-color; // Hover durumunda primary rengi
+      }
+
+      svg {
+        // Home ikonu için renk ayarı
+        color: $light-text;
+        
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+
+    .active {
+      color: rgba($light-text, 0.6); // Aktif öğe için yarı saydam açık renk
+    }
   }
 }

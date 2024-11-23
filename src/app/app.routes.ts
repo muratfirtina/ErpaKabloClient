@@ -58,8 +58,8 @@ export const routes: Routes = [
        {path: "brands-page",loadComponent:()=>import('./ui/components/brand/brands-page/brands-page.component').then(m=>m.BrandsPageComponent)},
        {path: "unauthorized",loadComponent:()=>import('./ui/components/unauthorized/unauthorized.component').then(m=>m.UnauthorizedComponent)},
        {path: "order",loadComponent:()=>import('./ui/components/order/order.component').then(m=>m.OrderComponent),canActivate: [authGuard]},
-       {path: "order-page",loadComponent:()=>import('./ui/components/order/order-page/order-page.component').then(m=>m.OrderPageComponent),canActivate: [authGuard]},
        {path: "order-summary/:orderId",loadComponent:()=>import('./ui/components/order/order-summary/order-summary.component').then(m=>m.OrderSummaryComponent),canActivate: [authGuard]},
+       {path: "cart-page",loadComponent:()=>import('./ui/components/cart/cart-page/cart-page.component').then(m=>m.CartPageComponent),canActivate: [authGuard]},
        {path: "user",loadComponent:()=>import('./ui/components/user/user.component').then(m=>m.UserComponent),canActivate: [authGuard]},
        {path: "downbar",loadComponent:()=>import('./ui/components/downbar/downbar.component').then(m=>m.DownbarComponent)},
 

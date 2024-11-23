@@ -179,14 +179,21 @@ export class CategoryCreateComponent extends BaseComponent implements OnInit {
     if (this.selectedFile) {
       formData.append('CategoryImage', this.selectedFile, this.selectedFile.name);
     }
-
+  
     this.showSpinner(SpinnerType.BallSpinClockwise);
     this.categoryService.create(formData, () => {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
+      
       this.toastrService.message('Category created successfully', 'Success', {
         toastrMessageType: ToastrMessageType.Success,
         position: ToastrPosition.TopRight
       });
+  
+      // Toastr mesajının görünmesi için kısa bir gecikme ekleyelim
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000); // 1 saniye bekle
+      
     }, (error) => {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.toastrService.message(error, 'Error', {

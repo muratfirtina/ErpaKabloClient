@@ -129,3 +129,10 @@ mat-paginator {
     margin-top: 1rem;
   }
 }
+@media (prefers-color-scheme: dark) {
+  
+  .mat-mdc-paginator{
+    background-color: #1a1a1a;
+  }
+  
+}

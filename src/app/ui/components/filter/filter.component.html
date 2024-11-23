@@ -4,7 +4,7 @@
           data-bs-toggle="offcanvas" 
           data-bs-target="#filterOffcanvas" 
           aria-controls="filterOffcanvas">
-    <i class="fas fa-filter me-2"></i>Filtreleri Göster
+    <i class="fas fa-filter me-2"></i>Filters
   </button>
 
   <!-- Mobile Filter Offcanvas -->
@@ -13,7 +13,7 @@
        id="filterOffcanvas" 
        aria-labelledby="filterOffcanvasLabel">
     <div class="offcanvas-header border-bottom">
-      <h5 class="offcanvas-title" id="filterOffcanvasLabel">Filtreler</h5>
+      <h5 class="offcanvas-title" id="filterOffcanvasLabel">Filters</h5>
       <button type="button" class="btn-close text-reset" 
               data-bs-dismiss="offcanvas" 
               aria-label="Close"></button>
@@ -66,8 +66,8 @@
               <ng-container *ngSwitchCase="FilterType.Range">
                 <div *ngIf="filter.key === 'Price'" class="price-filter" [formGroupName]="filter.key">
                   <div class="custom-range">
-                    <input type="number" formControlName="min" placeholder="En az" class="price-input" />
-                    <input type="number" formControlName="max" placeholder="En çok" class="price-input" />
+                    <input type="number" formControlName="min" placeholder="Min. Price" class="price-input" />
+                    <input type="number" formControlName="max" placeholder="Max Price" class="price-input" />
                     <button type="button" (click)="applyCustomPriceRange()" class="apply-button">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
                         class="bi bi-search">

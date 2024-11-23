@@ -16,8 +16,8 @@
 
                 <!-- Product List -->
 <div class="product-list">
-    <div *ngFor="let item of orderData?.selectedItems" class="product-item">
-        <div class="row g-0">
+    <div *ngFor="let item of cartData?.selectedItems" class="product-item">
+        <div *ngIf="item.isChecked" class="row g-0">
             <!-- Product Image -->
             <div class="col-auto">
                 <img [src]="item.showcaseImage?.url || 'assets/default-product.png'"
@@ -57,7 +57,7 @@
                             </div>
                             <div class="total-price">
                                 <span class="price-label">Total:</span>
-                                <span class="price-value">{{item.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
+                                <span class="price-value">{{item.quantityPrice | currency:'USD':'symbol':'1.2-2'}}</span>
                             </div>
                         </div>
                     </div>
@@ -69,7 +69,7 @@
             </section>
 
             <!-- Delivery Information -->
-            <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
+            <form [formGroup]="cartForm" (ngSubmit)="onSubmit()">
                 <!-- Address Selection -->
                 <section class="mb-4">
                     <h2 class="section-title">
@@ -79,8 +79,8 @@
 
                     <div class="form-select-container">
                         <label for="addressSelect">Select Delivery Address</label>
-                        <select id="addressSelect" class="form-select" formControlName="addressId" [class.is-invalid]="orderForm.get('addressId')?.errors?.['required'] && 
-                                      orderForm.get('addressId')?.touched">
+                        <select id="addressSelect" class="form-select" formControlName="addressId" [class.is-invalid]="cartForm.get('addressId')?.errors?.['required'] && 
+                                      cartForm.get('addressId')?.touched">
                             <option value="">Choose an address...</option>
                             <option *ngFor="let address of addresses" [value]="address.id">
                                 {{address.name}} - {{address.addressLine1}}, {{address.city}}
@@ -123,8 +123,8 @@
 
                     <div class="form-select-container">
                         <label for="phoneSelect">Select Contact Phone</label>
-                        <select id="phoneSelect" class="form-select" formControlName="phoneNumberId" [class.is-invalid]="orderForm.get('phoneNumberId')?.errors?.['required'] && 
-                                      orderForm.get('phoneNumberId')?.touched">
+                        <select id="phoneSelect" class="form-select" formControlName="phoneNumberId" [class.is-invalid]="cartForm.get('phoneNumberId')?.errors?.['required'] && 
+                                      cartForm.get('phoneNumberId')?.touched">
                             <option value="">Choose a phone number...</option>
                             <option *ngFor="let phone of phones" [value]="phone.id">
                                 {{phone.name}} - {{phone.number}}
@@ -175,7 +175,7 @@
 
                     <div class="summary-item">
                         <span>Subtotal</span>
-                        <span>{{orderData?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
+                        <span>{{cartData?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
                     </div>
                     <div class="summary-item">
                         <span>Shipping</span>
@@ -183,12 +183,12 @@
                     </div>
                     <div class="summary-item total">
                         <span>Total</span>
-                        <span>{{orderData?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
+                        <span>{{cartData?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
                     </div>
                 </section>
 
                 <!-- Submit Button -->
-                <button type="submit" class="submit-button" [disabled]="orderForm.invalid">
+                <button type="submit" class="submit-button" [disabled]="cartForm.invalid">
                     <i class="fas fa-check mr-2"></i>
                     Complete Order
                 </button>

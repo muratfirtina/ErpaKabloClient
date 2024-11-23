@@ -46,14 +46,14 @@ $widescreen: 1400px;
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw;  // 100% yerine 100vw kullan
-  height: 100vh; // 100% yerine 100vh kullan
+  width: 100vw;
+  height: 100vh;
   background-color: rgba(0, 0, 0, 0.5);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
-  z-index: 1040;
-  pointer-events: auto; // Bu önemli
+  z-index: 1040; // Bu değer kalabilir
+  pointer-events: auto;
   
   &.open {
     opacity: 1;
@@ -65,12 +65,12 @@ $widescreen: 1400px;
   position: fixed;
   top: 0;
   right: -100%;
-  width: 100%; // Mobile first - full width on small screens
+  width: 100%;
   height: 100vh;
   background: #fff;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
   transition: right 0.3s ease-in-out;
-  z-index: 1050;
+  z-index: 1050; // Bu değer kalabilir
   display: flex;
   flex-direction: column;
 
@@ -359,7 +359,7 @@ $widescreen: 1400px;
 
                 .price-label {
                   font-size: 0.85rem;
-                  color: #666;
+                  
                   white-space: nowrap;
 
                   @include respond-to(tablet) {
@@ -552,8 +552,85 @@ $widescreen: 1400px;
   }
 }
 @media (prefers-color-scheme: dark) {
+  
   .cart-drawer {
     background: $home-primary-color;
+
+    .cart-body{
+
+      .cart-item{
+        background-color: $home-text-color;
+
+        .cart-item-main{
+
+          .cart-item-details{
+
+            .product-header{
+
+              .product-title{
+                .brand{
+                  color: $primary-color;
+                }
+                .name{
+                  color: $light-text;
+                }
+              }
+              
+            }
+            .product-features{
+              
+            }
+            .product-price-controls{
+              .price-info{
+                .unit-price, .total-price{
+                  .price-label{
+                    color: $light-text;
+                  }
+                  .price-value{
+                    color: $light-text;
+                  }
+                }
+                .total-price .price-value{
+                  color: $primary-color;
+                }
+              }
+              .controls-wrapper{
+                .quantity-controls{
+                  background: $home-secondary-color;
+                  button{
+                    background: $home-primary-color;
+                    color: $home-secondary-color;
+                    &:hover{
+                      background: darken($home-primary-color, 10%);
+                    }
+                    &.delete-btn{
+                      background: $primary-color;
+                      &:hover{
+                        background: darken($primary-color, 10%);
+                      }
+                    }
+                  }
+                  input{
+                    color: $text-color;
+                    border-color: $home-primary-color;
+                    &:focus{
+                      border-color: $primary-color;
+                    }
+                  }
+                }
+                .remove-button{
+                  color: $light-text;
+                  &:hover{
+                    color: $primary-color;
+                    background: $home-secondary-color;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
 
     .cart-header {
       color:$light-text;

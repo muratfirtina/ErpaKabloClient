@@ -103,9 +103,9 @@
 <div class="product-detail-tabs">
   <ul class="tab-headers">
     <li class="tab-header" [class.active]="activeTab === 'description'" (click)="setActiveTab('description')">
-      Ürün Açıklaması
+      Descriptions
     </li>
-    <li class="tab-header" [class.active]="activeTab === 'reviews'" (click)="setActiveTab('reviews')">
+<!--     <li class="tab-header" [class.active]="activeTab === 'reviews'" (click)="setActiveTab('reviews')">
       Değerlendirmeler <span class="badge">1899</span>
     </li>
     <li class="tab-header" [class.active]="activeTab === 'questions'" (click)="setActiveTab('questions')">
@@ -119,7 +119,7 @@
     </li>
     <li class="tab-header" [class.active]="activeTab === 'return'" (click)="setActiveTab('return')">
       İptal ve İade Koşulları
-    </li>
+    </li> -->
   </ul>
 
   <div class="tab-content" [ngSwitch]="activeTab">
@@ -128,138 +128,42 @@
     </div>
     <div *ngSwitchCase="'reviews'">
       <h2>Değerlendirmeler</h2>
-      <!-- Değerlendirmeler içeriği buraya gelecek -->
-    </div>
+      
+    <!-- </div>
     <div *ngSwitchCase="'questions'">
       <h2>Soru & Cevap</h2>
-      <!-- Soru & Cevap içeriği buraya gelecek -->
+     
     </div>
     <div *ngSwitchCase="'installment'">
       <h2>Taksit Seçenekleri</h2>
-      <!-- Taksit seçenekleri içeriği buraya gelecek -->
+     
     </div>
     <div *ngSwitchCase="'credit'">
       <h2>Alışveriş Kredisi</h2>
-      <!-- Alışveriş kredisi içeriği buraya gelecek -->
+      
     </div>
     <div *ngSwitchCase="'return'">
       <h2>İptal ve İade Koşulları</h2>
-      <!-- İptal ve iade koşulları içeriği buraya gelecek -->
-    </div>
+      
+    </div> -->
   </div>
 </div>
 
 
 <section class="products">
-  <div *ngIf="randomProducts" class="random-products">
-    <h2>Bu Ürünle İlgili Diğer Ürünler</h2>
-    <div class="container">
-      <button class="scroll-btn left" (click)="scrollLeft()">
-        <!-- Sol ok ikonu -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
-      <div class="product-grid">
-        <div class="random-product-list" #productGrid>
-          <div *ngFor="let randomProduct of randomProducts.items" class="random-product-item" [routerLink]="['/product', randomProduct.id]">
-            <div class="random-product-image">
-              <img [src]="getProductImage(randomProduct)" [alt]="randomProduct.name">
-              <i class="heart-icon" 
-                 [ngClass]="{'liked': randomProduct.isLiked}" 
-                 (click)="toggleLikeRandomProduct($event, randomProduct)">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                  </path>
-                </svg>
-              </i>
-            </div>
-            <div class="random-product-info">
-              <div class="name-title">
-                <p class="random-product-name">{{randomProduct.name}}</p>
-                <p class="random-product-title">{{randomProduct.title}}</p>
-              </div>
-              <p class="random-product-price">{{formatCurrency(randomProduct.price)}}</p>
-              <p class="random-product-features">
-                <ng-container *ngFor="let feature of randomProduct.productFeatureValues; let last = last">
-                  {{feature.featureValueName}}{{!last ? ', ' : ''}}
-                </ng-container>
-              </p>
-            </div>
-            <button class="random-product-add-to-cart-button" [disabled]="randomProduct.stock <= 0" (click)="addRandomProductToCart($event, randomProduct)">
-              Sepete Ekle
-            </button>
-          </div>
-        </div>
-        <button class="scroll-btn right" (click)="scrollRight()">
-          <!-- Sağ ok ikonu -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </div>
+  <app-product-grid 
+    *ngIf="randomProducts"
+    [products]="randomProducts.items"
+    [title]="'Bu Ürünle İlgili Diğer Ürünler'">
+  </app-product-grid>
 
+  <app-product-grid 
+    *ngIf="randomProductsForBrands"
+    [products]="randomProductsForBrands.items"
+    [title]="product?.brandName + ' Markalı Diğer Ürünler'">
+  </app-product-grid>
 </section>
 
-<section class="products">
-  <div *ngIf="randomProductsForBrands" class="random-products">
-    <h2>{{product.brandName}} Markalı Diğer Ürünler</h2>
-    <div class="container">
-      <button class="scroll-btn left" (click)="scrollLeft()">
-        <!-- Sol ok ikonu -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-          stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
-      <div class="product-grid">
-        <div class="random-product-list" #productGrid>
-          <div *ngFor="let randomProductsForBrand of randomProductsForBrands.items" class="random-product-item" [routerLink]="['/product', randomProductsForBrand.id]">
-            <div class="random-product-image">
-              <img [src]="getProductImage(randomProductsForBrand)" [alt]="randomProductsForBrand.name">
-              <i class="heart-icon" 
-                 [ngClass]="{'liked': randomProductsForBrand.isLiked}" 
-                 (click)="toggleLikeRandomProductForBrand($event, randomProductsForBrand)">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
-                  </path>
-                </svg>
-              </i>
-            </div>
-            <div class="random-product-info">
-              <div class="name-title">
-                <p class="random-product-name">{{randomProductsForBrand.name}}</p>
-                <p class="random-product-title">{{randomProductsForBrand.title}}</p>
-              </div>
-              <p class="random-product-price">{{formatCurrency(randomProductsForBrand.price)}}</p>
-              <p class="random-product-features">
-                <ng-container *ngFor="let feature of randomProductsForBrand.productFeatureValues; let last = last">
-                  {{feature.featureValueName}}{{!last ? ', ' : ''}}
-                </ng-container>
-              </p>
-            </div>
-            <button class="random-product-add-to-cart-button" [disabled]="randomProductsForBrand.stock <= 0" (click)="addRandomProductForBrandToCart($event, randomProductsForBrand)">
-              Sepete Ekle
-            </button>
-          </div>
-        </div>
-        <button class="scroll-btn right" (click)="scrollRight()">
-          <!-- Sağ ok ikonu -->
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-        </button>
-      </div>
-    </div>
-  </div>
 
-</section>
+
+<app-downbar></app-downbar>

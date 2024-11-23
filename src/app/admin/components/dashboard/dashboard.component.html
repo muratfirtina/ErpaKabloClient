@@ -1,1 +1,38 @@
-<p>dashboard works!</p>
+<div class="grid grid-cols-1 gap-4 p-4">
+    <div class="bg-white rounded-lg shadow p-4">
+      <h2 class="text-xl font-bold mb-4">Yeni Siparişler</h2>
+      <div class="space-y-2">
+        <div *ngFor="let notification of orderNotifications" 
+             class="p-3 bg-blue-50 rounded-md">
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="font-medium">Sipariş ID: {{notification.orderId}}</span>
+              <p class="text-gray-600">{{notification.message}}</p>
+            </div>
+            <span class="text-sm text-gray-500">
+              {{notification.timestamp | date:'medium'}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="bg-white rounded-lg shadow p-4 mt-4">
+      <h2 class="text-xl font-bold mb-4">Durum Güncellemeleri</h2>
+      <div class="space-y-2">
+        <div *ngFor="let update of statusUpdates" 
+             class="p-3 bg-yellow-50 rounded-md">
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="font-medium">Sipariş ID: {{update.orderId}}</span>
+              <p class="text-gray-600">{{update.message}}</p>
+              <span class="text-sm text-yellow-600">Durum: {{update.status}}</span>
+            </div>
+            <span class="text-sm text-gray-500">
+              {{update.timestamp | date:'medium'}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

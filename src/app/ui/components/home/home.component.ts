@@ -20,11 +20,12 @@ import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 import { DownbarComponent } from '../downbar/downbar.component';
+import { ProductGridComponent } from '../product/product-grid/product-grid.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MainHeaderComponent, CommonModule, NavbarComponent,RouterModule,DownbarComponent],
+  imports: [MainHeaderComponent, CommonModule, NavbarComponent,RouterModule,DownbarComponent,ProductGridComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

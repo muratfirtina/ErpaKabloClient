@@ -235,3 +235,127 @@ $link-color: #0000ee;
         }
     }
 }
+
+$dark-bg: darken($background-color, 90%);
+$dark-form-bg: darken($background-color, 87%);
+$dark-text: lighten($text-color, 60%);
+$dark-border: darken($border-color, 60%);
+$dark-subtitle: darken($light-text, 30%);
+$dark-input-bg: darken($background-color, 85%);
+
+@mixin dark-mode {
+  .login-container {
+    background-color: $dark-bg;
+  }
+
+  .logo {
+    .logo-subtext {
+      color: $dark-text;
+    }
+  }
+
+  .loginform {
+    background-color: $dark-form-bg;
+    box-shadow: 0px 106px 42px rgba(0, 0, 0, 0.01),
+      0px 59px 36px rgba(0, 0, 0, 0.05),
+      0px 26px 26px rgba(0, 0, 0, 0.09),
+      0px 7px 15px rgba(0, 0, 0, 0.1);
+
+    .title_container {
+      .title {
+        color: $dark-text;
+      }
+
+      .subtitle {
+        color: $dark-subtitle;
+
+        a {
+          color: lighten($primary-color, 10%);
+        }
+      }
+    }
+
+    .form-floating {
+      input {
+        background-color: $dark-input-bg;
+        border-color: $dark-border;
+        color: $dark-text;
+
+        &::placeholder {
+          color: darken($light-text, 40%);
+        }
+
+        &:focus {
+          border-color: lighten($primary-color, 10%);
+          background-color: darken($dark-input-bg, 3%);
+        }
+      }
+
+      label {
+        color: $dark-subtitle;
+      }
+    }
+
+    .forgot-password {
+      a {
+        color: $dark-text;
+
+        &:hover {
+          color: lighten($primary-color, 10%);
+        }
+      }
+    }
+
+    .btn-login {
+      &:hover {
+        background-color: lighten($primary-color, 5%);
+      }
+
+      &:disabled {
+        background-color: darken($primary-color, 20%);
+      }
+    }
+
+    .separator {
+      .line {
+        background-color: $dark-border;
+      }
+
+      span {
+        color: $dark-subtitle;
+      }
+    }
+
+    .btn-social {
+      background-color: $dark-input-bg;
+      border-color: $dark-border;
+      color: $dark-text;
+
+      &:hover {
+        background-color: darken($dark-input-bg, 3%);
+      }
+
+      &.apple {
+        background-color: #000;
+        color: $light-text;
+
+        &:hover {
+          background-color: lighten(#000, 15%);
+        }
+      }
+    }
+
+    .terms {
+      color: $dark-subtitle;
+
+      a {
+        color: lighten($primary-color, 10%);
+      }
+    }
+  }
+}
+
+// Add this at the end of your login.component.scss file
+@media (prefers-color-scheme: dark) {
+  @include dark-mode;
+}

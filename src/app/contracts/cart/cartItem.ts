@@ -1,17 +1,17 @@
 import { ProductFeatureValue } from "../product/productDtos/productFeatureValue";
-import { ProductImageFile } from "../product/productImageFile";
 
-export class CartItem {
+export interface CartItem {
     cartItemId: string;
-    brandName: string;
-    productName: string;
-    unitPrice: number;
-    quantity: number;
-    showcaseImage?: ProductImageFile;
     productId: string;
-    quantityPrice: number;
-    showCase: boolean;
-    isChecked: boolean;
+    productName: string;
     title: string;
+    brandName: string;
+    quantity: number;
+    unitPrice: number;
+    quantityPrice: number;
+    isChecked: boolean;
     productFeatureValues: ProductFeatureValue[];
-}
+    showcaseImage?: {
+      url: string;
+    };
+  }

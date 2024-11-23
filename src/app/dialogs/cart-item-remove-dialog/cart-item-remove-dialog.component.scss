@@ -1,5 +1,8 @@
 /* cart-item-remove-dialog.component.scss */
 .dialog-container {
+  background: white; // Arka plan rengini belirgin yapalım
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     padding: 24px;
     max-width: 400px;
     
@@ -79,6 +82,14 @@
           }
         }
       }
+    }
+  }
+
+  ::ng-deep .cart-remove-dialog-overlay {
+    .mat-dialog-container {
+      padding: 0;
+      border-radius: 8px;
+      overflow: hidden;
     }
   }
   

@@ -10,7 +10,6 @@ import { StoreService } from './store.service';
   providedIn: 'root'
 })
 export class AuthService {
-  private _isAdmin: boolean = false;
   private authStateSubject = new BehaviorSubject<boolean>(false);
   authState$ = this.authStateSubject.asObservable();
 
@@ -21,7 +20,6 @@ export class AuthService {
     private router: Router,
     private store: StoreService
   ) {
-    // Constructor'da initial auth check
     this.checkAuthState();
   }
 
@@ -30,7 +28,10 @@ export class AuthService {
     this.authStateSubject.next(_isAuthenticated);
     
     if (_isAuthenticated) {
-      // Kullanıcı bilgilerini yükle
+      // Rolleri kontrol et
+      const userRoles = await this.getUserRoles();
+      console.log('Current user roles:', userRoles);
+      
       try {
         const user = await this.userService.getCurrentUser();
         this.store.update('user', {
@@ -50,8 +51,21 @@ export class AuthService {
 
     try {
       const decodedToken = this.jwtHelper.decodeToken(token);
-      return decodedToken ? decodedToken['Roles'] : [];
-    } catch {
+      // Role claim'ini kontrol et
+      const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      
+      // Eğer tek bir rol varsa string olarak gelir, birden fazla varsa array olarak gelir
+      if (typeof roles === 'string') {
+        console.log('User Role:', roles);
+        return [roles];
+      } else if (Array.isArray(roles)) {
+        console.log('User Roles:', roles);
+        return roles;
+      }
+      
+      return [];
+    } catch (error) {
+      console.error('Token decode error:', error);
       return [];
     }
   }
@@ -67,11 +81,6 @@ export class AuthService {
     try {
       const isExpired = this.jwtHelper.isTokenExpired(token);
       _isAuthenticated = !isExpired;
-
-      if (_isAuthenticated) {
-        this._isAdmin = await this.userService.isAdmin();
-      }
-
       return _isAuthenticated;
     } catch (error) {
       console.error('Token validation error:', error);
@@ -103,7 +112,6 @@ export class AuthService {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     _isAuthenticated = false;
-    this._isAdmin = false;
     
     this.authStateSubject.next(false);
     this.store.update('user', {
@@ -128,12 +136,32 @@ export class AuthService {
     }
   }
 
+  hasRole(role: string): boolean {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return false;
+
+    try {
+      const decodedToken = this.jwtHelper.decodeToken(token);
+      const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      
+      if (typeof roles === 'string') {
+        return roles === role;
+      } else if (Array.isArray(roles)) {
+        return roles.includes(role);
+      }
+      
+      return false;
+    } catch {
+      return false;
+    }
+  }
+
   get isAuthenticated(): boolean {
     return _isAuthenticated;
   }
 
   get isAdmin(): boolean {
-    return this._isAdmin;
+    return this.hasRole('Admin');
   }
 }
 

@@ -53,7 +53,7 @@ $link-color: #0000ee;
     padding: 2rem;
     margin-bottom: 2rem;
 
-    @media screen and (max-width: 768px) {
+    @media screen and (max-width: 860px) {
       display: block;
         
     }
@@ -235,12 +235,18 @@ $link-color: #0000ee;
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     .delivery-section {
       .info-card {
         grid-template-columns: 1fr !important;
         gap: 1.5rem !important;
       }
+    }
+
+    .product-item{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .action-buttons {
