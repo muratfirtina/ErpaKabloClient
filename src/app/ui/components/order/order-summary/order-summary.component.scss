@@ -259,3 +259,135 @@ $link-color: #0000ee;
     }
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  .order-summary-page {
+    background-color: $home-primary-color;
+
+    .success-message {
+      .success-icon {
+        color: $success-color;
+      }
+
+      h1 {
+        color: $light-text;
+      }
+
+      .order-code {
+        color: rgba($light-text, 0.7);
+        
+        strong {
+          color: $success-color;
+        }
+      }
+    }
+
+    .order-details {
+      background: lighten($home-primary-color, 5%);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+
+      h2, h3 {
+        color: $light-text;
+      }
+
+      .products-section {
+        .product-item {
+          background: $home-primary-color;
+          border-color: rgba($light-text, 0.1);
+
+          .product-info {
+            .brand {
+              color: $primary-color !important;
+            }
+
+            .name {
+              color: $light-text !important;
+            }
+
+            .title {
+              color: rgba($light-text, 0.7) !important;
+            }
+
+            .features {
+              color: rgba($light-text, 0.6) !important;
+            }
+          }
+
+          .price-info {
+            .quantity {
+              color: rgba($light-text, 0.7) !important;
+            }
+
+            .price {
+              color: $primary-color !important;
+            }
+          }
+        }
+      }
+
+      .delivery-section {
+        .info-card {
+          background: $home-primary-color;
+
+          h4 {
+            color: $light-text;
+          }
+
+          p {
+            color: rgba($light-text, 0.7);
+          }
+        }
+      }
+
+      .notes-section {
+        .note-content {
+          background: $home-primary-color;
+          color: rgba($light-text, 0.7);
+        }
+      }
+
+      .price-summary {
+        .summary-items {
+          background: $home-primary-color;
+
+          .summary-item {
+            color: rgba($light-text, 0.7);
+
+            &.total {
+              border-color: rgba($light-text, 0.1);
+              color: $light-text;
+
+              span:last-child {
+                color: $primary-color;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .action-buttons {
+      .btn {
+        &-outline-primary {
+          border-color: $primary-color;
+          color: $primary-color;
+
+          &:hover {
+            background: $primary-color;
+            color: $light-text;
+          }
+        }
+
+        &-primary {
+          background: $primary-color;
+          border-color: $primary-color;
+          color: $light-text;
+
+          &:hover {
+            background: darken($primary-color, 10%);
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,254 +1,327 @@
-<div class="product-create-container">
-  <h2>Ürün Ekleme Paneli</h2>
-  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-    <mat-form-field appearance="outline">
-      <mat-label>Ürün Adı</mat-label>
-      <input matInput formControlName="name" placeholder="Ürün adını girin">
-      <mat-error *ngIf="productForm.get('name').hasError('required')">
-        Ürün adı zorunludur
-      </mat-error>
-    </mat-form-field>
+<div class="container-fluid py-4">
+  <!-- Loading Spinner -->
+  <ngx-spinner bdColor="rgba(0, 0, 0, 0.8)" size="medium" color="#fff" type="ball-spin" [fullScreen]="true">
+    <p style="color: white">Yükleniyor...</p>
+  </ngx-spinner>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Kategori</mat-label>
-      <mat-select formControlName="categoryId">
-        <mat-option>
-          <ngx-mat-select-search formControlName="categorySearch" placeholderLabel="Kategori ara" noEntriesFoundLabel="Kategori bulunamadı"></ngx-mat-select-search>
-        </mat-option>
-        
-        <mat-tree [dataSource]="categorydataSource" [treeControl]="treeControl">
-          <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
-            <button mat-icon-button disabled></button>
-            <mat-option [value]="node.id" (click)="onCategorySelected(node)">
-              {{node.name}}
-            </mat-option>
-          </mat-tree-node>
-          <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-            <button mat-icon-button
-                    [attr.aria-label]="'Toggle ' + node.name"
-                    (click)="treeControl.toggle(node)">
-              <mat-icon class="mat-icon-rtl-mirror">
-                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-              </mat-icon>
-            </button>
-            <mat-option [value]="node.id" (click)="onCategorySelected(node)">
-              {{node.name}}
-            </mat-option>
-          </mat-tree-node>
-        </mat-tree>
-      </mat-select>
-      <mat-error *ngIf="productForm.get('categoryId').hasError('required')">
-        Kategori seçimi zorunludur
-      </mat-error>
-    </mat-form-field>
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mb-4">Ürün Ekleme Paneli</h2>
+    </div>
+  </div>
 
-    <mat-form-field appearance="outline">
-      <mat-label>Marka</mat-label>
-      <input matInput
-             type="text"
-             formControlName="brandSearch"
-             [matAutocomplete]="auto"
-             placeholder="Marka ara">
-      <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onBrandSelected($event.option.value)">
-        <mat-option *ngFor="let brand of filteredBrands" [value]="brand">
-          {{brand.name}}
-        </mat-option>
-      </mat-autocomplete>
-      <mat-error *ngIf="productForm.get('brandId').hasError('required')">
-        Marka seçimi zorunludur
-      </mat-error>
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Varyant Grup ID</mat-label>
-      <input matInput formControlName="varyantGroupID" placeholder="Varyant Grup ID girin">
-    </mat-form-field>
-
-    <mat-form-field appearance="outline">
-      <mat-label>Vergi Oranı</mat-label>
-      <input matInput type="number" formControlName="tax" placeholder="Vergi oranı girin">
-      <mat-error *ngIf="productForm.get('tax').hasError('required') || productForm.get('tax').hasError('min')">
-        Geçerli bir vergi oranı girin
-      </mat-error>
-    </mat-form-field>
-
-    <div formArrayName="features" class="features-section full-width">
-      <h6>Özellikler</h6>
-      
-      <div *ngFor="let featureForm of featureFormArray.controls; let i = index" [formGroupName]="i" class="feature-row">
-        <mat-form-field appearance="outline">
-          <mat-label>Özellik</mat-label>
-          <mat-select formControlName="featureId">
-            <mat-option *ngFor="let feature of features" [value]="feature.id">
-              {{feature.name}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <mat-form-field appearance="outline">
-          <mat-label>Değerler</mat-label>
-          <mat-select formControlName="selectedValues" multiple>
-            <mat-option *ngFor="let value of featureValues[featureForm.get('featureId').value]" [value]="value.id">
-              {{value.name}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-        <button mat-icon-button color="warn" type="button" (click)="removeFeature(i)">
-          <mat-icon color="warn">delete</mat-icon>
-        </button>
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()" class="needs-validation">
+    <div class="row g-3">
+      <!-- Temel Bilgiler -->
+      <div class="col-md-6">
+        <div class="form-floating">
+          <input type="text" class="form-control" id="productName" formControlName="name" placeholder="Ürün adını girin"
+            [class.is-invalid]="productForm.get('name').invalid && productForm.get('name').touched">
+          <label for="productName">Ürün Adı</label>
+          <div class="invalid-feedback">
+            Ürün adı zorunludur
+          </div>
+        </div>
       </div>
 
-      <button mat-stroked-button color="primary" type="button" (click)="addFeature()">
-        <mat-icon>add</mat-icon> Özellik Ekle
-      </button>
-    </div>
-
-    <div class="full-width">
-      <button mat-stroked-button color="primary" type="button" 
-              (click)="generateVariants()" 
-              [disabled]="!canGenerateVariants">
-        <mat-icon>autorenew</mat-icon> Varyantları Oluştur
-      </button>
-    </div>
-
-    <div *ngIf="variantsCreated" class="variants-table full-width">
-      <div class="full-width">
-        <button mat-stroked-button color="warn" type="button" (click)="removeSelectedVariants()">
-          Seçili Varyantları Sil
-        </button>
+      <!-- Vergi -->
+      <div class="col-md-6">
+        <div class="form-floating">
+          <input type="number" class="form-control" id="tax" formControlName="tax" placeholder="Vergi oranını girin"
+            [class.is-invalid]="productForm.get('tax').invalid && productForm.get('tax').touched">
+          <label for="tax">Vergi Oranı (%)</label>
+          <div class="invalid-feedback">
+            Geçerli bir vergi oranı girin
+          </div>
+        </div>
       </div>
-      
-      <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-        <ng-container matColumnDef="select">
-          <th mat-header-cell *matHeaderCellDef>
-            <mat-checkbox (change)="toggleAllSelection()"
-                          [checked]="allSelected">
-            </mat-checkbox>
-          </th>
-          <td mat-cell *matCellDef="let variant">
-            <mat-checkbox [formControl]="variant.get('selected')"
-                          (change)="updateAllSelected()">
-            </mat-checkbox>
-          </td>
-        </ng-container>
 
-        <ng-container matColumnDef="images">
-          <th mat-header-cell *matHeaderCellDef> Fotoğraflar </th>
-          <td mat-cell *matCellDef="let variant; let i = index">
-            <div class="image-carousel">
-              <mat-card class="carousel-card">
-                <mat-card-content>
-                  <div *ngIf="variant.get('images').value.length > 0; else noImages" class="carousel-container">
-                    <img [src]="variant.get('images').value[currentImageIndex[variantIds[i]]] | safeUrl" 
-                         [alt]="'Ürün ' + (currentImageIndex[variant.get('sku').value] + 1)" 
-                         class="carousel-image">
-                    <div class="carousel-controls">
-                      <button mat-icon-button type="button" (click)="prevImage(variant, $event,i)" [disabled]="currentImageIndex[variantIds[i]] === 0">
-                        <mat-icon>chevron_left</mat-icon>
-                      </button>
-                      <span class="image-counter">
-                        {{ currentImageIndex[variantIds[i]] + 1 }} / {{ variant.get('images').value.length }}
-                      </span>
-                      <button mat-icon-button type="button" (click)="nextImage(variant, $event, i)" [disabled]="currentImageIndex[variantIds[i]] === variant.get('images').value.length - 1">
-                        <mat-icon>chevron_right</mat-icon>
-                      </button>
+      <!-- Marka Seçimi -->
+      <div class="col-md-6">
+        <div class="form-floating position-relative">
+          <input type="text" class="form-control" id="brandSearch" formControlName="brandSearch" placeholder="Marka ara"
+            (input)="onBrandSearchInput($event)"
+            [class.is-invalid]="productForm.get('brandId').invalid && productForm.get('brandId').touched">
+          <label for="brandSearch">Marka Ara</label>
+
+          <!-- Marka Arama Sonuçları -->
+          <div class="brand-search-results shadow-sm" *ngIf="showBrandResults && filteredBrands.length > 0">
+            <div class="list-group list-group-flush">
+              <button type="button" class="list-group-item list-group-item-action" *ngFor="let brand of filteredBrands"
+                (click)="selectBrand(brand)">
+                {{ brand.name }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Kategori Seçimi -->
+      <div class="col-md-6">
+        <div class="form-floating position-relative">
+          <input type="text" class="form-control" id="categorySearch" formControlName="categorySearch"
+            placeholder="Kategori ara" (focus)="showCategoryTree = true" (input)="filterCategories($event)"
+            [class.is-invalid]="productForm.get('categoryId').invalid && productForm.get('categoryId').touched">
+          <label for="categorySearch">Kategori Ara</label>
+
+          <!-- Kategori Ağacı -->
+          <div class="category-tree shadow-sm" *ngIf="showCategoryTree">
+            <mat-tree [dataSource]="categorydataSource" [treeControl]="treeControl">
+              <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+                <button mat-icon-button disabled></button>
+                <span class="category-name" (click)="onCategorySelected(node)">{{node.name}}</span>
+              </mat-tree-node>
+
+              <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+                <button mat-icon-button [attr.aria-label]="'Toggle ' + node.name"
+                  (click)="$event.stopPropagation(); treeControl.toggle(node)">
+                  <mat-icon class="mat-icon-rtl-mirror">
+                    {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                  </mat-icon>
+                </button>
+                <span class="category-name" (click)="onCategorySelected(node)">{{node.name}}</span>
+              </mat-tree-node>
+            </mat-tree>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Özellikler Bölümü -->
+      <div class="col-12 mt-4">
+        <div class="card">
+          <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">Özellikler</h5>
+              <button type="button" class="btn btn-primary btn-sm" (click)="addFeature()">
+                <i class="bi bi-plus-lg me-1"></i>
+                Özellik Ekle
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="container-fluid px-0" formArrayName="features">
+              <div *ngFor="let feature of featureFormArray.controls; let i = index" [formGroupName]="i"
+                class="feature-item p-3 mb-3 rounded">
+                <div class="row align-items-start">
+                  <!-- Özellik Seçimi -->
+                  <div class="col-md-4">
+                    <label class="form-label small text-muted">Özellik</label>
+                    <select class="form-select form-select-sm" formControlName="featureId"
+                      (change)="onFeatureSelect($event, i)">
+                      <option value="">Özellik Seçin</option>
+                      <option *ngFor="let feature of features" [value]="feature.id">
+                        {{ feature.name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <!-- Özellik Değerleri -->
+                  <div class="col-md-7">
+                    <label class="form-label small text-muted">Değerler</label>
+                    <div class="feature-values-container border rounded p-2"
+                      style="max-height: 200px; overflow-y: auto;">
+                      <div *ngFor="let value of featureValues[feature.get('featureId').value]" class="form-check">
+                        <input class="form-check-input" type="checkbox" [id]="'value-' + value.id"
+                          [checked]="isValueSelected(feature, value.id)"
+                          (change)="toggleFeatureValue(feature, value.id)">
+                        <label class="form-check-label" [for]="'value-' + value.id">
+                          {{ value.name }}
+                        </label>
+                      </div>
                     </div>
                   </div>
-                  <ng-template #noImages>
-                    <div class="no-images">
-                      <mat-icon>image</mat-icon>
-                      <span>Fotoğraf Yok</span>
-                    </div>
-                  </ng-template>
-                </mat-card-content>
-                <mat-card-actions>
-                  <button mat-button type="button" color="primary" (click)="openImageUploadDialog(variant, $event)">
-                    <mat-icon>add_photo_alternate</mat-icon> 
-                  </button>
-                  <button mat-button type="button" color="warn" (click)="removeCurrentImage(variant, $event,i)" [disabled]="variant.get('images').value.length === 0">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                  <mat-radio-button 
-                    [checked]="isShowcaseImage(variant, currentImageIndex[variantIds[i]])"
-                    (change)="setShowcaseImage(variant, currentImageIndex[variantIds[i]])"
-                    [disabled]="variant.get('images').value.length === 0">
-                  </mat-radio-button>
-                </mat-card-actions>
-              </mat-card>
+
+                  <!-- Silme Butonu -->
+                  <div class="col-md-1">
+                    <label class="form-label d-block small text-muted">&nbsp;</label>
+                    <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeFeature(i)">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        viewBox="0 0 16 16">
+                        <path
+                          d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                        <path fill-rule="evenodd"
+                          d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
-          </td>
-        </ng-container>
-    
-        <ng-container matColumnDef="combination">
-          <th mat-header-cell *matHeaderCellDef> Varyantlar </th>
-          <td mat-cell *matCellDef="let variant"> {{variant.get('combination').value}} </td>
-        </ng-container>
-    
-        <ng-container matColumnDef="price">
-          <th mat-header-cell *matHeaderCellDef> Fiyat </th>
-          <td mat-cell *matCellDef="let variant; let i = index">
-            <mat-form-field appearance="outline">
-              <input matInput type="number" [formControl]="variant.get('price')"
-                     (input)="updateSelectedVariants($event, 'price', i)">
-            </mat-form-field>
-          </td>
-        </ng-container>
-        
-        <ng-container matColumnDef="stock">
-          <th mat-header-cell *matHeaderCellDef> Stok </th>
-          <td mat-cell *matCellDef="let variant; let i = index">
-            <mat-form-field appearance="outline">
-              <input matInput type="number" [formControl]="variant.get('stock')"
-                     (input)="updateSelectedVariants($event, 'stock', i)">
-            </mat-form-field>
-          </td>
-        </ng-container>
-        
-        <ng-container matColumnDef="sku">
-          <th mat-header-cell *matHeaderCellDef> SKU </th>
-          <td mat-cell *matCellDef="let variant; let i = index">
-            <mat-form-field appearance="outline">
-              <input matInput [formControl]="variant.get('sku')"
-                     (input)="updateSelectedVariants($event, 'sku', i)">
-            </mat-form-field>
-          </td>
-        </ng-container>
+          </div>
+        </div>
+      </div>
 
-        <ng-container matColumnDef="title">
-          <th mat-header-cell *matHeaderCellDef> Başlık </th>
-          <td mat-cell *matCellDef="let variant; let i = index">
-            <mat-form-field appearance="outline" class="narrow-input">
-              <input matInput [formControl]="variant.get('title')"
-                     (input)="updateSelectedVariants($event, 'title', i)">
-            </mat-form-field>
-          </td>
-        </ng-container>
+      <!-- Varyant Oluşturma Butonu -->
+      <div class="col-12 mt-4" *ngIf="canGenerateVariants">
+        <button type="button" class="btn btn-primary" (click)="generateVariants()">
+          <i class="bi bi-gear me-2"></i>
+          Varyantları Oluştur
+        </button>
+      </div>
 
-        <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef> Açıklama </th>
-          <td mat-cell *matCellDef="let variant; let i = index">
-            <button mat-icon-button color="primary" type="button" (click)="openDescriptionEditor(variant, i, $event)">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+      <!-- Varyantlar -->
+      <div class="col-12 mt-4" *ngIf="variantsCreated">
+        <div class="card">
+          <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">Varyantlar</h5>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-danger btn-sm" [disabled]="!allSelected && !hasSelectedVariants()"
+                  (click)="removeSelectedVariants()">
+                  <i class="bi bi-trash me-1"></i>
+                  Seçili Varyantları Sil
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th class="text-center" style="width: 40px;">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" [checked]="allSelected"
+                          (change)="toggleAllSelection()">
+                      </div>
+                    </th>
+                    <th style="min-width: 200px;">Görseller</th>
+                    <th style="min-width: 200px;">Varyant</th>
+                    <th style="min-width: 120px;">Fiyat</th>
+                    <th style="min-width: 120px;">Stok</th>
+                    <th style="min-width: 150px;">SKU</th>
+                    <th style="min-width: 200px;">Başlık</th>
+                    <th style="width: 100px;">Açıklama</th>
+                    <th style="width: 80px;">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let variant of variants.controls; let i = index">
+                    <td>
+                      <input type="checkbox" class="form-check-input"
+                        [formControl]="setupVariantControl(variant, 'selected')"
+                        (change)="handleCheckboxChange(variant)">
+                    </td>
+                    <td>
+                      <div class="variant-images">
+                        <!-- cdkDropList kullanımı -->
+                        <div cdkDropList
+                             class="d-flex flex-wrap gap-2"
+                             (cdkDropListDropped)="onImageDrop(variant, $event)"
+                             [cdkDropListData]="getControl(variant, 'images').value"
+                             orientation="horizontal">
+                          
+                          <!-- Her bir resim için cdkDrag ekleyelim -->
+                          <div *ngFor="let image of getControl(variant, 'images').value; let imgIndex = index"
+                               class="position-relative image-container"
+                               cdkDrag>
+                            <img [src]="image | safeUrl"
+                                 [class.showcase-image]="getControl(variant, 'showcaseImageIndex').value === imgIndex"
+                                 class="img-thumbnail variant-image"
+                                 (click)="setShowcaseImage(variant, imgIndex)"
+                                 [alt]="'Ürün görseli ' + (imgIndex + 1)">
+                                 
+                            <div class="image-overlay">
+                              <button class="btn btn-danger btn-sm"
+                                      (click)="removeImage(variant, imgIndex)"
+                                      [title]="'Resmi sil'">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16">
+                                  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                                </svg>
+                              </button>
+                              <button class="btn btn-primary btn-sm ms-2 showcase-btn"
+                                      (click)="setShowcaseImage(variant, imgIndex)"
+                                      [class.active]="getControl(variant, 'showcaseImageIndex').value === imgIndex"
+                                      [title]="'Vitrin resmi yap'">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 16 16">
+                                  <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
+                                </svg>
+                              </button>
+                            </div>
+                    
+                            <!-- Sürükleme sırasında görünecek önizleme -->
+                            <div *cdkDragPreview class="image-container">
+                              <img [src]="image | safeUrl" 
+                                   class="img-thumbnail variant-image" 
+                                   [alt]="'Ürün görseli ' + (imgIndex + 1)">
+                            </div>
+                          </div>
+                        </div>
+                    
+                        <!-- Resim Ekleme Butonu -->
+                        <div class="mt-2">
+                          <button type="button"
+                                  class="btn btn-outline-primary btn-sm"
+                                  (click)="openImageUploadDialog(variant)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                              <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                              <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+                            </svg>
+                            <span class="ms-1">Resim Ekle</span>
+                          </button>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ getVariantCombination(variant) }}</td>
+                    <td>
+                      <input type="number" class="form-control form-control-sm"
+                        [formControl]="setupVariantControl(variant, 'price')"
+                        (input)="handleVariantInputChange($event, 'price', i)">
+                    </td>
+                    <td>
+                      <input type="number" class="form-control form-control-sm"
+                        [formControl]="setupVariantControl(variant, 'stock')"
+                        (input)="handleVariantInputChange($event, 'stock', i)">
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm"
+                        [formControl]="setupVariantControl(variant, 'sku')"
+                        (input)="handleVariantInputChange($event, 'sku', i)">
+                    </td>
+                    <td>
+                      <input type="text" class="form-control form-control-sm"
+                        [formControl]="setupVariantControl(variant, 'title')"
+                        (input)="handleVariantInputChange($event, 'title', i)">
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-outline-primary btn-sm"
+                        (click)="openDescriptionEditor(variant, i)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                          viewBox="0 0 16 16">
+                          <path
+                            d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z" />
+                        </svg>
+                      </button>
+                    </td>
+                    <td>
+                      <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeVariant(i)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                          viewBox="0 0 16 16">
+                          <path
+                            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z" />
+                          <path fill-rule="evenodd"
+                            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z" />
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef> İşlemler </th>
-          <td mat-cell *matCellDef="let variant; let i = index">
-            <button mat-icon-button color="warn" type="button" (click)="removeVariant(i)">
-              <mat-icon color="warn">delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-    
-        <tr mat-header-row *matHeaderRowDef="variantColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: variantColumns;"></tr>
-      </table>
+      <!-- Kaydet Butonu -->
+      <div class="col-12 mt-4">
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-success" [disabled]="!productForm.valid || !variantsCreated">
+            <i class="bi bi-check-lg me-2"></i>
+            {{ buttonText }}
+          </button>
+        </div>
+      </div>
     </div>
-  
-    <button mat-raised-button color="primary" type="submit" [disabled]="!productForm.valid || !variantsCreated">
-      <mat-icon>save</mat-icon> {{ buttonText }}
-    </button>
   </form>
 </div>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">

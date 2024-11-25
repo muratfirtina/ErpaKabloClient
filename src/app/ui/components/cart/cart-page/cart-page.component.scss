@@ -604,3 +604,176 @@ body.modal-open {
     }
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  .order-page {
+    background-color: #1a1a1a;
+
+    .page-title {
+      color: $light-text;
+      
+      &:after {
+        background: $primary-color;
+      }
+    }
+
+    .order-container {
+      background: lighten($home-primary-color, 5%);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+
+      .section-title {
+        color: $light-text;
+      }
+
+      // Product List
+      .product-list {
+        .product-item {
+          background: lighten($home-primary-color, 3%);
+          border-color: rgba($light-text, 0.1);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+          .product-details {
+            .header-section {
+              .brand { color: $primary-color; }
+              .name { color: $light-text; }
+              .title { color: rgba($light-text, 0.7); }
+            }
+
+            .features-section {
+              background: $home-primary-color;
+
+              .feature-item {
+                .feature-name { color: rgba($light-text, 0.7) !important; }
+                .feature-value { color: rgba($light-text, 0.8) !important; }
+              }
+            }
+
+            .price-section {
+              border-color: rgba($light-text, 0.1);
+
+              .quantity-info { color: $light-text; }
+              
+              .price-details {
+                .unit-price, .total-price {
+                  .price-label { color: rgba($light-text, 0.7); }
+                  .price-value { color: $light-text; }
+                }
+                .total-price .price-value { color: $primary-color; }
+              }
+            }
+          }
+        }
+      }
+
+      // Selected Preview
+      .selected-preview {
+        .card {
+          background-color: $home-primary-color !important;
+          border-color: rgba($light-text, 0.1);
+
+          .card-subtitle { color: $primary-color !important; }
+          .card-text { color: $light-text; }
+        }
+      }
+
+      // Form Elements
+      .form-select-container {
+        label { color: $light-text; }
+
+        .form-select {
+          background-color: lighten($home-primary-color, 3%);
+          color: $light-text;
+          border-color: rgba($light-text, 0.1);
+
+          option {
+            background-color: $home-primary-color;
+            color: $light-text;
+          }
+        }
+
+        .add-new-btn {
+          color: $primary-color;
+        }
+      }
+
+      // Order Notes
+      .order-notes {
+        .form-control {
+          background-color: lighten($home-primary-color, 3%);
+          color: $light-text;
+          border-color: rgba($light-text, 0.1);
+
+          &::placeholder {
+            color: rgba($light-text, 0.5);
+          }
+        }
+      }
+
+      // Order Summary
+      .order-summary {
+        background: $home-primary-color;
+
+        .summary-item {
+          color: $light-text;
+
+          &.total {
+            border-color: rgba($light-text, 0.1);
+            color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+
+  // Modal Styles
+  .modal {
+    .modal-content {
+      background-color: lighten($home-primary-color, 5%);
+
+      .modal-header {
+        background: $home-primary-color;
+        border-color: rgba($light-text, 0.1);
+        
+        .modal-title { color: $light-text; }
+        .close { color: $light-text; }
+      }
+
+      .modal-body {
+        .form-group {
+          label { color: $light-text; }
+
+          .form-control {
+            background-color: $home-primary-color;
+            color: $light-text;
+            border-color: rgba($light-text, 0.1);
+          }
+
+          .input-group-text {
+            background-color: $home-primary-color;
+            border-color: rgba($light-text, 0.1);
+            color: $light-text;
+          }
+
+          .custom-control-label {
+            color: $light-text;
+          }
+        }
+      }
+
+      .modal-footer {
+        background: $home-primary-color;
+        border-color: rgba($light-text, 0.1);
+
+        .btn-secondary {
+          background: $home-primary-color;
+          color: $light-text;
+          border-color: rgba($light-text, 0.1);
+
+          &:hover {
+            background: lighten($home-primary-color, 5%);
+          }
+        }
+      }
+    }
+  }
+}

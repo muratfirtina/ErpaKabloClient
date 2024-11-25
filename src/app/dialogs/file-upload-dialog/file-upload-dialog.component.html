@@ -1,24 +1,46 @@
-<h2 mat-dialog-title>Fotoğraf Yükle</h2>
-    <mat-dialog-content>
-      <ngx-file-drop
-        dropZoneLabel="Dosyaları buraya bırakın"
-        (onFileDrop)="dropped($event)"
-        [accept]="'images/*'"
-        [multiple]="true"
-      >
-        <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-          Fotoğrafları sürükleyip bırakın veya
-          <button type="button" (click)="openFileSelector()">Dosya Seç</button>
-        </ng-template>
-      </ngx-file-drop>
-      <div *ngIf="files.length > 0">
-        <h3>Seçilen Dosyalar:</h3>
-        <ul>
-          <li *ngFor="let file of files">{{ file.name }}</li>
-        </ul>
+<div class="dialog-container">
+  <h2 mat-dialog-title>Resim Yükle</h2>
+  
+  <mat-dialog-content>
+    <ngx-file-drop
+      [accept]="'image/*'"
+      (onFileDrop)="onFileDropped($event)"
+      dropZoneClassName="dropzone"
+      contentClassName="drop-content"
+      [multiple]="true">
+      <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+        <div class="text-center py-5">
+          <i class="bi bi-cloud-upload fs-2"></i>
+          <p class="mt-2">Resimleri sürükleyip bırakın veya 
+            <a href="javascript:void(0)" (click)="openFileSelector()">seçmek için tıklayın</a>
+          </p>
+        </div>
+      </ng-template>
+    </ngx-file-drop>
+
+    <div class="selected-files mt-3" *ngIf="selectedFiles.length > 0">
+      <h6>Seçilen Resimler:</h6>
+      <div class="row g-2">
+        <div class="col-4" *ngFor="let file of selectedFiles; let i = index">
+          <div class="image-preview-container">
+            <img [src]="previewUrls[i]" class="img-fluid rounded">
+            <button class="btn btn-danger btn-sm remove-btn"
+                    (click)="removeFile(i)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
       </div>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-      <button mat-button (click)="onCancel()">İptal</button>
-      <button mat-button color="primary" (click)="onUpload()" [disabled]="files.length === 0">Ekle</button>
-    </mat-dialog-actions>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>İptal</button>
+    <button mat-raised-button 
+            color="primary"
+            [disabled]="selectedFiles.length === 0"
+            (click)="uploadFiles()">
+      Yükle
+    </button>
+  </mat-dialog-actions>
+</div>

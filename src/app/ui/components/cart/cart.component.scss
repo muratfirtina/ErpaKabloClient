@@ -178,6 +178,7 @@ $widescreen: 1400px;
       margin-bottom: 16px;
       border: 1px solid #eee;
       transition: all 0.2s ease;
+      border-color: $primary-color;
 
       @include respond-to(tablet) {
         gap: 8px;

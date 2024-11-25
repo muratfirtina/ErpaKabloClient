@@ -18,17 +18,9 @@ import { AngularEditorModule } from '@kolkov/angular-editor';
       <button mat-button (click)="onNoClick()">İptal</button>
       <button mat-button [mat-dialog-close]="data.description" cdkFocusInitial>Kaydet</button>
     </mat-dialog-actions>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   `,
-  styles: [`
-    :host {
-      display: block;
-      width: 600px;
-      max-width: 100%;
-    }
-    .angular-editor-textarea {
-      min-height: 200px !important;
-    }
-  `]
+  styleUrls: [`./description-editor-dialog.component.scss`]
 })
 export class DescriptionEditorDialogComponent extends BaseDialog<DescriptionEditorDialogComponent> {
 

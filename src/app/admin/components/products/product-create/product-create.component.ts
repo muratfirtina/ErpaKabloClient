@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule, FormControl, AbstractControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -18,7 +18,7 @@ import { Category } from 'src/app/contracts/category/category';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { AngularEditorConfig, AngularEditorModule } from '@kolkov/angular-editor';
@@ -35,6 +35,14 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDialog } from '@angular/material/dialog';
 import { DescriptionEditorDialogComponent } from 'src/app/dialogs/description-editor-dialog/description-editor-dialog.component';
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop';
+
+interface CategoryNode extends Category {
+  level: number;
+  expanded?: boolean;
+  hasChildren?: boolean;
+  children?: CategoryNode[];
+}
 
 interface FlatNode {
   expandable: boolean;
@@ -51,6 +59,7 @@ interface FlatNode {
   imports: [
     CommonModule,
     ReactiveFormsModule,
+    NgxSpinnerModule,
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
@@ -65,28 +74,74 @@ interface FlatNode {
     NgxMatSelectSearchModule,
     AngularEditorModule,
     NgxFileDropModule,
+    DragDropModule,
     SafeUrlPipe
   ],
   templateUrl: './product-create.component.html',
   styleUrls: ['./product-create.component.scss', '../../../../../styles.scss']
 })
-export class ProductCreateComponent extends BaseComponent implements OnInit {
+export class ProductCreateComponent implements OnInit {
+  categories: Category[] = [];
   productForm: FormGroup;
+  loading: boolean = false;
   features: Feature[] = [];
   featureValues: { [key: string]: Featurevalue[] } = {};
-  variantColumns: string[] = ['select', 'images', 'combination', 'price', 'stock', 'sku', 'actions','title','description'];
-  variantIds: string[] = [];
-  allSelected = false;
-  variantsCreated: boolean = false;
-  canGenerateVariants: boolean = false
-  buttonText: string = 'Ürünü Ekle';
-  dataSource: MatTableDataSource<any>;
-
-  categories: Category[] = [];
-  filteredCategories: Category[] = [];
-  brands: Brand[] = [];
   filteredBrands: Brand[] = [];
+  filteredCategories: CategoryNode[] = [];
+  showBrandResults: boolean = false;
+  showCategoryTree: boolean = false;
+  allSelected: boolean = false;
+  variantsCreated: boolean = false;
+  canGenerateVariants: boolean = false;
+  buttonText: string = 'Ürünü Ekle';
+  private imageUrls = new Map<string, string>();
   private brandSearchSubject = new Subject<string>();
+  public treeControl: FlatTreeControl<FlatNode>;
+  private treeFlattener: MatTreeFlattener<Category, FlatNode>;
+  public categorydataSource: MatTreeFlatDataSource<Category, FlatNode>;
+
+  constructor(
+    private fb: FormBuilder,
+    private brandService: BrandService,
+    private categoryService: CategoryService,
+    private featureService: FeatureService,
+    private productService: ProductService,
+    private spinnerService: NgxSpinnerService,
+    private toastrService: CustomToastrService,
+    private dialogService: DialogService,
+    private dialog: MatDialog,
+    private changeDetectorRef: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef
+  ) {
+    this.createForm();
+    this.setupBrandSearch();
+    this.treeControl = new FlatTreeControl<FlatNode>(
+      node => node.level,
+      node => node.expandable
+    );
+
+    this.treeFlattener = new MatTreeFlattener(
+      this._transformer,
+      node => node.level,
+      node => node.expandable,
+      node => node.subCategories
+    );
+
+    this.categorydataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
+    this.createForm();
+    this.setupBrandSearch();
+  }
+
+  public hasChild = (_: number, node: FlatNode): boolean => node.expandable;
+
+  public onCategorySelected(node: FlatNode): void {
+    this.productForm.patchValue({
+      categoryId: node.id,
+      categorySearch: node.name
+    });
+    this.loadCategoryFeatures(node.id);
+    this.showCategoryTree = false; // Seçim yapıldıktan sonra dropdown'ı kapat
+  }
 
   private _transformer = (node: Category, level: number): FlatNode => {
     return {
@@ -98,75 +153,29 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     };
   };
 
-  treeControl = new FlatTreeControl<FlatNode>(
-    node => node.level,
-    node => node.expandable
-  );
+  ngOnInit() {
+    this.setupFormSubscriptions();
+    this.loadInitialData();
+  }
 
-  treeFlattener = new MatTreeFlattener(
-    this._transformer,
-    node => node.level,
-    node => node.expandable,
-    node => node.subCategories
-  );
+  private createForm() {
+    this.productForm = this.fb.group({
+      name: ['', Validators.required],
+      brandId: ['', Validators.required],
+      brandSearch: [''],
+      categoryId: ['', Validators.required],
+      categorySearch: [''],
+      tax: [0, [Validators.required, Validators.min(0)]],
+      features: this.fb.array([]),
+      variants: this.fb.array([])
+    });
+  }
 
-  hasChild = (_: number, node: FlatNode) => node.expandable;
+  getControl(variant: AbstractControl, controlName: string): FormControl {
+    return variant.get(controlName) as FormControl;
+  }
 
-  categorydataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
-  
-  editorConfig: AngularEditorConfig = {
-    editable: true,
-    spellcheck: true,
-    height: '15rem',
-    minHeight: '5rem',
-    placeholder: 'Ürün açıklamasını girin',
-    translate: 'no',
-    defaultParagraphSeparator: 'p',
-    defaultFontName: 'Arial',
-    toolbarHiddenButtons: [
-      
-    ],
-    customClasses: [
-      {
-        name: "quote",
-        class: "quote",
-      },
-      {
-        name: 'redText',
-        class: 'redText'
-      },
-      {
-        name: "titleText",
-        class: "titleText",
-        tag: "h1",
-      },
-    ]
-  };
-
-  currentImageIndex: { [key: string]: number } = {};
-  @ViewChild('carouselContainer') carouselContainer: ElementRef;
-
-  
-  constructor(
-    private fb: FormBuilder,
-    private categoryService: CategoryService,
-    private featureService: FeatureService,
-    private brandService: BrandService,
-    private productService: ProductService,
-    private snackBar: MatSnackBar,
-    private customToastrService: CustomToastrService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private dialogService: DialogService,
-    private safeUrlPipe: SafeUrlPipe,
-    private sanitizer: DomSanitizer,
-    private dialog: MatDialog,
-    spinner: NgxSpinnerService,
-  ) {
-    super(spinner);
-    this.createForm();
-
-   
-
+  private setupBrandSearch() {
     this.brandSearchSubject.pipe(
       debounceTime(300),
       distinctUntilChanged()
@@ -175,65 +184,42 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     });
   }
 
-  createForm() {
-    this.productForm = this.fb.group({
-      name: ['', Validators.required],
-      description: [''],
-      title: [''],
-      categoryId: ['', Validators.required],
-      brandId: ['', Validators.required],
-      categorySearch: [''],
-      brandSearch: [''],
-      varyantGroupID: [''],
-      tax: [0, [Validators.required, Validators.min(0)]],
-      features: this.fb.array([]),
-      variants: this.fb.array([])
+  private setupFormSubscriptions() {
+    this.productForm.get('features')?.valueChanges.subscribe(() => {
+      this.updateCanGenerateVariants();
     });
-    this.buttonText = 'Ürünü Ekle';
   }
 
-  async ngOnInit() {
-    this.productForm.get('features').valueChanges.subscribe(() => {
-      this.canGenerateVariants = this.featureFormArray.length > 0 && 
-        this.featureFormArray.controls.every(control => 
-          control.get('featureId').value && 
-          control.get('selectedValues').value.length > 0
-        );
-      this.variantsCreated = false;
-    });
-
-    await this.loadCategories();
-    this.productForm.get('categorySearch').valueChanges.subscribe(value => {
-      this.filterCategories(value);
-    });
-
-
-    this.productForm.get('brandSearch').valueChanges.subscribe(value => {
-      this.brandSearchSubject.next(value);
-    });
-
-    this.updateDataSource();
-    this.initializeImageIndexes();
+  private async loadInitialData() {
+    try {
+      this.loading = true;
+      await this.loadCategories();
+    } catch (error) {
+      this.handleError('Veriler yüklenirken bir hata oluştu', error);
+    } finally {
+      this.loading = false;
+    }
   }
 
-  async loadCategories() {
+  public async loadCategories() {
     try {
       const data = await this.categoryService.list({ pageIndex: -1, pageSize: -1 });
       this.categories = data.items;
       const hierarchicalCategories = this.createHierarchy(this.categories);
       this.categorydataSource.data = hierarchicalCategories;
+      // Tüm kategorileri genişlet
+      this.treeControl.collapseAll();
       this.changeDetectorRef.detectChanges();
     } catch (error) {
       console.error('Error loading categories:', error);
-      this.customToastrService.message("Kategoriler yüklenemedi", "Hata", {
+      this.toastrService.message("Kategoriler yüklenemedi", "Hata", {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
     }
   }
 
-
-  createHierarchy(categories: Category[]): Category[] {
+  private createHierarchy(categories: Category[]): Category[] {
     const categoryMap = new Map<string, Category>();
     const rootCategories: Category[] = [];
 
@@ -255,9 +241,9 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     return rootCategories;
   }
 
-  //hasChild = (_: number, node: Category) => !!node.subCategories && node.subCategories.length > 0;
-  filterCategories(searchTerm: string) {
-    if (!searchTerm) {
+  public filterCategories(event: Event): void {
+    const input = (event.target as HTMLInputElement).value;
+    if (!input) {
       this.categorydataSource.data = this.createHierarchy(this.categories);
       this.treeControl.expandAll();
       return;
@@ -265,7 +251,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     
     const filterTree = (categories: Category[]): Category[] => {
       return categories.reduce((acc, category) => {
-        const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = category.name.toLowerCase().includes(input.toLowerCase());
         const filteredChildren = filterTree(category.subCategories || []);
         
         if (matchesSearch || filteredChildren.length > 0) {
@@ -279,93 +265,122 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
       }, [] as Category[]);
     };
   
-    const filteredCategories = filterTree(this.categories);
+    const filteredCategories = filterTree([...this.categories]);
     this.categorydataSource.data = this.createHierarchy(filteredCategories);
     this.treeControl.expandAll();
     this.changeDetectorRef.detectChanges();
   }
 
-  onCategorySelected(node: FlatNode) {
-    this.productForm.patchValue({
-      categoryId: node.id,
-      categorySearch: node.name
-    });
-    this.loadCategoryFeatures(node.id);
+  @HostListener('document:click', ['$event'])
+  handleClickOutside(event: Event) {
+    const categoryContainer = document.querySelector('.category-tree');
+    const categoryInput = document.querySelector('#categorySearch');
+    
+    if (categoryContainer && categoryInput) {
+      if (!categoryContainer.contains(event.target as Node) && 
+          !categoryInput.contains(event.target as Node)) {
+        this.showCategoryTree = false;
+      }
+    }
+  }
+
+  private buildCategoryTree(categories: Category[], parentId: string = null, level: number = 0): CategoryNode[] {
+    const categoryNodes = categories
+      .filter(cat => cat.parentCategoryId === parentId)
+      .map(cat => {
+        const children = this.buildCategoryTree(categories, cat.id, level + 1);
+        return {
+          ...cat,
+          level,
+          expanded: false,
+          hasChildren: children.length > 0,
+          children: children
+        };
+      });
+    return categoryNodes;
+  }
+
+  onBrandSearchInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.brandSearchSubject.next(input.value);
   }
 
   async searchBrands(searchTerm: string) {
     if (searchTerm.length < 2) {
       this.filteredBrands = [];
+      this.showBrandResults = false;
       return;
     }
 
-    const dynamicQuery = {
-      filter: {
-        field: 'name',
-        operator: 'contains',
-        value: searchTerm
-      }
-    };
-
     try {
-      const response = await this.brandService.getBrandsByDynamicQuery(dynamicQuery, { pageIndex: 0, pageSize: 10 });
+      const response = await this.brandService.getBrandsByDynamicQuery(
+        { filter: { field: 'name', operator: 'contains', value: searchTerm } },
+        { pageIndex: 0, pageSize: 10 }
+      );
       this.filteredBrands = response.items;
+      this.showBrandResults = true;
     } catch (error) {
-      console.error('Error searching brands:', error);
-      this.customToastrService.message("Marka araması başarısız", "Hata", {
-        toastrMessageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight
-      });
+      this.handleError('Marka araması başarısız', error);
     }
   }
 
-
-  onBrandSelected(brand: Brand) {
+  selectBrand(brand: Brand) {
     this.productForm.patchValue({
       brandId: brand.id,
       brandSearch: brand.name
     });
+    this.showBrandResults = false;
   }
 
-  loadCategoryFeatures(categoryId: string) {
-    this.features = [];
-    this.featureValues = {};
-    this.featureFormArray.clear();
-    this.variants.clear();
-    this.variantsCreated = false;
-    this.canGenerateVariants = false;
-    this.buttonText = 'Ürünü Ekle'; 
-    this.categoryService.getById(categoryId).then(
-      (category) => {
-        this.features = category.features;
-        this.features.forEach(feature => {
-          this.loadFeatureValues(feature.id);
-        });
-      },
-      (error) => this.snackBar.open('Kategori özellikleri yüklenemedi: ' + error, 'Kapat', { duration: 3000 })
-    );
-  }
-  loadFeatureValues(featureId: string) {
-    this.featureService.getById(featureId).then(
-      (feature) => {
-        this.featureValues[featureId] = feature.featureValues;
-      },
-      (error) => console.error('Error loading feature values:', error)
-    );
+
+
+  toggleCategory(category: CategoryNode, event: Event) {
+    event.stopPropagation();
+    category.expanded = !category.expanded;
+    this.cdr.detectChanges(); // Değişiklikleri tetikle
   }
 
-  get featureFormArray() {
+  async selectCategory(category: CategoryNode) {
+    this.productForm.patchValue({
+      categoryId: category.id,
+      categorySearch: category.name
+    });
+    this.showCategoryTree = false;
+    await this.loadCategoryFeatures(category.id);
+  }
+
+  private async loadCategoryFeatures(categoryId: string) {
+    try {
+      const category = await this.categoryService.getById(categoryId);
+      this.features = category.features;
+      await Promise.all(
+        this.features.map(feature => this.loadFeatureValues(feature.id))
+      );
+    } catch (error) {
+      this.handleError('Kategori özellikleri yüklenemedi', error);
+    }
+  }
+
+  private async loadFeatureValues(featureId: string) {
+    try {
+      const feature = await this.featureService.getById(featureId);
+      this.featureValues[featureId] = feature.featureValues;
+    } catch (error) {
+      this.handleError('Özellik değerleri yüklenemedi', error);
+    }
+  }
+
+  get featureFormArray(): FormArray {
     return this.productForm.get('features') as FormArray;
   }
 
-  get variants() {
+  get variants(): FormArray {
     return this.productForm.get('variants') as FormArray;
   }
 
   addFeature() {
     this.featureFormArray.push(this.createFeatureFormGroup());
     this.variantsCreated = false;
-    this.updateCanGenerateVariants();
   }
 
   removeFeature(index: number) {
@@ -374,75 +389,7 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
     this.updateCanGenerateVariants();
   }
 
-  removeVariant(index: number) {
-    this.variants.removeAt(index);
-    this.updateDataSource();
-    this.updateVariantsState();
-  }
-
-  removeSelectedVariants() {
-    for (let i = this.variants.length - 1; i >= 0; i--) {
-      if (this.variants.at(i).get('selected').value) {
-        this.variants.removeAt(i);
-      }
-    }
-    this.updateDataSource();
-    this.updateVariantsState();
-  }
-
-  updateDataSource() {
-    this.dataSource = new MatTableDataSource(this.variants.controls);
-    this.changeDetectorRef.detectChanges();
-  }
-
-  updateVariantsState() {
-    this.variantsCreated = this.variants.length > 0;
-    this.updateAllSelected();
-    this.updateButtonText();
-  }
-
-  updateButtonText() {
-    this.buttonText = this.variants.length > 1 ? 'Ürünleri Ekle' : 'Ürünü Ekle';
-  }
-
-  toggleAllSelection() {
-    this.allSelected = !this.allSelected;
-    this.variants.controls.forEach(control => {
-      control.get('selected').setValue(this.allSelected);
-    });
-  }
-
-  updateAllSelected() {
-    this.allSelected = this.variants.controls.every(control => control.get('selected').value);
-  }
-
-  updateSelectedVariants(event: any, field: string, index: number) {
-    const value = event.target.value;
-    const currentVariant = this.variants.at(index);
-    
-    // Eğer değişiklik yapılan varyant seçili değilse, hiçbir şey yapma
-    if (!currentVariant.get('selected').value) {
-      return;
-    }
-
-    this.variants.controls.forEach((control, i) => {
-      if (i !== index && control.get('selected').value) {
-        control.get(field).setValue(value);
-      }
-    });
-
-    // Veri kaynağını güncelle
-    this.updateDataSource();
-  }
-
-  updateCanGenerateVariants() {
-    this.canGenerateVariants = this.featureFormArray.length > 0 && 
-      this.featureFormArray.controls.every(control => 
-        control.get('featureId').value && 
-        control.get('selectedValues').value.length > 0
-      );
-  }
-  createFeatureFormGroup(): FormGroup {
+  private createFeatureFormGroup(): FormGroup {
     return this.fb.group({
       featureId: ['', Validators.required],
       selectedValues: [[], Validators.required]
@@ -451,229 +398,408 @@ export class ProductCreateComponent extends BaseComponent implements OnInit {
 
   generateVariants() {
     const combinations = this.generateCombinations();
-    
-    // Mevcut varyantların değerlerini saklayalım
-    const existingVariants = this.variants.controls.map(control => ({
-      combination: control.get('combination').value,
-      sku: control.get('sku').value,
-      price: control.get('price').value,
-      stock: control.get('stock').value,
-      title: control.get('title').value,
-      description: control.get('description').value,
-      images: [[]],
-      showcaseImageIndex: control.get('showcaseImageIndex').value
-      
-    }));
-
     this.variants.clear();
-    combinations.forEach((combination) => {
-      const combinationString = combination.join(' - ');
-      const existingVariant = existingVariants.find(v => v.combination === combinationString);
-      
-      this.variants.push(this.fb.group({
-        selected: [false],
-        combination: [combinationString],
-        price: [existingVariant ? existingVariant.price : 0, [Validators.required, Validators.min(0)]],
-        stock: [existingVariant ? existingVariant.stock : 0, [Validators.required, Validators.min(0)]],
-        sku: [existingVariant ? existingVariant.sku : '', Validators.required],
-        images: [[]],
-        showcaseImageIndex: [existingVariant ? existingVariant.showcaseImageIndex : 0],
-        title: [existingVariant ? existingVariant.title : ''],
-        description: [existingVariant ? existingVariant.description : '']
-      }));
+    
+    combinations.forEach(combination => {
+      this.variants.push(this.createVariantFormGroup(combination.join(' - ')));
     });
 
     this.variantsCreated = true;
     this.updateButtonText();
-    this.updateDataSource();
   }
 
-  openImageUploadDialog(variant: FormGroup, event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
-    this.dialogService.openDialog({
-      componentType: FileUploadDialogComponent,
-      data: { variant: variant },
-      options: { width: '550px' },
-      afterClosed: (result: File[]) => {
-        if (result && result.length > 0) {
-          const currentImages = variant.get('images').value || [];
-          variant.patchValue({ images: [...currentImages, ...result] });
-          this.initializeImageIndexes(); // Yeni resimler eklendiğinde indeksleri güncelle
+  private createVariantFormGroup(combination: string): FormGroup {
+    return this.fb.group({
+      selected: [false],
+      combination: [combination],
+      price: [0, [Validators.required, Validators.min(0)]],
+      stock: [0, [Validators.required, Validators.min(0)]],
+      sku: ['', Validators.required],
+      title: [''],
+      description: [''],
+      images: [[]],
+      showcaseImageIndex: [null]
+    });
+  }
 
-          if (variant.get('showcaseImageIndex').value === null || variant.get('showcaseImageIndex').value === undefined) {
-            variant.patchValue({ showcaseImageIndex: 0 });
-          }
-        }
+  removeVariant(index: number) {
+    this.variants.removeAt(index);
+    this.updateVariantsState();
+  }
+
+  removeSelectedVariants() {
+    for (let i = this.variants.length - 1; i >= 0; i--) {
+      if (this.getControl(this.variants.at(i), 'selected').value) {
+        this.variants.removeAt(i);
+      }
+    }
+    this.updateVariantsState();
+  }
+
+  toggleAllSelection() {
+    this.allSelected = !this.allSelected;
+    this.variants.controls.forEach(control => {
+      this.getControl(control, 'selected').setValue(this.allSelected);
+    });
+  }
+
+  updateAllSelected() {
+    this.allSelected = this.variants.controls.every(control =>
+      this.getControl(control, 'selected').value
+    );
+  }
+
+  updateSelectedVariants(event: Event, field: string, index: number) {
+    const value = (event.target as HTMLInputElement).value;
+    const currentVariant = this.variants.at(index);
+    
+    if (!this.getControl(currentVariant, 'selected').value) {
+      return;
+    }
+
+    this.variants.controls.forEach((control, i) => {
+      if (i !== index && this.getControl(control, 'selected').value) {
+        this.getControl(control, field).setValue(value);
       }
     });
   }
 
-  setShowcaseImage(variant: FormGroup, index: number) {
-    const currentShowcaseIndex = variant.get('showcaseImageIndex').value;
-    
-    if (currentShowcaseIndex === index) {
-      // Eğer tıklanan görsel zaten vitrin görseli ise, vitrin görselini kaldır
-      variant.patchValue({ showcaseImageIndex: null });
-    } else {
-      // Değilse, yeni vitrin görselini ayarla
-      variant.patchValue({ showcaseImageIndex: index });
-    }
-    
-    // Değişiklikleri yansıtmak için Angular'ın değişiklik algılama mekanizmasını tetikle
-    this.changeDetectorRef.detectChanges();
-  }
-  
-  isShowcaseImage(variant: FormGroup, index: number): boolean {
-    return variant.get('showcaseImageIndex').value === index;
-  }
-
-  generateUniqueId(): string {
-    // Basit bir benzersiz ID oluşturma fonksiyonu
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-  
-  initializeImageIndexes() {
-    (this.productForm.get('variants') as FormArray).controls.forEach((variant: FormGroup, index: number) => {
-      // Her varyant için benzersiz bir ID oluştur veya mevcut olanı kullan
-      if (!this.variantIds[index]) {
-        this.variantIds[index] = this.generateUniqueId();
-      }
-      // Bu benzersiz ID'yi kullanarak image index'ini set et
-      this.currentImageIndex[this.variantIds[index]] = 0;
-    });
-  }
-
-  getSafeUrl(url: string): SafeUrl {
-    return this.sanitizer.bypassSecurityTrustUrl(url);
-  }
-
-  prevImage(variant: FormGroup, event: Event, index: number) {
-    event.preventDefault();
-    event.stopPropagation();
-    const variantId = this.variantIds[index];
-    if (this.currentImageIndex[variantId] > 0) {
-      this.currentImageIndex[variantId]--;
-    }
-  }
-
-  nextImage(variant: FormGroup, event: Event, index: number) {
-    event.preventDefault();
-    event.stopPropagation();
-    const variantId = this.variantIds[index];
-    const images = variant.get('images').value;
-    if (this.currentImageIndex[variantId] < images.length - 1) {
-      this.currentImageIndex[variantId]++;
-    }
-  }
-
-  removeCurrentImage(variant: FormGroup, event: Event, index: number) {
-    event.preventDefault();
-    event.stopPropagation();
-    const variantId = this.variantIds[index];
-    const images = variant.get('images').value;
-    const showcaseIndex = variant.get('showcaseImageIndex').value;
-    images.splice(this.currentImageIndex[variantId], 1);
-    variant.patchValue({ images: images });
-    if (this.currentImageIndex[variantId] >= images.length) {
-      this.currentImageIndex[variantId] = Math.max(0, images.length - 1);
-    }
-
-    if (showcaseIndex === this.currentImageIndex[variantId]) {
-      variant.patchValue({ showcaseImageIndex: images.length > 0 ? 0 : null });
-    } else if (showcaseIndex > this.currentImageIndex[variantId]) {
-      variant.patchValue({ showcaseImageIndex: showcaseIndex - 1 });
-    }
-  }
-
-  generateCombinations(): string[][] {
+  private generateCombinations(): string[][] {
     const selectedValues = this.featureFormArray.controls.map(control => 
-      control.get('selectedValues').value.map(valueId => 
-        this.featureValues[control.get('featureId').value].find(v => v.id === valueId).name
+      this.getControl(control, 'selectedValues').value.map(valueId => 
+        this.featureValues[this.getControl(control, 'featureId').value]
+          .find(v => v.id === valueId).name
       )
-    ).filter(values => values.length > 0); // Boş seçimleri filtrele
+    ).filter(values => values.length > 0);
+
     return this.cartesianProduct(selectedValues);
   }
 
-  cartesianProduct(arrays: string[][]): string[][] {
+  private cartesianProduct(arrays: string[][]): string[][] {
     return arrays.reduce((a, b) => 
       a.flatMap(x => b.map(y => [...x, y])),
       [[]] as string[][]
     );
   }
 
-  onSubmit() {
-    if (this.productForm.valid) {
-      const formData = new FormData();
   
-      this.variants.controls.forEach((variant, index) => {
-        formData.append(`Products[${index}].Name`, this.productForm.get('name').value);
-        formData.append(`Products[${index}].Description`, variant.get('description').value);
-        formData.append(`Products[${index}].Title`, variant.get('title').value);
-        formData.append(`Products[${index}].CategoryId`, this.productForm.get('categoryId').value);
-        formData.append(`Products[${index}].BrandId`, this.productForm.get('brandId').value);
-        formData.append(`Products[${index}].Sku`, variant.get('sku').value);
-        formData.append(`Products[${index}].Price`, variant.get('price').value);
-        formData.append(`Products[${index}].Stock`, variant.get('stock').value);
-        formData.append(`Products[${index}].Tax`, this.productForm.get('tax').value);
-        formData.append(`Products[${index}].VaryantGroupID`, this.productForm.get('varyantGroupID').value);
-        formData.append(`Products[${index}].ShowcaseImageIndex`, variant.get('showcaseImageIndex').value);
 
-  
-        this.featureFormArray.controls.forEach((feature, featureIndex) => {
-          formData.append(`Products[${index}].FeatureIds[${featureIndex}]`, feature.get('featureId').value);
-        });
-  
-        const featureValueIds = variant.get('combination').value.split(' - ').map((value, valueIndex) => {
-          const featureId = this.featureFormArray.at(valueIndex).get('featureId').value;
-          const featureValues = this.featureValues[featureId] || [];
-          return featureValues.find(fv => fv.name === value)?.id || '';
-        });
-  
-        featureValueIds.forEach((valueId, valueIndex) => {
-          formData.append(`Products[${index}].FeatureValueIds[${valueIndex}]`, valueId);
-        });
-  
-        const images = variant.get('images').value;
-        if (images && images.length > 0) {
-          images.forEach((image, imageIndex) => {
-            if (image instanceof File) {
-              formData.append(`Products[${index}].ProductImages`, image, image.name);
-            }
-          });
-        }
+  private updateVariantsState() {
+    this.variantsCreated = this.variants.length > 0;
+    this.updateButtonText();
+    this.allSelected = false;
+  }
+
+  private updateButtonText() {
+    this.buttonText = this.variants.length > 1 ? 'Ürünleri Ekle' : 'Ürünü Ekle';
+  }
+
+  getImageUrl(file: File): string {
+    const fileId = `${file.name}-${file.lastModified}`;
+    if (!this.imageUrls.has(fileId)) {
+      const url = URL.createObjectURL(file);
+      this.imageUrls.set(fileId, url);
+    }
+    return this.imageUrls.get(fileId);
+  }
+
+  async onSubmit() {
+    if (!this.productForm.valid) {
+      this.toastrService.message('Lütfen tüm gerekli alanları doldurun', 'Hata', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
       });
-  
-      this.productService.createMultiple(formData,
-        () => {
-          console.log('Success: Products created');
-          this.snackBar.open('Ürünler başarıyla oluşturuldu', 'Kapat', { duration: 3000 });
-        },
-        (error) => {
-          console.error('Error:', error);
-          this.snackBar.open('Ürünler oluşturulamadı: ' + JSON.stringify(error), 'Kapat', { duration: 3000 });
-        }
+      return;
+    }
+
+    try {
+      this.loading = true;
+      this.spinnerService.show();
+
+      const formData = new FormData();
+      this.variants.controls.forEach((variant, index) => {
+        this.appendVariantData(formData, variant, index);
+      });
+
+      await this.productService.createMultiple(
+        formData,
+        () => this.handleSuccess('Ürünler başarıyla oluşturuldu'),
+        (error) => this.handleError('Ürünler oluşturulamadı', error)
       );
-    } else {
-      console.log('Form is invalid');
-      this.snackBar.open('Lütfen tüm gerekli alanları doldurun', 'Kapat', { duration: 3000 });
+    } finally {
+      this.loading = false;
+      this.spinnerService.hide();
     }
   }
 
-  openDescriptionEditor(variant: FormGroup, index: number, event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const dialogRef = this.dialog.open(DescriptionEditorDialogComponent, {
-      width: '600px',
-      data: { description: variant.get('description').value }
+  private appendVariantData(formData: FormData, variant: AbstractControl, index: number) {
+    const baseData = {
+      name: this.productForm.get('name').value,
+      description: this.getControl(variant, 'description').value,
+      title: this.getControl(variant, 'title').value,
+      categoryId: this.productForm.get('categoryId').value,
+      brandId: this.productForm.get('brandId').value,
+      sku: this.getControl(variant, 'sku').value,
+      price: this.getControl(variant, 'price').value,
+      stock: this.getControl(variant, 'stock').value,
+      tax: this.productForm.get('tax').value,
+      showcaseImageIndex: this.getControl(variant, 'showcaseImageIndex').value
+    };
+
+    Object.entries(baseData).forEach(([key, value]) => {
+      formData.append(`Products[${index}].${key}`, value);
     });
-  
-    dialogRef.afterClosed().subscribe(result => {
-      if (result !== undefined) {
-        variant.patchValue({ description: result });
-        this.updateSelectedVariants({ target: { value: result } }, 'description', index);
+
+    this.appendFeatureData(formData, variant, index);
+
+    const images = this.getControl(variant, 'images').value;
+    images.forEach((image: File) => {
+      formData.append(`Products[${index}].ProductImages`, image, image.name);
+    });
+  }
+
+  private appendFeatureData(formData: FormData, variant: AbstractControl, index: number) {
+    const combination = this.getControl(variant, 'combination').value.split(' - ');
+    
+    this.featureFormArray.controls.forEach((feature, featureIndex) => {
+      const featureId = this.getControl(feature, 'featureId').value;
+      formData.append(`Products[${index}].FeatureIds[${featureIndex}]`, featureId);
+      
+      const featureValue = this.featureValues[featureId]
+        .find(fv => fv.name === combination[featureIndex]);
+      
+      if (featureValue) {
+        formData.append(`Products[${index}].FeatureValueIds[${featureIndex}]`, featureValue.id);
       }
     });
   }
+
+  private handleSuccess(message: string) {
+    this.toastrService.message(message, 'Başarılı', {
+      toastrMessageType: ToastrMessageType.Success,
+      position: ToastrPosition.TopRight
+    });
+    this.resetForm();
+  }
+
+  private handleError(message: string, error: any) {
+    console.error('Error:', error);
+    this.toastrService.message(message, 'Hata', {
+      toastrMessageType: ToastrMessageType.Error,
+      position: ToastrPosition.TopRight
+    });
+  }
+
+  private resetForm() {
+    this.createForm();
+    this.variantsCreated = false;
+    this.canGenerateVariants = false;
+    this.allSelected = false;
+    this.features = [];
+    this.featureValues = {};
+    this.filteredBrands = [];
+    this.showBrandResults = false;
+    this.showCategoryTree = false;
+  }
+
+  ngOnDestroy() {
+    this.brandSearchSubject.complete();
+    this.imageUrls.forEach(url => {
+      URL.revokeObjectURL(url);
+    });
+    this.imageUrls.clear();
+  }
+
+  getControlValue(variant: AbstractControl, controlName: string): any {
+    return this.getControl(variant, controlName).value;
+  }
+
+  hasSelectedVariants(): boolean {
+    return this.variants.controls.some(v => this.getControlValue(v, 'selected'));
+  }
+
+  getVariantCombination(variant: AbstractControl): string {
+    return this.getControlValue(variant, 'combination');
+  }
+
+  getVariantImages(variant: AbstractControl): File[] {
+    return this.getControlValue(variant, 'images');
+  }
+
+  isVariantSelected(variant: AbstractControl): boolean {
+    return this.getControlValue(variant, 'selected');
+  }
+
+  // Form kontrol yapılandırıcılar
+  setupVariantControl(variant: AbstractControl, controlName: string): FormControl {
+    return this.getControl(variant, controlName);
+  }
+
+  // Event handler'lar
+  handleVariantInputChange(event: Event, field: string, index: number): void {
+    this.updateSelectedVariants(event, field, index);
+  }
+
+  handleCheckboxChange(variant: AbstractControl): void {
+    this.updateAllSelected();
+  }
+
+  onFeatureChange(index: number): void {
+    const feature = this.featureFormArray.at(index);
+    feature.patchValue({ selectedValues: [] }); // Seçili değerleri sıfırla
+    this.updateCanGenerateVariants();
+}
+
+
+
+onFeatureSelect(event: Event, index: number) {
+  const select = event.target as HTMLSelectElement;
+  const featureId = select.value;
+  
+  // Seçilen özelliğin değerlerini temizle
+  const feature = this.featureFormArray.at(index);
+  feature.patchValue({ selectedValues: [] });
+  
+  // Değişiklikleri tetikle
+  this.changeDetectorRef.detectChanges();
+}
+
+isValueSelected(feature: AbstractControl, valueId: string): boolean {
+  const selectedValues = feature.get('selectedValues').value as string[];
+  return selectedValues.includes(valueId);
+}
+
+toggleFeatureValue(feature: AbstractControl, valueId: string) {
+  const selectedValues = [...feature.get('selectedValues').value] as string[];
+  const index = selectedValues.indexOf(valueId);
+  
+  if (index === -1) {
+    selectedValues.push(valueId);
+  } else {
+    selectedValues.splice(index, 1);
+  }
+  
+  feature.patchValue({ selectedValues });
+  this.changeDetectorRef.detectChanges();
+}
+
+
+// Varyant oluşturma butonunun aktifliğini kontrol et
+private updateCanGenerateVariants(): void {
+    this.canGenerateVariants = this.featureFormArray.length > 0 && 
+        this.featureFormArray.controls.every(control => {
+            const featureId = control.get('featureId').value;
+            const selectedValues = control.get('selectedValues').value;
+            return featureId && selectedValues.length > 0;
+        });
+}
+
+openImageUploadDialog(variant: AbstractControl): void {
+  this.dialogService.openDialog({
+    componentType: FileUploadDialogComponent,
+    data: { options: { accept: '.png, .jpg, .jpeg, .gif' } },
+    options: {
+      width: '500px'
+    },
+    afterClosed: (result: File[]) => {
+      if (result && result.length > 0) {
+        const currentImages = [...this.getControl(variant, 'images').value];
+        result.forEach(file => {
+          if (this.isValidImageFile(file)) {
+            currentImages.push(file);
+          }
+        });
+        this.getControl(variant, 'images').setValue(currentImages);
+
+        // İlk resim yüklendiğinde otomatik olarak showcase olarak ayarla
+        if (currentImages.length === result.length && 
+            this.getControl(variant, 'showcaseImageIndex').value === null) {
+          this.getControl(variant, 'showcaseImageIndex').setValue(0);
+        }
+      }
+    }
+  });
+}
+
+// Resim geçerlilik kontrolü
+private isValidImageFile(file: File): boolean {
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  return validTypes.includes(file.type) && file.size <= maxSize;
+}
+
+// Showcase image ayarlama
+setShowcaseImage(variant: AbstractControl, imageIndex: number): void {
+  const currentShowcaseIndex = this.getControl(variant, 'showcaseImageIndex').value;
+  this.getControl(variant, 'showcaseImageIndex')
+    .setValue(currentShowcaseIndex === imageIndex ? null : imageIndex);
+}
+
+// Resim önizleme URL'i oluşturma
+getImagePreviewUrl(file: File): string {
+  return URL.createObjectURL(file);
+}
+
+// Resim silme
+removeImage(variant: AbstractControl, imageIndex: number): void {
+  const images = [...this.getControl(variant, 'images').value];
+  images.splice(imageIndex, 1);
+  this.getControl(variant, 'images').setValue(images);
+
+  // Silinen resim showcase ise, showcase'i sıfırla veya ilk resmi seç
+  const showcaseIndex = this.getControl(variant, 'showcaseImageIndex').value;
+  if (showcaseIndex === imageIndex) {
+    this.getControl(variant, 'showcaseImageIndex').setValue(images.length > 0 ? 0 : null);
+  } else if (showcaseIndex > imageIndex) {
+    this.getControl(variant, 'showcaseImageIndex').setValue(showcaseIndex - 1);
+  }
+}
+onImageDrop(variant: AbstractControl, event: CdkDragDrop<File[]>) {
+  const images = [...this.getControl(variant, 'images').value];
+  const showcaseIndex = this.getControl(variant, 'showcaseImageIndex').value;
+  
+  moveItemInArray(images, event.previousIndex, event.currentIndex);
+  this.getControl(variant, 'images').setValue(images);
+
+  // Showcase image indexini güncelle
+  if (showcaseIndex === event.previousIndex) {
+    this.getControl(variant, 'showcaseImageIndex').setValue(event.currentIndex);
+  } else if (showcaseIndex > event.previousIndex && showcaseIndex <= event.currentIndex) {
+    this.getControl(variant, 'showcaseImageIndex').setValue(showcaseIndex - 1);
+  } else if (showcaseIndex < event.previousIndex && showcaseIndex >= event.currentIndex) {
+    this.getControl(variant, 'showcaseImageIndex').setValue(showcaseIndex + 1);
+  }
+}
+
+openDescriptionEditor(variant: AbstractControl, index: number): void {
+  const dialogRef = this.dialogService.openDialog({
+    componentType: DescriptionEditorDialogComponent,
+    data: { description: this.getControl(variant, 'description').value || '' },
+    options: {
+      width: '1200px',
+      height: '600px'  // minHeight yerine height kullanıyoruz
+    },
+    afterClosed: result => {
+      if (result !== undefined) {
+        this.getControl(variant, 'description').setValue(result);
+        // Event oluşturmak yerine direkt değeri güncelliyoruz
+        this.updateSelectedVariantsValue('description', result, index);
+      }
+    }
+  });
+}
+
+// Yeni metod ekleyelim
+updateSelectedVariantsValue(field: string, value: any, currentIndex: number): void {
+  if (!this.getControl(this.variants.at(currentIndex), 'selected').value) {
+      return;
+  }
+
+  this.variants.controls.forEach((control, i) => {
+      if (i !== currentIndex && this.getControl(control, 'selected').value) {
+          this.getControl(control, field).setValue(value);
+      }
+  });
+}
+
 }

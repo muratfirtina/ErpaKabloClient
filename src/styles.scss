@@ -18,6 +18,26 @@ $link-color: #0000ee;
 .angular-editor-textarea {
   min-height: 200px;
 }
+.cdk-overlay-pane.mat-mdc-dialog-panel {
+  max-width: none !important;
+}
+.custom-dialog-container {
+  .mat-dialog-container {
+    padding: 0;
+    overflow: hidden;
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 768px) {
+    .mat-dialog-container {
+      width: 100vw !important;
+      height: 100vh !important;
+      max-width: none !important;
+      max-height: none !important;
+      border-radius: 0;
+    }
+  }
+}
 
 .mat-typography {
   background: white;

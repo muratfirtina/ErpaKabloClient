@@ -92,7 +92,7 @@
         <button (click)="increaseQuantity()">+</button>
       </div>
       <button class="add-to-cart-button" [disabled]="product.stock <= 0" (click)="addToCart(product)">
-        Sepete Ekle
+        Add To Cart
       </button>
     </div>
   </div>
@@ -129,7 +129,8 @@
     <div *ngSwitchCase="'reviews'">
       <h2>Değerlendirmeler</h2>
       
-    <!-- </div>
+    </div>
+    <!--
     <div *ngSwitchCase="'questions'">
       <h2>Soru & Cevap</h2>
      
@@ -154,13 +155,13 @@
   <app-product-grid 
     *ngIf="randomProducts"
     [products]="randomProducts.items"
-    [title]="'Bu Ürünle İlgili Diğer Ürünler'">
+    [title]="'Other Products Related to This Product'">
   </app-product-grid>
 
   <app-product-grid 
     *ngIf="randomProductsForBrands"
     [products]="randomProductsForBrands.items"
-    [title]="product?.brandName + ' Markalı Diğer Ürünler'">
+    [title]="' Other Products of ' + product?.brandName ">
   </app-product-grid>
 </section>
 
