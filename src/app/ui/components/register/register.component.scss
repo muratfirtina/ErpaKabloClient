@@ -410,3 +410,46 @@ $dark-input-bg: darken($background-color, 85%);
 @media (prefers-color-scheme: dark) {
   @include dark-mode;
 }
+.password-input-wrapper {
+  position: relative;
+  width: 100%;
+
+  .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    z-index: 2;
+
+    &:hover {
+      color: #333;
+    }
+
+    i {
+      font-size: 1rem;
+    }
+  }
+
+  .form-control {
+    padding-right: 40px; // Icon için yer bırak
+  }
+}
+.dark-theme {
+  .password-toggle {
+    color: #999;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+}

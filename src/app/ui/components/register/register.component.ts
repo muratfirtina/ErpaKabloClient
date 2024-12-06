@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
@@ -9,23 +9,24 @@ import { User } from 'src/app/contracts/user/user';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
 import { UserService } from 'src/app/services/common/models/user.service';
+import { ValidationService } from 'src/app/services/common/validation.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { DownbarComponent } from '../downbar/downbar.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule,DownbarComponent,RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DownbarComponent, RouterModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
 export class RegisterComponent extends BaseComponent implements OnInit {
-
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private userService: UserService,
     private userAuthService: UserAuthService,
+    private validationService: ValidationService,
     private toastrService: CustomToastrService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -42,55 +43,87 @@ export class RegisterComponent extends BaseComponent implements OnInit {
     symbol: false,
     length: false
   };
+  submitted: boolean = false;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   ngOnInit(): void {
     this.frm = this.formBuilder.group({
-      nameSurname: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-      userName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
-      email: ['', [Validators.required, Validators.email, Validators.minLength(3), Validators.maxLength(50)]],
-      password: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(16)]],
-      confirmPassword: ['', [Validators.required, this.passwordsMatchValidator.bind(this)]]
+      nameSurname: ['', {
+        validators: [
+          Validators.required,
+          this.validationService.nameSurnameValidator,
+          this.validationService.inputSanitizer
+        ],
+        updateOn: 'blur'
+      }],
+      userName: ['', {
+        validators: [
+          Validators.required,
+          this.validationService.userNameValidator,
+          this.validationService.inputSanitizer
+        ],
+        updateOn: 'blur'
+      }],
+      email: ['', {
+        validators: [
+          Validators.required,
+          this.validationService.emailValidator
+        ],
+        updateOn: 'blur'
+      }],
+      password: ['', {
+        validators: [
+          Validators.required,
+          this.validationService.passwordValidator
+        ],
+        updateOn: 'change'
+      }],
+      confirmPassword: ['', {
+        validators: [
+          Validators.required,
+          this.validationService.passwordsMatchValidator
+        ],
+        updateOn: 'change'
+      }]
     });
 
-    this.frm.get('password').valueChanges.subscribe(
-      (password: string) => {
-        this.updatePasswordRequirements(password);
+    this.subscribeToPasswordChanges();
+  }
+
+  private subscribeToPasswordChanges(): void {
+    this.frm.get('password').valueChanges.subscribe((password: string) => {
+      const control = this.frm.get('password');
+      const validationResult = this.validationService.passwordValidator(control);
+      
+      this.passwordRequirements = validationResult?.passwordRequirements || {
+        uppercase: false,
+        lowercase: false,
+        symbol: false,
+        length: false
+      };
+  
+      // Şifre gereksinimlerini karşılamıyorsa invalid işaretle
+      if (validationResult) {
+        control.setErrors(validationResult);
       }
-    );
-  }
-
-  updatePasswordRequirements(password: string) {
-    this.passwordRequirements = {
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password),
-      length: password.length >= 8
-    };
-  }
-
-  passwordsMatchValidator(control: AbstractControl): { [key: string]: any } | null {
-    const password = control.root.get('password');
-    return password && control.value !== password.value ? { 'notSame': true } : null;
-  }
-
-  passwordStrengthValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const value: string = control.value;
-    const hasUpperCase = /[A-Z]+/.test(value);
-    const hasLowerCase = /[a-z]+/.test(value);
-    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value);
-    const isLongEnough = value.length >= 8;
   
-    const valid = hasUpperCase && hasLowerCase && hasSymbol && isLongEnough;
-    return valid ? null : { 'passwordStrength': true };
+      // Confirm password'ü tekrar validate et
+      this.frm.get('confirmPassword').updateValueAndValidity();
+    });
   }
-  
+
   get component() { return this.frm.controls; }
-
-  submitted: boolean = false;
 
   async onSubmit(user: User) {
     this.submitted = true;
-    if (this.frm.invalid) return;
+    if (this.frm.invalid) {
+      const firstError = document.querySelector('.is-invalid');
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      return;
+    }
   
     this.showSpinner(SpinnerType.BallSpinClockwise);
   
@@ -126,10 +159,13 @@ export class RegisterComponent extends BaseComponent implements OnInit {
           }
         } catch (loginError) {
           console.error("Login error:", loginError);
-          this.toastrService.message("An unexpected error occurred during automatic login. Please try logging in manually.", "Login Error", {
-            toastrMessageType: ToastrMessageType.Error,
-            position: ToastrPosition.TopRight
-          });
+          this.toastrService.message(
+            "Registration successful but automatic login failed. Please try logging in manually.", 
+            "Login Error", {
+              toastrMessageType: ToastrMessageType.Warning,
+              position: ToastrPosition.TopRight
+            }
+          );
           this.router.navigateByUrl("/login");
         }
       } else {
@@ -146,6 +182,24 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       });
     } finally {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
+    }
+  }
+
+  resetForm() {
+    this.frm.reset();
+    this.submitted = false;
+    this.passwordRequirements = {
+      uppercase: false,
+      lowercase: false,
+      symbol: false,
+      length: false
+    };
+  }
+  togglePasswordVisibility(field: 'password' | 'confirm'): void {
+    if (field === 'password') {
+      this.showPassword = !this.showPassword;
+    } else {
+      this.showConfirmPassword = !this.showConfirmPassword;
     }
   }
 }

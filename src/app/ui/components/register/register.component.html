@@ -16,13 +16,15 @@
                formControlName="nameSurname" 
                class="form-control" 
                id="nameSurname" 
-               
                [ngClass]="{'is-invalid': (component['nameSurname'].invalid && component['nameSurname'].dirty) || (submitted && component['nameSurname'].invalid),
                           'is-valid': component['nameSurname'].valid && frm.get('nameSurname').value}">
         <label for="nameSurname">Full Name</label>
         <div class="invalid-feedback" *ngIf="component['nameSurname'].invalid && (component['nameSurname'].dirty || submitted)">
           <span *ngIf="component['nameSurname'].errors?.['required']">Full name is required.</span>
-          <span *ngIf="component['nameSurname'].errors?.['minlength']">Full name must be at least 3 characters long.</span>
+          <span *ngIf="component['nameSurname'].errors?.['tooShort']">Full name must be at least 3 characters long.</span>
+          <span *ngIf="component['nameSurname'].errors?.['tooLong']">Full name cannot exceed 50 characters.</span>
+          <span *ngIf="component['nameSurname'].errors?.['invalidCharacters']">Full name can only contain letters and spaces.</span>
+          <span *ngIf="component['nameSurname'].errors?.['sqlInjection'] || component['nameSurname'].errors?.['htmlTags'] || component['nameSurname'].errors?.['scriptTags'] || component['nameSurname'].errors?.['commandInjection']">Invalid characters detected.</span>
         </div>
       </div>
 
@@ -31,13 +33,15 @@
                formControlName="userName" 
                class="form-control" 
                id="userName" 
-               
                [ngClass]="{'is-invalid': (component['userName'].invalid && component['userName'].dirty) || (submitted && component['userName'].invalid),
                           'is-valid': component['userName'].valid && frm.get('userName').value}">
         <label for="username">User Name</label>
         <div class="invalid-feedback" *ngIf="component['userName'].invalid && (component['userName'].dirty || submitted)">
           <span *ngIf="component['userName'].errors?.['required']">Username is required.</span>
-          <span *ngIf="component['userName'].errors?.['minlength']">Username must be at least 3 characters long.</span>
+          <span *ngIf="component['userName'].errors?.['tooShort']">Username must be at least 3 characters long.</span>
+          <span *ngIf="component['userName'].errors?.['tooLong']">Username cannot exceed 50 characters.</span>
+          <span *ngIf="component['userName'].errors?.['invalidCharacters']">Username can only contain letters, numbers, underscores and hyphens.</span>
+          <span *ngIf="component['userName'].errors?.['sqlInjection'] || component['userName'].errors?.['htmlTags'] || component['userName'].errors?.['scriptTags'] || component['userName'].errors?.['commandInjection']">Invalid characters detected.</span>
         </div>
       </div>
 
@@ -45,33 +49,55 @@
         <input type="email" 
                formControlName="email" 
                class="form-control" 
-               id="email" 
-               
-               [ngClass]="{'is-invalid': (component['email'].invalid && component['email'].dirty) || (submitted && component['email'].invalid),
-                          'is-valid': component['email'].valid && frm.get('email').value}">
+               id="email"
+               [ngClass]="{
+                 'is-invalid': (component['email'].invalid && (component['email'].dirty || component['email'].touched)) || 
+                              (submitted && component['email'].invalid),
+                 'is-valid': component['email'].valid && component['email'].touched
+               }">
         <label for="email">Email address</label>
-        <div class="invalid-feedback" *ngIf="component['email'].invalid && (component['email'].dirty || submitted)">
+        <div class="invalid-feedback" *ngIf="(component['email'].invalid && 
+             (component['email'].dirty || component['email'].touched)) || submitted">
           <span *ngIf="component['email'].errors?.['required']">Email is required.</span>
-          <span *ngIf="component['email'].errors?.['email']">Please enter a valid email address.</span>
+          <span *ngIf="component['email'].errors?.['invalidFormat']">Please enter a valid email address.</span>
+          <span *ngIf="component['email'].errors?.['tooShort']">Email is too short.</span>
+          <span *ngIf="component['email'].errors?.['tooLong']">Email is too long.</span>
+          <span *ngIf="component['email'].errors?.['sqlInjection']">Invalid characters detected.</span>
         </div>
       </div>
-
+      
       <div class="form-floating">
         <input type="password" 
                formControlName="password" 
                class="form-control" 
                id="password" 
-               
-               [ngClass]="{'is-invalid': (component['password'].invalid && component['password'].dirty) || (submitted && component['password'].invalid),
-                          'is-valid': component['password'].valid && frm.get('password').value}">
+               [ngClass]="{
+                 'is-invalid': ((component['password'].invalid && component['password'].dirty) || 
+                               (submitted && component['password'].invalid)),
+                 'is-valid': component['password'].valid && component['password'].dirty && 
+                            component['password'].value?.length >= 8 && passwordRequirements.uppercase && 
+                            passwordRequirements.lowercase && passwordRequirements.symbol
+               }">
         <label for="password">Password</label>
-        <div class="invalid-feedback" *ngIf="component['password'].invalid && (component['password'].dirty || submitted)">
+        <div class="invalid-feedback" *ngIf="(component['password'].dirty || submitted) && component['password'].invalid">
           <span *ngIf="component['password'].errors?.['required']">Password is required.</span>
-          <ul *ngIf="component['password'].errors?.['passwordStrength']">
-            <li *ngIf="!passwordRequirements.uppercase">Password must contain at least one uppercase letter.</li>
-            <li *ngIf="!passwordRequirements.lowercase">Password must contain at least one lowercase letter.</li>
-            <li *ngIf="!passwordRequirements.symbol">Password must contain at least one symbol.</li>
-            <li *ngIf="!passwordRequirements.length">Password must be at least 8 characters long.</li>
+          <ul *ngIf="component['password'].value">
+            <li [class.text-success]="passwordRequirements.uppercase">
+              <i [class]="passwordRequirements.uppercase ? 'fas fa-check' : 'fas fa-times'"></i>
+              Must contain at least one uppercase letter
+            </li>
+            <li [class.text-success]="passwordRequirements.lowercase">
+              <i [class]="passwordRequirements.lowercase ? 'fas fa-check' : 'fas fa-times'"></i>
+              Must contain at least one lowercase letter
+            </li>
+            <li [class.text-success]="passwordRequirements.symbol">
+              <i [class]="passwordRequirements.symbol ? 'fas fa-check' : 'fas fa-times'"></i>
+              Must contain at least one symbol
+            </li>
+            <li [class.text-success]="passwordRequirements.length">
+              <i [class]="passwordRequirements.length ? 'fas fa-check' : 'fas fa-times'"></i>
+              Must be at least 8 characters long
+            </li>
           </ul>
         </div>
       </div>
@@ -81,7 +107,6 @@
                formControlName="confirmPassword" 
                class="form-control" 
                id="confirmPassword"
-               
                [ngClass]="{'is-invalid': (frm.get('confirmPassword').invalid && frm.get('confirmPassword').dirty) || (submitted && frm.get('confirmPassword').invalid),
                           'is-valid': frm.get('confirmPassword').valid && frm.get('password').value === frm.get('confirmPassword').value}">
         <label for="confirmPassword">Confirm Password</label>

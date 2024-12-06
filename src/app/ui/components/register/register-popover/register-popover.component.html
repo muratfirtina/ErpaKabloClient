@@ -1,65 +1,103 @@
 <div class="register-popover" [class.show]="isVisible" [class.dark-theme]="isDarkTheme">
-    <div class="popover-content">
-      <div class="popover-header">
-        <h5>Create an Account</h5>
-        <button type="button" class="btn-close" (click)="close()">×</button>
-      </div>
-
-      <form [formGroup]="frm" (ngSubmit)="onSubmit(frm.value)">
-        <div class="form-floating mb-3">
-          <input type="text" formControlName="nameSurname" class="form-control" id="nameSurname" placeholder=" "
-            [ngClass]="{'is-invalid': submitted && component['nameSurname'].errors}">
-          <label for="nameSurname">Full Name</label>
-          <div class="invalid-feedback" *ngIf="component['nameSurname'].errors && submitted">
-            <span *ngIf="component['nameSurname'].errors?.['required']">Full name is required.</span>
-          </div>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="text" formControlName="userName" class="form-control" id="userName" placeholder=" "
-            [ngClass]="{'is-invalid': submitted && component['userName'].errors}">
-          <label for="userName">Username</label>
-          <div class="invalid-feedback" *ngIf="component['userName'].errors && submitted">
-            <span *ngIf="component['userName'].errors?.['required']">Username is required.</span>
-          </div>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="email" formControlName="email" class="form-control" id="email" placeholder=" "
-            [ngClass]="{'is-invalid': submitted && component['email'].errors}">
-          <label for="email">Email</label>
-          <div class="invalid-feedback" *ngIf="component['email'].errors && submitted">
-            <span *ngIf="component['email'].errors?.['required']">Email is required.</span>
-            <span *ngIf="component['email'].errors?.['email']">Invalid email format.</span>
-          </div>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="password" formControlName="password" class="form-control" id="password" placeholder=" "
-            [ngClass]="{'is-invalid': submitted && component['password'].errors}">
-          <label for="password">Password</label>
-          <div class="invalid-feedback" *ngIf="component['password'].errors && submitted">
-            <span *ngIf="component['password'].errors?.['required']">Password is required.</span>
-          </div>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input type="password" formControlName="confirmPassword" class="form-control" id="confirmPassword" placeholder=" "
-            [ngClass]="{'is-invalid': submitted && component['confirmPassword'].errors}">
-          <label for="confirmPassword">Confirm Password</label>
-          <div class="invalid-feedback" *ngIf="component['confirmPassword'].errors && submitted">
-            <span *ngIf="component['confirmPassword'].errors?.['required']">Please confirm password.</span>
-            <span *ngIf="component['confirmPassword'].errors?.['notSame']">Passwords don't match.</span>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-submit w-100 mb-3">Create Account</button>
-
-        <p class="sign-in-link">
-          Already have an account? 
-          <a style="cursor: pointer;" routerLink="/login" (click)="close()">Sign in</a>
-        </p>
-      </form>
+  <div class="popover-content">
+    <div class="popover-header">
+      <h5>Create Account</h5>
+      <button type="button" class="btn-close" (click)="close()">×</button>
     </div>
+  
+    <form [formGroup]="frm" (ngSubmit)="onSubmit(frm.value)">
+      <div class="form-floating">
+        <input type="text" 
+               formControlName="nameSurname" 
+               class="form-control" 
+               id="nameSurname"
+               [ngClass]="{'is-invalid': (component['nameSurname'].invalid && component['nameSurname'].dirty) || 
+                          (submitted && component['nameSurname'].invalid)}">
+        <label for="nameSurname">Full Name</label>
+        <div class="invalid-feedback" *ngIf="component['nameSurname'].invalid && 
+             (component['nameSurname'].dirty || submitted)">
+          <span *ngIf="component['nameSurname'].errors?.['required']">Full name is required.</span>
+          <span *ngIf="component['nameSurname'].errors?.['tooShort']">Full name must be at least 3 characters long.</span>
+          <span *ngIf="component['nameSurname'].errors?.['tooLong']">Full name cannot exceed 50 characters.</span>
+          <span *ngIf="component['nameSurname'].errors?.['invalidCharacters']">Full name can only contain letters and spaces.</span>
+          <span *ngIf="component['nameSurname'].errors?.['sqlInjection']">Invalid characters detected.</span>
+        </div>
+      </div>
+  
+      <div class="form-floating">
+        <input type="text" 
+               formControlName="userName" 
+               class="form-control" 
+               id="userName"
+               [ngClass]="{'is-invalid': (component['userName'].invalid && component['userName'].dirty) || 
+                          (submitted && component['userName'].invalid)}">
+        <label for="username">Username</label>
+        <div class="invalid-feedback" *ngIf="component['userName'].invalid && 
+             (component['userName'].dirty || submitted)">
+          <span *ngIf="component['userName'].errors?.['required']">Username is required.</span>
+          <span *ngIf="component['userName'].errors?.['tooShort']">Username must be at least 3 characters long.</span>
+          <span *ngIf="component['userName'].errors?.['tooLong']">Username cannot exceed 50 characters.</span>
+          <span *ngIf="component['userName'].errors?.['invalidCharacters']">Username can only contain letters, numbers, underscores and hyphens.</span>
+          <span *ngIf="component['userName'].errors?.['sqlInjection']">Invalid characters detected.</span>
+        </div>
+      </div>
+  
+      <div class="form-floating">
+        <input type="email" 
+               formControlName="email" 
+               class="form-control" 
+               id="email"
+               [ngClass]="{'is-invalid': (component['email'].invalid && component['email'].dirty) || 
+                          (submitted && component['email'].invalid)}">
+        <label for="email">Email address</label>
+        <div class="invalid-feedback" *ngIf="component['email'].invalid && 
+             (component['email'].dirty || submitted)">
+          <span *ngIf="component['email'].errors?.['required']">Email is required.</span>
+          <span *ngIf="component['email'].errors?.['invalidFormat']">Please enter a valid email address.</span>
+          <span *ngIf="component['email'].errors?.['tooShort'] || component['email'].errors?.['tooLong']">Email length is invalid.</span>
+          <span *ngIf="component['email'].errors?.['sqlInjection']">Invalid characters detected.</span>
+        </div>
+      </div>
+  
+      <div class="form-floating">
+        <input type="password" 
+               formControlName="password" 
+               class="form-control" 
+               id="password"
+               [ngClass]="{'is-invalid': (component['password'].invalid && component['password'].dirty) || 
+                          (submitted && component['password'].invalid)}">
+        <label for="password">Password</label>
+        <div class="invalid-feedback" *ngIf="component['password'].invalid && 
+             (component['password'].dirty || submitted)">
+          <span *ngIf="component['password'].errors?.['required']">Password is required.</span>
+          <ul *ngIf="passwordRequirements">
+            <li *ngIf="!passwordRequirements.uppercase">Password must contain at least one uppercase letter.</li>
+            <li *ngIf="!passwordRequirements.lowercase">Password must contain at least one lowercase letter.</li>
+            <li *ngIf="!passwordRequirements.symbol">Password must contain at least one symbol.</li>
+            <li *ngIf="!passwordRequirements.length">Password must be at least 8 characters long.</li>
+          </ul>
+        </div>
+      </div>
+  
+      <div class="form-floating">
+        <input type="password" 
+               formControlName="confirmPassword" 
+               class="form-control" 
+               id="confirmPassword"
+               [ngClass]="{'is-invalid': (component['confirmPassword'].invalid && component['confirmPassword'].dirty) || 
+                          (submitted && component['confirmPassword'].invalid)}">
+        <label for="confirmPassword">Confirm Password</label>
+        <div class="invalid-feedback" *ngIf="component['confirmPassword'].invalid && 
+             (component['confirmPassword'].dirty || submitted)">
+          <span *ngIf="component['confirmPassword'].errors?.['required']">Please confirm your password.</span>
+          <span *ngIf="component['confirmPassword'].errors?.['notSame']">Passwords do not match.</span>
+        </div>
+      </div>
+  
+      <button type="submit" class="btn-submit">Create Account</button>
+    </form>
+  
+    <!-- Diğer sosyal medya butonları ve kayıt linkleri -->
+  </div>
   </div>
   <div class="overlay" [class.show]="isVisible" (click)="close()"></div>
