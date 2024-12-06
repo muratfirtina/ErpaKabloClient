@@ -12,7 +12,6 @@ import { ProductImageFile } from 'src/app/contracts/product/productImageFile';
 import { MainHeaderComponent } from '../../main-header/main-header.component';
 import { NavbarComponent } from "../../navbar/navbar.component";
 import { SafeHtmlPipe } from "../../../../pipes/safe-html.pipe";
-import { ProductDetailTabsComponent } from './product-detail-tabs/product-detail-tabs.component';
 import { BreadcrumbComponent } from '../../breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { AuthService } from 'src/app/services/common/auth.service';
@@ -22,6 +21,7 @@ import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { DownbarComponent } from '../../downbar/downbar.component';
 import { ProductGridComponent } from '../product-grid/product-grid.component';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
+import { FEATURE_CONFIGS, FeatureType } from 'src/app/enums/featureType';
 
 @Component({
   selector: 'app-product-detail',
@@ -34,7 +34,6 @@ import { ProductOperationsService } from 'src/app/services/ui/product/product-op
     MainHeaderComponent, 
     NavbarComponent, 
     SafeHtmlPipe, 
-    ProductDetailTabsComponent,
     RouterModule,
     BreadcrumbComponent,
     DownbarComponent,
@@ -56,6 +55,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   activeTab: string = 'description';
   isImageZoomed: boolean = false;
   isAuthenticated: boolean = false;
+  likeCount: number = 0;
 
   @ViewChild('productGrid') productGrid!: ElementRef;
   
@@ -73,15 +73,16 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     super(spinner);
   }
 
-  ngOnInit() {
-    this.route.params.subscribe(params => {
+  async ngOnInit() {
+    this.route.params.subscribe(async params => {
       const productId = params['id'];
       if (productId) {
-        this.loadProduct(productId);
+        await this.loadProduct(productId);
+        await this.loadLikeCount(productId);
         this.loadRandomProducts(productId);
         this.loadRandomProductsForBrand(productId);
       } else {
-        this.customToastrService.message("Ürün ID'si bulunamadı", "Hata", {
+        this.customToastrService.message("Product ID not founded", "Error", {
           toastrMessageType: ToastrMessageType.Error,
           position: ToastrPosition.TopRight
         });
@@ -95,9 +96,18 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     this.activeTab = tabName;
   }
 
+  async loadLikeCount(productId: string) {
+    try {
+      this.likeCount = await this.productLikeService.getProductLikeCount(productId);
+    } catch (error) {
+      console.error('Error loading like count:', error);
+    }
+  }
+
   async toggleLike(event: Event, product: Product) {
     event.stopPropagation();
-    await this.productOperations.toggleLike(product);
+    const result = await this.productOperations.toggleLike(product);
+    this.likeCount = result.likeCount;
   }
 
   async addToCart(product: Product) {
@@ -112,14 +122,21 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   async loadProduct(productId: string) {
     this.showSpinner(SpinnerType.BallSpinClockwise);
     try {
+      // Yeni ürünü yüklemeden önce özellikleri temizle
+      this.clearFeatures();
+      
       this.product = await this.productService.getById(productId,()=>{},()=>{});
       if (this.product) {
-        this.product.relatedProducts = Array.isArray(this.product.relatedProducts) ? this.product.relatedProducts : [];
+        this.product.relatedProducts = Array.isArray(this.product.relatedProducts) 
+          ? this.product.relatedProducts 
+          : [];
+          
         this.initializeSelectedFeatures();
         this.initializeAllFeatures();
         this.sortAvailableFeatures();
         this.resetCurrentImageIndex();
         this.updateBreadcrumbs();
+        
         if (this.isAuthenticated) {
           const isLiked = await this.productLikeService.isProductLiked(productId);
           this.product.isLiked = isLiked;
@@ -127,10 +144,14 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
       }
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     } catch (error) {
-      this.customToastrService.message("Ürün yüklenirken bir hata oluştu", "Hata", {
-        toastrMessageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight
-      });
+      this.customToastrService.message(
+        "An error occurred while loading the product", 
+        "Error", 
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     }
   }
@@ -176,8 +197,10 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     }
   }
 
-  determineVisualFeatures() {
-    this.visualFeatures = ['renk'];
+  private determineVisualFeatures() {
+    this.visualFeatures = Object.entries(FEATURE_CONFIGS)
+      .filter(([_, config]) => config.isVisual)
+      .map(([featureName]) => featureName.toLowerCase());
   }
 
   initializeSelectedFeatures() {
@@ -196,8 +219,10 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     }
   }
 
-  sortFeatureValues(featureName: string, values: string[]): string[] {
-    if (featureName.toLowerCase() === 'numara' || featureName.toLowerCase() === 'beden') {
+  private sortFeatureValues(featureName: string, values: string[]): string[] {
+    const config = FEATURE_CONFIGS[featureName];
+    
+    if (config?.requiresNumericSort) {
       return values.sort((a, b) => parseFloat(a) - parseFloat(b));
     }
     return values.sort();
@@ -205,41 +230,127 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
 
   // Görsel özellikler için metodlar
   getFeatureImage(featureName: string, featureValue: string): string {
-    if (this.visualFeatures.includes(featureName.toLowerCase())) {
-      const featureImages = this.getFeatureImages(featureName);
-      const matchingImage = featureImages.find(img => img.value === featureValue);
-      return matchingImage ? matchingImage.imageUrl : this.defaultProductImage;
+    if (!this.visualFeatures.includes(featureName.toLowerCase())) {
+      return '';
     }
-    return '';
+  
+    // Ürünün kendi seçili özellikleri ile eşleşiyorsa kendi resmini göster
+    if (this.selectedFeatures[featureName] === featureValue && this.product) {
+      if (this.product.showcaseImage?.url) {
+        return this.product.showcaseImage.url;
+      }
+      if (this.product.productImageFiles?.length > 0) {
+        const showcaseImage = this.product.productImageFiles.find(img => img.showcase);
+        return showcaseImage?.url || this.product.productImageFiles[0].url;
+      }
+    }
+  
+    // Diğer durumlar için featureImages'dan al
+    const featureImages = this.getFeatureImages(featureName);
+    const matchingImage = featureImages.find(img => img.value === featureValue);
+    return matchingImage ? matchingImage.imageUrl : this.defaultProductImage;
   }
 
-  getFeatureImages(featureName: string): { value: string, imageUrl: string }[] {
-    if (!this.product || !this.product.relatedProducts || !this.sortedAvailableFeatures[featureName]) 
+  private getFeatureImages(featureName: string): { value: string, imageUrl: string }[] {
+    if (!this.product || !this.sortedAvailableFeatures[featureName]) {
       return [];
-
-    const selectedNumara = this.selectedFeatures['Numara'];
+    }
+  
+    const featureConfig = FEATURE_CONFIGS[featureName];
+    if (!featureConfig?.isVisual) {
+      return [];
+    }
+  
+    // Tek ürün durumu için
+    if (!this.product.relatedProducts || this.product.relatedProducts.length === 0) {
+      const currentFeatureValue = this.product.productFeatureValues.find(
+        f => f.featureName.toLowerCase() === featureName.toLowerCase()
+      )?.featureValueName;
+  
+      if (currentFeatureValue) {
+        return [{
+          value: currentFeatureValue,
+          imageUrl: this.product.showcaseImage?.url || 
+                   this.product.productImageFiles?.[0]?.url || 
+                   this.defaultProductImage
+        }];
+      }
+      return [];
+    }
+  
+    // Birden fazla varyant durumu için mevcut mantık devam eder
+    const sizeFeature = Object.entries(FEATURE_CONFIGS)
+      .find(([_, config]) => config.type === FeatureType.SIZE)?.[0];
+    
+    const selectedSize = sizeFeature ? this.selectedFeatures[sizeFeature] : null;
     const allProducts = [this.product, ...this.product.relatedProducts];
     const sortedFeatureValues = this.sortedAvailableFeatures[featureName];
-
+  
     return sortedFeatureValues.map(featureValue => {
-      const matchingProduct = allProducts.find(product => 
-        product.productFeatureValues.some(f => 
-          f.featureName === 'Numara' && f.featureValueName === selectedNumara) &&
-        product.productFeatureValues.some(f => 
-          f.featureName.toLowerCase() === featureName.toLowerCase() && 
-          f.featureValueName === featureValue)
+      const productForFeature = this.findMatchingProductForFeature(
+        allProducts,
+        featureName,
+        featureValue,
+        sizeFeature,
+        selectedSize
       );
-
+  
       let imageUrl = this.defaultProductImage;
-      if (matchingProduct) {
-        imageUrl = this.findShowcaseImage(matchingProduct.productImageFiles) || 
-                  (matchingProduct.showcaseImage ? matchingProduct.showcaseImage.url : 
-                  this.defaultProductImage);
+      if (productForFeature) {
+        imageUrl = productForFeature.showcaseImage?.url || 
+                  productForFeature.productImageFiles?.[0]?.url || 
+                  this.defaultProductImage;
       }
-
-      return { value: featureValue, imageUrl };
+  
+      return {
+        value: featureValue,
+        imageUrl: imageUrl
+      };
     });
   }
+  
+  private findMatchingProductForFeature(
+    products: Product[],
+    featureName: string,
+    featureValue: string,
+    sizeFeature: string | null,
+    selectedSize: string | null
+  ): Product | null {
+    return products.find(product => {
+      const hasMatchingFeature = product.productFeatureValues.some(f => 
+        f.featureName.toLowerCase() === featureName.toLowerCase() && 
+        f.featureValueName === featureValue
+      );
+  
+      const hasSizeMatch = !sizeFeature || !selectedSize || 
+        product.productFeatureValues.some(f => 
+          f.featureName === sizeFeature && 
+          f.featureValueName === selectedSize
+        );
+  
+      return hasMatchingFeature && hasSizeMatch;
+    }) || null;
+  }
+
+  
+  
+  /* private getProductImageUrl(product: Product | null): string {
+    if (!product) return this.defaultProductImage;
+    
+    // Önce showcase resmi kontrol et
+    if (product.showcaseImage?.url) {
+      return product.showcaseImage.url;
+    }
+    
+    // Showcase resmi yoksa, productImageFiles'dan showcase olan veya ilk resmi al
+    if (product.productImageFiles?.length > 0) {
+      const showcaseImage = product.productImageFiles.find(img => img.showcase);
+      return showcaseImage?.url || product.productImageFiles[0].url;
+    }
+    
+    return this.defaultProductImage;
+  } */
+  
 
   // Özellik seçimi ve kontrolü
   onFeatureSelect(featureName: string, featureValue: string) {
@@ -248,17 +359,25 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     this.selectedFeatures[featureName] = featureValue;
     const matchingProduct = this.findMatchingProduct();
     if (matchingProduct) {
+      // Yeni ürün yüklenirken özellikleri temizle
+      this.clearFeatures(); 
       this.loadProduct(matchingProduct.id);
     } else {
       this.customToastrService.message(
-        "Seçilen özelliklere uygun ürün bulunamadı", 
-        "Bilgi",
+        "No products found matching the selected features",
+        "Information",
         {
           toastrMessageType: ToastrMessageType.Info,
           position: ToastrPosition.TopRight
         }
       );
     }
+  }
+  
+  private clearFeatures() {
+    this.allFeatures = {};
+    this.selectedFeatures = {};
+    this.sortedAvailableFeatures = {};
   }
 
   isFeatureValueSelected(featureName: string, featureValue: string): boolean {

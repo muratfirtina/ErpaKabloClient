@@ -380,16 +380,43 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
       const featureValues = formValue.featureValues.map(value => ({
         name: value
       }));
-
+  
       const create_feature: FeatureCreate = {
         id: '',
         name: formValue.name,
         categoryIds: formValue.categoryIds ? formValue.categoryIds : [],
         featureValues: featureValues
       };
-
+  
       const createdFeature = await this.featureService.create(create_feature);
-
+  
+      // Reset the form
+      this.featureForm.reset();
+      this.selectedCategories = [];
+      this.checklistSelection.clear();
+  
+      // Recursive olarak tüm kategorilerin checked durumunu sıfırla
+      const resetCategoryChecks = (categories: Category[]) => {
+        categories.forEach(category => {
+          category.checked = false;
+          if (category.subCategories && category.subCategories.length > 0) {
+            resetCategoryChecks(category.subCategories);
+          }
+        });
+      };
+  
+      // Ana kategori listesindeki tüm checked durumlarını sıfırla
+      resetCategoryChecks(this.categories);
+      
+      // Tree view'ı güncelle
+      this.dataSource.data = [...this.categories];
+  
+      // Reset the feature values to have one empty control
+      while (this.featureValues.length > 0) {
+        this.featureValues.removeAt(0);
+      }
+      this.featureValues.push(this.createFeatureValueControl());
+  
       this.toastrService.message('Feature and Feature Values created successfully', 'Success', {
         toastrMessageType: ToastrMessageType.Success,
         position: ToastrPosition.TopRight

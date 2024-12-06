@@ -1,0 +1,27 @@
+<div class="page-wrapper">
+    <!-- Header Components -->
+    <app-main-header></app-main-header>
+    <app-navbar></app-navbar>
+
+    <div class="container-xxl">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb">
+            <app-breadcrumb></app-breadcrumb>
+        </nav>
+        <div class="row">
+            <div class="col-lg-3 d-none d-lg-block">
+                <app-desktop-user-sidebar></app-desktop-user-sidebar>
+            </div>
+            <div class="col-12 col-lg-9">
+
+                <app-ui-product-list [products]="favorites?.items || []">
+                </app-ui-product-list>
+
+                <mat-paginator *ngIf="favorites?.count" [length]="favorites.count" [pageSize]="pageSize"
+                    [pageSizeOptions]="[12, 24, 36]" (page)="onPageChange($event)">
+                </mat-paginator>
+            </div>
+        </div>
+    </div>
+</div>
+<app-downbar></app-downbar>

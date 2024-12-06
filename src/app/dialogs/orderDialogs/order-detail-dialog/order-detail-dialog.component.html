@@ -1,148 +1,151 @@
-<div class="order-detail-dialog">
-  <h2>Order Details: {{ order.orderCode }}</h2>
+<div class="modal-wrapper" role="dialog" aria-labelledby="orderDetailTitle" cdkTrapFocus>
+  <!-- Header -->
+  <div class="modal-header">
+    <h5 id="orderDetailTitle" class="modal-title" #dialogTitle tabindex="-1">
+      Order Details: {{ order?.orderCode }}
+    </h5>
+    <button type="button" class="close-button" (click)="close()" aria-label="Close dialog">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
 
-  <form [formGroup]="orderForm">
-    <!-- Order Information -->
-    <div class="order-info">
-      <!-- Status ve Note bir satırda -->
-      <mat-form-field appearance="outline">
-        <mat-label>Order Status</mat-label>
-        <mat-select formControlName="status">
-          <mat-option *ngFor="let status of orderStatuses" [value]="status">
-            {{ status }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+  <!-- Body -->
+  <div class="modal-body" #scrollContainer>
+    <form [formGroup]="orderForm" *ngIf="order">
+      <!-- Order Information -->
+      <div class="info-grid">
+        <!-- Status Dropdown -->
+        <div class="status-section">
+          <label class="form-label">Order Status</label>
+          <select class="status-select" formControlName="status">
+            <option *ngFor="let status of orderStatuses" [value]="status">
+              {{ OrderStatus[status] }}
+            </option>
+          </select>
+        </div>
 
-      <!-- Genel Bilgiler -->
-      <div class="info-card">
-        <strong>User Name</strong>
-        {{ order.userName }}
+        <!-- Customer Info -->
+        <div class="info-card">
+          <div class="card-content">
+            <h6 class="card-title">Customer Information</h6>
+            <div class="info-item">
+              <span class="label">Name:</span>
+              <span class="value">{{ order.userName }}</span>
+            </div>
+            <div class="info-item">
+              <span class="label">Phone:</span>
+              <span class="value">{{ order.phoneNumber?.number }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Info -->
+        <div class="info-card">
+          <div class="card-content">
+            <h6 class="card-title">Shipping Address</h6>
+            <div class="address-text">
+              {{ order.userAddress?.addressLine1 }}<br>
+              {{ order.userAddress?.city }}, {{ order.userAddress?.postalCode }}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="info-card">
-        <strong>Address</strong>
-        {{ order.userAddress?.addressLine1 }},
-        {{ order.userAddress?.city }}, {{ order.userAddress?.postalCode }}
-          <strong>Phone</strong>
-          {{ order.phoneNumber?.number }}
+      <!-- Description and Notes -->
+      <div class="input-grid">
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input type="text" class="custom-input" formControlName="description">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Admin Note</label>
+          <textarea class="custom-textarea" formControlName="adminNote" rows="2"></textarea>
+        </div>
       </div>
 
-
-      <!-- Description ve Admin Note tam genişlikte -->
-      <mat-form-field appearance="outline" class="full-width" style="width: 500px;">
-        <mat-label>Description</mat-label>
-        <input matInput formControlName="description">
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full-width" style="width: 500px;">
-        <mat-label>Admin Note</mat-label>
-        <textarea matInput formControlName="adminNote" rows="2"></textarea>
-      </mat-form-field>
-
-      <div class="info-card">
-        <strong>Total Price</strong>
-        {{ totalPrice | currency }}
+      <!-- Price Information -->
+      <div class="price-grid">
+        <div class="price-card">
+          <h6 class="price-title">Total Price</h6>
+          <div class="price-amount">{{ totalPrice | currency }}</div>
+        </div>
+        <div class="price-card updated">
+          <h6 class="price-title">Updated Total Price</h6>
+          <div class="price-amount">{{ updatedTotalPrice | currency }}</div>
+        </div>
       </div>
 
-      <div class="info-card">
-        <strong>Updated Total Price : </strong>
-        {{ updatedTotalPrice | currency }}
-      </div>
-    </div>
-
-    <!-- Order Items -->
-    <div class="order-items">
-      <h3>Order Items</h3>
+      <!-- Order Items Table -->
       <div class="table-container">
-        <table mat-table [dataSource]="order.orderItems">
-          <ng-container matColumnDef="image">
-            <th mat-header-cell *matHeaderCellDef>Image</th>
-            <td mat-cell *matCellDef="let item">
-              <img [src]="item.showcaseImage.url" alt="Product Image">
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="productName">
-            <th mat-header-cell *matHeaderCellDef>Product</th>
-            <td mat-cell *matCellDef="let item">{{ item.productName }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="quantity">
-            <th mat-header-cell *matHeaderCellDef>Qty</th>
-            <td mat-cell *matCellDef="let item" class="quantity-col">
-              <mat-form-field appearance="outline" class="quantity-input">
-                <input matInput type="number" min="1"
-                       [(ngModel)]="item.quantity" 
+        <table class="custom-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Unit Price</th>
+              <th>Total Price</th>
+              <th>New Price</th>
+              <th>Lead Time</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of order.orderItems" [class.deleted]="item.markedForDeletion">
+              <td>
+                <div class="product-image">
+                  <img [src]="item.showcaseImage.url" [alt]="item.productName">
+                </div>
+              </td>
+              <td class="product-name">{{ item.productName }}</td>
+              <td>
+                <input type="number" 
+                       class="quantity-input"
+                       [ngModel]="item.quantity" 
                        (ngModelChange)="updateQuantity(item, $event)"
-                       [ngModelOptions]="{standalone: true}">
-              </mat-form-field>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="price">
-            <th mat-header-cell *matHeaderCellDef class="mobile-hide">U.Price</th>
-            <td mat-cell *matCellDef="let item" class="mobile-hide">
-              {{ item.price | currency }}
-            </td>
-          </ng-container>
-          
-          <ng-container matColumnDef="tPrice">
-            <th mat-header-cell *matHeaderCellDef class="mobile-hide">T.Price</th>
-            <td mat-cell *matCellDef="let item" class="mobile-hide">
-              {{ item.price*item.quantity | currency }}
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="updatedPrice">
-            <th mat-header-cell *matHeaderCellDef>New Price</th>
-            <td mat-cell *matCellDef="let item" class="price-col">
-              <mat-form-field appearance="outline" class="price-input">
-                <input matInput type="number" min="0"
-                       [(ngModel)]="item.updatedPrice"
+                       [ngModelOptions]="{standalone: true}"
+                       min="1">
+              </td>
+              <td class="price">{{ item.price | currency }}</td>
+              <td class="total-price">{{ item.price * item.quantity | currency }}</td>
+              <td>
+                <input type="number" 
+                       class="price-input"
+                       [ngModel]="item.updatedPrice"
                        (ngModelChange)="updatePrice(item, $event)"
-                       [ngModelOptions]="{standalone: true}">
-              </mat-form-field>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="leadTime">
-            <th mat-header-cell *matHeaderCellDef class="mobile-hide">Lead Time</th>
-            <td mat-cell *matCellDef="let item" class="mobile-hide">
-              <mat-form-field appearance="outline" class="leadtime-input">
-                <input matInput type="number" min="0"
-                       [(ngModel)]="item.leadTime"
+                       [ngModelOptions]="{standalone: true}"
+                       min="0">
+              </td>
+              <td>
+                <input type="number" 
+                       class="leadtime-input"
+                       [ngModel]="item.leadTime"
                        (ngModelChange)="updateLeadTime(item, $event)"
-                       [ngModelOptions]="{standalone: true}">
-              </mat-form-field>
-            </td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef></th>
-            <td mat-cell *matCellDef="let item">
-              <button mat-icon-button color="warn" (click)="removeOrderItem(item)">
-                <mat-icon>delete</mat-icon>
-              </button>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="['image', 'productName', 'quantity', 'price','tPrice', 'updatedPrice', 'leadTime', 'actions']; sticky: true"></tr>
-          <tr mat-row *matRowDef="let row; columns: ['image', 'productName', 'quantity', 'price', 'tPrice' , 'updatedPrice', 'leadTime', 'actions']"></tr>
+                       [ngModelOptions]="{standalone: true}"
+                       min="0">
+              </td>
+              <td>
+                <button class="action-button delete" 
+                        (click)="removeOrderItem(item)"
+                        [disabled]="item.markedForDeletion"
+                        [attr.aria-label]="'Remove ' + item.productName">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
         </table>
       </div>
-    </div>
+    </form>
+  </div>
 
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <button mat-raised-button (click)="dialogRef.close()">
-        <mat-icon>close</mat-icon>
-        Cancel
-      </button>
-      <button mat-raised-button color="primary" (click)="confirmChanges()">
-        <mat-icon>check</mat-icon>
-        Confirm
-      </button>
-    </div>
-  </form>
+  <!-- Footer -->
+  <div class="modal-footer">
+    <button type="button" class="btn-secondary" (click)="close()">
+      <i class="bi bi-x-lg"></i> Cancel
+    </button>
+    <button type="button" class="btn-primary" (click)="confirmChanges()">
+      <i class="bi bi-check-lg"></i> Confirm
+    </button>
+  </div>
 </div>

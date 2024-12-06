@@ -13,25 +13,17 @@ $success-color: #059669;
 $link-color: #0000ee;
 
 // Status Colors
-$status-warning: #ffa726;  // Turuncu-sarı
-$status-success: #059669;  // Yeşil
-$status-danger: #e53935;   // Kırmızı
-$status-info: #2196f3;     // Mavi
+$status-warning: #ffa726; // Turuncu-sarı
+$status-success: #059669; // Yeşil
+$status-danger: #e53935; // Kırmızı
+$status-info: #2196f3; // Mavi
 
 // Layout Components
-app-breadcrumb {
-  display: flex;
-  max-width: 1320px;
-  margin: auto;
-  padding: 0 1rem;
-  font-family: "Roboto", Arial, sans-serif;
-  color: $text-color;
-}
 
 app-user-sidebar {
   display: none;
   flex: 0 0 245px;
-  
+
   @media (min-width: 992px) {
     display: block;
   }
@@ -57,11 +49,11 @@ app-user-sidebar {
 
         input {
           border-color: $border-color;
-          
+
           &:focus {
             box-shadow: none;
             border-color: $primary-color;
-            
+
             + .input-group-text {
               border-color: $primary-color;
             }
@@ -129,7 +121,7 @@ app-user-sidebar {
       transition: all 0.3s ease;
 
       &:hover {
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
       // Order Header Styles
@@ -179,19 +171,19 @@ app-user-sidebar {
             padding: 4px 8px;
             border-radius: 4px;
             transition: background-color 0.2s;
-          
+
             &.status-warning:hover {
               background-color: rgba($status-warning, 0.1);
             }
-            
+
             &.status-success:hover {
               background-color: rgba($status-success, 0.1);
             }
-            
+
             &.status-danger:hover {
               background-color: rgba($status-danger, 0.1);
             }
-            
+
             &.status-info:hover {
               background-color: rgba($status-info, 0.1);
             }
@@ -234,9 +226,10 @@ app-user-sidebar {
 
         .order-item-detail {
           display: flex;
-          gap: 16px;
           padding: 12px;
-          border-bottom: 1px solid $border-color;
+          border-bottom: 1px solid #e0e0e0;
+          justify-content: space-between;
+          margin: 0 50px 0 25px;
 
           &:last-child {
             border-bottom: none;
@@ -250,22 +243,51 @@ app-user-sidebar {
           }
 
           .item-info {
-            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 20px;
+            .item-names {
+              width: 300px;
 
-            .item-brand {
-              color: $primary-color;
-              font-size: 14px;
-              margin-bottom: 4px;
+              .item-brand {
+                color: $primary-color;
+                font-size: 14px;
+                margin-bottom: 4px;
+              }
+
+              .item-name {
+                font-weight: 500;
+                margin-bottom: 2px;
+              }
+
+              .item-title {
+                color: $text-color;
+                font-size: 14px;
+              }
             }
+          }
 
-            .item-name {
-              font-weight: 500;
-              margin-bottom: 2px;
-            }
+          .item-features {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
 
-            .item-title {
+            .feature {
+              display: flex;
+              font-size: 13px;
               color: $text-color;
-              font-size: 14px;
+              padding: 4px 8px;
+              background: rgba($text-color, 0.05);
+              border-radius: 4px;
+              .feature-name {
+                font-weight: 500;
+                margin-right: 4px;
+              }
+              .featureValue-name {
+                color: rgba($text-color, 0.8);
+              }
             }
           }
 
@@ -355,7 +377,7 @@ app-user-sidebar {
 // Pagination Styles
 ::ng-deep .mat-paginator {
   background: transparent;
-  
+
   .mat-paginator-container {
     min-height: 48px;
     padding: 0 8px;
@@ -366,4 +388,241 @@ app-user-sidebar {
 .spinner-border {
   width: 2rem;
   height: 2rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .orders-container {
+    background: $home-primary-color;
+
+    // Search and Filter Styles
+    .search-filter-container {
+      .search-box {
+        .input-group {
+          .input-group-text {
+            background-color: lighten($home-primary-color, 5%);
+            border-color: rgba($light-text, 0.1);
+            color: $light-text;
+          }
+
+          input {
+            background-color: lighten($home-primary-color, 5%);
+            border-color: rgba($light-text, 0.1);
+            color: $light-text;
+
+            &::placeholder {
+              color: rgba($light-text, 0.5);
+            }
+
+            &:focus {
+              border: 1px solid $primary-color;
+
+              box-shadow: none;
+            }
+          }
+        }
+      }
+
+      // Filter Buttons
+      .filter-buttons {
+        .order-filters {
+          .btn {
+            background: lighten($home-primary-color, 5%);
+            border-color: rgba($light-text, 0.1);
+            color: $light-text;
+
+            &:hover {
+              border-color: $primary-color;
+              color: $primary-color;
+            }
+
+            &.active {
+              background: $primary-color;
+              color: $light-text;
+              border-color: $primary-color;
+            }
+          }
+
+          select.btn {
+            background-color: lighten($home-primary-color, 5%);
+
+            option {
+              background-color: $home-primary-color;
+              color: $light-text;
+            }
+          }
+        }
+      }
+    }
+
+    // Orders List
+    .orders-list {
+      .order-item {
+        background: lighten($home-primary-color, 3%);
+        border-color: rgba($light-text, 0.1);
+
+        &:hover {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        // Order Header
+        .order-header {
+          .order-info {
+            .order-number {
+              color: $light-text;
+            }
+
+            .order-status {
+              &.status-warning {
+                color: $status-warning;
+              }
+              &.status-success {
+                color: $status-success;
+              }
+              &.status-danger {
+                color: $status-danger;
+              }
+              &.status-info {
+                color: $status-info;
+              }
+            }
+          }
+
+          .order-date {
+            color: rgba($light-text, 0.7);
+          }
+
+          .order-price {
+            color: $success-color;
+          }
+
+          .btn-expand {
+            color: $light-text;
+          }
+
+          .more-items {
+            background: $primary-color;
+            color: $light-text;
+          }
+        }
+
+        // Order Details
+        .order-details {
+          background: $home-primary-color;
+          border-color: rgba($light-text, 0.1);
+
+          .order-item-detail {
+            border-color: rgba($light-text, 0.1);
+
+            .item-info {
+              .item-brand {
+                color: $primary-color;
+              }
+
+              .item-name {
+                color: $light-text;
+              }
+
+              .item-title {
+                color: rgba($light-text, 0.7) !important;
+              }
+            }
+
+            .item-features {
+              .feature {
+                color: $light-text;
+                background: rgba($light-text, 0.55);
+                .feature-name {
+                  font-weight: 500;
+                  margin-right: 4px;
+                }
+                .featureValue-name {
+                  color: rgba($text-color, 0.8);
+                }
+              }
+            }
+
+            .item-price {
+              .item-quantity {
+                color: rgba($light-text, 0.7);
+              }
+
+              .price-value {
+                color: $success-color;
+              }
+            }
+          }
+
+          // Address and Notes
+          .shipping-address,
+          .order-notes {
+            background: lighten($home-primary-color, 3%);
+
+            .address-header,
+            .notes-header {
+              color: $light-text;
+
+              i {
+                color: $primary-color;
+              }
+            }
+
+            .address-content,
+            .notes-content {
+              color: rgba($light-text, 0.7);
+            }
+          }
+        }
+      }
+
+      .no-orders {
+        color: rgba($light-text, 0.5);
+      }
+    }
+  }
+
+  // Paginator Dark Theme
+  ::ng-deep .mat-paginator {
+    background: transparent;
+    color: $light-text;
+
+    .mat-paginator-outer-container {
+      background-color: lighten($home-primary-color, 3%);
+    }
+
+    .mat-paginator-page-size-label,
+    .mat-paginator-range-label {
+      color: rgba($light-text, 0.7);
+    }
+
+    .mat-paginator-icon {
+      fill: rgba($light-text, 0.7);
+    }
+
+    .mat-select-value-text {
+      color: $light-text;
+    }
+  }
+
+  // Status Colors in Dark Mode
+  .text-warning {
+    color: $status-warning !important;
+  }
+  .text-light-green {
+    color: lighten($status-success, 10%) !important;
+  }
+  .text-dark-green {
+    color: $status-success !important;
+  }
+  .text-danger {
+    color: $status-danger !important;
+  }
+
+  // Loading Spinner
+  .spinner-border {
+    border-color: $light-text;
+    border-right-color: transparent;
+  }
+  .mat-mdc-paginator {
+    background-color: $home-primary-color;
+  }
 }

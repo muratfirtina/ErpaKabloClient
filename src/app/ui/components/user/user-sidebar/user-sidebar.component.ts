@@ -54,7 +54,7 @@ export class UserSidebarComponent extends BaseDrawerComponent implements OnInit 
     { id: 1,label: 'Admin Panel', icon: 'fas fa-user-shield', route: '/admin',roles: [Roles.ADMIN] },
     { id: 2,label: 'My Orders', icon: 'fas fa-box', route: '/order'},
     { id: 3,label: 'My Profile', icon: 'fas fa-user', route: '/user'},
-    { id: 4,label: 'Favorites', icon: 'fas fa-heart', route: '/favorites'},
+    { id: 4,label: 'Favorites', icon: 'fas fa-heart', route: '/my-favorites'},
     { id: 5,label: 'Sign Out', icon: 'fas fa-sign-out-alt', route: 'logout'}
   ];
 

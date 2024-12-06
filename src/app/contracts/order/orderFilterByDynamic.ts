@@ -4,5 +4,6 @@ export enum OrderFilterByDynamic {
     OrderDate = 'OrderDate',
     Status = 'Status',
     UserName = 'User.UserName',
+    Email = 'User.Email'
 
 }

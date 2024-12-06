@@ -13,56 +13,55 @@ $success-color: #059669;
 $link-color: #0000ee;
 
 .product-grid-container {
-    margin: 0 auto;
-    max-width: 1320px;
-    padding-top: 2rem;
-  
-    h2 {
-      font-size: 1.3rem;
-      color: $secondary-color;
-      font-weight: 500;
-      margin: auto;
-      max-width: 1200px;
-      border-top: 1px solid $border-color;
-      padding: 40px 0 0 0;
-    }
-  
-    .container {
-      max-width: 1320px;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-    }
-  
-    .product-grid {
-      width: 1320px;
-      margin: 0 55px;
-      position: relative;
-      
-      .product-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(227px, 1fr));
-        gap: 12px;
-        scroll-snap-type: x mandatory;
-        overflow-x: auto;
-        padding: 20px 0;
-        scroll-behavior: smooth;
-  
-        &::-webkit-scrollbar {
-          display: none;
-        }
-  
-        .grid-item {
-          width: 100%;
-          min-width: 227px;
-          max-width: 227px;
-          scroll-snap-align: start;
+  margin: 0 auto;
+  max-width: 1320px;
+  padding-top: 2rem;
 
-          
-        }
+  h2 {
+    font-size: 1.3rem;
+    color: $secondary-color;
+    font-weight: 500;
+    margin: auto;
+    max-width: 1200px;
+    border-top: 1px solid $border-color;
+    padding: 40px 0 0 0;
+  }
+
+  .container {
+    max-width: 1320px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+  }
+
+  .product-grid {
+    width: 1320px;
+    margin: 0 55px;
+    position: relative;
+    
+    .product-list {
+      display: flex; // Grid yerine flex kullanıyoruz
+      gap: 12px;
+      scroll-snap-type: x mandatory;
+      overflow-x: auto;
+      padding: 20px 0;
+      scroll-behavior: smooth;
+      flex-wrap: nowrap; // Tek satırda kalması için wrap'i engelliyoruz
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+
+      .grid-item {
+        flex: 0 0 auto; // Flex item'ların boyutunu sabit tutuyoruz
+        width: 227px; // Sabit genişlik
+        min-width: 227px;
+        max-width: 227px;
+        scroll-snap-align: start;
       }
     }
+  }
   
     .scroll-btn {
       position: absolute;
@@ -122,7 +121,13 @@ $link-color: #0000ee;
         margin: 0 40px;
   
         .product-list {
-          grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+          gap: 10px;
+          
+          .grid-item {
+            width: 200px;
+            min-width: 200px;
+            max-width: 200px;
+          }
         }
       }
     }
@@ -132,18 +137,13 @@ $link-color: #0000ee;
         margin: 0 20px;
   
         .product-list {
-          grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-          display: flex;
-        }
-      }
-  
-      .scroll-btn {
-        width: 32px;
-        height: 32px;
-  
-        svg {
-          width: 16px;
-          height: 16px;
+          gap: 8px;
+          
+          .grid-item {
+            width: 180px;
+            min-width: 180px;
+            max-width: 180px;
+          }
         }
       }
     }

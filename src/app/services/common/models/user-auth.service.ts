@@ -90,25 +90,63 @@ export class UserAuthService {
     }
   }
   
-  async passwordReset(email: string, callBackFunction?:()=> void): Promise<any>{
-    const observable: Observable<any> = this.httpClientService.post<any>({
-      action:"password-reset",
-      controller:"auth"
-    },{email: email});
+  async passwordReset(email: string): Promise<boolean> {
+    const observable: Observable<any> = this.httpClientService.post({
+        action: "password-reset",
+        controller: "auth"
+    }, { email });
 
-    await firstValueFrom(observable);
-    callBackFunction();
+    try {
+        const response = await firstValueFrom(observable);
+        // API başarılı yanıt döndüğünde true dön
+        return true;
+    } catch (error) {
+        console.error('Password reset error:', error);
+        throw error; // Hata durumunda error fırlat
+    }
+}
+
+  async verifyResetPasswordToken(resetToken: string, userId: string): Promise<boolean> {
+    const observable: Observable<any> = this.httpClientService.post<any>({
+      action: "verify-reset-password-token",
+      controller: "auth"
+    }, {
+      resetToken: resetToken,
+      userId: userId
+    });
+
+    try {
+      const response = await firstValueFrom(observable);
+      return response.state;  // API'den dönen state değerini kullan
+    } catch (error) {
+      console.error('Token verification error:', error);
+      return false;
+    }
   }
 
-  async verifyResetPasswordToken(resetToken: string, userId:string, callBackFunction?:()=> void): Promise<boolean>{
-    const observable: Observable<any> = this.httpClientService.post<any>({
-      action:"verify-reset-password-token",
-      controller:"auth"
-    },{resetToken: resetToken, userId: userId});
+  async updateForgotPassword(
+    password: string, 
+    passwordConfirm: string, 
+    userId: string, 
+    resetToken: string
+  ): Promise<boolean> {
+    const observable: Observable<any> = this.httpClientService.post({
+      controller: "users",
+      action: "update-forgot-password"
+    }, {
+      password,
+      passwordConfirm,
+      userId,
+      resetToken
+    });
 
-    const state: boolean = await firstValueFrom(observable);
-    callBackFunction();
-    return state;
+    try {
+      await firstValueFrom(observable);
+      return true;
+    } catch (error) {
+      console.error('Password update error:', error);
+      throw error;
+    }
   }
 
 

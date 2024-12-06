@@ -1,0 +1,42 @@
+<div class="login-popover" [class.show]="isVisible" [class.dark-theme]="isDarkTheme">
+    <div class="popover-content">
+      <div class="popover-header">
+        <h5>Welcome Back</h5>
+        <button type="button" class="btn-close" (click)="close()">×</button>
+      </div>
+      
+      <form #loginForm="ngForm" (ngSubmit)="login(txtUsernameOrEmail.value, txtPassword.value)">
+        <div class="form-floating mb-3">
+          <input #txtUsernameOrEmail 
+                 type="text" 
+                 class="form-control" 
+                 id="usernameOrEmail" 
+                 placeholder=" "
+                 required>
+          <label for="usernameOrEmail">Username or Email</label>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input #txtPassword 
+                 type="password" 
+                 class="form-control" 
+                 id="password" 
+                 placeholder=" "
+                 required>
+          <label for="password">Password</label>
+        </div>
+
+        <div class="forgot-password mb-3">
+          <a routerLink="/password-reset" (click)="close()">Forgot Password?</a>
+        </div>
+
+        <button type="submit" class="btn-login w-100 mb-3">Sign In</button>
+
+        <p class="register-link">
+          Don't have an account? 
+          <a routerLink="/register" (click)="close()">Sign up</a>
+        </p>
+      </form>
+    </div>
+  </div>
+  <div class="overlay" [class.show]="isVisible"></div>

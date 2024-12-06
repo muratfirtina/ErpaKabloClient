@@ -1,0 +1,64 @@
+<div class="register-popover" [class.show]="isVisible" [class.dark-theme]="isDarkTheme">
+    <div class="popover-content">
+      <div class="popover-header">
+        <h5>Create an Account</h5>
+        <button type="button" class="btn-close" (click)="close()">×</button>
+      </div>
+
+      <form [formGroup]="frm" (ngSubmit)="onSubmit(frm.value)">
+        <div class="form-floating mb-3">
+          <input type="text" formControlName="nameSurname" class="form-control" id="nameSurname" placeholder=" "
+            [ngClass]="{'is-invalid': submitted && component['nameSurname'].errors}">
+          <label for="nameSurname">Full Name</label>
+          <div class="invalid-feedback" *ngIf="component['nameSurname'].errors && submitted">
+            <span *ngIf="component['nameSurname'].errors?.['required']">Full name is required.</span>
+          </div>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input type="text" formControlName="userName" class="form-control" id="userName" placeholder=" "
+            [ngClass]="{'is-invalid': submitted && component['userName'].errors}">
+          <label for="userName">Username</label>
+          <div class="invalid-feedback" *ngIf="component['userName'].errors && submitted">
+            <span *ngIf="component['userName'].errors?.['required']">Username is required.</span>
+          </div>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input type="email" formControlName="email" class="form-control" id="email" placeholder=" "
+            [ngClass]="{'is-invalid': submitted && component['email'].errors}">
+          <label for="email">Email</label>
+          <div class="invalid-feedback" *ngIf="component['email'].errors && submitted">
+            <span *ngIf="component['email'].errors?.['required']">Email is required.</span>
+            <span *ngIf="component['email'].errors?.['email']">Invalid email format.</span>
+          </div>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input type="password" formControlName="password" class="form-control" id="password" placeholder=" "
+            [ngClass]="{'is-invalid': submitted && component['password'].errors}">
+          <label for="password">Password</label>
+          <div class="invalid-feedback" *ngIf="component['password'].errors && submitted">
+            <span *ngIf="component['password'].errors?.['required']">Password is required.</span>
+          </div>
+        </div>
+
+        <div class="form-floating mb-3">
+          <input type="password" formControlName="confirmPassword" class="form-control" id="confirmPassword" placeholder=" "
+            [ngClass]="{'is-invalid': submitted && component['confirmPassword'].errors}">
+          <label for="confirmPassword">Confirm Password</label>
+          <div class="invalid-feedback" *ngIf="component['confirmPassword'].errors && submitted">
+            <span *ngIf="component['confirmPassword'].errors?.['required']">Please confirm password.</span>
+            <span *ngIf="component['confirmPassword'].errors?.['notSame']">Passwords don't match.</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit w-100 mb-3">Create Account</button>
+
+        <p class="sign-in-link">
+          Already have an account? 
+          <a style="cursor: pointer;" (click)="close()">Sign in</a>
+        </p>
+      </form>
+    </div>
+  </div>

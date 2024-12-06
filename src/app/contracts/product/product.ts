@@ -23,5 +23,6 @@ export class Product {
     availableFeatures: { [key: string]: string[] };
     showcaseImage?: ProductImageFile;
     isLiked: boolean;
+    likeCount: number;
 
 }

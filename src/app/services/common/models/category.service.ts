@@ -160,4 +160,13 @@ export class CategoryService {
     });
     return await firstValueFrom(observable);
   }
+
+  async searchCategories(searchTerm: string): Promise<GetListResponse<Category>> {
+    const observable = this.httpClientService.get<GetListResponse<Category>>({
+      controller: 'categories',
+      action: 'search',
+      queryString: `searchTerm=${searchTerm}`
+    });
+    return await firstValueFrom(observable);
+  }
 }

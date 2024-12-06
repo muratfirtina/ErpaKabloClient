@@ -43,8 +43,8 @@ export class ProductOperationsService {
         () => {
           this.spinner.hide(SpinnerType.BallSpinClockwise);
           this.customToasterService.message(
-            `${product.name} sepete eklendi`,
-            "Başarılı",
+            `${product.name} added to cart`,
+            "Successful",
             {
               toastrMessageType: ToastrMessageType.Success,
               position: ToastrPosition.TopRight
@@ -54,8 +54,7 @@ export class ProductOperationsService {
         (errorMessage) => {
           this.spinner.hide(SpinnerType.BallSpinClockwise);
           this.customToasterService.message(
-            "En fazla stok sayısı kadar ürün ekleyebilirsiniz",
-            "Uyarı",
+            "You can add products up to the maximum stock number", "Warning",
             {
               toastrMessageType: ToastrMessageType.Warning,
               position: ToastrPosition.TopRight
@@ -69,37 +68,39 @@ export class ProductOperationsService {
     }
   }
 
-  async toggleLike(product: Product) {
+  async toggleLike(product: Product): Promise<{ isLiked: boolean, likeCount: number }> {
     if (!this.authService.isAuthenticated) {
       this.router.navigate(['/login'], { 
         queryParams: { returnUrl: this.router.url }
       });
-      return;
+      return { isLiked: false, likeCount: 0 };
     }
 
     this.spinner.show(SpinnerType.BallSpinClockwise);
     try {
       const isLiked = await this.productLikeService.toggleProductLike(product.id);
+      const likeCount = await this.productLikeService.getProductLikeCount(product.id);
       product.isLiked = isLiked;
       
       this.customToasterService.message(
-        isLiked ? 'Ürün beğenildi' : 'Ürün beğenisi kaldırıldı',
-        'Başarılı',
+        isLiked ? 'Product liked' : 'Product liked removed', 'Successful',
         {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight
         }
       );
+
+      return { isLiked, likeCount };
     } catch (error) {
       console.error('Error toggling like:', error);
       this.customToasterService.message(
-        'Beğeni işlemi sırasında bir hata oluştu',
-        'Hata',
+        'An error occurred during the like process','Error',
         {
           toastrMessageType: ToastrMessageType.Error,
           position: ToastrPosition.TopRight
         }
       );
+      return { isLiked: false, likeCount: 0 };
     } finally {
       this.spinner.hide(SpinnerType.BallSpinClockwise);
     }

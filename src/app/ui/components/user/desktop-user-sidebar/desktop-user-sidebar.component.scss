@@ -1,11 +1,24 @@
+$home-primary-color: #333333;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #fff;
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #059669;
+$link-color: #0000ee;
+
 .desktop-sidebar {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    padding: 20px;
-    margin-left: 20px;
-  }
-  
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 20px;
+  margin-left: 20px;
+
   .user-info {
     text-align: center;
     padding-bottom: 20px;
@@ -64,3 +77,49 @@
       }
     }
   }
+
+  // Dark mode styles
+  @media (prefers-color-scheme: dark) {
+    background: $home-primary-color;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+
+    .user-info {
+      border-bottom-color: rgba($light-text, 0.1);
+
+      .avatar {
+        background: $primary-color;
+        color: $light-text;
+      }
+
+      h5 {
+        color: $light-text;
+      }
+
+      .premium-text {
+        color: rgba($light-text, 0.7);
+      }
+    }
+
+    .menu-items {
+      .menu-item {
+        &:hover {
+          background: lighten($home-primary-color, 5%);
+        }
+
+        svg {
+          color: rgba($light-text, 0.9);
+        }
+
+        span {
+          color: $light-text;
+        }
+
+        &:hover {
+          svg, span {
+            color: $primary-color;
+          }
+        }
+      }
+    }
+  }
+}

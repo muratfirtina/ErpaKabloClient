@@ -7,7 +7,7 @@ export interface OrderItem{
     productId: string;
     productName: string;
     price: number;
-    title: string;
+    productTitle: string;
     quantity: number;
     //isChecked: boolean;
     productFeatureValues: ProductFeatureValue[];

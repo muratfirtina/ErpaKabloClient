@@ -17,6 +17,8 @@ import { AnimationService } from 'src/app/services/common/animation.service';
 import { DrawerType, DrawerService } from 'src/app/services/common/drawer.service';
 import { StoreService } from 'src/app/services/common/store.service';
 import { ThemeService } from 'src/app/services/common/theme.service';
+import { LoginPopoverComponent } from '../login/login-popover/login-popover.component';
+import { RegisterPopoverComponent } from '../register/register-popover/register-popover.component';
 
 @Component({
   selector: 'app-main-header',
@@ -28,6 +30,8 @@ import { ThemeService } from 'src/app/services/common/theme.service';
     NgxSpinnerModule, 
     CartComponent,
     UserSidebarComponent,
+    LoginPopoverComponent,
+    RegisterPopoverComponent
   ],
   templateUrl: './main-header.component.html',
   styleUrls: ['./main-header.component.scss']
@@ -47,6 +51,28 @@ export class MainHeaderComponent implements OnInit, OnDestroy {
   drawerState$ = this.drawerService.getDrawerState();
   cartItems$ = this.store.select('cart').pipe(map(cart => cart.items));
   userData$ = this.store.select('user').pipe(map(user => user.data));
+
+  showLoginPopover(event: MouseEvent) {
+    event.stopPropagation();
+    const loginPopover = this.loginPopoverComponent;
+    if (loginPopover) {
+      loginPopover.show();
+    }
+  }
+  
+
+  showRegisterPopover(event: MouseEvent) {
+    event.stopPropagation();
+    const registerPopover = this.registerPopoverComponent;
+    if (registerPopover) {
+      registerPopover.show();
+    }
+  }
+  @ViewChild(RegisterPopoverComponent)
+  registerPopoverComponent: RegisterPopoverComponent;
+
+  @ViewChild(LoginPopoverComponent)
+  loginPopoverComponent: LoginPopoverComponent;
 
   constructor(
     private drawerService: DrawerService,

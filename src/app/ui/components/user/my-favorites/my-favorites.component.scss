@@ -1,0 +1,16 @@
+.favorites-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+    }
+  }
+
+ @media (prefers-color-scheme: dark) {
+    .mat-mdc-paginator {
+        background-color: #1a1a1a;
+    }
+}

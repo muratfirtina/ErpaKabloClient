@@ -1,0 +1,188 @@
+.cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 1rem;
+    z-index: 1000;
+  }
+  
+  .cookie-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    color: white;
+  
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  
+  .cookie-text {
+    flex: 1;
+    p {
+      margin: 0 0 0.5rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+  }
+  
+  .policy-link {
+    color: #93c5fd;
+    text-decoration: underline;
+    font-size: 0.9rem;
+    
+    &:hover {
+      color: #60a5fa;
+    }
+  }
+  
+  .cookie-buttons {
+    display: flex;
+    gap: 1rem;
+    
+    @media (max-width: 768px) {
+      justify-content: flex-end;
+    }
+  }
+  
+  .btn-settings, .btn-accept, .btn-save, .btn-cancel {
+    padding: 0.5rem 1rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-settings {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+  
+  .btn-accept, .btn-save {
+    background: #2563eb;
+    border: none;
+    color: white;
+    
+    &:hover {
+      background: #1d4ed8;
+    }
+  }
+  
+  // Modal Styles
+  .cookie-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .modal-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .modal-content {
+    position: relative;
+    background: white;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    max-width: 500px;
+    width: 90%;
+    z-index: 1;
+  
+    h2 {
+      color: #1f2937;
+      margin: 0 0 1.5rem;
+      font-size: 1.5rem;
+    }
+  }
+  
+  .cookie-options {
+    margin-bottom: 2rem;
+  }
+  
+  .cookie-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+  
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+  
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #4b5563;
+    cursor: pointer;
+  
+    input[type="checkbox"] {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+  
+  .option-required {
+    font-size: 0.8rem;
+    color: #9ca3af;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+  
+  .btn-cancel {
+    background: #f3f4f6;
+    border: none;
+    color: #4b5563;
+    
+    &:hover {
+      background: #e5e7eb;
+    }
+  }
+
+  .language-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .lang-btn {
+    padding: 0.25rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: transparent;
+    color: white;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+  
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  
+    &.active {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+  }

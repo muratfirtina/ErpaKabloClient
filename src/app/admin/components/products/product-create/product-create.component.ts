@@ -511,24 +511,69 @@ export class ProductCreateComponent implements OnInit {
       });
       return;
     }
-
+  
     try {
       this.loading = true;
-      this.spinnerService.show();
-
+      this.spinnerService.show(SpinnerType.BallSpinClockwise);
+  
       const formData = new FormData();
       this.variants.controls.forEach((variant, index) => {
         this.appendVariantData(formData, variant, index);
       });
-
+  
+      // Form elemanlarını devre dışı bırak
+      this.productForm.disable();
+  
       await this.productService.createMultiple(
         formData,
-        () => this.handleSuccess('Ürünler başarıyla oluşturuldu'),
-        (error) => this.handleError('Ürünler oluşturulamadı', error)
+        () => {
+          // Başarılı durumda sadece gerekli alanları temizle
+          this.loading = false;
+          this.spinnerService.hide();
+          this.productForm.enable(); // Form elemanlarını tekrar aktif et
+  
+          // Sadece ürün adını temizle
+          this.productForm.patchValue({
+            name: ''
+          });
+  
+          // Özellikleri temizle
+          while (this.featureFormArray.length > 0) {
+            this.featureFormArray.removeAt(0);
+          }
+  
+          // Varyantları temizle
+          this.variants.clear();
+          this.variantsCreated = false;
+          this.canGenerateVariants = false;
+          this.allSelected = false;
+  
+          this.toastrService.message('Ürünler başarıyla oluşturuldu', 'Başarılı', {
+            toastrMessageType: ToastrMessageType.Success,
+            position: ToastrPosition.TopRight
+          });
+        },
+        (error) => {
+          // Hata durumunda
+          this.loading = false;
+          this.spinnerService.hide();
+          this.productForm.enable(); // Form elemanlarını tekrar aktif et
+          
+          this.toastrService.message(error, 'Hata', {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight
+          });
+        }
       );
-    } finally {
+    } catch (error) {
       this.loading = false;
       this.spinnerService.hide();
+      this.productForm.enable(); // Form elemanlarını tekrar aktif et
+      
+      this.toastrService.message('Bir hata oluştu', 'Hata', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
     }
   }
 

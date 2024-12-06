@@ -11,19 +11,27 @@ import { AddProductLikeResponse } from 'src/app/contracts/productLike/addProduct
   providedIn: 'root'
 })
 export class ProductLikeService {
-
-  constructor(private httpClientService:HttpClientService) {}
+  constructor(private httpClientService: HttpClientService) {}
   
   async toggleProductLike(productId: string): Promise<boolean> {
     const observable: Observable<AddProductLikeResponse> = this.httpClientService.post<AddProductLikeResponse>({
       controller: "productlikes"
-    }, { ProductId: productId }); // ProductId'yi büyük harfle yazıyoruz
+    }, { ProductId: productId });
 
     const response = await firstValueFrom(observable);
     return response.isLiked;
   }
 
-  async getProductsUserLiked(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (error) => void): Promise<GetListResponse<Product>> {
+  async getProductLikeCount(productId: string): Promise<number> {
+    const observable: Observable<{ likeCount: number }> = this.httpClientService.get<{ likeCount: number }>({
+      controller: "productlikes",
+      action: `count/${productId}`
+    });
+    const response = await firstValueFrom(observable);
+    return response.likeCount;
+  }
+
+  async getProductsUserLiked(pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (error) => void): Promise<GetListResponse<Product>> {
     const observable: Observable<GetListResponse<Product>> = this.httpClientService.post<GetListResponse<Product>>({
       controller: "productlikes",
       action: "getProductsUserLiked",
@@ -54,5 +62,4 @@ export class ProductLikeService {
     const response = await firstValueFrom(observable);
     return response.isLiked;
   }
-
 }

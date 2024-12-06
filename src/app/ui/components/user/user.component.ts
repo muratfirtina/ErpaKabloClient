@@ -20,6 +20,7 @@ import { PhoneNumber } from 'src/app/contracts/user/phoneNumber';
 import { PhoneNumberService } from 'src/app/services/common/models/phone-number.service';
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
+import { DesktopUserSidebarComponent } from './desktop-user-sidebar/desktop-user-sidebar.component';
 
 
 declare var $: any;
@@ -27,7 +28,7 @@ declare var $: any;
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MainHeaderComponent,NavbarComponent,UserSidebarComponent,DownbarComponent,BreadcrumbComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainHeaderComponent,NavbarComponent,DesktopUserSidebarComponent,DownbarComponent,BreadcrumbComponent],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })
@@ -84,20 +85,21 @@ export class UserComponent extends BaseComponent implements OnInit {
     this.passwordForm = this.formBuilder.group({
       currentPassword: ['', Validators.required],
       newPassword: ['', [
-        Validators.required,
-        this.passwordStrengthValidator.bind(this)
+          Validators.required,
+          this.passwordStrengthValidator.bind(this)  // this binding'i ekleyelim
       ]],
       confirmPassword: ['', [
-        Validators.required,
-        this.passwordsMatchValidator.bind(this)
+          Validators.required,
+          this.passwordsMatchValidator.bind(this)
       ]]
-    });
+  });
 
-    this.passwordForm.get('newPassword').valueChanges.subscribe(
+  // Password değişikliklerini dinle
+  this.passwordForm.get('newPassword')?.valueChanges.subscribe(
       (password: string) => {
-        this.updatePasswordRequirements(password);
+          this.updatePasswordRequirements(password || '');
       }
-    );
+  );
 
     this.addressForm = this.formBuilder.group({
       name: ['', Validators.required],
@@ -130,12 +132,12 @@ export class UserComponent extends BaseComponent implements OnInit {
 
   updatePasswordRequirements(password: string) {
     this.passwordRequirements = {
-      uppercase: /[A-Z]/.test(password),
-      lowercase: /[a-z]/.test(password),
-      symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password),
-      length: password.length >= 8
+        uppercase: /[A-Z]/.test(password),
+        lowercase: /[a-z]/.test(password),
+        symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password),
+        length: password.length >= 8
     };
-  }
+}
 
   passwordsMatchValidator(control: AbstractControl): { [key: string]: any } | null {
     const password = control.root.get('newPassword');
@@ -143,15 +145,30 @@ export class UserComponent extends BaseComponent implements OnInit {
   }
 
   passwordStrengthValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const value: string = control.value;
+    const value: string = control.value || '';  // Eğer value null ise boş string kullan
+    
+    // Eğer değer boşsa ve alan required değilse validation'ı geç
+    if (!value && !control.hasValidator(Validators.required)) {
+        return null;
+    }
+
     const hasUpperCase = /[A-Z]+/.test(value);
     const hasLowerCase = /[a-z]+/.test(value);
     const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(value);
     const isLongEnough = value.length >= 8;
   
     const valid = hasUpperCase && hasLowerCase && hasSymbol && isLongEnough;
+    
+    // Validation durumuna göre password requirements'ı güncelle
+    this.passwordRequirements = {
+        uppercase: hasUpperCase,
+        lowercase: hasLowerCase,
+        symbol: hasSymbol,
+        length: isLongEnough
+    };
+
     return valid ? null : { 'passwordStrength': true };
-  }
+}
 
   
 
@@ -205,28 +222,36 @@ export class UserComponent extends BaseComponent implements OnInit {
     if (this.passwordForm.invalid) return;
 
     try {
-      this.showSpinner(SpinnerType.BallSpinClockwise);
-      const { currentPassword, newPassword } = this.passwordForm.value;
-      await this.userService.changePassword(currentPassword, newPassword);
-      
-      this.toastr.message('Password Changed', 'Succes', {
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      });
-      
-      this.passwordForm.reset();
-      this.submitted = false;
-      $('#passwordModal').modal('hide');
-    } catch (error) {
-      this.toastr.message('Password not changed', 'Error', {
-        toastrMessageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight
-      });
-    } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-    }
-  }
+        this.showSpinner(SpinnerType.BallSpinClockwise);
+        const { currentPassword, newPassword } = this.passwordForm.value;
+        
+        // Şifre değiştirme isteği
+        await this.userService.changePassword(currentPassword, newPassword);
+        
+        // Başarılı durumda
+        this.toastr.message('Password changed successfully', 'Success', {
+            toastrMessageType: ToastrMessageType.Success,
+            position: ToastrPosition.TopRight
+        });
+        
+        // Formu resetle
+        this.passwordForm.reset();
+        this.submitted = false;
 
+    } catch (error: any) {
+        console.error('Password change error:', error);
+        
+        const errorMessage = error.error?.message || 'Failed to change password';
+        
+        this.toastr.message(errorMessage, 'Error', {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight
+        });
+        this.submitted = false;
+    } finally {
+        this.hideSpinner(SpinnerType.BallSpinClockwise);
+    }
+}
   
   showAddAddressForm() {
     this.isEditMode = false;

@@ -51,14 +51,6 @@ export class SidebarComponent implements OnInit{
       path: ''
     },
     {
-      title: 'Carousel',
-      icon: 'dashboard',
-      children: [
-        { title: 'Create', icon: 'add', path: 'carousel/carousel-create' },
-        { title: 'Update', icon: 'update', path: 'carousel/carousel-update' },
-      ]
-    },
-    {
       title: 'Brand',
       icon: 'branding_watermark',
       children: [
@@ -109,6 +101,21 @@ export class SidebarComponent implements OnInit{
       children: [
         
         { title: 'List', icon: 'list', path: 'users/user-list' },
+      ]
+    },
+    {
+      title: 'Carousel',
+      icon: 'dashboard',
+      children: [
+        { title: 'Create', icon: 'add', path: 'carousel/carousel-create' },
+        { title: 'Update', icon: 'update', path: 'carousel/carousel-update' },
+      ]
+    },
+    {
+      title: 'Logos',
+      icon: 'dashboard',
+      children: [
+        { title: 'CompanyLogo', icon: 'add', path: 'logos/company-logo' },
       ]
     },
     {

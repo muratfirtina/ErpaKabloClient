@@ -29,15 +29,23 @@
 
         <ng-template #notAuthenticated>
           <div class="auth-links" style="display: flex; align-items: center; gap: 1rem;">
-            <a style="color:#e0e0e0; cursor: pointer;" (click)="toggleDrawer(DrawerType.UserMenu)"
-              [attr.aria-label]="'Sign in'">
-              Sign In
-            </a>
+            <!-- Login Trigger ve Popover -->
+            <div class="position-relative">
+              <a style="color:#e0e0e0; cursor: pointer;" (click)="showLoginPopover($event)" [attr.aria-label]="'Sign in'">
+                Sign In
+              </a>
+              <app-login-popover></app-login-popover>
+            </div>
+          
             <span style="color:#e0e0e0;">|</span>
-            <a style="color:#0d6efd; cursor: pointer;" (click)="toggleDrawer(DrawerType.UserMenu)"
-              [attr.aria-label]="'Register'">
-              Register
-            </a>
+          
+            <!-- Register Trigger ve Popover -->
+            <div class="position-relative">
+              <a style="color:#0d6efd; cursor: pointer;" (click)="showRegisterPopover($event)" [attr.aria-label]="'Register'">
+                Register
+              </a>
+              <app-register-popover></app-register-popover>
+            </div>
           </div>
         </ng-template>
 

@@ -1,0 +1,126 @@
+.policy-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  .header-actions {
+    margin-bottom: 2rem;
+  
+    .back-home {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.5rem 1rem;
+      background-color: #f3f4f6;
+      border: none;
+      border-radius: 0.25rem;
+      color: #374151;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+  
+      &:hover {
+        background-color: #e5e7eb;
+        color: #1f2937;
+      }
+  
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+  }
+  
+  .language-selector {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  
+    .lang-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e5e7eb;
+      background: transparent;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+  
+      &:hover {
+        background: #f3f4f6;
+      }
+  
+      &.active {
+        background: #2563eb;
+        color: white;
+        border-color: #2563eb;
+      }
+    }
+  }
+  
+  .policy-content {
+    padding-bottom: 200px;
+    h1 {
+      color: #1f2937;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+  
+    .last-updated {
+      color: #6b7280;
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+  
+    section {
+      margin-bottom: 2.5rem;
+  
+      h2 {
+        color: #2563eb;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+  
+      .cookie-type {
+        margin-bottom: 1.5rem;
+  
+        h3 {
+          color: #1f2937;
+          font-size: 1.25rem;
+          margin-bottom: 0.5rem;
+        }
+      }
+  
+      p {
+        color: #4b5563;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+  
+      ul {
+        list-style-type: disc;
+        margin-left: 1.5rem;
+        color: #4b5563;
+  
+        li {
+          margin-bottom: 0.5rem;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .policy-container {
+      margin: 1rem auto;
+    }
+  
+    .policy-content {
+      h1 {
+        font-size: 1.75rem;
+      }
+  
+      h2 {
+        font-size: 1.25rem;
+      }
+  
+      h3 {
+        font-size: 1.1rem;
+      }
+    }
+  }

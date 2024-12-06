@@ -12,6 +12,7 @@ import { Brand } from 'src/app/contracts/brand/brand';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { FilterGroup } from 'src/app/contracts/product/filter/filters';
+import { Category } from 'src/app/contracts/category/category';
 
 @Injectable({
   providedIn: 'root'
@@ -150,18 +151,23 @@ export class ProductService {
     return await firstValueFrom(observable);
 } 
 
-  async searchProducts(searchTerm: string, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<Product>> {
-    const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
-      controller: 'products',
-      action: 'search',
-      queryString: `searchTerm=${searchTerm}&pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
-    });
+async searchProducts(searchTerm: string, pageRequest: PageRequest): Promise<{
+  products: GetListResponse<Product>;
+  categories: Category[];
+  brands: Brand[];
+}> {
+  const observable = this.httpClientService.get<{
+    products: GetListResponse<Product>;
+    categories: Category[];
+    brands: Brand[];
+  }>({
+    controller: 'products',
+    action: 'search',
+    queryString: `searchTerm=${searchTerm}&pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
+  });
 
-    const promiseData = firstValueFrom(observable);
-    promiseData.then(successCallback)
-      .catch(errorCallback);
-    return await promiseData;
-  }
+  return await firstValueFrom(observable);
+}
 
   async filterProducts(searchTerm: string, filters: { [key: string]: string[] }, pageRequest: PageRequest,sortOrder : string, successCallback?: () => void, errorCallback?: (error: any) => void): Promise<GetListResponse<Product>> {
     const observable: Observable<GetListResponse<Product>> = this.httpClientService.post<GetListResponse<Product>>({

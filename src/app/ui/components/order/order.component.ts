@@ -115,10 +115,14 @@ export class OrderComponent extends BaseComponent implements OnInit {
     this.pageRequest.pageIndex = 0; // Filtrelemede ilk sayfaya dön
     this.loadOrders();
   }
+  getOrderStatusEnum(status: string): OrderStatus {
+    return OrderStatus[status as keyof typeof OrderStatus];
+  }
 
   // Sipariş durumuna göre renk sınıfı döndürür
-  getStatusColorClass(status: OrderStatus): string {
-    switch (status) {
+  getStatusColorClass(status: string): string {
+    const orderStatus = this.getOrderStatusEnum(status);
+    switch (orderStatus) {
       case OrderStatus.Pending:
       case OrderStatus.Processing:
         return 'text-warning';

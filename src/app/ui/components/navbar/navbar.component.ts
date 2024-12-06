@@ -101,7 +101,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
       .get('searchTerm')
       .valueChanges.pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((value) => {
-        if (value.length >= 3) {
+        if (value.length >= 2) {
           this.searchProducts(value);
         } else if (value.length === 0) {
           this.clearSearchResults();
@@ -170,58 +170,77 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   private async performNewSearch(searchTerm: string) {
-    const filters: Filter[] = this.buildFilters(searchTerm);
-
-    const dynamicQuery: DynamicQuery = {
-      sort: [{ field: ProductFilterByDynamic.Name, dir: 'asc' }],
-      filter:
-        filters.length > 0
-          ? {
-              logic: 'and',
-              filters: filters,
-            }
-          : undefined,
-    };
-
     const pageRequest: PageRequest = { pageIndex: 0, pageSize: 5 };
 
     try {
-      const productResponse =
-        await this.productService.getProductsByDynamicQuery(
-          dynamicQuery,
-          pageRequest
-        );
-      this.searchResults.products = productResponse.items;
-      this.searchCache = productResponse.items;
-      this.currentSearchTerm = searchTerm;
+        // Tüm aramaları parallel olarak yapalım
+        const [productResponse, directCategoryResponse, directBrandResponse] = await Promise.all([
+            // 1. Ürün araması
+            this.productService.getProductsByDynamicQuery(
+                {
+                    sort: [{ field: ProductFilterByDynamic.Name, dir: 'asc' }],
+                    filter: {
+                        logic: 'and',
+                        filters: this.buildFilters(searchTerm)
+                    }
+                },
+                pageRequest
+            ),
+            
+            // 2. Doğrudan kategori araması
+            this.categoryService.searchCategories(searchTerm),
+            
+            // 3. Doğrudan marka araması
+            this.brandService.searchBrands(searchTerm)
+        ]);
 
-      const categoryIds = this.searchResults.products.map(product => product.categoryId);
-      const categoriesOfProducts = await this.categoryService.getCategoriesByIds(categoryIds);
-      this.searchResults.categories = categoriesOfProducts.items;
+        // 4. Ürünlerin kategori ve markalarını al
+        const productCategoryIds = productResponse.items.map(product => product.categoryId);
+        const productBrandIds = productResponse.items.map(product => product.brandId);
 
-      const brandIds = this.searchResults.products.map(product => product.brandId);
-      const brandsOfProducts = await this.brandService.getBrandsByIds(brandIds);
-      this.searchResults.brands = brandsOfProducts.items;
+        const [relatedCategories, relatedBrands] = await Promise.all([
+            this.categoryService.getCategoriesByIds(productCategoryIds),
+            this.brandService.getBrandsByIds(productBrandIds)
+        ]);
 
-      this.saveRecentSearch(searchTerm);
+        // Tüm sonuçları birleştir ve tekrarları kaldır
+        const allCategories = [...directCategoryResponse.items, ...relatedCategories.items];
+        const allBrands = [...directBrandResponse.items, ...relatedBrands.items];
+
+        this.searchResults = {
+            products: productResponse.items,
+            categories: this.removeDuplicates(allCategories, 'id'),
+            brands: this.removeDuplicates(allBrands, 'id')
+        };
+        
+        this.searchCache = productResponse.items;
+        this.currentSearchTerm = searchTerm;
+        this.saveRecentSearch(searchTerm);
+        
     } catch (error) {
-      console.error('Search error:', error);
+        console.error('Search error:', error);
     }
-  }
+}
+
+// Yardımcı metod: Tekrarlanan sonuçları kaldır
+private removeDuplicates<T>(array: T[], key: keyof T): T[] {
+    return Array.from(new Map(array.map(item => [item[key], item])).values());
+}
 
   private buildFilters(searchTerm: string): Filter[] {
-    const terms = searchTerm.split(' ').filter((term) => term.length > 0);
+    // Arama terimlerini küçük harfe çevirip boşluklara göre ayırıyoruz
+    const terms = searchTerm.toLowerCase().split(' ').filter((term) => term.length > 0);
 
     const name = ProductFilterByDynamic.Name;
     const varyantGroupId = ProductFilterByDynamic.VaryantGroupID;
     const description = ProductFilterByDynamic.Description;
     const title = ProductFilterByDynamic.Title;
     const brandName = ProductFilterByDynamic.BrandName;
-    const categoryName = ProductFilterByDynamic.CategoryName
+    const categoryName = ProductFilterByDynamic.CategoryName;
 
     const filters: Filter[] = terms.map((term) => ({
       field: name,
-      operator: 'contains',
+      operator: 'contains', // case-insensitive operatör
       value: term,
       logic: 'or',
       filters: [
@@ -260,25 +279,20 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     return filters;
   }
 
-  private productMatchesSearchTerm(
-    product: Product,
-    searchTerm: string
-  ): boolean {
-    const terms = searchTerm
-      .toLowerCase()
-      .split(' ')
-      .filter((term) => term.length > 0);
-    const name = product.name.toLowerCase();
-    const variantGroupId = product.varyantGroupID?.toLowerCase() || '';
-    const description = product.description?.toLowerCase() || '';
-    const title = product.title?.toLowerCase() || '';
+  private productMatchesSearchTerm(product: Product, searchTerm: string): boolean {
+    const terms = searchTerm.toLowerCase().split(' ').filter((term) => term.length > 0);
+    
+    const productFields = {
+      name: product.name?.toLowerCase() || '',
+      variantGroupId: product.varyantGroupID?.toLowerCase() || '',
+      description: product.description?.toLowerCase() || '',
+      title: product.title?.toLowerCase() || '',
+      brandName: product.brandName?.toLowerCase() || '',
+      categoryName: product.categoryName?.toLowerCase() || ''
+    };
 
-    return terms.every(
-      (term) =>
-        name.includes(term) ||
-        variantGroupId.includes(term) ||
-        description.includes(term) ||
-        title.includes(term)
+    return terms.every((term) =>
+      Object.values(productFields).some(field => field.includes(term))
     );
   }
 

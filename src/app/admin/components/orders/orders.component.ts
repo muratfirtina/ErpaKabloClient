@@ -70,14 +70,14 @@ export class OrdersComponent extends BaseComponent implements OnInit {
     });
 
     this.searchForm.get('nameSearch')?.valueChanges.pipe(
-      debounceTime(300),
+      debounceTime(200),
       distinctUntilChanged()
     ).subscribe(value => {
-      if (value.length >= 3) {
+      if (value.length >= 1) {
         this.searchOrder(value);
       } else if (value.length === 0) {
         this.getOrders();
-        this.searchCache = []; // Önbelleği temizle
+        this.searchCache = [];
         this.currentSearchTerm = '';
       }
     });
@@ -114,32 +114,44 @@ export class OrdersComponent extends BaseComponent implements OnInit {
 
   async searchOrder(searchTerm: string) {
     this.showSpinner(SpinnerType.BallSpinClockwise);
+  
     if (searchTerm.startsWith(this.currentSearchTerm) && this.searchCache.length > 0) {
-      // İstemci tarafında filtreleme yap
-      this.pagedOrders = this.searchCache.filter(product => 
-        this.orderMatchesSearchTerm(product, searchTerm)
-      );
-      this.count = this.pagedOrders.length;
-      this.pages = Math.ceil(this.count / this.pageSize);
-      this.currentPageNo = 1;
+      this.filterCachedResults(searchTerm);
     } else {
-      // Sunucuya yeni bir istek at
-      const filters: Filter[] = this.buildFilters(searchTerm);
-
+      await this.performNewSearch(searchTerm);
+    }
+  
+    this.hideSpinner(SpinnerType.BallSpinClockwise);
+  }
+  
+  private filterCachedResults(searchTerm: string) {
+    this.pagedOrders = this.searchCache
+      .filter(order => this.orderMatchesSearchTerm(order, searchTerm));
+    this.count = this.pagedOrders.length;
+    this.pages = Math.ceil(this.count / this.pageSize);
+  }
+  
+  private async performNewSearch(searchTerm: string) {
+    const pageRequest: PageRequest = { pageIndex: 0, pageSize: this.pageSize };
+  
+    try {
       const dynamicQuery: DynamicQuery = {
-        sort: [{ field: 'OrderCode', dir: 'asc' }], // 'Name' alanını güncellediğinizden emin olun
-        filter: filters.length > 0 ? {
+        sort: [{ field: 'OrderCode', dir: 'asc' }],
+        filter: {
           logic: 'and',
-          filters: filters
-        } : undefined
+          filters: this.buildFilters(searchTerm)
+        }
       };
-
+  
       const data: GetListResponse<Order> = await this.orderService.getOrdersByDynamic(
-        this.pageRequest,
+        pageRequest,
         dynamicQuery,
         () => {},
         (error) => {
-          this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
+          this.toastrService.message(error, 'Error', {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight
+          });
         }
       );
       
@@ -147,65 +159,59 @@ export class OrdersComponent extends BaseComponent implements OnInit {
       this.count = data.count;
       this.pages = data.pages;
       this.currentPageNo = 1;
-
-      // Önbelleği güncelle
       this.searchCache = data.items;
       this.currentSearchTerm = searchTerm;
-    } 
-    this.hideSpinner(SpinnerType.BallSpinClockwise);
+  
+    } catch (error) {
+      console.error('Search error:', error);
+    }
   }
   
-
   private buildFilters(searchTerm: string): Filter[] {
-    const terms = searchTerm.split(' ').filter(term => term.length > 0);
+    const terms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
   
     const orderCode = OrderFilterByDynamic.OrderCode;
-    const orderDate = OrderFilterByDynamic.OrderDate;
-    const status = OrderFilterByDynamic.Status;
     const userName = OrderFilterByDynamic.UserName;
-    const filters: Filter[] = terms.map(term => ({
-      field: orderCode,
-        operator: "contains",
-        value: searchTerm,
-        logic: "or",
-        filters: [
-          {
-            field: orderDate,
-            operator: "gte", // Daha büyük veya eşit (Contains yerine uygun tarih operatörü)
-            value: new Date(searchTerm).toISOString(), // Tarih karşılaştırması için geçerli bir tarih değeri
-            logic: "or",
-            filters: [
-              {
-                field: status,
-                operator: "eq",
-                value: searchTerm,
-                logic: "or",
-                filters: [
-                  {
-                    field: userName,
-                    operator: "contains",
-                    value: searchTerm,
-                  }
-                ],
-              },
-            ],
-          },
-        ],
-    }));
+    const email = OrderFilterByDynamic.Email;
+    const status = OrderFilterByDynamic.Status;
   
-    return filters;
+    return terms.map(term => ({
+      field: orderCode,
+      operator: 'startswith',
+      value: term,
+      logic: 'or',
+      filters: [
+        {
+          field: userName,
+          operator: 'contains',
+          value: term,
+          logic: 'or',
+          filters: [
+            {
+              field: email,
+              operator: 'contains',
+              value: term,
+              logic: 'or'
+              
+            }
+          ]
+        }
+      ]
+    }));
   }
   
-
   private orderMatchesSearchTerm(order: Order, searchTerm: string): boolean {
     const terms = searchTerm.toLowerCase().split(' ').filter(term => term.length > 0);
-    const orderCode = order.orderCode?.toLowerCase() || '';
-    const orderDate = order.orderDate?.toString() || '';
-    const status = order.status?.toString() || '';
-    const userName = order.userName?.toLowerCase() || '';
+    
+    const orderFields = {
+      orderCode: order.orderCode?.toLowerCase() || '',
+      userName: order.userName?.toLowerCase() || '',
+      email: order.email?.toLowerCase() || '',
+      status: order.status?.toString().toLowerCase() || ''
+    };
   
-    return terms.every(term => 
-      orderCode.includes(term) || orderDate.includes(term) || status.includes(term) || userName.includes(term)
+    return terms.every(term =>
+      Object.values(orderFields).some(field => field.includes(term))
     );
   }
 

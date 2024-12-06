@@ -1,0 +1,69 @@
+<div class="policy-container">
+    <div class="header-actions">
+        <button class="back-home" routerLink="/">
+          <span *ngIf="currentLang === 'en'">← Back to Home</span>
+          <span *ngIf="currentLang === 'tr'">← Ana Sayfaya Dön</span>
+          <span *ngIf="currentLang === 'ru'">← Вернуться на главную</span>
+        </button>
+      </div>
+    <!-- Language Selector -->
+    <div class="language-selector">
+      <button 
+        *ngFor="let lang of [Language.EN, Language.TR, Language.RU]"
+        (click)="changeLanguage(lang)"
+        [class.active]="currentLang === lang"
+        class="lang-btn">
+        {{ lang.toUpperCase() }}
+      </button>
+    </div>
+  
+    <!-- Policy Content -->
+    <div class="policy-content">
+      <h1>{{ translations[currentLang].title }}</h1>
+      <p class="last-updated">
+        {{ translations[currentLang].lastUpdated }}: {{ '2024-11-27' | date }}
+      </p>
+  
+      <!-- What Are Cookies -->
+      <section>
+        <h2>{{ translations[currentLang].sections.whatAreCookies.title }}</h2>
+        <p>{{ translations[currentLang].sections.whatAreCookies.content }}</p>
+      </section>
+  
+      <!-- Types of Cookies -->
+      <section>
+        <h2>{{ translations[currentLang].sections.typesOfCookies.title }}</h2>
+        
+        <div class="cookie-type">
+          <h3>{{ translations[currentLang].sections.typesOfCookies.necessary.title }}</h3>
+          <p>{{ translations[currentLang].sections.typesOfCookies.necessary.content }}</p>
+        </div>
+  
+        <div class="cookie-type">
+          <h3>{{ translations[currentLang].sections.typesOfCookies.analytics.title }}</h3>
+          <p>{{ translations[currentLang].sections.typesOfCookies.analytics.content }}</p>
+        </div>
+  
+        <div class="cookie-type">
+          <h3>{{ translations[currentLang].sections.typesOfCookies.marketing.title }}</h3>
+          <p>{{ translations[currentLang].sections.typesOfCookies.marketing.content }}</p>
+        </div>
+      </section>
+  
+      <!-- How to Manage -->
+      <section>
+        <h2>{{ translations[currentLang].sections.howToManage.title }}</h2>
+        <p>{{ translations[currentLang].sections.howToManage.content }}</p>
+      </section>
+  
+      <!-- Contact Us -->
+      <section>
+        <h2>{{ translations[currentLang].sections.contactUs.title }}</h2>
+        <p>{{ translations[currentLang].sections.contactUs.content }}</p>
+        <ul>
+          <li>{{ translations[currentLang].sections.contactUs.email }}</li>
+          <li>{{ translations[currentLang].sections.contactUs.phone }}</li>
+        </ul>
+      </section>
+    </div>
+  </div>

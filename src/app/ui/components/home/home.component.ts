@@ -21,11 +21,12 @@ import { CartService } from 'src/app/services/common/models/cart.service';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { ProductGridComponent } from '../product/product-grid/product-grid.component';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MainHeaderComponent, CommonModule, NavbarComponent,RouterModule,DownbarComponent,ProductGridComponent],
+  imports: [MainHeaderComponent, CommonModule, NavbarComponent,RouterModule,DownbarComponent,ProductGridComponent,FooterComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

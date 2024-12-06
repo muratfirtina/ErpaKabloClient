@@ -1,0 +1,17 @@
+<div class="container">
+    <div class="current-logo" *ngIf="currentLogoUrl">
+      <h3>Current Logo</h3>
+      <img [src]="currentLogoUrl" alt="Company Logo" style="max-width: 200px;">
+    </div>
+
+    <div class="upload-section">
+      <h3>Upload New Logo</h3>
+      <input type="file" (change)="onFileSelected($event)" accept=".jpg,.jpeg,.png,.svg">
+      <div class="file-info" *ngIf="selectedFile">
+        Selected file: {{selectedFile.name}}
+      </div>
+      <button (click)="uploadLogo()" [disabled]="!selectedFile">
+        {{ currentLogoUrl ? 'Update Logo' : 'Upload Logo' }}
+      </button>
+    </div>
+  </div>

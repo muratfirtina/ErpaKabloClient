@@ -43,6 +43,8 @@ export const routes: Routes = [
           { path: "orders",loadComponent:()=>import('./admin/components/orders/orders.component').then(m=>m.OrdersComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "orders/:id",loadComponent:()=>import('./admin/components/orders/orders.component').then(m=>m.OrdersComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "unauthorized",loadComponent:()=>import('./admin/components/unauthorized/unauthorized.component').then(m=>m.UnauthorizedComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
+          { path: "logos", loadComponent:()=>import('./admin/components/logos/logos.component').then(m=>m.LogosComponent), canActivate:[authGuard],data:{[Roles.ADMIN]:true}},
+          { path: "logos/company-logo",loadComponent:()=>import('./admin/components/logos/company-logo/company-logo.component').then(m=>m.CompanyLogoComponent), canActivate:[authGuard],data:{[Roles.ADMIN]:true}}
         ]
 
       },
@@ -61,6 +63,10 @@ export const routes: Routes = [
        {path: "order-summary/:orderId",loadComponent:()=>import('./ui/components/order/order-summary/order-summary.component').then(m=>m.OrderSummaryComponent),canActivate: [authGuard]},
        {path: "cart-page",loadComponent:()=>import('./ui/components/cart/cart-page/cart-page.component').then(m=>m.CartPageComponent),canActivate: [authGuard]},
        {path: "user",loadComponent:()=>import('./ui/components/user/user.component').then(m=>m.UserComponent),canActivate: [authGuard]},
+       {path: "my-favorites",loadComponent:()=>import('./ui/components/user/my-favorites/my-favorites.component').then(m=>m.MyFavoritesComponent),canActivate: [authGuard]},
        {path: "downbar",loadComponent:()=>import('./ui/components/downbar/downbar.component').then(m=>m.DownbarComponent)},
+       {path: "cookie-policy", loadComponent: () => import('./ui/components/cookie/cookie-policy/cookie-policy.component').then(m => m.CookiePolicyComponent) },
+       {path: "password-reset",loadComponent:()=>import('./ui/components/password-reset/password-reset.component').then(m=>m.PasswordResetComponent)},
+       {path: "update-password/:userId/:resetToken",loadComponent:()=>import('./ui/components/update-password/update-password.component').then(m=>m.UpdatePasswordComponent)},
 
 ];

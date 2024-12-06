@@ -76,4 +76,12 @@ export class BrandService {
     }, ids);
     return await firstValueFrom(observable);
   }
+  async searchBrands(searchTerm: string): Promise<GetListResponse<Brand>> {
+    const observable = this.httpClientService.get<GetListResponse<Brand>>({
+      controller: 'brands',
+      action: 'search',
+      queryString: `searchTerm=${searchTerm}`
+    });
+    return await firstValueFrom(observable);
+  }
 }

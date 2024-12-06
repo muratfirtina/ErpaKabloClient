@@ -1,192 +1,418 @@
-:host {
-  display: block;
-  
-  ::ng-deep .mat-dialog-container {
-    padding: 0;
-    overflow: hidden;
-    width: 90vw !important; // Dialog genişliği viewport'un 90%'i
-    min-width: 1200px;  // Minimum genişlik
-    max-width: 2000px !important; // Maksimum genişlik
-    height: 95vh; // Dialog yüksekliği viewport'un 95%'i
-    
-    @media (max-width: 1400px) {
-      min-width: 90vw;
+.modal-wrapper {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  display: flex;
+  flex-direction: column;
+  height: 95vh;
+  max-width: 1400px;
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 2rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 6px;
+
+  &:hover {
+    background: rgba(0,0,0,0.05);
+  }
+
+  i {
+    font-size: 1.25rem;
+    color: #6c757d;
+  }
+}
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem 2rem;
+  background: #fff;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.status-section {
+  .status-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+
+    &:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(52,152,219,0.25);
     }
   }
 }
 
-.order-detail-dialog {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+.info-card {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.25rem;
+  border: 1px solid #e9ecef;
 
-  // Header
-  h2 {
-    padding: 1rem;
-    margin: 0;
-    background: #f8f9fa;
-    border-bottom: 1px solid rgba(0,0,0,0.12);
-    font-size: 1.5rem;
-    font-weight: 500;
-    text-align: center;
-    flex-shrink: 0; // Header'ın küçülmesini engelle
+  .card-title {
+    color: #2c3e50;
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
   }
 
-  form {
-    flex: 1;
+  .info-item {
     display: flex;
-    flex-direction: column;
-    min-height: 0; // Önemli: İç scroll için
-    overflow: hidden; // Taşmaları engelle
-  }
+    margin-bottom: 0.5rem;
 
-  // Order Info Section
-  .order-info {
-    padding: 1rem;
-    background: white;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 1rem;
-    flex-shrink: 0; // Order info'nun küçülmesini engelle
-    border-bottom: 1px solid rgba(0,0,0,0.12);
-    
-    mat-form-field {
-      width: 100%;
-
-      &.full-width {
-        grid-column: 1 / -1;
-      }
-    }
-
-    .info-card {
-      background: #f8f9fa;
-      padding: 1rem;
-      border-radius: 4px;
-      border: 1px solid rgba(0,0,0,0.12);
-
-      strong {
-        color: rgba(0,0,0,0.87);
-        font-weight: 500;
-        display: block;
-        margin-bottom: 0.5rem;
-      }
-    }
-  }
-
-  // Order Items Section
-  .order-items {
-    flex: 1;
-    min-height: 0; // Scroll için gerekli
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    background: white;
-    
-    h3 {
-      padding: 1rem;
-      margin: 0;
-      font-size: 1.2rem;
+    .label {
       font-weight: 500;
-      background: #f8f9fa;
-      border-bottom: 1px solid rgba(0,0,0,0.12);
-      flex-shrink: 0; // Başlığın küçülmesini engelle
+      color: #6c757d;
+      width: 80px;
     }
 
-    .table-container {
-      flex: 1;
-      overflow: auto;
-      position: relative;
+    .value {
+      color: #2c3e50;
+    }
+  }
+}
 
-      table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 
-        th {
-          padding: 1rem;
-          font-weight: 500;
-          color: rgba(0,0,0,0.87);
-          background: #f8f9fa;
-          position: sticky;
-          top: 0;
-          z-index: 1;
-          white-space: nowrap;
-          
-          &:after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 100%;
-            border-bottom: 1px solid rgba(0,0,0,0.12);
-          }
-        }
+  .form-group {
+    .form-label {
+      font-weight: 500;
+      color: #2c3e50;
+      margin-bottom: 0.5rem;
+    }
 
-        td {
-          padding: 0.75rem 1rem;
-          vertical-align: middle;
-          border-bottom: 1px solid rgba(0,0,0,0.12);
+    .custom-input,
+    .custom-textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      transition: all 0.2s;
 
-          img {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-          }
-        }
-
-        .mat-column-image { width: 80px; }
-        .mat-column-productName { width: 300px; }
-        .mat-column-quantity { width: 120px; }
-        .mat-column-price { width: 120px; }
-        .mat-column-updatedPrice { width: 120px; }
-        .mat-column-leadTime { width: 120px; }
-        .mat-column-actions { width: 70px; }
-
-        // Input alanları için özel stil
-        mat-form-field {
-          &.quantity-input,
-          &.price-input,
-          &.leadtime-input {
-            width: 100px;
-            
-            ::ng-deep {
-              .mat-form-field-wrapper {
-                margin: 0;
-                padding-bottom: 0;
-              }
-              
-              .mat-form-field-flex {
-                padding: 0 0.5em;
-              }
-              
-              .mat-form-field-infix {
-                padding: 0.5em 0;
-                border-top: 0;
-              }
-              
-              .mat-form-field-underline {
-                bottom: 0;
-              }
-            }
-          }
-        }
+      &:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52,152,219,0.25);
       }
     }
   }
+}
 
-  // Action Buttons
-  .action-buttons {
-    padding: 1rem;
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    background: white;
-    border-top: 1px solid rgba(0,0,0,0.12);
-    flex-shrink: 0; // Button container'ın küçülmesini engelle
+.price-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 
-    button {
-      min-width: 120px;
+  .price-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 1.25rem;
+    border: 1px solid #e9ecef;
+    text-align: center;
+
+    &.updated {
+      background: #e8f4fd;
+      border-color: #bde0fb;
+    }
+
+    .price-title {
+      color: #6c757d;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .price-amount {
+      color: #2c3e50;
+      font-size: 1.5rem;
+      font-weight: 600;
     }
   }
+}
+
+.table-container {
+  margin-top: 2rem;
+  border-radius: 10px;
+  overflow-x: auto; // Yatay scroll ekler
+  border: 1px solid #e9ecef;
+  -webkit-overflow-scrolling: touch; // iOS için daha smooth scroll
+  position: relative; // Gölge için
+  
+  // Yatay scroll olduğunu belirtmek için gölge efekti
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 5px;
+    background: linear-gradient(to right, transparent, rgba(0,0,0,0.05));
+    pointer-events: none;
+  }
+
+  .custom-table {
+    min-width: 1200px; // Minimum tablo genişliği
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    
+    // Mobil için bazı kolonları gizle veya düzenle
+    @media (max-width: 768px) {
+      th, td {
+        &.mobile-hide {
+          display: none;
+        }
+        
+        // Önemli kolonlar için min-width
+        &.product-name {
+          min-width: 200px;
+        }
+        
+        &.quantity-col {
+          min-width: 100px;
+        }
+        
+        &.price-col {
+          min-width: 120px;
+        }
+      }
+      
+      // Input alanları için daha kompakt görünüm
+      .quantity-input,
+      .price-input,
+      .leadtime-input {
+        width: 80px;
+        padding: 0.35rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  .modal-wrapper {
+    width: 95vw;
+    margin: 1rem;
+    max-height: 98vh;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .input-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .price-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.modal-content {
+  @media (max-width: 768px) {
+    padding: 0.5rem;
+    
+    .modal-header {
+      padding: 1rem;
+      
+      .modal-title {
+        font-size: 1.1rem;
+      }
+    }
+    
+    .modal-body {
+      padding: 1rem;
+    }
+    
+    .info-card {
+      padding: 1rem;
+    }
+    
+    .btn-secondary,
+    .btn-primary {
+      padding: 0.5rem 1rem;
+      
+      i {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+/* Form element responsive styles */
+.form-control-sm {
+  @media (max-width: 768px) {
+    font-size: 14px;
+    height: 32px;
+  }
+}
+
+/* Card responsive styles */
+.card {
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+  }
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    background: #f8f9fa;
+    padding: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  td {
+    padding: 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #e9ecef;
+  }
+
+  tr.deleted {
+    opacity: 0.5;
+    background: #f8f9fa;
+  }
+
+  .product-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    overflow: hidden;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .quantity-input,
+  .price-input,
+  .leadtime-input {
+    width: 100px;
+    padding: 0.5rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    text-align: right;
+
+    &:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(52,152,219,0.25);
+    }
+  }
+
+  .action-button {
+    padding: 0.5rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &.delete {
+      background: #fee2e2;
+      color: #dc2626;
+
+      &:hover {
+        background: #fecaca;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+.modal-footer {
+  padding: 1rem 2rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+
+  .btn-secondary,
+  .btn-primary {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s;
+
+    i {
+      font-size: 1.1rem;
+    }
+  }
+
+  .btn-secondary {
+    background: #f1f5f9;
+    color: #475569;
+
+    &:hover {
+      background: #e2e8f0;
+    }
+  }
+
+  .btn-primary {
+    background: #3498db;
+    color: #ffffff;
+
+    &:hover {
+      background: #2980b9;
+    }
+  }
+}
+
+::ng-deep .mat-mdc-dialog-surface{
+  border-radius: 12px;
 }
