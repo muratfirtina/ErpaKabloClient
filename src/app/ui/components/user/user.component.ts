@@ -21,6 +21,7 @@ import { PhoneNumberService } from 'src/app/services/common/models/phone-number.
 import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { DesktopUserSidebarComponent } from './desktop-user-sidebar/desktop-user-sidebar.component';
+import { ValidationService } from 'src/app/services/common/validation.service';
 
 
 declare var $: any;
@@ -68,6 +69,7 @@ export class UserComponent extends BaseComponent implements OnInit {
     private phoneService: PhoneNumberService,
     private toastr: CustomToastrService,
     private breadcrumbService: BreadcrumbService,
+    private validationService: ValidationService,
     spinner: NgxSpinnerService
   ) {
     super(spinner);
@@ -92,31 +94,32 @@ export class UserComponent extends BaseComponent implements OnInit {
           Validators.required,
           this.passwordsMatchValidator.bind(this)
       ]]
+      
   });
 
   // Password değişikliklerini dinle
-  this.passwordForm.get('newPassword')?.valueChanges.subscribe(
-      (password: string) => {
-          this.updatePasswordRequirements(password || '');
-      }
-  );
+  this.addressForm = this.formBuilder.group({
+    name: ['', Validators.required],
+    addressLine1: ['', Validators.required],
+    addressLine2: [''],
+    city: ['', Validators.required],
+    state: ['', Validators.required], // State'i required yaptık
+    postalCode: ['', [
+      Validators.required,
+      this.validationService.postalCodeValidator // Yeni validator
+    ]],
+    country: ['', Validators.required],
+    isDefault: [false]
+  });
 
-    this.addressForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      addressLine1: ['', Validators.required],
-      addressLine2: [''],
-      city: ['', Validators.required],
-      state: [''],
-      postalCode: ['', Validators.required],
-      country: ['', Validators.required],
-      isDefault: [false]
-    });
-
-    this.phoneForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      number: ['', [Validators.required, Validators.pattern('^05[0-9]{9}$')]],
-      isDefault: [false]
-    });
+  this.phoneForm = this.formBuilder.group({
+    name: ['', Validators.required],
+    number: ['', [
+      Validators.required,
+      this.validationService.phoneNumberValidator // pattern yerine custom validator
+    ]],
+    isDefault: [false]
+  });
   }
 
   ngOnInit() {

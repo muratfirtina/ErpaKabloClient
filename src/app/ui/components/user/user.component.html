@@ -8,12 +8,6 @@
         <nav aria-label="breadcrumb">
             <app-breadcrumb></app-breadcrumb>
         </nav>
-        <!-- <button class="sidebar-toggle d-lg-none" (click)="toggleSidebar()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-              <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
-            </svg>
-            Menu
-          </button> -->
         <div class="row">
             <div class="col-lg-3 d-none d-lg-block">
                 <app-desktop-user-sidebar></app-desktop-user-sidebar>
@@ -91,16 +85,13 @@
                                         <span *ngIf="component['newPassword'].errors?.['required']">New Password
                                             Required</span>
                                         <ul *ngIf="component['newPassword'].errors?.['passwordStrength']" class="mb-0">
-                                            <li *ngIf="!passwordRequirements.uppercase">Password must contain at least
-                                                one
+                                            <li *ngIf="!passwordRequirements.uppercase">Password must contain at least one
                                                 uppercase letter</li>
-                                            <li *ngIf="!passwordRequirements.lowercase">Password must contain at least
-                                                one
+                                            <li *ngIf="!passwordRequirements.lowercase">Password must contain at least one
                                                 lowercase letter</li>
                                             <li *ngIf="!passwordRequirements.symbol">Password must contain at least one
                                                 special character</li>
-                                            <li *ngIf="!passwordRequirements.length">Password must be at least 8
-                                                characters
+                                            <li *ngIf="!passwordRequirements.length">Password must be at least 8 characters
                                                 long</li>
                                         </ul>
                                     </div>
@@ -123,8 +114,7 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary"
-                                    [disabled]="passwordForm.invalid || submitted">
+                                <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || submitted">
                                     Change Password
                                 </button>
                             </form>
@@ -288,91 +278,176 @@
 
 <!-- Address Modal -->
 <div class="modal fade" id="addressModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ isEditMode ? 'Edit Address' : 'Add New Address' }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title">
+                    <i class="fas fa-map-marker-alt mr-2" style="color: #059669;"></i>
+                    {{ isEditMode ? 'Edit Address' : 'Add New Address' }}
+                </h5>
+                <button type="button" class="btn-close" style="margin: 0px 0 8px 20px;" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <form [formGroup]="addressForm">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" formControlName="name" id="addressName"
-                            placeholder="Address Title">
-                        <label for="addressName">Address Title</label>
-                        <div class="invalid-feedback"
-                            *ngIf="addressForm.get('name')?.invalid && addressForm.get('name')?.touched">
-                            Address title is required
+                    <!-- Address Name -->
+                    <div class="form-field">
+                        <label>Address Name</label>
+                        <div class="input-wrapper">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-tag"></i>
+                            </div>
+                            <input type="text" 
+                                   formControlName="name" 
+                                   class="form-input" 
+                                   [class.is-invalid]="addressForm.get('name')?.invalid && addressForm.get('name')?.touched"
+                                   placeholder="e.g., Home, Work, etc.">
+                        </div>
+                        <div class="error-message" *ngIf="addressForm.get('name')?.invalid && addressForm.get('name')?.touched">
+                            Address name is required
                         </div>
                     </div>
 
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" formControlName="addressLine1" id="addressLine1"
-                            placeholder="Address Line 1">
-                        <label for="addressLine1">Address Line 1</label>
-                        <div class="invalid-feedback"
-                            *ngIf="addressForm.get('addressLine1')?.invalid && addressForm.get('addressLine1')?.touched">
-                            Address line 1 is required
+                    <!-- Street Address -->
+                    <div class="form-field">
+                        <label>Street Address</label>
+                        <div class="input-wrapper">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-map-signs"></i>
+                            </div>
+                            <input type="text" 
+                                   formControlName="addressLine1" 
+                                   class="form-input"
+                                   [class.is-invalid]="addressForm.get('addressLine1')?.invalid && addressForm.get('addressLine1')?.touched"
+                                   placeholder="Enter street address">
+                        </div>
+                        <div class="error-message" *ngIf="addressForm.get('addressLine1')?.invalid && addressForm.get('addressLine1')?.touched">
+                            Street address is required
                         </div>
                     </div>
 
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" formControlName="addressLine2" id="addressLine2"
-                            placeholder="Address Line 2">
-                        <label for="addressLine2">Address Line 2 (Optional)</label>
+                    <!-- Address Line 2 -->
+                    <div class="form-field">
+                        <label>Apartment, Suite, etc. (optional)</label>
+                        <div class="input-wrapper">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-building"></i>
+                            </div>
+                            <input type="text" 
+                                   formControlName="addressLine2" 
+                                   class="form-input"
+                                   placeholder="Apartment or suite number">
+                        </div>
                     </div>
 
-                    <div class="row">
+                    <!-- City and State -->
+                    <div class="row gx-2">
                         <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" formControlName="city" id="city"
-                                    placeholder="City">
-                                <label for="city">City</label>
-                                <div class="invalid-feedback"
-                                    *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">
+                            <div class="form-field">
+                                <label>City</label>
+                                <div class="input-wrapper">
+                                    <div class="icon-wrapper">
+                                        <i class="fas fa-city"></i>
+                                    </div>
+                                    <input type="text" 
+                                           formControlName="city" 
+                                           class="form-input"
+                                           [class.is-invalid]="addressForm.get('city')?.invalid && addressForm.get('city')?.touched"
+                                           placeholder="Enter city">
+                                </div>
+                                <div class="error-message" *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">
                                     City is required
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" formControlName="state" id="state"
-                                    placeholder="State">
-                                <label for="state">State</label>
+                            <div class="form-field">
+                                <label>State/Province</label>
+                                <div class="input-wrapper">
+                                    <div class="icon-wrapper">
+                                        <i class="fas fa-map"></i>
+                                    </div>
+                                    <input type="text" 
+                                           formControlName="state" 
+                                           class="form-input"
+                                           [class.is-invalid]="addressForm.get('state')?.invalid && addressForm.get('state')?.touched"
+                                           placeholder="Enter state">
+                                </div>
+                                <div class="error-message" *ngIf="addressForm.get('state')?.invalid && addressForm.get('state')?.touched">
+                                    State is required
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="row">
+                    <!-- Postal Code and Country -->
+                    <div class="row gx-2">
                         <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" formControlName="postalCode" id="postalCode"
-                                    placeholder="Postal Code">
-                                <label for="postalCode">Postal Code</label>
-                                <div class="invalid-feedback"
-                                    *ngIf="addressForm.get('postalCode')?.invalid && addressForm.get('postalCode')?.touched">
-                                    Postal code is required
+                            <div class="form-field">
+                                <label>Postal Code</label>
+                                <div class="input-wrapper">
+                                    <div class="icon-wrapper">
+                                        <i class="fas fa-mail-bulk"></i>
+                                    </div>
+                                    <input type="text" 
+                                           formControlName="postalCode" 
+                                           class="form-input"
+                                           [class.is-invalid]="addressForm.get('postalCode')?.invalid && addressForm.get('postalCode')?.touched"
+                                           placeholder="Enter 5-digit postal code">
+                                </div>
+                                <div class="error-message" *ngIf="addressForm.get('postalCode')?.touched">
+                                    <span *ngIf="addressForm.get('postalCode')?.errors?.['required']">
+                                        Postal code is required
+                                    </span>
+                                    <span *ngIf="addressForm.get('postalCode')?.errors?.['invalidPostalCode']">
+                                        Please enter a valid 5-digit postal code
+                                    </span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-floating mb-3">
-                                <input type="text" class="form-control" formControlName="country" id="country"
-                                    placeholder="Country">
-                                <label for="country">Country</label>
-                                <div class="invalid-feedback"
-                                    *ngIf="addressForm.get('country')?.invalid && addressForm.get('country')?.touched">
+                            <div class="form-field">
+                                <label>Country</label>
+                                <div class="input-wrapper">
+                                    <div class="icon-wrapper">
+                                        <i class="fas fa-globe"></i>
+                                    </div>
+                                    <input type="text" 
+                                           formControlName="country" 
+                                           class="form-input"
+                                           [class.is-invalid]="addressForm.get('country')?.invalid && addressForm.get('country')?.touched"
+                                           placeholder="Enter country">
+                                </div>
+                                <div class="error-message" *ngIf="addressForm.get('country')?.invalid && addressForm.get('country')?.touched">
                                     Country is required
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Set as Default -->
+                    <div class="form-field mt-3">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" 
+                                   class="custom-control-input" 
+                                   id="defaultAddress"
+                                   formControlName="isDefault">
+                            <label class="custom-control-label" for="defaultAddress">
+                                Set as default address
+                            </label>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" (click)="saveAddress()"
-                    [disabled]="addressForm.invalid">Save</button>
+                <button type="button" 
+                        class="btn btn-primary" 
+                        (click)="saveAddress()" 
+                        [disabled]="addressForm.invalid">
+                    Save Address
+                </button>
             </div>
         </div>
     </div>
@@ -380,41 +455,86 @@
 
 <!-- Phone Modal -->
 <div class="modal fade" id="phoneModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">{{ isEditMode ? 'Edit Phone' : 'Add New Phone' }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <h5 class="modal-title">
+                    <i class="fas fa-phone mr-2" style="color: #059669;"></i>
+                    {{ isEditMode ? 'Edit Phone' : 'Add New Phone' }}
+                </h5>
+                <button type="button" class="btn-close" style="margin: 0px 0 8px 20px;" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             <div class="modal-body">
                 <form [formGroup]="phoneForm">
-                    <div class="form-floating mb-3">
-                        <input type="text" class="form-control" formControlName="name" id="phoneName"
-                            placeholder="Phone Title">
-                        <label for="phoneName">Phone Title</label>
-                        <div class="invalid-feedback"
-                            *ngIf="phoneForm.get('name')?.invalid && phoneForm.get('name')?.touched">
-                            Phone title is required
+                    <!-- Phone Name -->
+                    <div class="form-group">
+                        <label>Phone Name</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-tag"></i>
+                                </span>
+                            </div>
+                            <input type="text" formControlName="name" class="form-control"
+                                placeholder="e.g., Mobile, Home, Work, etc." [class.is-invalid]="phoneForm.get('name')?.errors?.['required'] && 
+                                     phoneForm.get('name')?.touched">
+                        </div>
+                        <div class="invalid-feedback" *ngIf="phoneForm.get('name')?.errors?.['required'] && 
+                                     phoneForm.get('name')?.touched">
+                            Phone name is required
                         </div>
                     </div>
 
-                    <div class="form-floating mb-3">
-                        <input type="tel" class="form-control" formControlName="number" id="phoneNumber"
-                            placeholder="Phone Number">
-                        <label for="phoneNumber">Phone Number</label>
-                        <div class="invalid-feedback"
-                            *ngIf="phoneForm.get('number')?.invalid && phoneForm.get('number')?.touched">
-                            <span *ngIf="phoneForm.get('number')?.errors?.['required']">Phone number is required</span>
-                            <span *ngIf="phoneForm.get('number')?.errors?.['pattern']">Please enter a valid phone number
-                                (05XX XXX XX XX)</span>
+                    <!-- Phone Number -->
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                            </div>
+                            <input type="tel" formControlName="number" class="form-control"
+                                placeholder="Enter 10-digit phone number (05XX XXX XX XX)" [class.is-invalid]="(phoneForm.get('number')?.errors?.['required'] || 
+                                      phoneForm.get('number')?.errors?.['invalidPhone']) && 
+                                      phoneForm.get('number')?.touched">
+                        </div>
+                        <div class="invalid-feedback">
+                            <span *ngIf="phoneForm.get('number')?.errors?.['required'] && 
+                                      phoneForm.get('number')?.touched">
+                                Phone number is required
+                            </span>
+                            <span *ngIf="phoneForm.get('number')?.errors?.['invalidPhone'] && 
+                                      phoneForm.get('number')?.touched">
+                                Please enter a valid phone number (05XX XXX XX XX)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Set as Default -->
+                    <div class="form-group mb-0">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" id="defaultPhone"
+                                formControlName="isDefault">
+                            <label class="custom-control-label" for="defaultPhone">
+                                Set as default phone number
+                            </label>
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" (click)="savePhone()"
-                    [disabled]="phoneForm.invalid">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" (click)="savePhone()" 
+                    [disabled]="phoneForm.invalid">
+                    <i class="fas fa-check mr-2"></i>
+                    Save Phone
+                </button>
             </div>
         </div>
     </div>
@@ -422,7 +542,7 @@
 
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Delete Confirmation</h5>
