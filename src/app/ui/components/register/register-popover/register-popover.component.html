@@ -57,8 +57,9 @@
 
         <p class="sign-in-link">
           Already have an account? 
-          <a style="cursor: pointer;" (click)="close()">Sign in</a>
+          <a style="cursor: pointer;" routerLink="/login" (click)="close()">Sign in</a>
         </p>
       </form>
     </div>
   </div>
+  <div class="overlay" [class.show]="isVisible" (click)="close()"></div>
