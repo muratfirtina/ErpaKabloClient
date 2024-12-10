@@ -7,7 +7,7 @@ import { CookieConsentComponent } from './ui/components/cookie/cookie-consent/co
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet,ProductComponent,CookieConsentComponent],
+  imports: [CommonModule, RouterOutlet,CookieConsentComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })

@@ -11,7 +11,7 @@ import { ProductCreate } from 'src/app/contracts/product/product-create';
 @Component({
   selector: 'app-product',
   standalone: true,
-  imports: [CommonModule,RouterModule,FormsModule,RouterLink,ReactiveFormsModule],
+  imports: [CommonModule,RouterModule,FormsModule,ReactiveFormsModule],
   templateUrl: './product.component.html',
   styleUrls: ['./product.component.scss']
 })

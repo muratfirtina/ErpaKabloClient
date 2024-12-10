@@ -31,6 +31,7 @@ export const routes: Routes = [
           { path: "featurevalues/featurevalue-create", loadComponent: () => import('./admin/components/featurevalues/featurevalue-create/featurevalue-create.component').then(m => m.FeaturevalueCreateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "featurevalues/featurevalue-list", loadComponent: () => import('./admin/components/featurevalues/featurevalue-list/featurevalue-list.component').then(m => m.FeaturevalueListComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "featurevalues/featurevalue-update/:id", loadComponent: () => import('./admin/components/featurevalues/featurevalue-update/featurevalue-update.component').then(m => m.FeaturevalueUpdateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
+          { path: "products", loadComponent: () => import('./admin/components/products/products.component').then(m => m.ProductsComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "products/product-create", loadComponent: () => import('./admin/components/products/product-create/product-create.component').then(m => m.ProductCreateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "products/product-list",loadComponent:()=>import('./admin/components/products/product-list/product-list.component').then(m=>m.ProductListComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "products/product-update/:id",loadComponent:()=>import('./admin/components/products/product-update/product-update.component').then(m=>m.ProductUpdateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
@@ -68,5 +69,6 @@ export const routes: Routes = [
        {path: "cookie-policy", loadComponent: () => import('./ui/components/cookie/cookie-policy/cookie-policy.component').then(m => m.CookiePolicyComponent) },
        {path: "password-reset",loadComponent:()=>import('./ui/components/password-reset/password-reset.component').then(m=>m.PasswordResetComponent)},
        {path: "update-password/:userId/:resetToken",loadComponent:()=>import('./ui/components/update-password/update-password.component').then(m=>m.UpdatePasswordComponent)},
+       {path: "newsletter/unsubscribe",loadComponent:()=>import('./ui/components/newsletter-unsubscribe/newsletter-unsubscribe.component').then(m=>m.NewsletterUnsubscribeComponent)}
 
 ];

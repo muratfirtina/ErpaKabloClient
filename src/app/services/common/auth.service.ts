@@ -30,7 +30,6 @@ export class AuthService {
     if (_isAuthenticated) {
       // Rolleri kontrol et
       const userRoles = await this.getUserRoles();
-      console.log('Current user roles:', userRoles);
       
       try {
         const user = await this.userService.getCurrentUser();
@@ -56,10 +55,8 @@ export class AuthService {
       
       // Eğer tek bir rol varsa string olarak gelir, birden fazla varsa array olarak gelir
       if (typeof roles === 'string') {
-        console.log('User Role:', roles);
         return [roles];
       } else if (Array.isArray(roles)) {
-        console.log('User Roles:', roles);
         return roles;
       }
       

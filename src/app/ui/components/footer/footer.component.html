@@ -17,7 +17,7 @@
         <div class="col-lg-2 col-md-6">
           <h5 class="mb-3">Hızlı Linkler</h5>
           <ul class="list-unstyled">
-            <li><a href="/about" class="text-light text-decoration-none mb-2 d-block">Hakkımızda</a></li>
+            <li><a href="/aboutus" class="text-light text-decoration-none mb-2 d-block">Hakkımızda</a></li>
             <li><a href="/products" class="text-light text-decoration-none mb-2 d-block">Ürünler</a></li>
             <li><a href="/services" class="text-light text-decoration-none mb-2 d-block">Hizmetler</a></li>
             <li><a href="/contact" class="text-light text-decoration-none mb-2 d-block">İletişim</a></li>
@@ -62,10 +62,38 @@
           </div>
           <div class="newsletter mt-4">
             <h6>Bültenimize Abone Olun</h6>
-            <div class="input-group">
-              <input type="email" class="form-control" placeholder="E-posta adresiniz">
-              <button class="btn btn-primary" type="button">Abone Ol</button>
-            </div>
+            <form [formGroup]="newsletterForm" (ngSubmit)="subscribeToNewsletter()">
+              <div class="input-group">
+                <input 
+                  type="email" 
+                  class="form-control" 
+                  placeholder="E-posta adresiniz"
+                  formControlName="email"
+                  [class.is-invalid]="newsletterForm.get('email')?.invalid && newsletterForm.get('email')?.touched">
+                <button 
+                  class="btn btn-primary" 
+                  type="submit"
+                  [disabled]="newsletterForm.invalid">
+                  Abone Ol
+                </button>
+              </div>
+              <!-- Validation Mesajları -->
+              <div class="invalid-feedback d-block" 
+                   *ngIf="newsletterForm.get('email')?.touched && newsletterForm.get('email')?.errors as errors">
+                <small class="text-danger" *ngIf="errors['invalidFormat']">
+                  Geçerli bir email adresi giriniz
+                </small>
+                <small class="text-danger" *ngIf="errors['sqlInjection']">
+                  Geçersiz karakterler tespit edildi
+                </small>
+                <small class="text-danger" *ngIf="errors['tooShort']">
+                  Email adresi çok kısa
+                </small>
+                <small class="text-danger" *ngIf="errors['tooLong']">
+                  Email adresi çok uzun
+                </small>
+              </div>
+            </form>
           </div>
         </div>
       </div>

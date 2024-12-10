@@ -411,8 +411,7 @@ $dark-input-bg: darken($background-color, 85%);
   @include dark-mode;
 }
 .password-input-wrapper {
-  position: relative;
-  width: 100%;
+ 
 
   .password-toggle {
     position: absolute;

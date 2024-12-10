@@ -31,7 +31,6 @@ import { RegisterPopoverComponent } from '../register/register-popover/register-
     CartComponent,
     UserSidebarComponent,
     LoginPopoverComponent,
-    RegisterPopoverComponent
   ],
   templateUrl: './main-header.component.html',
   styleUrls: ['./main-header.component.scss']

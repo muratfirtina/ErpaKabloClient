@@ -288,7 +288,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
             toastrMessageType: ToastrMessageType.Success,
             position: ToastrPosition.TopRight
           });
-          this.router.navigate(['/products']);
+          this.router.navigate(['/admin/products/product-update/'+this.productId]);
         },
         (error) => {
           this.customToastrService.message("Ürün güncellenemedi", "Hata", {

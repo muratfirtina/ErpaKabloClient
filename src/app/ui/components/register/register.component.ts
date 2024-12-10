@@ -195,11 +195,5 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       length: false
     };
   }
-  togglePasswordVisibility(field: 'password' | 'confirm'): void {
-    if (field === 'password') {
-      this.showPassword = !this.showPassword;
-    } else {
-      this.showConfirmPassword = !this.showConfirmPassword;
-    }
-  }
+  
 }
