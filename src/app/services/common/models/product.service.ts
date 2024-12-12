@@ -207,6 +207,13 @@ async searchProducts(searchTerm: string, pageRequest: PageRequest): Promise<{
     return await firstValueFrom(observable);
   }
 
-  
+  async uploadDescriptionImage(formData: FormData): Promise<any> {
+    const observable: Observable<any> = this.httpClientService.post({
+      controller: "products",
+      action: "upload-description-image"
+    }, formData);
+    
+    return await firstValueFrom(observable);
+  }
 
 }
