@@ -27,7 +27,7 @@ interface CategoryNode {
 @Component({
   selector: 'app-filter',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule,FormsModule,FilterByKeyPipe],
+  imports: [CommonModule,ReactiveFormsModule,FormsModule],
   templateUrl: './filter.component.html',
   styleUrls: ['./filter.component.scss']
 })

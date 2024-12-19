@@ -1,0 +1,39 @@
+<picture *ngIf="imageData" class="responsive-image">
+  <!-- AVIF format -->
+  <source
+    *ngFor="let size of imageSizes"
+    type="image/avif"
+    [srcset]="getSourceSet(size, 'avif')"
+    [sizes]="size.sizes"
+    [media]="size.media">
+  
+  <!-- WebP format -->
+  <source
+    *ngFor="let size of imageSizes"
+    type="image/webp"
+    [srcset]="getSourceSet(size, 'webp')"
+    [sizes]="size.sizes"
+    [media]="size.media">
+  
+  <!-- Fallback image -->
+  <img
+    [src]="imageData.src"
+    [alt]="imageData.alt"
+    [width]="imageData.width"
+    [height]="imageData.height"
+    [loading]="imageData.loading || 'lazy'"
+    [fetchpriority]="imageData.fetchpriority || 'auto'"
+    (load)="onImageLoad()"
+    (error)="onImageError()"
+    class="img-fluid"
+    [class.loaded]="isLoaded">
+</picture>
+
+<!-- Loading placeholder -->
+<div *ngIf="!isLoaded" class="image-placeholder">
+  <div class="placeholder-content" 
+       [style.width.px]="imageData?.width"
+       [style.height.px]="imageData?.height">
+    <div class="shimmer-effect"></div>
+  </div>
+</div>

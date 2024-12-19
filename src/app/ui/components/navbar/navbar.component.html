@@ -70,7 +70,7 @@
                   <h4>Categories</h4>
                   <ul>
                     <li *ngFor="let category of searchResults.categories"
-                      (click)="navigateToSearchResult('category', category.id)">
+                      (click)="navigateToSearchResult(category.id)">
                       <img [src]="category.categoryImage?.url || 'assets/default-category-image.png'"
                         [alt]="category.name" class="category-thumbnail">
                       <span>{{ category.name }}</span>
@@ -82,7 +82,7 @@
                 <div class="brands" *ngIf="searchResults.brands.length > 0">
                   <h4>Brands</h4>
                   <ul>
-                    <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult('brand', brand.id)">
+                    <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult(brand.id)">
                       <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" [alt]="brand.name"
                         class="brand-thumbnail">
                       <span>{{ brand.name }}</span>
@@ -101,7 +101,7 @@
             <span class="d-none d-lg-block" style="color:#e0e0e0;">|</span>
             <!-- About Us -->
             <div class="about-us d-none d-lg-block">
-              <button class="btn">About Us</button>
+              <button routerLink="/about-us" class="btn">About Us</button>
             </div>
           </div>
 
@@ -152,7 +152,7 @@
           </div>
           <div class="product-grid">
             <div class="product-item" *ngFor="let product of recommendedProducts.items"
-              (click)="navigateToSearchResult('product',product.id)">
+              (click)="navigateToSearchResult(product.id)">
               <img [src]="product?.showcaseImage?.url" [alt]="product.name">
               <div class="product-info">
                 <div class="product-header">

@@ -59,6 +59,17 @@ export class BrandService {
     
   }
 
+  async update(brandData: FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<Brand> {
+    const observable: Observable<Brand> = this.httpClientService.put<Brand>({
+      controller: "brands"
+    }, brandData);
+    
+    const promiseData = firstValueFrom(observable);
+    promiseData.then(successCallback)
+      .catch(errorCallback);
+    return await promiseData;
+  }
+
   async getById(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<Brand>{
     const observable : Observable<Brand> = this.httpClientService.get<Brand>({
       controller: "brands"

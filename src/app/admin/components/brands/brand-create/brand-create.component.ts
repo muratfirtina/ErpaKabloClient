@@ -12,11 +12,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BrandcreateconfrimDialogComponent } from 'src/app/dialogs/brandDialogs/brandcreateconfrim-dialog/brandcreateconfrim-dialog.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-brand-create',
   standalone: true,
-  imports: [CommonModule, NgxSpinnerModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, BrandcreateconfrimDialogComponent],
+  imports: [CommonModule, NgxSpinnerModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule],
   templateUrl: './brand-create.component.html',
   styleUrls: ['./brand-create.component.scss', '../../../../../styles.scss']
 })
@@ -29,6 +30,7 @@ export class BrandCreateComponent extends BaseComponent implements OnInit {
     private brandService: BrandService,
     private fb: FormBuilder,
     public dialog: MatDialog,
+    private router: Router,
     private toastrService: CustomToastrService
   ) {
     super(spinner);
@@ -119,5 +121,9 @@ export class BrandCreateComponent extends BaseComponent implements OnInit {
         this.selectedFile = result[0];
       }
     });
+  }
+
+  cancel(): void {
+    this.router.navigate(['/admin/brands/brand-list']);
   }
 }

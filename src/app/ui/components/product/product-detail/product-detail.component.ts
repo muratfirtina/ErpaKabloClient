@@ -1,5 +1,5 @@
 // product-detail.component.ts
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -40,7 +40,10 @@ import { FEATURE_CONFIGS, FeatureType } from 'src/app/enums/featureType';
     ProductGridComponent
   ]
 })
-export class ProductDetailComponent extends BaseComponent implements OnInit {
+export class ProductDetailComponent extends BaseComponent implements OnInit,OnChanges {
+  @Input() productId: string;
+  @Input() key: number; // Yeni key input'u ekle
+
   product: Product | null = null;
   randomProducts: GetListResponse<Product>;
   randomProductsForBrands: GetListResponse<Product>;
@@ -74,22 +77,22 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.route.params.subscribe(async params => {
-      const productId = params['id'];
-      if (productId) {
-        await this.loadProduct(productId);
-        await this.loadLikeCount(productId);
-        this.loadRandomProducts(productId);
-        this.loadRandomProductsForBrand(productId);
-      } else {
-        this.customToastrService.message("Product ID not founded", "Error", {
-          toastrMessageType: ToastrMessageType.Error,
-          position: ToastrPosition.TopRight
-        });
-      }
-    });
+    if (this.productId) {
+      this.loadProduct(this.productId);
+      this.loadLikeCount(this.productId);
+      this.loadRandomProducts(this.productId);
+      this.loadRandomProductsForBrand(this.productId);
+    }
     this.determineVisualFeatures();
     this.isAuthenticated = this.authService.isAuthenticated;
+  }
+ ngOnChanges(changes: SimpleChanges) {
+    if ((changes['productId'] || changes['key']) && this.productId) {
+      this.loadProduct(this.productId);
+      this.loadLikeCount(this.productId);
+      this.loadRandomProducts(this.productId);
+      this.loadRandomProductsForBrand(this.productId);
+    }
   }
 
   setActiveTab(tabName: string): void {
@@ -116,67 +119,91 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
 
   // Tıklanabilir kartlar için
   onCardClick(productId: string) {
-    this.router.navigate(['/product', productId]);
+    this.router.navigate(['/'+productId]);
   }
   
   async loadProduct(productId: string) {
     this.showSpinner(SpinnerType.BallSpinClockwise);
     try {
-      // Yeni ürünü yüklemeden önce özellikleri temizle
-      this.clearFeatures();
-      
-      this.product = await this.productService.getById(productId,()=>{},()=>{});
-      if (this.product) {
-        this.product.relatedProducts = Array.isArray(this.product.relatedProducts) 
-          ? this.product.relatedProducts 
-          : [];
-          
-        this.initializeSelectedFeatures();
-        this.initializeAllFeatures();
-        this.sortAvailableFeatures();
-        this.resetCurrentImageIndex();
-        this.updateBreadcrumbs();
-        
-        if (this.isAuthenticated) {
-          const isLiked = await this.productLikeService.isProductLiked(productId);
-          this.product.isLiked = isLiked;
-        }
+      // URL pattern kontrolü
+      if (!productId.includes('-p-')) {
+        throw new Error('Invalid product ID format');
       }
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+  
+      this.clearFeatures();
+      this.product = await this.productService.getById(productId,()=>{},()=>{});
+      
+      if (!this.product) {
+        throw new Error('Product not found');
+      }
+  
+      // Başarılı yükleme durumunda diğer işlemleri yap
+      this.product.relatedProducts = Array.isArray(this.product.relatedProducts) 
+        ? this.product.relatedProducts 
+        : [];
+      
+      this.initializeSelectedFeatures();
+      this.initializeAllFeatures();
+      this.sortAvailableFeatures();
+      this.resetCurrentImageIndex();
+      this.updateBreadcrumbs();
+      
+      if (this.isAuthenticated) {
+        const isLiked = await this.productLikeService.isProductLiked(productId);
+        this.product.isLiked = isLiked;
+      }
+  
     } catch (error) {
+      console.error('Error loading product:', error);
       this.customToastrService.message(
-        "An error occurred while loading the product", 
+        "Product not found or invalid product ID", 
         "Error", 
         {
           toastrMessageType: ToastrMessageType.Error,
           position: ToastrPosition.TopRight
         }
       );
+      this.router.navigate(['/']);
+    } finally {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     }
   }
 
   async loadRandomProducts(productId: string) {
-    const response = await this.productService.getRandomProductsByProductId(productId);
-    this.randomProducts = response;
-    if (this.authService.isAuthenticated) {
-      const productIds = this.randomProducts.items.map(p => p.id);
-      const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-      this.randomProducts.items.forEach(product => {
-        product.isLiked = likedProductIds.includes(product.id);
-      });
+    try {
+      if (!productId.includes('-p-')) return;
+      
+      const response = await this.productService.getRandomProductsByProductId(productId);
+      this.randomProducts = response;
+      
+      if (this.authService.isAuthenticated && this.randomProducts?.items) {
+        const productIds = this.randomProducts.items.map(p => p.id);
+        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+        this.randomProducts.items.forEach(product => {
+          product.isLiked = likedProductIds.includes(product.id);
+        });
+      }
+    } catch (error) {
+      console.error('Error loading random products:', error);
     }
   }
-
+  
   async loadRandomProductsForBrand(productId: string) {
-    const response = await this.productService.getRandomProductsForBrandByProductId(productId);
-    this.randomProductsForBrands = response;
-    if (this.authService.isAuthenticated) {
-      const productIds = this.randomProductsForBrands.items.map(p => p.id);
-      const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-      this.randomProductsForBrands.items.forEach(product => {
-        product.isLiked = likedProductIds.includes(product.id);
-      });
+    try {
+      if (!productId.includes('-p-')) return;
+      
+      const response = await this.productService.getRandomProductsForBrandByProductId(productId);
+      this.randomProductsForBrands = response;
+      
+      if (this.authService.isAuthenticated && this.randomProductsForBrands?.items) {
+        const productIds = this.randomProductsForBrands.items.map(p => p.id);
+        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+        this.randomProductsForBrands.items.forEach(product => {
+          product.isLiked = likedProductIds.includes(product.id);
+        });
+      }
+    } catch (error) {
+      console.error('Error loading random brand products:', error);
     }
   }
 
@@ -451,15 +478,15 @@ export class ProductDetailComponent extends BaseComponent implements OnInit {
     this.breadcrumbService.setBreadcrumbs([
       { 
         label: this.product.categoryName, 
-        url: `/category/${this.product.categoryId}` 
+        url: `/${this.product.categoryId}` 
       },
       { 
         label: this.product.brandName, 
-        url: `/brand/${this.product.brandId}` 
+        url: `/${this.product.brandId}` 
       },
       { 
         label: this.product.name + ' ' + this.product.title, 
-        url: `/product/${this.product.id}` 
+        url: `/${this.product.id}` 
       }
     ]);
   }

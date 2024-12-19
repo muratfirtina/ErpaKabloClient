@@ -44,7 +44,7 @@ export class FileUploadDialogComponent {
   }
 
   private isValidImageFile(file: File): boolean {
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    const allowedTypes = ['image/jpeg', 'image/png','image/gif','image/webp','image/avif','image/heic'];
     const maxSize = 5 * 1024 * 1024; // 5MB
     return allowedTypes.includes(file.type) && file.size <= maxSize;
   }

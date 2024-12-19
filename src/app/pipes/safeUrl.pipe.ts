@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Pipe({
   name: 'safeUrl',
@@ -8,10 +8,14 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class SafeUrlPipe implements PipeTransform {
   constructor(private sanitizer: DomSanitizer) {}
 
-  transform(url: string | File) {
-    if (url instanceof File) {
-      return this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(url));
+  transform(value: string | File): SafeUrl {
+    if (value instanceof File) {
+      // File objesi için blob URL oluştur
+      const url = URL.createObjectURL(value);
+      return this.sanitizer.bypassSecurityTrustUrl(url);
+    } else if (typeof value === 'string') {
+      return this.sanitizer.bypassSecurityTrustUrl(value);
     }
-    return url;
+    return value;
   }
 }

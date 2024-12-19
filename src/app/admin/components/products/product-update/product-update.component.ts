@@ -371,7 +371,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
 
   navigateToProductDetail(productId: string) {
     const url = this.router.serializeUrl(
-      this.router.createUrlTree(['/product', productId])
+      this.router.createUrlTree([productId])
     );
     window.open(url, '_blank');
   }

@@ -742,7 +742,7 @@ private updateCanGenerateVariants(): void {
 openImageUploadDialog(variant: AbstractControl): void {
   this.dialogService.openDialog({
     componentType: FileUploadDialogComponent,
-    data: { options: { accept: '.png, .jpg, .jpeg, .gif' } },
+    data: { options: { accept: '.png, .jpg, .jpeg, .gif, .avif, .webp' } },
     options: {
       width: '500px'
     },
@@ -768,7 +768,7 @@ openImageUploadDialog(variant: AbstractControl): void {
 
 // Resim geçerlilik kontrolü
 private isValidImageFile(file: File): boolean {
-  const validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+  const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif'];
   const maxSize = 5 * 1024 * 1024; // 5MB
   return validTypes.includes(file.type) && file.size <= maxSize;
 }

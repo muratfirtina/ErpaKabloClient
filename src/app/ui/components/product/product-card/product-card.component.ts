@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { Product } from 'src/app/contracts/product/product';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 
@@ -16,7 +16,14 @@ export class ProductCardComponent {
   @Input() listView: boolean = false;
   @Input() gridView: boolean = false;
 
-  constructor(private productOperations: ProductOperationsService) {}
+  constructor(private productOperations: ProductOperationsService,private router: Router) {}
+
+  onCardClick() {
+    this.router.navigate(['/' + this.product.id])
+      .then(() => {
+        window.scrollTo(0, 0); // Sayfa başına scroll
+      });
+  }
 
   onLikeClick(event: Event) {
     event.stopPropagation();

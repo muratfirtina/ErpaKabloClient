@@ -4,6 +4,7 @@ import { DashboardComponent } from './admin/components/dashboard/dashboard.compo
 import { HomeComponent } from './ui/components/home/home.component';
 import { authGuard } from './guards/auth.guard';
 import { Roles } from './constants/roles';
+import { routeTypeResolver } from './services/common/route-resolver.service';
 
 export const routes: Routes = [
     {
@@ -23,6 +24,7 @@ export const routes: Routes = [
           { path: "brands/brand-create", loadComponent: () => import('./admin/components/brands/brand-create/brand-create.component').then(m => m.BrandCreateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "brands/brand-list", loadComponent: () => import('./admin/components/brands/brand-list/brand-list.component').then(m => m.BrandListComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "brands/brand-list/:pageNo",loadComponent:()=>import('./admin/components/brands/brand-list/brand-list.component').then(m=>m.BrandListComponent),canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
+          {path: 'brands/brand-update/:id',loadComponent:()=>import('./admin/components/brands/brand-update/brand-update.component').then(m=>m.BrandUpdateComponent),canActivate: [authGuard],data: {[Roles.ADMIN]: true} },
           { path: "features", loadComponent: () => import('./admin/components/features/features.component').then(m => m.FeaturesComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "features/feature-create", loadComponent: () => import('./admin/components/features/feature-create/feature-create.component').then(m => m.FeatureCreateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "features/feature-list", loadComponent: () => import('./admin/components/features/feature-list/feature-list.component').then(m => m.FeatureListComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
@@ -49,26 +51,31 @@ export const routes: Routes = [
         ]
 
       },
-       {path: "", component:HomeComponent},
-       {path: "home", component:HomeComponent},
-       {path: "login",loadComponent:()=>import('./ui/components/login/login.component').then(m=>m.LoginComponent)},
-       {path: "register",loadComponent:()=>import('./ui/components/register/register.component').then(m=>m.RegisterComponent)},
-       {path: "product",loadComponent:()=>import('./ui/components/product/product.component').then(m=>m.ProductComponent)},
-       {path: "product/:id",loadComponent:()=>import('./ui/components/product/product-detail/product-detail.component').then(m=>m.ProductDetailComponent)},
-       {path: "search", loadComponent: () => import('./ui/components/search-results/search-results.component').then(m => m.SearchResultsComponent) },
-       {path: "category/:id",loadComponent:()=>import('./ui/components/category/category.component').then(m=>m.CategoryComponent)},
-       {path: "brand/:id",loadComponent:()=>import('./ui/components/brand/brand.component').then(m=>m.BrandComponent)},
-       {path: "brands-page",loadComponent:()=>import('./ui/components/brand/brands-page/brands-page.component').then(m=>m.BrandsPageComponent)},
-       {path: "unauthorized",loadComponent:()=>import('./ui/components/unauthorized/unauthorized.component').then(m=>m.UnauthorizedComponent)},
-       {path: "order",loadComponent:()=>import('./ui/components/order/order.component').then(m=>m.OrderComponent),canActivate: [authGuard]},
-       {path: "order-summary/:orderId",loadComponent:()=>import('./ui/components/order/order-summary/order-summary.component').then(m=>m.OrderSummaryComponent),canActivate: [authGuard]},
-       {path: "cart-page",loadComponent:()=>import('./ui/components/cart/cart-page/cart-page.component').then(m=>m.CartPageComponent),canActivate: [authGuard]},
-       {path: "user",loadComponent:()=>import('./ui/components/user/user.component').then(m=>m.UserComponent),canActivate: [authGuard]},
-       {path: "my-favorites",loadComponent:()=>import('./ui/components/user/my-favorites/my-favorites.component').then(m=>m.MyFavoritesComponent),canActivate: [authGuard]},
-       {path: "downbar",loadComponent:()=>import('./ui/components/downbar/downbar.component').then(m=>m.DownbarComponent)},
-       {path: "cookie-policy", loadComponent: () => import('./ui/components/cookie/cookie-policy/cookie-policy.component').then(m => m.CookiePolicyComponent) },
-       {path: "password-reset",loadComponent:()=>import('./ui/components/password-reset/password-reset.component').then(m=>m.PasswordResetComponent)},
-       {path: "update-password/:userId/:resetToken",loadComponent:()=>import('./ui/components/update-password/update-password.component').then(m=>m.UpdatePasswordComponent)},
-       {path: "newsletter/unsubscribe",loadComponent:()=>import('./ui/components/newsletter-unsubscribe/newsletter-unsubscribe.component').then(m=>m.NewsletterUnsubscribeComponent)}
-
+      { path: "", component: HomeComponent },
+      { path: "home", component: HomeComponent },
+      { path: "login", loadComponent: () => import('./ui/components/login/login.component').then(m => m.LoginComponent) },
+      { path: "register", loadComponent: () => import('./ui/components/register/register.component').then(m => m.RegisterComponent) },
+      { path: "search", loadComponent: () => import('./ui/components/search-results/search-results.component').then(m => m.SearchResultsComponent) },
+      { path: 'about-us',loadComponent: () => import('./ui/components/about-us/about-us.component').then(m => m.AboutUsComponent)},
+      { path: "brands-page", loadComponent: () => import('./ui/components/brand/brands-page/brands-page.component').then(m => m.BrandsPageComponent) },
+      { path: "unauthorized", loadComponent: () => import('./ui/components/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent) },
+      { path: "order", loadComponent: () => import('./ui/components/order/order.component').then(m => m.OrderComponent), canActivate: [authGuard] },
+      { path: "order-summary/:orderId", loadComponent: () => import('./ui/components/order/order-summary/order-summary.component').then(m => m.OrderSummaryComponent), canActivate: [authGuard] },
+      { path: "cart-page", loadComponent: () => import('./ui/components/cart/cart-page/cart-page.component').then(m => m.CartPageComponent), canActivate: [authGuard] },
+      { path: "user", loadComponent: () => import('./ui/components/user/user.component').then(m => m.UserComponent), canActivate: [authGuard] },
+      { path: "my-favorites", loadComponent: () => import('./ui/components/user/my-favorites/my-favorites.component').then(m => m.MyFavoritesComponent), canActivate: [authGuard] },
+      { path: "cookie-policy", loadComponent: () => import('./ui/components/cookie/cookie-policy/cookie-policy.component').then(m => m.CookiePolicyComponent) },
+      { path: "password-reset", loadComponent: () => import('./ui/components/password-reset/password-reset.component').then(m => m.PasswordResetComponent) },
+      { path: "update-password/:userId/:resetToken", loadComponent: () => import('./ui/components/update-password/update-password.component').then(m => m.UpdatePasswordComponent) },
+      { path: "newsletter/unsubscribe", loadComponent: () => import('./ui/components/newsletter-unsubscribe/newsletter-unsubscribe.component').then(m => m.NewsletterUnsubscribeComponent) },
+      
+      // New wildcard route for handling SEO-friendly URLs
+    
+      {
+        path: ":id",
+        resolve: {
+          routeType: routeTypeResolver
+        },
+        loadComponent: () => import('./common/dynamic-router/dynamic-router.component').then(m => m.DynamicRouterComponent)
+      }
 ];

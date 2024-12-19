@@ -1,32 +1,40 @@
 .brand-create-container {
-    max-width:min-content;
-    margin: 0 auto;
-    padding: 2rem;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  
-    h2 {
-      color: mat-color();
-      margin-bottom: 2rem;
-      font-weight: 500;
-    }
-  
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5rem;
-  
-      @media (min-width: 768px) {
-        grid-template-columns: repeat(2, 1fr);
-      }
-  
-      .full-width {
-        grid-column: 1 / -1;
-      }
-    }
-    .mat-mdc-card-title{
-        margin: 20px;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
 
-    }
+  h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: #333;
+    font-size: 1.75rem;
+  }
+}
+
+mat-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
 }

@@ -424,8 +424,8 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
   }
 
 
-  navigateToSearchResult(type: string, id: string) {
-    const url = `/${type}/${id}`;
+  navigateToSearchResult(id: string) {
+    const url = `/${id}`;
     
     // Mevcut URL'yi kontrol et
     if (this.router.url !== url) {
@@ -450,7 +450,7 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
   }
   
   navigateToRecommendedProduct(productId: string) {
-    this.router.navigate(['/product', productId]);
+    this.router.navigate(['/'+productId]);
     this.closeAllProducts();
   }
   
@@ -460,7 +460,7 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
   } */
   onProductClick(product: Product) {
     console.log('Product clicked:', product);
-    this.navigateToSearchResult('product', product.id);
+    this.navigateToSearchResult( product.id);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -503,7 +503,7 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
 
   // Mevcut navigateToCategory metodunu güncelle
   navigateToCategory(categoryId: string) {
-    this.router.navigate(['/category', categoryId]);
+    this.router.navigate(['/'+ categoryId]);
     this.closeAllProducts();
     this.isMobileMenuOpen = false; // Mobile menüyü kapat
     document.body.style.overflow = 'auto';

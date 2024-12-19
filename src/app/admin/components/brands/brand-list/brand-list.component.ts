@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Brand } from 'src/app/contracts/brand/brand';
@@ -51,7 +51,7 @@ export class BrandListComponent extends BaseComponent implements OnInit {
   count: number = 0;
   pages: number = 0;
   pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Image', 'Brand', 'Delete'];
+  displayedColumns: string[] = ['No', 'Image', 'Brand', 'Update', 'Delete'];
   searchForm: FormGroup;
 
   constructor(
@@ -60,6 +60,7 @@ export class BrandListComponent extends BaseComponent implements OnInit {
     private toastrService: CustomToastrService,
     private dialogService: DialogService,
     private activatedRoute: ActivatedRoute,
+    private router:Router,
     private fb: FormBuilder
   ) {
     super(spinner);
@@ -159,6 +160,10 @@ export class BrandListComponent extends BaseComponent implements OnInit {
     }).finally(() => {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     });
+  }
+
+  navigateToUpdate(brandId: string) {
+    this.router.navigate(['admin/brands/brand-update', brandId]);
   }
 
   

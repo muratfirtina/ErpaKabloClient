@@ -23,6 +23,7 @@ import { SafeUrlPipe } from './pipes/safeUrl.pipe';
 import { JwtModule } from '@auth0/angular-jwt';
 import { HttpErrorHandlerInterceptorService } from './services/common/http-error-handler-interceptor.service';
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
+import { FileSizePipe } from './pipes/file-size.pipe';
 
 export const appConfig: ApplicationConfig = {
   providers: [provideRouter(routes), provideAnimations(),
@@ -41,7 +42,7 @@ export const appConfig: ApplicationConfig = {
           disallowedRoutes: ["localhost:5199/api/auth/login", "192.168.0.10:5199/api/auth/login"]
         }
       }
-    ),),SafeUrlPipe,SafeHtmlPipe,
+    ),),SafeUrlPipe,SafeHtmlPipe,FileSizePipe,
     {provide:HTTP_INTERCEPTORS, useClass: HttpErrorHandlerInterceptorService, multi:true},
   { provide: "baseUrl", useValue: "https://localhost:5199/api", multi: true }, provideAnimationsAsync(),]
 };

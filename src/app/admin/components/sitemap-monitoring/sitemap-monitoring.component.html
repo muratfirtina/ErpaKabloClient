@@ -1,0 +1,89 @@
+<div class="dashboard-container">
+  <!-- Üst Kartlar -->
+  <div class="stats-grid">
+    <!-- Sağlık Skoru -->
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-value" [ngClass]="getHealthScoreClass()">
+            {{ report?.healthScore }}%
+          </div>
+          <div class="stat-label">Sağlık Skoru</div>
+        </div>
+        <mat-icon [ngClass]="getHealthScoreClass()">
+          {{ getHealthScoreIcon() }}
+        </mat-icon>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Toplam URL -->
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-value">{{ report?.totalUrls }}</div>
+          <div class="stat-label">Toplam URL</div>
+        </div>
+        <mat-icon>link</mat-icon>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Son Kontrol -->
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-value">
+            {{ report?.lastFullCheck | date:'shortTime' }}
+          </div>
+          <div class="stat-label">Son Kontrol</div>
+        </div>
+        <mat-icon>access_time</mat-icon>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Sitemap Detayları -->
+  <div class="sitemaps-grid">
+    <mat-card *ngFor="let sitemap of report?.sitemaps" 
+              [ngClass]="{'warning': !sitemap.isAccessible}">
+      <mat-card-header>
+        <mat-card-title>{{ sitemap.url }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ sitemap.isAccessible ? 'Erişilebilir' : 'Erişilemiyor' }}
+        </mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="sitemap-stats">
+          <div class="stat-item">
+            <mat-icon>timer</mat-icon>
+            <span>{{ sitemap.responseTime }}ms</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>link</mat-icon>
+            <span>{{ sitemap.urlCount }} URL</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>save</mat-icon>
+            <span>{{ sitemap.fileSize | fileSize }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Sorunlar Listesi -->
+  <mat-card *ngIf="report?.issues?.length" class="issues-card">
+    <mat-card-header>
+      <mat-card-title>Tespit Edilen Sorunlar</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="issues-list">
+        <div *ngFor="let issue of report.issues" 
+             class="issue-item" 
+             [ngClass]="issue.severity">
+          <mat-icon>{{ getIssueIcon(issue.severity) }}</mat-icon>
+          <span>{{ issue.message }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -5,11 +5,13 @@ import { Subscription } from "rxjs";
 import { BaseComponent } from "src/app/base/base/base.component";
 import { OrderNotification, OrderStatusNotification } from "src/app/contracts/order/orderNotification";
 import { SignalrService } from "src/app/services/common/signalr.service";
+import { SitemapMonitoringComponent } from "../sitemap-monitoring/sitemap-monitoring.component";
+import { SeoImageComponent } from "src/app/common/seo-image/seo-image.component";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, SitemapMonitoringComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })

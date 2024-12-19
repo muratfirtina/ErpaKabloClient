@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MainHeaderComponent } from '../main-header/main-header.component';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -41,8 +41,10 @@ import { DownbarComponent } from '../downbar/downbar.component';
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })
-export class CategoryComponent extends BaseComponent implements OnInit {
-  categoryId: string;
+export class CategoryComponent extends BaseComponent implements OnInit,OnChanges {
+  @Input() categoryId: string;
+  @Input() key: number; 
+
   category: Category;
   subCategories: Category[] = [];
   products: Product[] = [];
@@ -78,27 +80,53 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     super(spinner);
   }
 
-  async ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.categoryId = params['id'];
+  ngOnChanges(changes: SimpleChanges) {
+    if ((changes['categoryId'] || changes['key']) && this.categoryId) {
+      // Reset sayfanın state'ini sıfırla
+      this.products = [];
+      this.subCategories = [];
+      this.selectedFilters = {};
+      this.pageRequest.pageIndex = 0;
+      
+      // Yeni veriyi yükle
+      this.loadCategory();
+      this.loadAvailableFilters();
+      this.loadProducts();
+      this.loadSubCategories();
+      
+      // Sayfa başına scroll
+      window.scrollTo(0, 0);
+    }
+  }
+
+  ngOnInit() {
+    // Remove the route.params subscription since we're using Input now
+    if (this.categoryId) {
       this.loadCategory();
       this.loadAvailableFilters();
       this.loadProducts();
       this.loadSubCategories();
       this.checkScreenSize();
-    });
+    }
   }
 
   async loadCategory() {
-    await this.categoryService.getById(this.categoryId).then(
-      category => {
-        this.category = category;
-        this.updateBreadcrumbs();
-      },
-      error => {
-        console.error('Error loading category:', error);
+    if (!this.categoryId?.includes('-c-')) return;
+
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    try {
+      const category = await this.categoryService.getById(this.categoryId);
+      if (!category) {
+        throw new Error('Category not found');
       }
-    );
+      this.category = category;
+      this.updateBreadcrumbs();
+    } catch (error) {
+      console.error('Error loading category:', error);
+      this.router.navigate(['/']);
+    } finally {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+    }
   }
 
   async loadSubCategories() {
@@ -121,34 +149,37 @@ export class CategoryComponent extends BaseComponent implements OnInit {
     }
 }
 
- async loadProducts() {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    // Ensure the current category is always included in the filter
+async loadProducts() {
+  if (!this.categoryId?.includes('-c-')) return;
+  
+  this.showSpinner(SpinnerType.BallSpinClockwise);
+  try {
     this.selectedFilters['Category'] = [this.categoryId];
-    this.productService.filterProducts('', this.selectedFilters, this.pageRequest, this.sortOrder)
-      .then(
-        async (response) => {
-          this.products = response.items;
-          this.totalItems = response.count;
-          this.noResults = this.products.length === 0;
+    const response = await this.productService.filterProducts(
+      '', 
+      this.selectedFilters, 
+      this.pageRequest, 
+      this.sortOrder
+    );
+    
+    this.products = response.items;
+    this.totalItems = response.count;
+    this.noResults = this.products.length === 0;
 
-          if (this.authService.isAuthenticated) {
-            const productIds = this.products.map(p => p.id);
-            const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-            
-            this.products.forEach(product => {
-              product.isLiked = likedProductIds.includes(product.id);
-            });
-          }
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-        },
-        (error) => {
-          console.error('Error fetching products:', error);
-          this.noResults = true;
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-        }
-      );
+    if (this.authService.isAuthenticated) {
+      const productIds = this.products.map(p => p.id);
+      const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+      this.products.forEach(product => {
+        product.isLiked = likedProductIds.includes(product.id);
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    this.noResults = true;
+  } finally {
+    this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
+}
 
   onFilterChange(filters: { [key: string]: string[] }) {
     // Check if the category has changed

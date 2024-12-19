@@ -6,14 +6,13 @@ import { CartService } from 'src/app/services/common/models/cart.service';
 import { CartComponent } from '../cart/cart.component';
 import { CommonModule } from '@angular/common';
 import { UserSidebarComponent } from '../user/user-sidebar/user-sidebar.component';
-import { SidebarComponent } from "../../../admin/layout/components/sidebar/sidebar.component";
 import { CategoriesSidebarComponent } from '../category/categories-sidebar/categories-sidebar.component';
 import { ThemeService } from 'src/app/services/common/theme.service';
 
 @Component({
   selector: 'app-downbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, CartComponent, UserSidebarComponent, SidebarComponent,CategoriesSidebarComponent],
+  imports: [CommonModule, RouterModule, CartComponent, UserSidebarComponent,CategoriesSidebarComponent],
   templateUrl: './downbar.component.html',
   styleUrl: './downbar.component.scss'
 })

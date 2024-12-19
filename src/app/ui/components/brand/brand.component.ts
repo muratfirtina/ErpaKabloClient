@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MainHeaderComponent } from '../main-header/main-header.component';
 import { NavbarComponent } from '../navbar/navbar.component';
@@ -41,8 +41,10 @@ import { DownbarComponent } from '../downbar/downbar.component';
   templateUrl: './brand.component.html',
   styleUrls: ['./brand.component.scss']
 })
-export class BrandComponent extends BaseComponent implements OnInit {
-  brandId: string;
+export class BrandComponent extends BaseComponent implements OnInit,OnChanges {
+  @Input() brandId: string;
+  @Input() key: number;
+
   brand: Brand;
   defaultBrandImageUrl: string = 'assets/brand/ecommerce-default-brand.png';
   subCategories: Category[] = [];
@@ -77,28 +79,54 @@ export class BrandComponent extends BaseComponent implements OnInit {
     super(spinner);
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if ((changes['brandId'] || changes['key']) && this.brandId) {
+      // Reset sayfanın state'ini sıfırla
+      this.products = [];
+      this.selectedFilters = {};
+      this.pageRequest.pageIndex = 0;
+      
+      // Yeni veriyi yükle
+      this.loadBrand();
+      this.loadAvailableFilters();
+      this.loadProducts();
+      this.loadSubCategories();
+      
+      // Sayfa başına scroll
+      window.scrollTo(0, 0);
+    }
+  }
+
   ngOnInit() {
-    this.route.params.subscribe(params => {
-      this.brandId = params['id'];
+    // Remove the route.params subscription since we're using Input now
+    if (this.brandId) {
       this.loadBrand();
       this.loadAvailableFilters();
       this.loadProducts();
       this.loadSubCategories();
       this.checkScreenSize();
-    });
+    }
   }
 
-  loadBrand() {
-    this.brandService.getById(this.brandId).then(
-      brand => {
-        this.brand = brand;
-        this.updateBreadcrumbs();
-      },
-      error => {
-        console.error('Error loading brand:', error);
+  async loadBrand() {
+    if (!this.brandId) return;
+
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    try {
+      const brand = await this.brandService.getById(this.brandId);
+      if (!brand) {
+        throw new Error('Brand not found');
       }
-    );
+      this.brand = brand;
+      this.updateBreadcrumbs();
+    } catch (error) {
+      console.error('Error loading brand:', error);
+      this.router.navigate(['/']);
+    } finally {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+    }
   }
+  
   loadSubCategories() {
     
     this.categoryService.getSubCategoriesByBrandId(this.brandId).then(

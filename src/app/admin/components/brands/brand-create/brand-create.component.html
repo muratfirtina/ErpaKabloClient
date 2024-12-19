@@ -1,18 +1,32 @@
 <div class="brand-create-container">
+  <h3>Brand Create</h3>
   <mat-card>
-    <mat-card-title>Brand Create</mat-card-title>
     <mat-card-content>
       <form [formGroup]="brandForm" (ngSubmit)="onSubmit()">
         <mat-form-field appearance="fill">
           <mat-label>Brand Name</mat-label>
           <input matInput formControlName="name" required>
-          <mat-error *ngIf="brandForm.get('name').hasError('required')">Brand name is required</mat-error>
+          <mat-error *ngIf="brandForm.get('name').hasError('required')">
+            Brand name is required
+          </mat-error>
         </mat-form-field>
+        
         <button mat-raised-button color="primary" type="button" (click)="openFileUploadDialog()">
           {{ selectedFile ? 'Change Image' : 'Upload Image' }}
         </button>
+        
         <p *ngIf="selectedFile">Selected file: {{ selectedFile.name }}</p>
-        <button mat-raised-button color="primary" type="submit">Create Brand</button>
+        
+        <div class="button-group">
+          <button mat-raised-button color="primary" type="submit" 
+                  [disabled]="brandForm.invalid">
+            Create Brand
+          </button>
+          <button mat-raised-button color="warn" type="button" 
+                  (click)="cancel()">
+            Cancel
+          </button>
+        </div>
       </form>
     </mat-card-content>
   </mat-card>

@@ -16,7 +16,7 @@
   </div>
 
   <div class="brands-grid">
-    <div class="brand-card" *ngFor="let brand of brands" routerLink="/brand/{{brand.id}}">
+    <div class="brand-card" *ngFor="let brand of brands" routerLink="/{{brand.id}}">
       <div class="brand-image">
         <img [src]="brand.brandImage?.url" [alt]="brand.name + ' logo'">
       </div>

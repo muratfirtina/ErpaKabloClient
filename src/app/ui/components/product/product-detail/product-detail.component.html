@@ -38,7 +38,7 @@
 
   <div class="product-info">
     <p class="product-display">
-      <a class="product-brand" [routerLink]="['/brand', product.brandId]">{{product.brandName}}</a>
+      <a class="product-brand" [routerLink]="['/'+product.brandId]">{{product.brandName}}</a>
       {{product.name}}
       {{product.title}}
     </p>
