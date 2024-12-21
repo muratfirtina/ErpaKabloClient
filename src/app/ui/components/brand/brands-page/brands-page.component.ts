@@ -10,11 +10,12 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from '../../breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
+import { FooterComponent } from '../../footer/footer.component';
 
 @Component({
   selector: 'app-brands-page',
   standalone: true,
-  imports: [CommonModule,RouterModule, MainHeaderComponent, NavbarComponent, DownbarComponent, BreadcrumbComponent],
+  imports: [CommonModule,RouterModule, MainHeaderComponent, NavbarComponent, DownbarComponent, BreadcrumbComponent,FooterComponent],
   templateUrl: './brands-page.component.html',
   styleUrl: './brands-page.component.scss'
 })

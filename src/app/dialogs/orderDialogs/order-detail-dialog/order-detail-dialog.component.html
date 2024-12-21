@@ -15,14 +15,15 @@
       <!-- Order Information -->
       <div class="info-grid">
         <!-- Status Dropdown -->
-        <div class="status-section">
-          <label class="form-label">Order Status</label>
-          <select class="status-select" formControlName="status">
-            <option *ngFor="let status of orderStatuses" [value]="status">
-              {{ OrderStatus[status] }}
-            </option>
-          </select>
-        </div>
+        
+<div class="status-section">
+  <label class="form-label">Order Status</label>
+  <select class="status-select" formControlName="status">
+    <option *ngFor="let status of orderStatuses" [ngValue]="status.value">
+      {{ status.label }}
+    </option>
+  </select>
+</div>
 
         <!-- Customer Info -->
         <div class="info-card">

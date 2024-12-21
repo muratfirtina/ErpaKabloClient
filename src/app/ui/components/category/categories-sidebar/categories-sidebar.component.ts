@@ -35,7 +35,7 @@ export class CategoriesSidebarComponent implements OnInit {
   }
 
   navigateToCategory(categoryId: string) {
-    this.router.navigate(['/category', categoryId]);
+    this.router.navigate(['/' + categoryId]);
     this.close();
   }
 }

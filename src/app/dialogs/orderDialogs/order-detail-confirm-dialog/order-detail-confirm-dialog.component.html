@@ -1,6 +1,32 @@
-<h1 mat-dialog-title>Confirm Changes</h1>
-    <div mat-dialog-content>Are you sure you want to apply these changes?</div>
-    <div mat-dialog-actions>
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button mat-button (click)="onConfirm()" cdkFocusInitial>Confirm</button>
-    </div>
+// order-detail-confirm-dialog.component.html
+<div class="confirm-dialog">
+  <div class="dialog-header">
+    <h2 class="dialog-title">
+      <i class="bi bi-exclamation-circle"></i>
+      Confirm Changes
+    </h2>
+  </div>
+  
+  <div class="dialog-content">
+    <p class="message">
+      You are about to update this order. This action will:
+    </p>
+    <ul class="changes-list">
+      <li><i class="bi bi-dot"></i>Update order details and status</li>
+      <li><i class="bi bi-dot"></i>Apply price and quantity changes</li>
+      <li><i class="bi bi-dot"></i>Remove marked items</li>
+    </ul>
+    <p class="confirmation-text">Are you sure you want to proceed with these changes?</p>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn-secondary" (click)="onCancel()">
+      <i class="bi bi-x-lg"></i>
+      Cancel
+    </button>
+    <button class="btn-primary" (click)="onConfirm()" cdkFocusInitial>
+      <i class="bi bi-check-lg"></i>
+      Confirm Changes
+    </button>
+  </div>
+</div>

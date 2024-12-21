@@ -24,6 +24,7 @@ import { CartService } from 'src/app/services/common/models/cart.service';
 import { UiProductListComponent } from '../product/ui-product-list/ui-product-list.component';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 import { DownbarComponent } from '../downbar/downbar.component';
+import { FooterComponent } from '../footer/footer.component';
 
 
 @Component({
@@ -37,7 +38,8 @@ import { DownbarComponent } from '../downbar/downbar.component';
     FilterComponent,
     RouterModule,
     BreadcrumbComponent,
-    DownbarComponent],
+    DownbarComponent,
+    FooterComponent],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })

@@ -34,9 +34,12 @@ export class OrderDetailDialogComponent implements OnInit, AfterViewInit {
   orderForm: FormGroup;
   order: Order;
   OrderStatus = OrderStatus;
-  orderStatuses = Object.keys(OrderStatus)
-    .filter(key => !isNaN(Number(OrderStatus[key])))
-    .map(key => OrderStatus[key]);
+  orderStatuses = Object.entries(OrderStatus)
+    .filter(([key, value]) => !isNaN(Number(key))) // Sayısal key'leri filtrele
+    .map(([key, value]) => ({
+      value: Number(key),
+      label: value as string
+    }));
   totalPrice: number = 0;
   updatedTotalPrice: number = 0;
 
@@ -58,9 +61,11 @@ export class OrderDetailDialogComponent implements OnInit, AfterViewInit {
           position: ToastrPosition.TopRight
         });
       });
-      
+
+      const statusValue = OrderStatus[this.order.status as keyof typeof OrderStatus];
+
       this.orderForm = this.fb.group({
-        status: [this.order.status],
+        status: [statusValue], // Sayısal değeri kullan
         description: [this.order.description],
         adminNote: [this.order.adminNote],
         userAddress: this.fb.group({
@@ -77,6 +82,7 @@ export class OrderDetailDialogComponent implements OnInit, AfterViewInit {
       this.handleError("Error loading order details");
     }
   }
+
 
   ngAfterViewInit() {
     // Dialog başlığına focus ver ve ekran okuyucular için duyur

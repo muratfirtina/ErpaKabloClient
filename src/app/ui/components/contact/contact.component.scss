@@ -1,0 +1,127 @@
+.page-wrapper {
+    h2 {
+      color: #484848;
+    }
+  }
+  
+  .card {
+    transition: transform 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-5px);
+    }
+  }
+  
+  .card-body {
+    color: #484848;
+  }
+  
+  .text-primary {
+    color: #e53935 !important;
+  }
+  
+  .form-floating {
+    > .form-control {
+      &:focus {
+        border-color: #e53935;
+        box-shadow: 0 0 0 0.25rem rgba(229, 57, 53, 0.25);
+      }
+    }
+  }
+  
+  .btn-primary {
+    background-color: #e53935;
+    border-color: #e53935;
+    
+    &:hover {
+      background-color: darken(#e53935, 10%);
+      border-color: darken(#e53935, 10%);
+    }
+    
+    &:disabled {
+      background-color: lighten(#e53935, 20%);
+      border-color: lighten(#e53935, 20%);
+    }
+  }
+  .social-links{
+    padding-left: 2.2rem !important;
+  }
+  
+  // Social Media Buttons
+  .social-buttons {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .socialContainer {
+    width: 52px;
+    height: 52px;
+    background-color: rgb(44, 44, 44);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition-duration: 0.3s;
+    border-radius: 10px;
+    text-decoration: none;
+  
+    &:active {
+      transform: scale(0.9);
+      transition-duration: 0.3s;
+    }
+  
+    &:hover .socialSvg {
+      animation: slide-in-top 0.3s both;
+    }
+  }
+  
+  .containerThree:hover {
+    background-color: #0072b1;
+    transform: scale(1.1);
+  }
+  
+  .containerFour:hover {
+    background-color: #25d366;
+    transform: scale(1.1);
+  }
+  
+  .socialSvg {
+    width: 17px;
+    
+    path {
+      fill: rgb(255, 255, 255);
+    }
+  }
+  
+  @keyframes slide-in-top {
+    0% {
+      transform: translateY(50px);
+      opacity: 0;
+    }
+  
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  
+  .spinner {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+  }
+  
+  // Links
+  a {
+    color: #484848;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: #e53935;
+    }
+  }

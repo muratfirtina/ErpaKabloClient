@@ -23,6 +23,7 @@ import { CategoryService } from 'src/app/services/common/models/category.service
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { UiProductListComponent } from '../product/ui-product-list/ui-product-list.component';
 import { DownbarComponent } from '../downbar/downbar.component';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-brand',
@@ -36,7 +37,8 @@ import { DownbarComponent } from '../downbar/downbar.component';
     RouterModule,
     BreadcrumbComponent,
     UiProductListComponent,
-    DownbarComponent
+    DownbarComponent,
+    FooterComponent
   ],
   templateUrl: './brand.component.html',
   styleUrls: ['./brand.component.scss']

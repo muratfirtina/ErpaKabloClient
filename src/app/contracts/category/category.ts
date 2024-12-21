@@ -11,4 +11,5 @@ export class Category{
     expanded?: boolean;
     products?: Product[];
     categoryImage?: CategoryImageFile;
+    productCount?:number
 }
