@@ -85,7 +85,11 @@
 
         <div class="full-width">
             <label>Açıklama</label>
-            <angular-editor formControlName="description"></angular-editor>
+            <angular-editor 
+        formControlName="description"
+        [config]="editorConfig"
+        placeholder="Ürün açıklamasını girin">
+    </angular-editor>
         </div>
 
         <div formArrayName="productFeatureValues" class="features-section">

@@ -13,7 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatTreeModule } from '@angular/material/tree';
 import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
-import { AngularEditorModule } from '@kolkov/angular-editor';
+import { AngularEditorConfig, AngularEditorModule, UploadResponse } from '@kolkov/angular-editor';
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BrandService } from 'src/app/services/common/models/brand.service';
@@ -31,6 +31,8 @@ import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
 import { Product } from 'src/app/contracts/product/product';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
 import { MatRadioModule } from '@angular/material/radio';
+import { HttpEvent, HttpResponse } from '@angular/common/http';
+import { Observable, from, map } from 'rxjs';
 
 @Component({
   selector: 'app-product-update',
@@ -68,6 +70,61 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   displayedColumns: string[] = ['photo', 'name', 'price', 'stock', 'sku','title','categoryName', 'brandName', 'features'];
   defaultProductImage = 'assets/product/ecommerce-default-product.png';
   
+  editorConfig: AngularEditorConfig = {
+    editable: true,
+    spellcheck: true,
+    height: '300px',
+    minHeight: '200px',
+    placeholder: 'Açıklama girin',
+    translate: 'no',
+    defaultParagraphSeparator: 'p',
+    defaultFontName: 'Arial',
+    toolbarHiddenButtons: [
+      ['bold']
+    ],
+    customClasses: [
+      {
+        name: "quote",
+        class: "quote",
+      },
+      {
+        name: 'redText',
+        class: 'redText'
+      },
+      {
+        name: "titleText",
+        class: "titleText",
+        tag: "h1",
+      },
+    ],
+    uploadWithCredentials: false,
+    upload: (file: File): Observable<HttpEvent<UploadResponse>> => {
+      const formData = new FormData();
+      formData.append('image', file);
+    
+      return from(this.productService.uploadDescriptionImage(formData)).pipe(
+        map(response => {
+          if (response && response.url) {  // response.length > 0 yerine response.url kontrolü yapıyoruz
+            const imageUrl = response.url;  // response[0].url yerine response.url kullanıyoruz
+            
+            // HTML içeriğini editöre ekleme yaklaşımını değiştiriyoruz
+            const imgHtml = `<img src="${imageUrl}" alt="Uploaded Image">`;
+            
+            // Angular Editor'ün kendi mekanizmasını kullanıyoruz
+            return new HttpResponse({
+              body: {
+                imageUrl: imageUrl
+              },
+              status: 200,
+              statusText: 'OK'
+            });
+          }
+          throw new Error('Upload failed');
+        })
+      );
+    }
+  }
+  
 
   constructor(
     private fb: FormBuilder,
@@ -98,7 +155,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   createForm() {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
-      description: [''],
+      description: ['', []],
       title: ['', Validators.required],
       categoryId: ['', Validators.required],
       brandId: ['', Validators.required],

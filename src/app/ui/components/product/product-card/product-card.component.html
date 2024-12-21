@@ -19,12 +19,13 @@
           <div class="product-name">{{product.name}}</div>
         </div>
         <p class="product-title">{{product.title}}</p>
-        <p class="product-price">{{formatCurrency(product.price)}}</p>
         <p class="product-features">
           <ng-container *ngFor="let feature of product.productFeatureValues; let last = last">
             {{feature.featureValueName}}{{!last ? ', ' : ''}}
           </ng-container>
         </p>
+        <p class="product-price">{{formatCurrency(product.price)}}</p>
+        
       </div>
 
       <button class="product-add-to-cart-button" 
