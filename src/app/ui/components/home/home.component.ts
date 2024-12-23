@@ -37,6 +37,9 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
   slideInterval: any; 
   isMobile: boolean = false;
   mostLikedProducts: GetListResponse<Product> 
+  mostViewedProducts: GetListResponse<Product>;
+  bestSellingProducts: GetListResponse<Product>;
+  randomProducts: GetListResponse<Product>;
   defaultProductImage = 'assets/product/ecommerce-default-product.png';
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
@@ -67,6 +70,9 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
     await this.loadMainCategories();
     await this.loadCarousels();
     await this.loadMostLikedProducts();
+    await this.loadMostViewedProducts(),
+    await this.loadBestSellingProducts(),
+    await this.loadRandomProducts()
     this.hideSpinner(SpinnerType.BallSpinClockwise);
     this.startSlideShow();
     this.checkScreenSize()
@@ -101,6 +107,40 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
       });
     }
 
+  }
+  async loadMostViewedProducts() {
+    this.mostViewedProducts = await this.productService.getMostViewedProducts(10);
+    if (this.authService.isAuthenticated) {
+        const productIds = this.mostViewedProducts.items.map(p => p.id);
+        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+        
+        this.mostViewedProducts.items.forEach(product => {
+            product.isLiked = likedProductIds.includes(product.id);
+        });
+    }
+  }
+  async loadBestSellingProducts() {
+    this.bestSellingProducts = await this.productService.getBestSellingProducts(10);
+    if (this.authService.isAuthenticated) {
+        const productIds = this.bestSellingProducts.items.map(p => p.id);
+        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+        
+        this.bestSellingProducts.items.forEach(product => {
+            product.isLiked = likedProductIds.includes(product.id);
+        });
+    }
+}
+
+async loadRandomProducts() {
+    this.randomProducts = await this.productService.getRandomProducts(10);
+    if (this.authService.isAuthenticated) {
+        const productIds = this.randomProducts.items.map(p => p.id);
+        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+        
+        this.randomProducts.items.forEach(product => {
+            product.isLiked = likedProductIds.includes(product.id);
+        });
+    }
   }
 
   startSlideShow() {

@@ -215,5 +215,40 @@ async searchProducts(searchTerm: string, pageRequest: PageRequest): Promise<{
     
     return await firstValueFrom(observable);
   }
-
+  async getMostViewedProducts(count: number = 10): Promise<GetListResponse<Product>> {
+    const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
+        controller: "products",
+        action: "most-viewed",
+        queryString: `count=${count}`
+    });
+    return await firstValueFrom(observable);
 }
+
+async trackProductView(productId: string): Promise<void> {
+  const observable: Observable<void> = this.httpClientService.post<void>({
+      controller: "products",
+      action: `track-view/${productId}`
+  }, {});
+  await firstValueFrom(observable);
+}
+
+
+async getBestSellingProducts(count: number = 10): Promise<GetListResponse<Product>> {
+  const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
+      controller: "products",
+      action: "best-selling",
+      queryString: `count=${count}`
+  });
+  return await firstValueFrom(observable);
+}
+
+async getRandomProducts(count: number = 10): Promise<GetListResponse<Product>> {
+  const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({
+      controller: "products",
+      action: "random",
+      queryString: `count=${count}`
+  });
+  return await firstValueFrom(observable);
+}
+}
+

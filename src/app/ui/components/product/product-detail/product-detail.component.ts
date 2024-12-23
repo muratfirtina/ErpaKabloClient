@@ -82,6 +82,9 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
       this.loadLikeCount(this.productId);
       this.loadRandomProducts(this.productId);
       this.loadRandomProductsForBrand(this.productId);
+      if (this.authService.isAuthenticated) {
+        await this.productService.trackProductView(this.productId);
+      }
     }
     this.determineVisualFeatures();
     this.isAuthenticated = this.authService.isAuthenticated;
