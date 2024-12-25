@@ -160,6 +160,13 @@
                   <p class="product-name">{{ product.name }}</p>
                 </div>
                 <p>{{ product.title }}</p>
+                <p>{{ product.sku }}</p>
+                  <div class="product-features mt-2">
+                    <div *ngFor="let feature of product.productFeatureValues" class="feature-item">
+                      <span class="feature-name">{{feature.featureName}}:</span>
+                      <span class="feature-value">{{feature.featureValueName}}</span>
+                    </div>
+                  </div>
                 <!-- <p class="stock-status" [class.in-stock]="product.stock > 0">
                   {{ product.stock > 0 ? 'In stock' : 'Out of stock' }}
                 </p>

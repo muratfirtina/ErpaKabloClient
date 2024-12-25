@@ -37,9 +37,9 @@ export class ProductCardComponent {
 
   formatCurrency(value: number | undefined): string {
     if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('tr-TR', { 
-      style: 'currency', 
-      currency: 'TRY' 
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
     }).format(value);
-  }
+}
 }
