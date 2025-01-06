@@ -1,6 +1,6 @@
 <div class="register-container">
   <div class="logo">
-    <img [src]="logoUrl" alt="Company Logo" class="logo-image">
+    <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/">
     <span class="logo-subtext" translate="yes">For All Industrial Products</span>
   </div>
   <div class="registerform">
@@ -116,7 +116,10 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-submit">Create Account</button>
+      <button type="submit" class="btn-submit" [disabled]="frm.invalid || loading">
+        <span [class.invisible]="loading">Create Account</span>
+        <app-button-spinner *ngIf="loading"></app-button-spinner>
+      </button>
 
       <p class="terms">By signing up, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a></p>
     </form>

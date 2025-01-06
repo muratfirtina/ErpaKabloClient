@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -22,6 +21,7 @@ import { Feature } from 'src/app/contracts/feature/feature';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { PageRequest } from 'src/app/contracts/pageRequest';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-category-create',
@@ -42,7 +42,7 @@ export class CategoryCreateComponent extends BaseComponent implements OnInit {
   selectedFile: File | null = null;
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private categoryService: CategoryService,
     private fb: FormBuilder,
     public dialog: MatDialog,

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Category } from 'src/app/contracts/category/category';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
@@ -11,6 +10,7 @@ import { BreadcrumbComponent } from '../../breadcrumb/breadcrumb.component';
 import { DownbarComponent } from '../../downbar/downbar.component';
 import { MainHeaderComponent } from '../../main-header/main-header.component';
 import { NavbarComponent } from '../../navbar/navbar.component';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-categories-page',
@@ -32,7 +32,7 @@ export class CategoriesPageComponent extends BaseComponent implements OnInit {
   constructor(
     private breadcrumbService: BreadcrumbService,
     private categoryService: CategoryService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
   }

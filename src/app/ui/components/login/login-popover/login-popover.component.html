@@ -30,7 +30,10 @@
           <a routerLink="/password-reset" (click)="close()">Forgot Password?</a>
         </div>
 
-        <button type="submit" class="btn-login w-100 mb-3">Sign In</button>
+        <button type="submit" class="btn-login" [disabled]="loading">
+          <span [class.invisible]="loading">Sign In</span>
+          <app-button-spinner *ngIf="loading"></app-button-spinner>
+        </button>
 
         <p class="register-link">
           Don't have an account? 

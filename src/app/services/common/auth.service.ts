@@ -44,6 +44,10 @@ export class AuthService {
     }
   }
 
+  getToken(): string | null {
+    return localStorage.getItem("accessToken");
+  }
+
   async getUserRoles(): Promise<string[]> {
     const token = localStorage.getItem('accessToken');
     if (!token) return [];

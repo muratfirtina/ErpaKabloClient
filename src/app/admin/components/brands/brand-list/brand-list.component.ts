@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
+
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Brand } from 'src/app/contracts/brand/brand';
 import { BrandFilterByDynamic } from 'src/app/contracts/brand/brandFilterByDynamic';
@@ -22,6 +22,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatInputModule } from '@angular/material/input';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-brand-list',
@@ -55,7 +56,7 @@ export class BrandListComponent extends BaseComponent implements OnInit {
   searchForm: FormGroup;
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private brandService: BrandService,
     private toastrService: CustomToastrService,
     private dialogService: DialogService,

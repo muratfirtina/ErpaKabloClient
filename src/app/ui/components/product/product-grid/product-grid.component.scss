@@ -148,3 +148,11 @@ $link-color: #0000ee;
       }
     }
   }
+  .product-grid-container {
+    position: relative;
+    min-height: 200px; // Spinner için minimum yükseklik
+  }
+  
+  .invisible {
+    visibility: hidden;
+  }

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { BrandService } from 'src/app/services/common/models/brand.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,11 +12,12 @@ import { BrandcreateconfrimDialogComponent } from 'src/app/dialogs/brandDialogs/
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
 import { Router } from '@angular/router';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-brand-create',
   standalone: true,
-  imports: [CommonModule, NgxSpinnerModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule],
+  imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule],
   templateUrl: './brand-create.component.html',
   styleUrls: ['./brand-create.component.scss', '../../../../../styles.scss']
 })
@@ -26,7 +26,7 @@ export class BrandCreateComponent extends BaseComponent implements OnInit {
   selectedFile: File | null = null;
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private brandService: BrandService,
     private fb: FormBuilder,
     public dialog: MatDialog,

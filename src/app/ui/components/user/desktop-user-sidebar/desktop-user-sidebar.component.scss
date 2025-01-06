@@ -123,3 +123,65 @@ $link-color: #0000ee;
     }
   }
 }
+@keyframes skeleton-loading {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton-background {
+  background-color: #e0e0e0;
+  background-image: linear-gradient(90deg, #e0e0e0 0px, #f5f5f5 40px, #e0e0e0 80px);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+.skeleton-avatar {
+  @extend .skeleton-background;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin: 0 auto 10px;
+}
+
+.skeleton-text {
+  @extend .skeleton-background;
+  height: 16px;
+  width: 80%;
+  margin: 10px auto;
+  border-radius: 4px;
+}
+
+.skeleton-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  margin-bottom: 4px;
+
+  .skeleton-icon {
+    @extend .skeleton-background;
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    border-radius: 4px;
+  }
+
+  .skeleton-text {
+    @extend .skeleton-background;
+    height: 14px;
+    width: 70%;
+    margin: 0;
+  }
+}
+
+// Dark mode için skeleton renkleri
+@media (prefers-color-scheme: dark) {
+  .skeleton-background {
+    background-color: #404040;
+    background-image: linear-gradient(90deg, #404040 0px, #505050 40px, #404040 80px);
+  }
+}

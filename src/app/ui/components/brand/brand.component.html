@@ -77,10 +77,12 @@
       </div>
 
       <!-- Filter Sidebar -->
-      <div class="col-md-3 mb-4">
-        <app-filter [availableFilters]="availableFilters" 
-                   [selectedFilters]="selectedFilters"
-                   (filterChange)="onFilterChange($event)">
+      <div class="col-md-3 mb-4 mb-md-0">
+        <app-filter 
+          [availableFilters]="availableFilters" 
+          [selectedFilters]="selectedFilters"
+          [isLoading]="isFiltersLoading"
+          (filterChange)="onFilterChange($event)">
         </app-filter>
       </div>
 
@@ -94,7 +96,8 @@
         <!-- Product Grid -->
         <app-ui-product-list 
           *ngIf="!noResults" 
-          [products]="products">
+          [products]="products"
+          [loading]="isProductsLoading">
         </app-ui-product-list>
 
         <!-- Pagination -->

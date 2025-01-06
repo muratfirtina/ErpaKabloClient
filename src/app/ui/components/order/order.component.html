@@ -65,8 +65,35 @@
               </div>
             </div>
 
+            <div class="position-relative" style="top: 100px;">
+              <app-spinner [spinnerType]="'s2'" *ngIf="loading"></app-spinner>
+            </div>
             <!-- Orders List -->
-            <div class="orders-list" *ngIf="!loading">
+            <div class="orders-list" [class.invisible]="loading">
+              
+              <div *ngIf="loading" class="skeleton-container">
+                <div class="skeleton-item" *ngFor="let i of [1,2,3]">
+                  <div class="skeleton-header">
+                    <!-- Thumbnail skeleton -->
+                    <div class="skeleton-thumbnail animate-pulse"></div>
+                    
+                    <!-- Order info skeleton -->
+                    <div class="skeleton-info">
+                      <div class="skeleton-text-short animate-pulse"></div>
+                      <div class="skeleton-text-shorter animate-pulse"></div>
+                    </div>
+                    
+                    <!-- Date skeleton -->
+                    <div class="skeleton-date animate-pulse"></div>
+                    
+                    <!-- Price skeleton -->
+                    <div class="skeleton-price animate-pulse"></div>
+                    
+                    <!-- Expand button skeleton -->
+                    <div class="skeleton-expand animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
               <!-- No Orders Message -->
               <div class="no-orders" *ngIf="orders.length === 0">
                 <p class="text-center text-muted my-5">There are no orders yet.</p>
@@ -206,5 +233,7 @@
       </div>
     </div>
   </div>
+ 
   <app-downbar></app-downbar>
 </div>
+<app-footer></app-footer>

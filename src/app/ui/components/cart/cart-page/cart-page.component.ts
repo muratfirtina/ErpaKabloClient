@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { Subscription } from 'rxjs';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CartSummary } from 'src/app/contracts/cart/cartSummary';
@@ -19,11 +18,13 @@ import { DownbarComponent } from '../../downbar/downbar.component';
 import { MainHeaderComponent } from '../../main-header/main-header.component';
 import { NavbarComponent } from '../../navbar/navbar.component';
 import { CartService } from 'src/app/services/common/models/cart.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { FooterComponent } from '../../footer/footer.component';
 
 @Component({
   selector: 'app-cart-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavbarComponent, MainHeaderComponent, DownbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavbarComponent, MainHeaderComponent, DownbarComponent,FooterComponent],
   templateUrl: './cart-page.component.html',
   styleUrl: './cart-page.component.scss'
 })
@@ -42,7 +43,7 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
   private subscription = new Subscription();
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private formBuilder: FormBuilder,
     private router: Router,
     private orderService: OrderService,

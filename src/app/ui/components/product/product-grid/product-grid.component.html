@@ -1,30 +1,33 @@
-<div class="product-grid-container">
-    <h2 *ngIf="title">{{ title }}</h2>
-    <div class="container">
-      <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="showNavigationButtons">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-      </button>
-      
-      <div class="product-grid">
-        <div class="product-list" #productGrid>
-          <app-product-card
-            *ngFor="let product of products"
-            [product]="product"
-            [gridView]="true"
-            class="grid-item">
-          </app-product-card>
-        </div>
+<div class="product-grid-container position-relative">
+  <h2 *ngIf="title">{{ title }}</h2>
+  <div class="container">
+    <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="showNavigationButtons">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="15 18 9 12 15 6"></polyline>
+      </svg>
+    </button>
+    
+    <!-- Spinner -->
+    <app-spinner [spinnerType]="'s2'" *ngIf="loading"></app-spinner>
+    
+    <div class="product-grid">
+      <div class="product-list" #productGrid [class.invisible]="loading">
+        <app-product-card
+          *ngFor="let product of products"
+          [product]="product"
+          [gridView]="true"
+          class="grid-item">
+        </app-product-card>
       </div>
-      
-      <button class="scroll-btn right" (click)="scrollRight()" *ngIf="showNavigationButtons">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" 
-             stroke="currentColor" stroke-width="2" stroke-linecap="round" 
-             stroke-linejoin="round">
-          <polyline points="9 18 15 12 9 6"></polyline>
-        </svg>
-      </button>
     </div>
+    
+    <button class="scroll-btn right" (click)="scrollRight()" *ngIf="showNavigationButtons">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" 
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" 
+           stroke-linejoin="round">
+        <polyline points="9 18 15 12 9 6"></polyline>
+      </svg>
+    </button>
   </div>
+</div>

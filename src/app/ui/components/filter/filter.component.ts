@@ -34,6 +34,7 @@ interface CategoryNode {
 export class FilterComponent implements OnChanges {
   @Input() availableFilters: FilterGroup[] = [];
   @Input() selectedFilters: { [key: string]: string[] } = {};
+  @Input() isLoading: boolean = true; // isLoading input'u ekleyelim
   @Output() filterChange = new EventEmitter<{ [key: string]: string[] }>();
 
   FilterType = FilterType;
@@ -160,8 +161,12 @@ export class FilterComponent implements OnChanges {
     this.emitFilterChange();
   }
 
-  selectPriceRange(value: string) {
-    this.selectedFilters['Price'] = [value];
+  selectPriceRange(value: string | null) {
+    if (value === null) {
+      delete this.selectedFilters['Price'];
+    } else {
+      this.selectedFilters['Price'] = [value];
+    }
     this.emitFilterChange();
   }
 

@@ -6,7 +6,6 @@ import { Product } from 'src/app/contracts/product/product';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { ProductService } from 'src/app/services/common/models/product.service';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { Subject, async } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import {
@@ -21,6 +20,8 @@ import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { ProductFilterByDynamic } from 'src/app/contracts/product/productFilterByDynamic';
 import { Router, RouterModule } from '@angular/router';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
 
 interface CategoryWithSubcategories extends Category {
   subcategories?: CategoryWithSubcategories[];
@@ -30,7 +31,7 @@ interface CategoryWithSubcategories extends Category {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule,SpinnerComponent],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss', '../../../../styles.scss']
 })
@@ -40,6 +41,11 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   selectedCategory: CategoryWithSubcategories | null = null;
   recommendedProducts: GetListResponse<Product>
   isAllProductsOpen: boolean = false;
+  searchLoading: boolean = false;
+  categoryLoading: boolean = false;
+  subcategoryLoading: boolean = false;
+  recommendedLoading: boolean = false;
+  
   private categorySubject = new Subject<string>();
   private categoryCache: Map<string, GetListResponse<Product>> = new Map();
 
@@ -66,7 +72,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     private categoryService: CategoryService,
     private productService: ProductService,
     private brandService: BrandService,
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private router: Router,
     private fb: FormBuilder,
   ) {
@@ -143,18 +149,19 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   async searchProducts(searchTerm: string) {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-
-    if (
-      searchTerm.startsWith(this.currentSearchTerm) &&
-      this.searchCache.length > 0
-    ) {
-      this.filterCachedResults(searchTerm);
-    } else {
-      await this.performNewSearch(searchTerm);
+    this.searchLoading = true;
+    this.showSpinner(SpinnerType.SquareLoader);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      if (searchTerm.startsWith(this.currentSearchTerm) && this.searchCache.length > 0) {
+        this.filterCachedResults(searchTerm);
+      } else {
+        await this.performNewSearch(searchTerm);
+      }
+    } finally {
+      this.searchLoading = false;
+      this.hideSpinner(SpinnerType.SquareLoader);
     }
-
-    this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
   private filterCachedResults(searchTerm: string) {
@@ -308,6 +315,20 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
       this.recentSearches = JSON.parse(searches);
     }
   }
+  
+  // Recent search'e tıklandığında çağrılacak metod
+  async onRecentSearchClick(searchTerm: string) {
+    // Form'un değerini güncelle
+    this.searchForm.get('searchTerm').setValue(searchTerm);
+    
+    // Arama sayfasına yönlendir
+    this.router.navigate(['/search'], { 
+      queryParams: { q: searchTerm } 
+    }).then(() => {
+      this.searchForm.reset();
+      this.isSearchFocused = false;
+    });
+  }
 
   saveRecentSearch(query: string) {
     if (!this.recentSearches.includes(query)) {
@@ -342,13 +363,18 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
   }
 
   async loadCategories() {
-    const pageRequest: PageRequest = { pageIndex: 0, pageSize: 1000 };
+    this.categoryLoading = true;
+    this.showSpinner(SpinnerType.SquareLoader);
     try {
+      const pageRequest: PageRequest = { pageIndex: 0, pageSize: 1000 };
       const response = await this.categoryService.getCategories(pageRequest);
       this.categories = response.items;
       this.organizeCategories();
     } catch (error) {
       console.error('Error loading categories:', error);
+    } finally {
+      this.categoryLoading = false;
+      this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
 
@@ -379,28 +405,34 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
     }
   }
 
-  selectCategory(category: CategoryWithSubcategories) {
+  async selectCategory(category: CategoryWithSubcategories) {
+    this.subcategoryLoading = true;
     this.selectedCategory = category;
-    this.categorySubject.next(category.id);
+    this.showSpinner(SpinnerType.SquareLoader);
+    try {
+      this.categorySubject.next(category.id);
+    } finally {
+      this.subcategoryLoading = false;
+      this.hideSpinner(SpinnerType.SquareLoader);
+    }
   }
 
   async loadRecommendedProductsWithCache(categoryId: string) {
     if (this.categoryCache.has(categoryId)) {
       this.recommendedProducts = this.categoryCache.get(categoryId)!;
     } else {
-      this.showSpinner(SpinnerType.BallSpinClockwise);
+      this.recommendedLoading = true;
+      this.showSpinner(SpinnerType.SquareLoader);
       try {
         const response = await this.productService.getRandomProductsByCategory(categoryId);
         this.categoryCache.set(categoryId, response);
         this.recommendedProducts = response;
       } catch (error) {
-        console.error(
-          `Error loading recommended products for category ${categoryId}:`,
-          error
-        );
+        console.error(`Error loading recommended products for category ${categoryId}:`, error);
         this.recommendedProducts = { items: [], index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false };
       } finally {
-        this.hideSpinner(SpinnerType.BallSpinClockwise);
+        this.recommendedLoading = false;
+        this.hideSpinner(SpinnerType.SquareLoader);
       }
     }
   }

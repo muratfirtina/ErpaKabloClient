@@ -13,14 +13,18 @@
                 <app-desktop-user-sidebar></app-desktop-user-sidebar>
             </div>
             <div class="col-12 col-lg-9">
-
-                <app-ui-product-list [products]="favorites?.items || []">
+                <app-ui-product-list 
+                  [products]="favorites?.items || []"
+                  [loading]="loading">
                 </app-ui-product-list>
-
-                <mat-paginator *ngIf="favorites?.count" [length]="favorites.count" [pageSize]="pageSize"
-                    [pageSizeOptions]="[12, 24, 36]" (page)="onPageChange($event)">
+              
+                <mat-paginator *ngIf="favorites?.count" 
+                  [length]="favorites.count" 
+                  [pageSize]="pageSize"
+                  [pageSizeOptions]="[12, 24, 36]" 
+                  (page)="onPageChange($event)">
                 </mat-paginator>
-            </div>
+              </div>
         </div>
     </div>
 </div>

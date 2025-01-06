@@ -152,16 +152,18 @@
   <app-product-grid 
     *ngIf="randomProducts"
     [products]="randomProducts.items"
+    [loading]="randomProductsLoading"
     [title]="'Other Products Related to This Product'">
   </app-product-grid>
 
   <app-product-grid 
     *ngIf="randomProductsForBrands"
     [products]="randomProductsForBrands.items"
+    [loading]="randomProductsForBrandLoading"
     [title]="' Other Products of ' + product?.brandName ">
   </app-product-grid>
 </section>
 
 
-
+<app-footer></app-footer>
 <app-downbar></app-downbar>

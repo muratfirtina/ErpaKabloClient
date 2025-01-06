@@ -7,18 +7,17 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Brand } from 'src/app/contracts/brand/brand';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
 import { BrandService } from 'src/app/services/common/models/brand.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
   selector: 'app-brand-update',
   standalone: true,
   imports: [CommonModule, 
-    NgxSpinnerModule, 
     MatCardModule, 
     MatFormFieldModule, 
     MatInputModule, 
@@ -36,7 +35,7 @@ export class BrandUpdateComponent extends BaseComponent implements OnInit {
   currentBrand: Brand;
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private brandService: BrandService,
     private fb: FormBuilder,
     public dialog: MatDialog,

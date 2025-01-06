@@ -6,10 +6,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { RolecreateconfrimDialogComponent } from 'src/app/dialogs/roleDialogs/rolecreateconfrim-dialog/rolecreateconfrim-dialog.component';
 import { RoleService } from 'src/app/services/common/models/role.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class RoleCreateComponent extends BaseComponent implements OnInit {
 
   roleForm: FormGroup;
 
-  constructor(spinner:NgxSpinnerService,
+  constructor(spinner:SpinnerService,
     private toastrService: CustomToastrService,
     private roleService:RoleService,
     private dialog: MatDialog,

@@ -2,15 +2,16 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
+import { ButtonSpinnerComponent } from 'src/app/base/spinner/button-spinner/button-spinner.component';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-login-popover',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, ButtonSpinnerComponent],
   templateUrl: './login-popover.component.html',
   styleUrl: './login-popover.component.scss'
 })
@@ -18,10 +19,11 @@ export class LoginPopoverComponent extends BaseComponent {
   @Output() closePopover = new EventEmitter<void>();
   isVisible = false;
   isDarkTheme = false;
+  loading: boolean = false;
 
   constructor(
     private userAuthService: UserAuthService,
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private authService: AuthService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -49,19 +51,22 @@ export class LoginPopoverComponent extends BaseComponent {
   }
 
   async login(userNameOrEmail: string, password: string) {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    await this.userAuthService.login(userNameOrEmail, password, () => {
-      this.authService.identityCheck();
-      sessionStorage.clear();
-      this.activatedRoute.queryParams.subscribe(params => {
-        const returnUrl: string = params['returnUrl'];
-        if (returnUrl) {
-          this.router.navigateByUrl(returnUrl);
-        } else {
-          this.router.navigate([""]);
-        }
+    this.loading = true;
+    try {
+      await this.userAuthService.login(userNameOrEmail, password, () => {
+        this.authService.identityCheck();
+        sessionStorage.clear();
+        this.activatedRoute.queryParams.subscribe(params => {
+          const returnUrl: string = params['returnUrl'];
+          if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+          } else {
+            this.router.navigate([""]);
+          }
+        });
       });
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
-    });
+    } finally {
+      this.loading = false;
+    }
   }
 }

@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-password-reset',
@@ -21,7 +21,7 @@ export class PasswordResetComponent extends BaseComponent {
   email: string = '';
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private userAuthService: UserAuthService,
     private toastr: CustomToastrService
   ) {

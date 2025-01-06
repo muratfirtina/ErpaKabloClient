@@ -155,6 +155,7 @@ $dark-input-bg: darken($background-color, 85%);
     max-width: 600px;
 
     .logo-image {
+        cursor: pointer;
         height: 80px;
         width: auto;
         margin: 0 10px;
@@ -322,25 +323,41 @@ $dark-input-bg: darken($background-color, 85%);
 }
 
 .btn-submit {
-    width: 100%;
-    padding: 12px;
-    background-color: $primary-color;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  position: relative;
+  min-height: 40px;
+  width: 100%;
+  padding: 12px;
+  background-color: $primary-color;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    &:hover {
-        background-color: darken($primary-color, 10%);
-    }
+  &:hover {
+    background-color: darken($primary-color, 10%);
+  }
 
-    &:disabled {
-        background-color: lighten($primary-color, 20%);
-        cursor: not-allowed;
-    }
+  &:disabled {
+    background-color: lighten($primary-color, 20%);
+    cursor: not-allowed;
+  }
+
+  app-button-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .invisible {
+    visibility: hidden;
+  }
 }
 
 .separator {

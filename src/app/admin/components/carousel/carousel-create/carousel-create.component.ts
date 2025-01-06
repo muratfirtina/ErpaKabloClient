@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CarouselService } from 'src/app/services/common/models/carousel.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
@@ -26,7 +26,7 @@ export class CarouselCreateComponent extends BaseComponent {
   constructor(
     private carouselService: CarouselService,
     private customToastrService: CustomToastrService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
   }

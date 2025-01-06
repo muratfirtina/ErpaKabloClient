@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { CommonModule } from '@angular/common';
 import { DownbarComponent } from '../../downbar/downbar.component';
 import { MainHeaderComponent } from '../../main-header/main-header.component';
@@ -9,20 +8,23 @@ import { NavbarComponent } from '../../navbar/navbar.component';
 import { Order } from 'src/app/contracts/order/order';
 import { OrderService } from 'src/app/services/common/models/order.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { FooterComponent } from '../../footer/footer.component';
 
 @Component({
   selector: 'app-order-summary',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, MainHeaderComponent, DownbarComponent],
+  imports: [CommonModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent],
   templateUrl: './order-summary.component.html',
   styleUrls: ['./order-summary.component.scss']
 })
 export class OrderSummaryComponent extends BaseComponent implements OnInit {
   orderSummary: Order;
   orderId: string;
+  loading: boolean = false;
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private orderService: OrderService,
@@ -46,38 +48,22 @@ export class OrderSummaryComponent extends BaseComponent implements OnInit {
   }
   
   private async loadOrderSummary() {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-  
+    this.loading = true;
+    
     try {
-      this.orderSummary = await this.orderService.getUserOrderById(
-        this.orderId,
-        () => {
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-        },
-        (error) => {
-          this.toastrService.message(
-            'Sipariş detayları yüklenirken bir hata oluştu',
-            'Hata',
-            {
-              toastrMessageType: ToastrMessageType.Error,
-              position: ToastrPosition.TopRight
-            }
-          );
-          console.error('Error loading order:', error);
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-        }
-      );
+      this.orderSummary = await this.orderService.getUserOrderById(this.orderId);
     } catch (error) {
       this.toastrService.message(
-        'Sipariş detayları yüklenirken bir hata oluştu',
-        'Hata',
+        'Order details could not be loaded',
+        'Error',
         {
           toastrMessageType: ToastrMessageType.Error,
           position: ToastrPosition.TopRight
         }
       );
-      console.error('Error:', error);
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      console.error('Error loading order:', error);
+    } finally {
+      this.loading = false;
     }
   }
 

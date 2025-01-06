@@ -9,7 +9,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
@@ -21,6 +20,7 @@ import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-direct
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { ProductService } from 'src/app/services/common/models/product.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-product-list',
@@ -56,7 +56,7 @@ export class ProductListComponent extends BaseComponent implements OnInit {
   private currentSearchTerm: string = ''; // Mevcut arama terimi
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private productService: ProductService,
     private toastrService: CustomToastrService,
     private dialogService: DialogService,

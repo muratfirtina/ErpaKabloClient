@@ -13,6 +13,7 @@ import { UserService } from 'src/app/services/common/models/user.service';
 })
 export class DesktopUserSidebarComponent implements OnInit {
   userNameSurname: string | undefined;
+  isLoading: boolean = true; 
 
   constructor(
     private router: Router,
@@ -22,11 +23,16 @@ export class DesktopUserSidebarComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated) {
+      this.isLoading = true;
       this.userService.getCurrentUser().then(user => {
         this.userNameSurname = user.nameSurname.toUpperCase();
+        this.isLoading = false;
       }).catch(error => {
         console.error('Error getting current user:', error);
+        this.isLoading = false;
       });
+    } else {
+      this.isLoading = false;
     }
   }
 

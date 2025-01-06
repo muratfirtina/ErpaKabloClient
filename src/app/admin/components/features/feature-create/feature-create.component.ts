@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseComponent } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl, FormArray } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -26,6 +25,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { SelectionModel } from '@angular/cdk/collections';
 import { Category } from 'src/app/contracts/category/category';
 import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 interface FlatNode {
   expandable: boolean;
@@ -91,7 +91,7 @@ export class FeatureCreateComponent extends BaseComponent implements OnInit {
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private featureService: FeatureService,
     private fb: FormBuilder,
     public dialog: MatDialog,

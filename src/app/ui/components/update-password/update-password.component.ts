@@ -2,12 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { UserService } from 'src/app/services/common/models/user.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-update-password',
@@ -36,7 +36,7 @@ export class UpdatePasswordComponent extends BaseComponent implements OnInit {
     private toastr: CustomToastrService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
     this.initializeForm();

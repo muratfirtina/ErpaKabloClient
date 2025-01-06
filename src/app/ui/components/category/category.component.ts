@@ -14,7 +14,6 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { Breadcrumb, BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { Category } from 'src/app/contracts/category/category';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
@@ -25,6 +24,7 @@ import { UiProductListComponent } from '../product/ui-product-list/ui-product-li
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { FooterComponent } from '../footer/footer.component';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 
 @Component({
@@ -39,7 +39,8 @@ import { FooterComponent } from '../footer/footer.component';
     RouterModule,
     BreadcrumbComponent,
     DownbarComponent,
-    FooterComponent],
+    FooterComponent,
+    ],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
 })
@@ -58,6 +59,8 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
   sortOrder: string = '';
   isMobile: boolean = false;
   quantity: number = 1;
+  isFiltersLoading: boolean = false;
+  isProductsLoading: boolean = false;
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
@@ -77,7 +80,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
     private customToasterService: CustomToastrService,
     private cartService: CartService,
     private productOperations: ProductOperationsService,
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
   ) {
     super(spinner);
   }
@@ -143,19 +146,22 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
   }
 
   async loadAvailableFilters() {
+    this.isFiltersLoading = true;
     try {
-        const filters = await this.productService.getAvailableFilters(this.categoryId);
-        this.availableFilters = filters;
+      const filters = await this.productService.getAvailableFilters(this.categoryId);
+      this.availableFilters = filters;
     } catch (error) {
-        console.error('Error loading filters:', error);
+      console.error('Error loading filters:', error);
+    } finally {
+      this.isFiltersLoading = false;
     }
-}
+  }
 
 async loadProducts() {
   if (!this.categoryId?.includes('-c-')) return;
-  
-  this.showSpinner(SpinnerType.BallSpinClockwise);
+  this.isProductsLoading = true;
   try {
+    await new Promise(resolve => setTimeout(resolve, 2000));
     this.selectedFilters['Category'] = [this.categoryId];
     const response = await this.productService.filterProducts(
       '', 
@@ -176,10 +182,10 @@ async loadProducts() {
       });
     }
   } catch (error) {
-    console.error('Error fetching products:', error);
+    
     this.noResults = true;
   } finally {
-    this.hideSpinner(SpinnerType.BallSpinClockwise);
+    this.isProductsLoading = false;
   }
 }
 

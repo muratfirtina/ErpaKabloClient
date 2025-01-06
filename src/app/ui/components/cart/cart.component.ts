@@ -2,7 +2,6 @@ import { Component, ElementRef, EventEmitter, HostListener, OnDestroy, OnInit, O
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CartItem } from 'src/app/contracts/cart/cartItem';
 import { IsCheckedCartItem } from 'src/app/contracts/cart/isCheckedCartItem';
@@ -17,6 +16,7 @@ import { ThemeService } from 'src/app/services/common/theme.service';
 import { BaseDrawerComponent } from '../base-drawer.component';
 import { AnimationService } from 'src/app/services/common/animation.service';
 import { Subscription } from 'rxjs';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-cart',
@@ -46,7 +46,7 @@ export class CartComponent extends BaseDrawerComponent implements OnInit, OnDest
     elementRef: ElementRef,
     animationService: AnimationService,
     themeService: ThemeService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner, elementRef, animationService, themeService);
     

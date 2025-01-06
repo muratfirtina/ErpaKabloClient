@@ -7,7 +7,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Category } from 'src/app/contracts/category/category';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
@@ -19,6 +18,7 @@ import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-direct
 import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
 import { CategoryFilterByDynamic } from 'src/app/contracts/category/categoryFilterByDynamic';
 import { Router, RouterModule } from '@angular/router';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-category-list',
@@ -53,7 +53,7 @@ export class CategoryListComponent extends BaseComponent implements OnInit {
   searchForm: FormGroup;
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private categoryService: CategoryService,
     private toastrService: CustomToastrService,
     private fb: FormBuilder,

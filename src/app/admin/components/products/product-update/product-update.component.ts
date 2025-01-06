@@ -22,7 +22,6 @@ import { FeatureService } from 'src/app/services/common/models/feature.service';
 import { ProductService } from 'src/app/services/common/models/product.service';
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Brand } from 'src/app/contracts/brand/brand';
 import { Category } from 'src/app/contracts/category/category';
@@ -33,6 +32,7 @@ import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/fi
 import { MatRadioModule } from '@angular/material/radio';
 import { HttpEvent, HttpResponse } from '@angular/common/http';
 import { Observable, from, map } from 'rxjs';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-product-update',
@@ -137,7 +137,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     private snackBar: MatSnackBar,
     private dialogService: DialogService,
     private customToastrService: CustomToastrService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
     this.createForm();

@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
-import { HubConnection, HubConnectionState, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
+import { HubConnection, HubConnectionState, HubConnectionBuilder, LogLevel, HttpTransportType } from "@microsoft/signalr";
 import { BehaviorSubject } from "rxjs";
 import { HubUrls } from "src/app/constants/hub-urls";
 import { ReceiveFunctions } from "src/app/constants/receive-functions";
-import { OrderNotification, OrderStatusNotification } from "src/app/contracts/order/orderNotification";
+import { OrderCreateNotification, OrderNotification, OrderStatusNotification, OrderUpdateNotification } from "src/app/contracts/order/orderNotification";
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from "../ui/custom-toastr.service";
 import { AuthService } from "./auth.service";
 import { UserService } from "./models/user.service";
@@ -13,8 +13,9 @@ import { UserService } from "./models/user.service";
 })
 export class SignalrService {
   private hubConnection: HubConnection;
-  private orderNotifications = new BehaviorSubject<OrderNotification[]>([]);
+  private orderNotifications = new BehaviorSubject<OrderCreateNotification[]>([]);
   private orderStatusUpdates = new BehaviorSubject<OrderStatusNotification[]>([]);
+  private orderUpdates = new BehaviorSubject<OrderUpdateNotification[]>([]);
   private connecting = false;
   private isInitialized = false;
   private connectionRetryCount = 0;
@@ -62,10 +63,11 @@ export class SignalrService {
     if (this.connecting || this.isConnected()) return;
 
     this.connecting = true;
-    const token = localStorage.getItem("accessToken");
+    const token = this.authService.getToken();
     
     if (!token) {
       this.connecting = false;
+      console.error('No token available');
       return;
     }
 
@@ -73,7 +75,9 @@ export class SignalrService {
       if (!this.hubConnection) {
         this.hubConnection = new HubConnectionBuilder()
           .withUrl(HubUrls.OrderHub, { 
-            accessTokenFactory: () => token 
+            accessTokenFactory: () => this.authService.getToken(),
+            transport: HttpTransportType.WebSockets,  // signalR. prefix'ini kaldırdık
+            skipNegotiation: true
           })
           .withAutomaticReconnect({
             nextRetryDelayInMilliseconds: retryContext => {
@@ -89,7 +93,14 @@ export class SignalrService {
 
       if (this.hubConnection.state === HubConnectionState.Disconnected) {
         await this.hubConnection.start();
-        await this.hubConnection.invoke('JoinAdminGroup');
+        console.log('Attempting to join admin group...');
+        try {
+          await this.hubConnection.invoke('JoinAdminGroup');
+          console.log('Successfully joined admin group');
+        } catch (error) {
+          console.error('Failed to join admin group:', error);
+          throw error; // Yeniden fırlatalım ki üst catch bloğu yakalasın
+        }
         this.registerHandlers();
         console.log('SignalR connection established');
       }
@@ -112,29 +123,45 @@ export class SignalrService {
     } finally {
       this.connecting = false;
     }
-  }
+}
 
-  private setupConnectionEvents() {
-    this.hubConnection.onreconnecting((error) => {
-      console.log('Attempting to reconnect...', error);
-      this.connecting = true;
-    });
-
-    this.hubConnection.onreconnected((connectionId) => {
-      console.log('Reconnected successfully with connectionId:', connectionId);
-      this.connecting = false;
-      this.connectionRetryCount = 0;
-    });
-
-    this.hubConnection.onclose((error) => {
-      console.log('Connection closed', error);
-      this.connecting = false;
-      if (this.connectionRetryCount < this.maxRetries) {
-        this.connectionRetryCount++;
-        setTimeout(() => this.startConnection(), 2000);
+private setupConnectionEvents() {
+  this.hubConnection.onreconnecting((error) => {
+    console.log('SignalR reconnecting:', error);
+    this.connecting = true;
+    this.toastrService.message(
+      "SignalR bağlantısı yeniden kurulmaya çalışılıyor...",
+      "Bilgi",
+      {
+        toastrMessageType: ToastrMessageType.Warning,
+        position: ToastrPosition.TopRight
       }
-    });
-  }
+    );
+  });
+
+  this.hubConnection.onreconnected((connectionId) => {
+    console.log('SignalR reconnected. ConnectionId:', connectionId);
+    this.connecting = false;
+    this.connectionRetryCount = 0;
+    this.toastrService.message(
+      "SignalR bağlantısı yeniden kuruldu",
+      "Başarılı",
+      {
+        toastrMessageType: ToastrMessageType.Success,
+        position: ToastrPosition.TopRight
+      }
+    );
+  });
+
+  this.hubConnection.onclose((error) => {
+    console.log('SignalR connection closed:', error);
+    this.connecting = false;
+    if (this.connectionRetryCount < this.maxRetries) {
+      this.connectionRetryCount++;
+      setTimeout(() => this.startConnection(), 2000);
+    }
+  });
+}
 
   public async disconnect() {
     try {
@@ -204,10 +231,35 @@ export class SignalrService {
   private registerHandlers() {
     if (!this.hubConnection) return;
 
-    this.hubConnection.on("ReceiveOrderCreated", (notification: OrderNotification) => {
-        console.log("Order notification received:", notification);
+    this.hubConnection.off("ReceiveOrderCreated");
+  this.hubConnection.off(ReceiveFunctions.OrderUpdatedMessageReceivedFunction);
+
+  // Yeni sipariş bildirimi
+  this.hubConnection.on("ReceiveOrderCreated", (notification: any) => {
+    const formattedNotification: OrderCreateNotification = {
+      type: notification.Type,
+      orderId: notification.OrderId,
+      orderNumber: notification.OrderNumber,
+      message: notification.Message,
+      timestamp: new Date(notification.Timestamp),
+      customerName: notification.CustomerName,
+      items: notification.Items?.map(item => ({
+        productName: item.ProductName,
+        brandName: item.BrandName,
+        quantity: item.Quantity,
+        price: item.Price,
+        featureValues: item.FeatureValues?.map((feature: any) => ({
+          featureName: feature.FeatureName,
+          valueName: feature.ValueName
+      })),
+      })),
+      totalAmount: notification.TotalAmount
+    };
+
+    this.orderNotifications.next([formattedNotification, ...this.orderNotifications.value]);
+        
         this.toastrService.message(
-            notification.message,
+            `Yeni sipariş: #${notification.OrderNumber}`,
             "Yeni Sipariş",
             {
                 toastrMessageType: ToastrMessageType.Info,
@@ -216,19 +268,88 @@ export class SignalrService {
         );
     });
 
-    this.hubConnection.on(ReceiveFunctions.OrderStatusChangedMessageReceivedFunction, 
-      (notification: OrderStatusNotification) => {
-        const currentUpdates = this.orderStatusUpdates.value;
-        this.orderStatusUpdates.next([...currentUpdates, notification]);
-        
-        this.toastrService.message(
-          notification.message,
-          "Sipariş Güncellendi",
-          {
-            toastrMessageType: ToastrMessageType.Info,
-            position: ToastrPosition.TopRight
-          }
-        );
+    this.hubConnection.on(ReceiveFunctions.OrderUpdatedMessageReceivedFunction, 
+      (notification: any) => {
+        if (!notification.Items?.some(item => 
+          item.Price.Changed || item.Quantity.Changed || item.LeadTime.Changed) &&
+          !notification.TotalAmount.Changed &&
+          !notification.Status?.Changed) {
+          return;
+        }
+        const formattedNotification: OrderUpdateNotification = {
+          type: notification.Type,
+          orderId: notification.OrderId,
+          orderNumber: notification.OrderNumber,
+          message: notification.Message,
+          timestamp: new Date(notification.Timestamp),
+          customerName: notification.CustomerName,
+          updatedBy: notification.UpdatedBy,
+          totalAmount: {
+            current: notification.TotalAmount.Current,
+            previous: notification.TotalAmount.Previous,
+            changed: notification.TotalAmount.Changed
+          },
+          items: notification.Items?.map(item => ({
+            id: item.Id,
+            productName: item.ProductName,
+            brandName: item.BrandName,
+            featureValues: item.FeatureValues?.map((feature: any) => ({
+              featureName: feature.FeatureName,
+              valueName: feature.ValueName
+            })),
+            quantity: {
+              current: item.Quantity.Current,
+              previous: item.Quantity.Previous,
+              changed: item.Quantity.Changed
+            },
+            price: {
+              current: item.Price.Current,
+              previous: item.Price.Previous,
+              changed: item.Price.Changed
+            },
+            leadTime: {
+              current: item.LeadTime.Current,
+              previous: item.LeadTime.Previous,
+              changed: item.LeadTime.Changed
+            }
+          }))
+        };
+  
+        this.orderUpdates.next([formattedNotification, ...this.orderUpdates.value]);
+            
+            this.toastrService.message(
+                notification.Message,
+                "Sipariş Güncellendi",
+                {
+                    toastrMessageType: ToastrMessageType.Info,
+                    position: ToastrPosition.TopRight
+                }
+            );
     });
+}
+
+  getOrderNotifications() {
+    return this.orderNotifications.asObservable();
+  }
+
+  getOrderStatusUpdates() {
+    return this.orderStatusUpdates.asObservable();
+  }
+
+  getOrderUpdates() {
+    return this.orderUpdates.asObservable();
+  }
+
+  // Temizleme metodları
+  clearOrderNotifications() {
+    this.orderNotifications.next([]);
+  }
+
+  clearOrderStatusUpdates() {
+    this.orderStatusUpdates.next([]);
+  }
+
+  clearOrderUpdates() {
+    this.orderUpdates.next([]);
   }
 }

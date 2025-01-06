@@ -14,7 +14,6 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { Breadcrumb, BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { Brand } from 'src/app/contracts/brand/brand';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { ProductLikeService } from 'src/app/services/common/models/product-like.service';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
@@ -24,6 +23,7 @@ import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { UiProductListComponent } from '../product/ui-product-list/ui-product-list.component';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { FooterComponent } from '../footer/footer.component';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-brand',
@@ -58,6 +58,8 @@ export class BrandComponent extends BaseComponent implements OnInit,OnChanges {
   noResults: boolean = false;
   sortOrder: string = '';
   isMobile: boolean = false;
+  isFiltersLoading: boolean = false;
+  isProductsLoading: boolean = false;
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
@@ -76,7 +78,7 @@ export class BrandComponent extends BaseComponent implements OnInit,OnChanges {
     private productLikeService: ProductLikeService,
     private authService: AuthService,
     private customToasterService: CustomToastrService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
   }
@@ -113,7 +115,7 @@ export class BrandComponent extends BaseComponent implements OnInit,OnChanges {
   async loadBrand() {
     if (!this.brandId) return;
 
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+    this.showSpinner(SpinnerType.SquareLoader);
     try {
       const brand = await this.brandService.getById(this.brandId);
       if (!brand) {
@@ -125,7 +127,7 @@ export class BrandComponent extends BaseComponent implements OnInit,OnChanges {
       console.error('Error loading brand:', error);
       this.router.navigate(['/']);
     } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
   
@@ -142,41 +144,49 @@ export class BrandComponent extends BaseComponent implements OnInit,OnChanges {
   }
 
   async loadAvailableFilters() {
+    this.isFiltersLoading = true;
     try {
-        const filters = await this.productService.getAvailableFilters(this.brandId);
-        this.availableFilters = filters;
+      const filters = await this.productService.getAvailableFilters(this.brandId);
+      this.availableFilters = filters;
     } catch (error) {
-        console.error('Error loading filters:', error);
+      console.error('Error loading filters:', error);
+    } finally {
+      this.isFiltersLoading = false;
     }
-}
+  }
 
   async loadProducts() {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    // Ensure the current brand is always included in the filter
-    this.selectedFilters['Brand'] = [this.brandId];
-    this.productService.filterProducts('', this.selectedFilters, this.pageRequest, this.sortOrder)
-      .then(
-        async (response) => {
-          this.products = response.items;
-          this.totalItems = response.count;
-          this.noResults = this.products.length === 0;
-
-          if (this.authService.isAuthenticated) {
-            const productIds = this.products.map(p => p.id);
-            const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-            
-            this.products.forEach(product => {
-              product.isLiked = likedProductIds.includes(product.id);
-            });
-          }
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-        },
-        (error) => {
-          console.error('Error fetching products:', error);
-          this.noResults = true;
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-        }
+    this.isProductsLoading = true;
+    //2 saniye delay yap ve spinner göster
+    this.showSpinner(SpinnerType.SquareLoader);
+    
+    try {
+      this.selectedFilters['Brand'] = [this.brandId];
+      const response = await this.productService.filterProducts(
+        '', 
+        this.selectedFilters, 
+        this.pageRequest, 
+        this.sortOrder
       );
+      
+      this.products = response.items;
+      this.totalItems = response.count;
+      this.noResults = this.products.length === 0;
+  
+      if (this.authService.isAuthenticated) {
+        const productIds = this.products.map(p => p.id);
+        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+        this.products.forEach(product => {
+          product.isLiked = likedProductIds.includes(product.id);
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      this.noResults = true;
+    } finally {
+      this.isProductsLoading = false;
+      this.hideSpinner(SpinnerType.SquareLoader);
+    }
   }
 
   onFilterChange(filters: { [key: string]: string[] }) {

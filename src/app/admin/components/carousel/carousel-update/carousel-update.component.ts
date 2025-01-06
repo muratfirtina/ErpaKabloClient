@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Carousel } from 'src/app/contracts/carousel/carousel';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { CarouselService } from 'src/app/services/common/models/carousel.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
@@ -23,7 +23,7 @@ export class CarouselUpdateComponent extends BaseComponent implements OnInit {
   constructor(
     private carouselService: CarouselService,
     private customToastrService: CustomToastrService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
   }

@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { PageRequest } from 'src/app/contracts/pageRequest';
 import { OrderService } from 'src/app/services/common/models/order.service';
@@ -15,6 +14,9 @@ import { DownbarComponent } from '../downbar/downbar.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { DesktopUserSidebarComponent } from '../user/desktop-user-sidebar/desktop-user-sidebar.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { FooterComponent } from '../footer/footer.component';
+import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
 
 @Component({
   selector: 'app-order',
@@ -28,7 +30,9 @@ import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
     BreadcrumbComponent, 
     DesktopUserSidebarComponent, 
     DownbarComponent,
-    BreadcrumbComponent
+    BreadcrumbComponent,
+    FooterComponent,
+    SpinnerComponent
   ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss']
@@ -45,7 +49,7 @@ export class OrderComponent extends BaseComponent implements OnInit {
   public OrderStatus = OrderStatus;  // Template'de enum değerlerine erişim için
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private breadcrumbService: BreadcrumbService,
     private orderService: OrderService,
     private toastr: CustomToastrService
@@ -62,7 +66,7 @@ export class OrderComponent extends BaseComponent implements OnInit {
 
   async loadOrders(): Promise<void> {
     this.loading = true;
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+    this.showSpinner(SpinnerType.SquareLoader);
     const searchTerm = this.searchQuery.trim() === '' ? null : this.searchQuery;
     
     try {
@@ -71,19 +75,13 @@ export class OrderComponent extends BaseComponent implements OnInit {
         searchTerm || '',
         this.dateRange,
         this.statusFilter,
-        () => {
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-          this.loading = false;
-        },
+        () => {},
         (error) => {
           console.error('Error loading orders:', error);
           this.toastr.message('Orders loading error', 'Error',{
             toastrMessageType: ToastrMessageType.Error,
             position: ToastrPosition.TopRight
-            
           });
-          this.hideSpinner(SpinnerType.BallSpinClockwise);
-          this.loading = false;
         }
       );
       
@@ -93,14 +91,13 @@ export class OrderComponent extends BaseComponent implements OnInit {
       this.toastr.message('Orders loading error', 'Error',{
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
-        
       });
       console.error('Error:', error);
     } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
       this.loading = false;
+      this.hideSpinner(SpinnerType.SquareLoader);
     }
-  }
+}
 
   // Arama inputu değiştiğinde çağrılır
   searchOrders(): void {

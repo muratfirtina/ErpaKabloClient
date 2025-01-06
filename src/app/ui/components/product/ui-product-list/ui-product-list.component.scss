@@ -27,3 +27,15 @@
       }
     }
   }
+  .position-relative {
+    position: relative;
+    min-height: 400px; // spinner'ın görünmesi için minimum yükseklik
+  }
+  
+  .product-list {
+    width: 100%;
+    min-height: 200px;
+  }
+  .opacity-25 {
+    opacity: 0.25;
+  }

@@ -2,7 +2,6 @@ import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } fro
 import { CommonModule } from '@angular/common';
 import { MainHeaderComponent } from '../main-header/main-header.component';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { CarouselService } from 'src/app/services/common/models/carousel.service';
 import { Category } from 'src/app/contracts/category/category';
@@ -22,6 +21,7 @@ import { ProductOperationsService } from 'src/app/services/ui/product/product-op
 import { DownbarComponent } from '../downbar/downbar.component';
 import { ProductGridComponent } from '../product/product-grid/product-grid.component';
 import { FooterComponent } from '../footer/footer.component';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-home',
@@ -51,7 +51,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private categoryService: CategoryService,
     private carouselService: CarouselService,
     private productService: ProductService,

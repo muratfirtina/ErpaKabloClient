@@ -4,11 +4,11 @@ import { Component, OnInit } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent } from 'src/app/base/base/base.component';
 import { AuthorizeMenuDialogComponent } from 'src/app/dialogs/authorizeMenuDialogs/authorize-menu-dialog/authorize-menu-dialog.component';
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { ApplicationService } from 'src/app/services/common/models/application.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 interface ITreeMenu {
   name?: string,
@@ -32,7 +32,7 @@ interface ExampleFlatNode {
 })
 export class AuthorizeMenuComponent extends BaseComponent implements OnInit {
 
-  constructor(spinner: NgxSpinnerService, private applicationService: ApplicationService, private dialogService: DialogService) {
+  constructor(spinner: SpinnerService, private applicationService: ApplicationService, private dialogService: DialogService) {
     super(spinner)
   }
 

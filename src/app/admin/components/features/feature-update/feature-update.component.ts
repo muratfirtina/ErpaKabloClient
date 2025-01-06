@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseComponent } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
 import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl, FormArray } from '@angular/forms';
@@ -28,6 +27,7 @@ import { FeatureUpdate } from 'src/app/contracts/feature/feature-update';
 import { FeatureGetById } from 'src/app/contracts/feature/feature-getbyid';
 import { FeatureupdateDialogComponent } from 'src/app/dialogs/featureDialogs/featureupdate-dialog/featureupdate-dialog.component';
 import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 interface FlatNode {
   expandable: boolean;
@@ -93,7 +93,7 @@ export class FeatureUpdateComponent extends BaseComponent implements OnInit {
   dataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private featureService: FeatureService,
     private featureValueService: FeaturevalueService,
     private fb: FormBuilder,

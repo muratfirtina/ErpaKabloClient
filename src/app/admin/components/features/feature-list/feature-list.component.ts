@@ -4,7 +4,6 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angul
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { FeatureFilterByDynamic } from 'src/app/contracts/feature/featureFilterByDynamic';
@@ -22,6 +21,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-feature-list',
@@ -55,7 +55,7 @@ export class FeatureListComponent extends BaseComponent implements OnInit {
   searchForm: FormGroup;
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private featureService: FeatureService,
     private toastrService: CustomToastrService,
     private dialogService: DialogService,

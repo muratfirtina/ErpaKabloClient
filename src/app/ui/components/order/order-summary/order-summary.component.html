@@ -4,6 +4,50 @@
 
 <div class="order-summary-page">
   <div class="container">
+    <div class="skeleton-container" *ngIf="loading">
+      <!-- Başlık Skeleton -->
+      <div class="skeleton-success-message">
+        <div class="skeleton-icon"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-order-code"></div>
+      </div>
+
+      <!-- Ürünler Skeleton -->
+      <div class="skeleton-products">
+        <div class="skeleton-section-title"></div>
+        <div class="skeleton-product-item" *ngFor="let i of [1,2]">
+          <div class="skeleton-product-image"></div>
+          <div class="skeleton-product-info">
+            <div class="skeleton-text-short"></div>
+            <div class="skeleton-text-medium"></div>
+            <div class="skeleton-text-long"></div>
+          </div>
+          <div class="skeleton-price"></div>
+        </div>
+      </div>
+
+      <!-- Teslimat Bilgileri Skeleton -->
+      <div class="skeleton-delivery">
+        <div class="skeleton-section-title"></div>
+        <div class="skeleton-info-card">
+          <div class="skeleton-text-short"></div>
+          <div class="skeleton-text-medium"></div>
+          <div class="skeleton-text-long"></div>
+        </div>
+      </div>
+
+      <!-- Fiyat Özeti Skeleton -->
+      <div class="skeleton-price-summary">
+        <div class="skeleton-section-title"></div>
+        <div class="skeleton-summary-item" *ngFor="let i of [1,2,3]">
+          <div class="skeleton-text-short"></div>
+          <div class="skeleton-price"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- <app-spinner [spinnerType]="'s2'" *ngIf="loading"></app-spinner> -->
+    <div [class.invisible]="loading">
     <!-- Başarı Mesajı -->
     <div class="success-message">
       <div class="success-icon">
@@ -101,7 +145,8 @@
         Continue Shopping
       </button>
     </div>
+    </div>
   </div>
 </div>
-
+<app-footer></app-footer>
 <app-downbar></app-downbar>

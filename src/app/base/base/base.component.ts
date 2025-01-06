@@ -1,23 +1,18 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgxSpinnerService } from 'ngx-spinner';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-base',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './base.component.html',
-  styleUrls: ['./base.component.scss']
+  template: ''
 })
-
-
 export class BaseComponent {
-  constructor(private spinner:NgxSpinnerService) { }
+  constructor(private spinner: SpinnerService) { }
 
   showSpinner(spinnerNameType: SpinnerType) {
     this.spinner.show(spinnerNameType);
-    
-    
   }
 
   hideSpinner(spinnerNameType: SpinnerType) {
@@ -27,4 +22,6 @@ export class BaseComponent {
 
 export enum SpinnerType {
   BallSpinClockwise = "s1",
+  SquareLoader = "s2",
+  // İstediğiniz kadar spinner tipi ekleyebilirsiniz
 }

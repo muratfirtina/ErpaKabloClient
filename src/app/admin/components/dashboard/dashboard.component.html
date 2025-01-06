@@ -1,1 +1,167 @@
-<app-sitemap-monitoring></app-sitemap-monitoring>
+<div class="dashboard-container">
+    <app-sitemap-monitoring></app-sitemap-monitoring>
+
+    <div class="notifications-section" *ngIf="orderNotifications.length">
+        <h3>Yeni Siparişler</h3>
+        <div class="notification-list">
+            <div class="notification-item" *ngFor="let notification of orderNotifications">
+                <div class="notification-header">
+                    <span class="order-number">Sipariş No: #{{notification.orderNumber}}</span>
+                    <span class="notification-time">
+                        {{notification.timestamp | date:'dd.MM.yyyy HH:mm:ss'}}
+                    </span>
+                </div>
+
+                <div class="notification-content">
+                    <div class="customer-info">
+                        <strong>Müşteri: </strong> {{notification.customerName || 'Belirtilmemiş'}}
+                    </div>
+
+                    <div class="order-items">
+                        <div class="item-header">
+                            <span>Ürün</span>
+                            <span>Miktar</span>
+                            <span>Fiyat</span>
+                        </div>
+                        <div class="order-item" *ngFor="let item of notification.items">
+                            <div class="product-info">
+                              <span class="brand-name" *ngIf="item.brandName">({{item.brandName}})</span>
+                              <span class="product-name">{{item.productName}}</span>
+                              <div class="features" *ngIf="item.featureValues?.length">
+                                <span *ngFor="let feature of item.featureValues" class="feature-item">
+                                  {{feature.featureName}}: {{feature.valueName}}
+                                </span>
+                              </div>
+                            </div>
+                            <span>{{item.quantity}}</span>
+                            <span>{{item.price | currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
+                          </div>
+                    </div>
+                    <div class="order-total">
+                        <strong>Toplam: </strong>
+                        <span>{{notification.totalAmount| currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Updates -->
+    <div class="notifications-section" *ngIf="orderUpdates.length">
+        <h3>Sipariş Güncellemeleri</h3>
+        <div class="notification-list">
+            <div class="notification-item" *ngFor="let update of orderUpdates">
+                <div class="notification-header">
+                    <span class="order-number">Sipariş No: #{{update.orderNumber}}</span>
+                    <span class="notification-time">
+                        {{update.timestamp | date:'dd.MM.yyyy HH:mm:ss'}}
+                    </span>
+                </div>
+
+                <div class="notification-content">
+                    <!-- Müşteri Bilgisi -->
+                    <div class="customer-info">
+                        <strong>Müşteri: </strong> {{update.customerName || 'Belirtilmemiş'}}
+                    </div>
+
+                    <!-- Durum Değişikliği -->
+                    <div class="status-change" *ngIf="update.status?.changed">
+                        <div class="change-label">Durum:</div>
+                        <div class="change-values">
+                            <span class="previous-value">{{update.status.previous}}</span>
+                            <i class="fas fa-arrow-right"></i>
+                            <span class="current-value">{{update.status.current}}</span>
+                        </div>
+                    </div>
+
+                    <!-- Ürün Değişiklikleri -->
+                    <div class="items-changes" *ngIf="update.items?.length">
+                        <div class="section-title">Ürün Değişiklikleri</div>
+                        <div class="items-table">
+                            <div class="table-header">
+                                <div>Ürün</div>
+                                <div>Miktar</div>
+                                <div>Fiyat</div>
+                                <div>Termin</div>
+                            </div>
+                            
+                            <div class="table-row" *ngFor="let item of update.items">
+                                <div class="product-info">
+                                    <div class="product-name">{{item.productName}}</div>
+                                    <div class="brand-name" *ngIf="item.brandName">{{item.brandName}}</div>
+                                    <div class="features" *ngIf="item.featureValues?.length">
+                                      <span *ngFor="let feature of item.featureValues" class="feature-item">
+                                        {{feature.featureName}}: {{feature.valueName}}
+                                      </span>
+                                    </div>
+                                  </div>
+                                
+                                <!-- Miktar -->
+                                <div class="quantity" *ngIf="item.quantity.changed">
+                                    <div class="change-values">
+                                        <span class="previous-value">{{item.quantity.previous}}</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                        <span class="current-value">{{item.quantity.current}}</span>
+                                    </div>
+                                </div>
+                                <div *ngIf="!item.quantity.changed">{{item.quantity.current}}</div>
+                                
+                                <!-- Fiyat -->
+                                <div class="price-column">
+                                    <div class="price-content" *ngIf="item.price.changed">
+                                      <span class="previous-price">
+                                        {{item.price.previous | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                                      </span>
+                                      <i class="fas fa-arrow-right"></i>
+                                      <span class="current-price">
+                                        {{item.price.current | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                                      </span>
+                                    </div>
+                                    <div *ngIf="!item.price.changed">
+                                      {{item.price.current | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                                    </div>
+                                  </div>
+                                
+                                <!-- Termin -->
+                                <div class="lead-time" *ngIf="item.leadTime.changed">
+                                    <div class="change-values">
+                                        <span class="previous-value">{{item.leadTime.previous}} gün</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                        <span class="current-value">{{item.leadTime.current}} gün</span>
+                                    </div>
+                                </div>
+                                <div *ngIf="!item.leadTime.changed">{{item.leadTime.current}} gün</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Toplam Tutar Değişikliği -->
+                    <div class="total-amount" *ngIf="update.totalAmount?.changed">
+                        <div class="change-label">Toplam Tutar:</div>
+                        <div class="change-values">
+                            <span class="previous-value">
+                                {{update.totalAmount.previous | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                            </span>
+                            <i class="fas fa-arrow-right"></i>
+                            <span class="current-value">
+                                {{update.totalAmount.current | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Admin Notu -->
+                    <div class="admin-note" *ngIf="update.adminNote?.changed">
+                        <div class="change-label">Admin Notu:</div>
+                        <div class="note-content">{{update.adminNote.current}}</div>
+                    </div>
+
+                    <!-- Güncelleme Bilgisi -->
+                    <div class="update-info">
+                        <span>Güncelleyen: {{update.updatedBy}}</span>
+                        <span class="update-time">{{update.timestamp | date:'dd.MM.yyyy HH:mm:ss'}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

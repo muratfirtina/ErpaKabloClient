@@ -8,7 +8,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { PageRequest } from 'src/app/contracts/pageRequest';
@@ -23,6 +22,7 @@ import { error } from 'jquery';
 import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
 import { UserFilterByDynamic } from 'src/app/contracts/user/userFilterByDynamic';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-user-list',
@@ -67,7 +67,7 @@ export class UserListComponent extends BaseComponent implements OnInit {
     private userService: UserService,
     private toastrService: CustomToastrService,
     private dialogService: DialogService,
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private fb: FormBuilder
   ) {
     super(spinner);

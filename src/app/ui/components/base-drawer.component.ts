@@ -1,8 +1,8 @@
 // base-drawer.component.ts
 import { Component, Input, Output, EventEmitter, ElementRef, HostListener } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent } from 'src/app/base/base/base.component';
 import { AnimationService } from 'src/app/services/common/animation.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { ThemeService } from 'src/app/services/common/theme.service';
 
 @Component({
@@ -15,7 +15,7 @@ export abstract class BaseDrawerComponent extends BaseComponent{
   @Input() closeOnOutsideClick = true;
 
   protected constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     protected elementRef: ElementRef,
     protected animationService: AnimationService,
     protected themeService: ThemeService

@@ -32,7 +32,23 @@
 <!-- Filter Content Template -->
 <ng-template #filterContent>
   <div class="filter-container">
-    <form [formGroup]="filterForm" (ngSubmit)="onFilterChange()">
+    <!-- Skeleton Loading -->
+    <div *ngIf="isLoading" class="filter-skeleton">
+      <!-- Filter Group Skeletons -->
+      <div class="skeleton-filter-group" *ngFor="let i of [1,2,3,4]">
+        <!-- Header Skeleton -->
+        <div class="skeleton-header">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-chevron"></div>
+        </div>
+        <!-- Content Skeleton -->
+        <div class="skeleton-content">
+          <div class="skeleton-item" *ngFor="let j of [1,2,3,4]"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Skeleton Loading -->
+    <form [formGroup]="filterForm" (ngSubmit)="onFilterChange()" *ngIf="!isLoading">
       <div class="filter-groups-container">
         <div *ngFor="let filter of availableFilters" class="filter-group">
           <!-- Başlık kısmı tıklanabilir yapıldı -->
@@ -77,6 +93,15 @@
                     </button>
                   </div>
                   <div class="predefined-ranges scrollable">
+                    <div class="predefined-ranges-header">
+                      <span>Clear Price Filter</span>
+                      <button type="button" 
+                              class="clear-range-btn" 
+                              *ngIf="selectedFilters['Price']"
+                              (click)="selectPriceRange(null)">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </div>
                     <label *ngFor="let option of filter.options" class="checkbox-label">
                       <input type="radio" [value]="option.value" 
                              [checked]="isSelected(filter.key, option.value)"

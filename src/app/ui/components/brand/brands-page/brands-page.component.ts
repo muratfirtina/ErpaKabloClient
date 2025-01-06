@@ -5,12 +5,12 @@ import { NavbarComponent } from '../../navbar/navbar.component';
 import { DownbarComponent } from '../../downbar/downbar.component';
 import { BrandService } from 'src/app/services/common/models/brand.service';
 import { Brand } from 'src/app/contracts/brand/brand';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { RouterModule } from '@angular/router';
 import { BreadcrumbComponent } from '../../breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { FooterComponent } from '../../footer/footer.component';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-brands-page',
@@ -26,7 +26,7 @@ export class BrandsPageComponent extends BaseComponent implements OnInit {
   constructor(
     private breadcrumbService: BreadcrumbService,
     private brandService: BrandService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
   }

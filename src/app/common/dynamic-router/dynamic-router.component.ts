@@ -3,11 +3,11 @@ import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { filter } from 'rxjs/operators';
 import { BrandComponent } from 'src/app/ui/components/brand/brand.component';
 import { CategoryComponent } from 'src/app/ui/components/category/category.component';
 import { ProductDetailComponent } from 'src/app/ui/components/product/product-detail/product-detail.component';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-dynamic-router',
@@ -41,7 +41,7 @@ export class DynamicRouterComponent extends BaseComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
 

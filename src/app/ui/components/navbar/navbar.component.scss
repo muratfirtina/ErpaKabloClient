@@ -641,6 +641,18 @@ $breakpoint-large: 1400px;
 .recommended-products {
   position: relative;
   min-height: 200px;
+
+  .invisible {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  app-spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .custom-spinner-overlay {

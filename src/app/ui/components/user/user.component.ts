@@ -2,7 +2,6 @@
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { UserAddress } from 'src/app/contracts/user/userAddress';
 import { UserDto } from 'src/app/contracts/user/userDto';
@@ -22,6 +21,7 @@ import { BreadcrumbComponent } from '../breadcrumb/breadcrumb.component';
 import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { DesktopUserSidebarComponent } from './desktop-user-sidebar/desktop-user-sidebar.component';
 import { ValidationService } from 'src/app/services/common/validation.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 
 declare var $: any;
@@ -70,7 +70,7 @@ export class UserComponent extends BaseComponent implements OnInit {
     private toastr: CustomToastrService,
     private breadcrumbService: BreadcrumbService,
     private validationService: ValidationService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
     this.initializeForms();

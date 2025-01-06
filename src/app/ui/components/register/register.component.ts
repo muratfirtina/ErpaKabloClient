@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CreateUser } from 'src/app/contracts/user/createUser';
 import { User } from 'src/app/contracts/user/user';
@@ -12,11 +11,13 @@ import { UserService } from 'src/app/services/common/models/user.service';
 import { ValidationService } from 'src/app/services/common/validation.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { DownbarComponent } from '../downbar/downbar.component';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { ButtonSpinnerComponent } from 'src/app/base/spinner/button-spinner/button-spinner.component';
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, DownbarComponent, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DownbarComponent, RouterModule,ButtonSpinnerComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -30,7 +31,7 @@ export class RegisterComponent extends BaseComponent implements OnInit {
     private toastrService: CustomToastrService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
   }
@@ -46,6 +47,8 @@ export class RegisterComponent extends BaseComponent implements OnInit {
   submitted: boolean = false;
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
+
+  loading: boolean = false;
 
   ngOnInit(): void {
     this.frm = this.formBuilder.group({
@@ -117,6 +120,7 @@ export class RegisterComponent extends BaseComponent implements OnInit {
 
   async onSubmit(user: User) {
     this.submitted = true;
+    
     if (this.frm.invalid) {
       const firstError = document.querySelector('.is-invalid');
       if (firstError) {
@@ -124,31 +128,26 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       }
       return;
     }
-  
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-  
+
+    this.loading = true;
     try {
       const result: CreateUser = await this.userService.create(user);
-  
+
       if (result.isSuccess) {
         this.toastrService.message(result.message, "User Created Successfully", {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight
         });
-  
-        await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
         try {
           await new Promise<void>((resolve, reject) => {
             this.userAuthService.login(user.userName || user.email, user.password, () => {
               resolve();
             });
           });
-  
+
           await this.authService.identityCheck();
-          
-          await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
           const returnUrl: string = this.activatedRoute.snapshot.queryParams["returnUrl"];
           if (returnUrl) {
             this.router.navigateByUrl(returnUrl);
@@ -160,8 +159,9 @@ export class RegisterComponent extends BaseComponent implements OnInit {
         } catch (loginError) {
           console.error("Login error:", loginError);
           this.toastrService.message(
-            "Registration successful but automatic login failed. Please try logging in manually.", 
-            "Login Error", {
+            "Registration successful but automatic login failed. Please try logging in manually.",
+            "Login Error",
+            {
               toastrMessageType: ToastrMessageType.Warning,
               position: ToastrPosition.TopRight
             }
@@ -176,12 +176,16 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       }
     } catch (error) {
       console.error("Registration error:", error);
-      this.toastrService.message("An error occurred during registration. Please try again.", "Registration Error", {
-        toastrMessageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight
-      });
+      this.toastrService.message(
+        "An error occurred during registration. Please try again.",
+        "Registration Error",
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
     } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.loading = false;
     }
   }
 

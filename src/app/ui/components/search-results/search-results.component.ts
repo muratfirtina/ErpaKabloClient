@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
@@ -25,6 +24,8 @@ import { UiProductListComponent } from '../product/ui-product-list/ui-product-li
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { MatIconModule } from '@angular/material/icon';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { FooterComponent } from '../footer/footer.component';
 
 @Component({
   selector: 'app-search-results',
@@ -38,7 +39,8 @@ import { MatIconModule } from '@angular/material/icon';
     UiProductListComponent,
     FilterComponent,
     RouterModule,
-    DownbarComponent],
+    DownbarComponent,
+    FooterComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss'
 })
@@ -51,6 +53,8 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   totalItems: number = 0;
   noResults: boolean = false;
   sortOrder: string = '';
+  isFiltersLoading: boolean = false;
+  isProductsLoading: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -62,7 +66,7 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
     private productLikeService: ProductLikeService,
     private authService: AuthService,
     private productOperations: ProductOperationsService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) { 
     super(spinner);
   }
@@ -80,51 +84,51 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   }
 
   async loadAvailableFilters() {
+    this.isFiltersLoading = true;
     try {
-        const filters = await this.productService.getAvailableFilters(this.searchTerm);
-        this.availableFilters = filters;
+      const filters = await this.productService.getAvailableFilters(this.searchTerm);
+      this.availableFilters = filters;
     } catch (error) {
-        console.error('Error loading filters:', error);
+      console.error('Error loading filters:', error);
+    } finally {
+      this.isFiltersLoading = false;
     }
-}
-
-async searchProducts() {
-  this.showSpinner(SpinnerType.BallSpinClockwise);
-  try {
-      // Önce ürünleri al
+  }
+  async searchProducts() {
+    this.isProductsLoading = true;
+    try {
       const response = await this.productService.filterProducts(
-          this.searchTerm,
-          this.selectedFilters, 
-          this.pageRequest, 
-          this.sortOrder
+        this.searchTerm,
+        this.selectedFilters, 
+        this.pageRequest, 
+        this.sortOrder
       );
       
       this.products = response.items;
       this.totalItems = response.count;
       this.noResults = this.products.length === 0;
 
-      // Eğer ürünler bulunduysa, bu ürünler için mevcut filtreleri al
       if (!this.noResults) {
-          const filters = await this.productService.getAvailableFilters(this.searchTerm);
-          this.availableFilters = filters;
+        const filters = await this.productService.getAvailableFilters(this.searchTerm);
+        this.availableFilters = filters;
       }
 
       if (this.authService.isAuthenticated) {
-          const productIds = this.products.map(p => p.id);
-          const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-          
-          this.products.forEach(product => {
-              product.isLiked = likedProductIds.includes(product.id);
-          });
+        const productIds = this.products.map(p => p.id);
+        const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+        
+        this.products.forEach(product => {
+          product.isLiked = likedProductIds.includes(product.id);
+        });
       }
 
-  } catch (error) {
+    } catch (error) {
       console.error('Error fetching products:', error);
       this.noResults = true;
-  } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+    } finally {
+      this.isProductsLoading = false;
+    }
   }
-}
 
   onFilterChange(filters: { [key: string]: string[] }) {
     this.selectedFilters = { ...filters };

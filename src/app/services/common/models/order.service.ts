@@ -18,11 +18,7 @@ import { OrderStatus } from 'src/app/contracts/order/orderStatus';
 })
 export class OrderService {
 
-  constructor(private httpClientService: HttpClientService,
-    private authService:AuthService,
-    private customToastrService:CustomToastrService,
-    private router:Router,
-    private productService: ProductService) { }
+  constructor(private httpClientService: HttpClientService) { }
 
     async create(createOrder: CreateOrder, successCallback?: (response: any) => void, errorCallback?: (errorMessage: string) => void): Promise<any> {
       const observable: Observable<any> = this.httpClientService.post({

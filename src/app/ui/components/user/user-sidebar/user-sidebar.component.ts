@@ -9,9 +9,9 @@ import { UserService } from 'src/app/services/common/models/user.service';
 import { BaseDrawerComponent } from '../../base-drawer.component';
 import { AnimationService } from 'src/app/services/common/animation.service';
 import { ThemeService } from 'src/app/services/common/theme.service';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { DrawerService } from 'src/app/services/common/drawer.service';
 import { Roles } from 'src/app/contracts/user/roles';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 interface UserData {
   name: string;
@@ -75,7 +75,7 @@ export class UserSidebarComponent extends BaseDrawerComponent implements OnInit 
     elementRef: ElementRef,
     animationService: AnimationService,
     themeService: ThemeService,
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private store: StoreService,
     private userService: UserService,
     private router: Router,

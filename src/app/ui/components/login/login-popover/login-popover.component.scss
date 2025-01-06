@@ -1,3 +1,17 @@
+$home-primary-color: #333333;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #fff;
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #059669;
+$link-color: #0000ee;
+
 .overlay {
     position: fixed;
     top: 0;
@@ -152,18 +166,40 @@
     }
   
     .btn-login {
+      position: relative;
       width: 100%;
       padding: 12px;
-      background: #e53935;
+      background-color: $primary-color;
       color: white;
       border: none;
       border-radius: 5px;
       font-size: 1rem;
       font-weight: 500;
+      cursor: pointer;
       transition: background-color 0.3s ease;
-  
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    
       &:hover {
-        background-color: darken(#e53935, 10%);
+          background-color: darken($primary-color, 10%);
+      }
+    
+      &:disabled {
+          cursor: not-allowed;
+          opacity: 0.7;
+      }
+    
+      app-button-spinner {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+      }
+    
+      .invisible {
+          visibility: hidden;
       }
     }
   

@@ -1,17 +1,29 @@
 <!-- desktop-user-sidebar.component.html -->
 <div class="desktop-sidebar">
     <ng-container *ngIf="authService.isAuthenticated; else notAuthenticated">
+      
       <!-- User Info -->
-      <div class="user-info">
+      <div class="user-info" *ngIf="isLoading">
+        <div class="skeleton-avatar"></div>
+        <div class="skeleton-text"></div>
+      </div>
+      <div class="user-info" *ngIf="!isLoading">
         <div class="avatar">
           {{ userNameSurname?.charAt(0) }}
         </div>
         <h5>{{ userNameSurname }}</h5>
-        <!-- <p class="premium-text">Premium üyesi</p> -->
       </div>
   
+      <!-- Menu Items with skeleton -->
+    <div class="menu-items">
+      <ng-container *ngIf="isLoading">
+        <div class="skeleton-menu-item" *ngFor="let i of [1,2,3,4]">
+          <div class="skeleton-icon"></div>
+          <div class="skeleton-text"></div>
+        </div>
+      </ng-container>
       <!-- Menu Items -->
-      <div class="menu-items">
+      <ng-container *ngIf="!isLoading">
         <!-- Siparişlerim -->
         <div class="menu-item" (click)="navigateTo('order')">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-box-seam" viewBox="0 0 16 16">
@@ -45,6 +57,7 @@
           </svg>
           <span>Sign Out</span>
         </div>
+      </ng-container>
       </div>
     </ng-container>
   

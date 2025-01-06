@@ -391,3 +391,138 @@ $link-color: #0000ee;
     }
   }
 }
+.container {
+  position: relative;
+  min-height: 400px;  // Spinner için minimum yükseklik
+}
+
+.invisible {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+// Skeleton Animation
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-container {
+  padding: 2rem;
+
+  .skeleton-success-message {
+    text-align: center;
+    margin-bottom: 3rem;
+
+    .skeleton-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      margin: 0 auto 1rem;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+
+    .skeleton-title {
+      height: 2rem;
+      width: 60%;
+      margin: 0 auto 1rem;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+
+    .skeleton-order-code {
+      height: 1.5rem;
+      width: 40%;
+      margin: 0 auto;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+  }
+
+  .skeleton-products {
+    margin-bottom: 2rem;
+
+    .skeleton-section-title {
+      height: 1.5rem;
+      width: 30%;
+      margin-bottom: 1rem;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+
+    .skeleton-product-item {
+      display: flex;
+      gap: 1rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border: 1px solid #eee;
+      border-radius: 8px;
+
+      .skeleton-product-image {
+        width: 100px;
+        height: 100px;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+      }
+
+      .skeleton-product-info {
+        flex: 1;
+
+        .skeleton-text-short {
+          height: 1rem;
+          width: 30%;
+          margin-bottom: 0.5rem;
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite linear;
+        }
+
+        .skeleton-text-medium {
+          height: 1rem;
+          width: 50%;
+          margin-bottom: 0.5rem;
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite linear;
+        }
+
+        .skeleton-text-long {
+          height: 1rem;
+          width: 70%;
+          background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite linear;
+        }
+      }
+
+      .skeleton-price {
+        width: 100px;
+        height: 1.5rem;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+      }
+    }
+  }
+
+  // Dark mode support
+  @media (prefers-color-scheme: dark) {
+    [class*="skeleton-"] {
+      background: linear-gradient(90deg, 
+        rgba(255,255,255,0.1) 25%, 
+        rgba(255,255,255,0.15) 50%, 
+        rgba(255,255,255,0.1) 75%
+      ) !important;
+    }
+  }
+}

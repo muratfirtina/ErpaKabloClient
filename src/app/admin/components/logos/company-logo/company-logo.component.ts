@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CompanyAssetService } from 'src/app/services/admin/company-asset.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
@@ -19,7 +19,7 @@ export class CompanyLogoComponent extends BaseComponent implements OnInit {
   constructor(
     private companyAssetService: CompanyAssetService,
     private customToastrService: CustomToastrService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
   }

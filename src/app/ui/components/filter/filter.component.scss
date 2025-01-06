@@ -185,6 +185,35 @@ $link-color: #0000ee;
 
   // Price filter styles
   .price-filter {
+    .predefined-ranges-header {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      padding: 0.5rem;
+      margin-bottom: 0.5rem;
+      
+      span {
+        font-size: 0.8rem;
+        color: $text-color;
+        font-weight: 500;
+      }
+      
+      .clear-range-btn {
+        background: none;
+        border: none;
+        padding: 0.25rem;
+        cursor: pointer;
+        color: $text-color;
+        
+        &:hover {
+          color: $primary-color;
+        }
+        
+        i {
+          font-size: 0.8rem;
+        }
+      }
+    }
     .custom-range {
       display: flex;
       flex-wrap: wrap;
@@ -416,6 +445,91 @@ $link-color: #0000ee;
     &:hover {
       background-color: darken($primary-color, 10%);
       border-color: darken($primary-color, 10%);
+    }
+  }
+}
+
+// Skeleton Animation
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.filter-skeleton {
+  .skeleton-filter-group {
+    margin-bottom: 1.5rem;
+
+    .skeleton-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid $border-color;
+
+      .skeleton-title {
+        height: 1rem;
+        width: 70%;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+        border-radius: 4px;
+      }
+
+      .skeleton-chevron {
+        height: 1rem;
+        width: 1rem;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+        border-radius: 2px;
+      }
+    }
+
+    .skeleton-content {
+      padding: 0.5rem 0;
+
+      .skeleton-item {
+        height: 1.5rem;
+        margin: 0.5rem 0;
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite linear;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+// Dark mode için skeleton styles
+@media (prefers-color-scheme: dark) {
+  .filter-skeleton {
+    .skeleton-filter-group {
+      .skeleton-header {
+        border-bottom-color: rgba($light-text, 0.1);
+
+        .skeleton-title,
+        .skeleton-chevron {
+          background: linear-gradient(90deg, 
+            rgba($light-text, 0.1) 25%, 
+            rgba($light-text, 0.15) 50%, 
+            rgba($light-text, 0.1) 75%);
+          background-size: 200% 100%;
+        }
+      }
+
+      .skeleton-content {
+        .skeleton-item {
+          background: linear-gradient(90deg, 
+            rgba($light-text, 0.1) 25%, 
+            rgba($light-text, 0.15) 50%, 
+            rgba($light-text, 0.1) 75%);
+          background-size: 200% 100%;
+        }
+      }
     }
   }
 }

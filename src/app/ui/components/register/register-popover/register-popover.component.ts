@@ -2,11 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
 import { ReactiveFormsModule, FormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
 import { UserService } from 'src/app/services/common/models/user.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { ValidationService } from 'src/app/services/common/validation.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
@@ -40,7 +40,7 @@ export class RegisterPopoverComponent extends BaseComponent {
     private validationService: ValidationService,
     private toastrService: CustomToastrService,
     private authService: AuthService,
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private el: ElementRef
   ) {
     super(spinner);

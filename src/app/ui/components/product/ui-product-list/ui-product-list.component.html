@@ -1,6 +1,6 @@
-<div class="product-list" [class.list-view]="listView">
+<div class="product-list position-relative" [class.list-view]="listView">
+  <app-spinner [spinnerType]="'s2'" *ngIf="loading"></app-spinner>
   <div class="row">
-    <!-- col-12: mobil için tam genişlik, col-sm-6: tablet için 2'li, col-lg-4: masaüstü için 3'lü -->
     <div class="col-12 col-sm-6 col-lg-3 mb-4" *ngFor="let product of products">
       <app-product-card [product]="product" [listView]="listView"></app-product-card>
     </div>

@@ -5,7 +5,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { RoleDto } from 'src/app/contracts/user/roleDto';
@@ -14,6 +13,7 @@ import { DialogService } from 'src/app/services/common/dialog.service';
 import { RoleService } from 'src/app/services/common/models/role.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { DeleteDirectiveComponent } from "../../../../directives/admin/delete-directive/delete-directive.component";
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-role-list',
@@ -34,7 +34,7 @@ export class RoleListComponent extends BaseComponent implements OnInit {
     private roleService: RoleService,
      private toastrService: CustomToastrService,
      private dialogService: DialogService,
-     spinner: NgxSpinnerService) {
+     spinner: SpinnerService) {
     super(spinner);
   }
  

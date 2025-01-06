@@ -1,6 +1,6 @@
 <div class="login-container">
   <div class="logo">
-    <img [src]="logoUrl" alt="Company Logo" class="logo-image">
+    <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/">
     <span class="logo-subtext" translate="yes">For All Industrial Products</span>
   </div>
   <div class="loginform">
@@ -33,7 +33,10 @@
         <a routerLink="/password-reset">Forgot Password?</a>
       </div>
 
-      <button type="submit" class="btn-login">Sign In</button>
+      <button type="submit" class="btn-login" [disabled]="loading">
+        <span [class.invisible]="loading">Sign In</span>
+        <app-button-spinner *ngIf="loading"></app-button-spinner>
+      </button>
 
       <!-- <div class="separator">
         <hr class="line">

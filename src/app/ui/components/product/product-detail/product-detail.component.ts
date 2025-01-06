@@ -5,7 +5,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Product } from 'src/app/contracts/product/product';
 import { ProductService } from 'src/app/services/common/models/product.service';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { ProductImageFile } from 'src/app/contracts/product/productImageFile';
@@ -22,6 +21,8 @@ import { DownbarComponent } from '../../downbar/downbar.component';
 import { ProductGridComponent } from '../product-grid/product-grid.component';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 import { FEATURE_CONFIGS, FeatureType } from 'src/app/enums/featureType';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { FooterComponent } from '../../footer/footer.component';
 
 @Component({
   selector: 'app-product-detail',
@@ -37,7 +38,8 @@ import { FEATURE_CONFIGS, FeatureType } from 'src/app/enums/featureType';
     RouterModule,
     BreadcrumbComponent,
     DownbarComponent,
-    ProductGridComponent
+    ProductGridComponent,
+    FooterComponent
   ]
 })
 export class ProductDetailComponent extends BaseComponent implements OnInit,OnChanges {
@@ -59,6 +61,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
   isImageZoomed: boolean = false;
   isAuthenticated: boolean = false;
   likeCount: number = 0;
+  randomProductsLoading: boolean = false;
+  randomProductsForBrandLoading: boolean = false;
 
   @ViewChild('productGrid') productGrid!: ElementRef;
   
@@ -71,7 +75,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
     private authService: AuthService,
     private productLikeService: ProductLikeService,
     private productOperations: ProductOperationsService,
-    spinner: NgxSpinnerService
+    spinner: SpinnerService
   ) {
     super(spinner);
   }
@@ -173,6 +177,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
   }
 
   async loadRandomProducts(productId: string) {
+    this.randomProductsLoading = true;
     try {
       if (!productId.includes('-p-')) return;
       
@@ -189,9 +194,13 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
     } catch (error) {
       console.error('Error loading random products:', error);
     }
+    finally {
+      this.randomProductsLoading = false;
+    }
   }
   
   async loadRandomProductsForBrand(productId: string) {
+    this.randomProductsForBrandLoading = true;
     try {
       if (!productId.includes('-p-')) return;
       
@@ -207,6 +216,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
       }
     } catch (error) {
       console.error('Error loading random brand products:', error);
+    } finally {
+      this.randomProductsForBrandLoading = false;
     }
   }
 

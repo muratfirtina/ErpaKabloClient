@@ -10,7 +10,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { Router, RouterModule } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
@@ -21,6 +20,7 @@ import { PageRequest } from 'src/app/contracts/pageRequest';
 import { OrderDetailDialogComponent } from 'src/app/dialogs/orderDialogs/order-detail-dialog/order-detail-dialog.component';
 import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
 import { OrderService } from 'src/app/services/common/models/order.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
@@ -56,7 +56,7 @@ export class OrdersComponent extends BaseComponent implements OnInit {
   private currentSearchTerm: string = '';
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private orderService: OrderService,
     private toastrService: CustomToastrService,
     private fb: FormBuilder,

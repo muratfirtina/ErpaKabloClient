@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,6 +15,7 @@ import { Feature } from 'src/app/contracts/feature/feature';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
 import { MatRadioModule } from '@angular/material/radio';
 import { ActivatedRoute } from '@angular/router';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-featurevalue-update',
@@ -29,7 +29,7 @@ export class FeaturevalueUpdateComponent extends BaseComponent implements OnInit
   features: Feature[] = [];
   featureValueId: string; // Güncellenecek featurevalue ID'si
 
-  constructor(spinner: NgxSpinnerService,
+  constructor(spinner: SpinnerService,
     private featurevalueService: FeaturevalueService,
     private fb: FormBuilder,
     private featureService: FeatureService,

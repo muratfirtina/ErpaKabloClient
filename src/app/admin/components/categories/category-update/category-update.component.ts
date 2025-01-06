@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgxSpinnerService } from 'ngx-spinner';
 import { Observable, map, startWith, switchMap } from 'rxjs';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Category } from 'src/app/contracts/category/category';
@@ -23,6 +22,7 @@ import { Feature } from 'src/app/contracts/feature/feature';
 import { PageRequest } from 'src/app/contracts/pageRequest';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
+import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
@@ -66,7 +66,7 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
 
 
   constructor(
-    spinner: NgxSpinnerService,
+    spinner: SpinnerService,
     private fb: FormBuilder,
     private categoryService: CategoryService,
     private featureService: FeatureService,
