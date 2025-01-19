@@ -1,5 +1,15 @@
 <div class="unauthorized-container">
-    <h1>You Don't Have Access</h1>
-    <p>You do not have permission to access this page.</p>
-    <a routerLink="/">Return Homepage</a>
+  <div class="content-wrapper">
+    <img src="/assets/homecard/TUMdex.png" alt="TUMdex Logo" class="logo">
+    <h1>403</h1>
+    <h2>{{ 'error.unauthorizedAccess' | translate }}</h2>
+    <div class="icon-container">
+      <i class="fas fa-lock"></i>
+    </div>
+    <p>{{ 'error.noAuthorizationMessage' | translate }}</p>
+    <div class="buttons">
+      <a routerLink="/" class="home-button">{{ 'common.returnHome' | translate }}</a>
+      <a routerLink="/login" class="login-button">{{ 'auth.signIn' | translate }}</a>
+    </div>
   </div>
+ </div>

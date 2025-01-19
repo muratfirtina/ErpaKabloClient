@@ -1,13 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { filter, Subject, takeUntil } from 'rxjs';
 
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { filter } from 'rxjs/operators';
 import { BrandComponent } from 'src/app/ui/components/brand/brand.component';
 import { CategoryComponent } from 'src/app/ui/components/category/category.component';
 import { ProductDetailComponent } from 'src/app/ui/components/product/product-detail/product-detail.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { SecurityService } from 'src/app/services/common/security.service';
+import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 
 @Component({
   selector: 'app-dynamic-router',
@@ -33,7 +35,8 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
     </ng-container>
   `
 })
-export class DynamicRouterComponent extends BaseComponent implements OnInit {
+export class DynamicRouterComponent extends BaseComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   id: string;
   componentType: string;
   navigationCounter = 0;
@@ -41,15 +44,16 @@ export class DynamicRouterComponent extends BaseComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    spinner: SpinnerService
+    spinner: SpinnerService,
+    private securityService: SecurityService,
+    private toastrService: CustomToastrService
   ) {
     super(spinner);
 
-    // NavigationEnd event'ini dinle
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
     ).subscribe(() => {
-      // Her navigasyonda counter'ı artır
       this.navigationCounter++;
       this.initializeRoute();
     });
@@ -59,28 +63,69 @@ export class DynamicRouterComponent extends BaseComponent implements OnInit {
     this.initializeRoute();
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private initializeRoute() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
     
     try {
-      this.id = this.route.snapshot.paramMap.get('id');
-      
-      if (this.id?.includes('-p-')) {
-        this.componentType = 'product';
-      } else if (this.id?.includes('-c-')) {
-        this.componentType = 'category';
-      } else {
-        this.componentType = 'brand';
-      }
-      
-      if (!this.id || !this.componentType) {
-        this.router.navigate(['/']);
-      }
+      this.route.data.pipe(takeUntil(this.destroy$)).subscribe(data => {
+        if (data['routeType']) {
+          this.componentType = data['routeType'].type;
+          this.id = this.route.snapshot.paramMap.get('id');
+
+          if (!this.id || !this.componentType) {
+            this.navigateTo404();
+            return;
+          }
+
+          const validation = this.securityService.validateRouteParam(this.id);
+          if (!validation.isValid) {
+            this.navigateTo404();
+            return;
+          }
+
+          if (validation.type !== this.componentType) {
+            this.navigateTo404();
+            return;
+          }
+
+          if (this.id !== validation.expectedId) {
+            const timeout = setTimeout(() => {
+              this.router.navigate([`/${validation.expectedId}`], {
+                replaceUrl: true
+              });
+              clearTimeout(timeout);
+            }, 0);
+            return;
+          }
+        } else {
+          this.navigateTo404();
+        }
+      });
     } catch (error) {
       console.error('Routing error:', error);
-      this.router.navigate(['/']);
+      this.navigateTo404();
     } finally {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     }
+  }
+
+  private navigateTo404() {
+    const timeout = setTimeout(() => {
+      this.router.navigate(['/404']);
+      this.toastrService.message(
+        "Sayfa bulunamadı veya geçersiz URL.",
+        "404 Hatası",
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
+      clearTimeout(timeout);
+    }, 0);
   }
 }

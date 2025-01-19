@@ -1,0 +1,448 @@
+{
+  "common": {
+    "search": "Ara",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "cart": "Sepet",
+    "about": "Hakkımızda",
+    "brands": "Markalar",
+    "categories": "Kategoriler",
+    "allProducts": "Tüm Ürünler",
+    "searchPlaceholder": "Ürün, kategori veya marka ara",
+    "showAll": "Tümünü Göster",
+    "and": "ve",
+    "default": "Varsayılan",
+    "setDefault": "Varsayılan Olarak Ayarla",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "deleteConfirmation": "Silme Onayı",
+    "admin": "Yönetici",
+    "closeMenu": "Menüyü Kapat",
+    "returnHome": "Ana Sayfaya Dön",
+    "contactUs": "Bize Ulaşın",
+    "loading": "Yükleniyor...",
+    "home": "Ana Sayfa",
+    "learnMore": "Daha Fazla Bilgi",
+    "quickLinks": "Hızlı Bağlantılar",
+    "customerService": "Müşteri Hizmetleri",
+    "followUs": "Bizi Takip Edin",
+    "faq": "Sık Sorulan Sorular",
+    "shippingInfo": "Kargo Bilgileri",
+    "privacyPolicy": "Gizlilik Politikası",
+    "subscribe": "Abone Ol",
+    "allRightsReserved": "Tüm hakları saklıdır."
+  },
+  "search": {
+    "recentSearches": "Son Aramalar",
+    "clearHistory": "Geçmişi Temizle",
+    "products": "Ürünler",
+    "categories": "Kategoriler",
+    "brands": "Markalar",
+    "resultsFor": "Arama Sonucu",
+    "productsFound": "ürün bulundu",
+    "sortedBy": "Sıralama",
+    "sortOptions": {
+      "default": "Varsayılan",
+      "priceLowHigh": "Fiyat (Düşük - Yüksek)",
+      "priceHighLow": "Fiyat (Yüksek - Düşük)"
+    },
+    "noResults": "Üzgünüz, sonuç bulunamadı"
+  },
+  "product": {
+    "inStock": "Stokta",
+    "outOfStock": "Stokta Yok",
+    "addToCart": "Sepete Ekle",
+    "price": "Fiyat",
+    "description": "Açıklama",
+    "features": "Özellikler",
+    "relatedProducts": "İlgili Ürünler",
+    "recommended": "Önerilen"
+  },
+  "cart": {
+    "empty": "Sepetiniz boş",
+    "total": "Toplam",
+    "checkout": "Ödeme",
+    "remove": "Kaldır",
+    "quantity": "Adet",
+    "cart": "Sepet",
+    "title": "Sepet",
+    "product": "ürün",
+    "unitPrice": "Birim Fiyat",
+    "totalPrice": "Toplam Fiyat",
+    "selectedProducts": "Seçili Ürünler",
+    "getOffer": "Teklif Al",
+    "increase": "Miktarı artır",
+    "decrease": "Miktarı azalt"
+  },
+  "auth": {
+    "welcomeBack": "Tekrar Hoşgeldiniz",
+    "usernameOrEmail": "Kullanıcı Adı veya E-posta",
+    "password": "Şifre",
+    "forgotPassword": "Şifremi Unuttum",
+    "signIn": "Giriş Yap",
+    "signUp": "Kayıt Ol",
+    "noAccount": "Hesabınız yok mu?",
+    "createAccount": "Hesap Oluştur",
+    "alreadyHaveAccount": "Zaten hesabınız var mı?",
+    "fullName": "Ad Soyad",
+    "username": "Kullanıcı Adı",
+    "email": "E-posta adresi",
+    "confirmPassword": "Şifreyi Onayla",
+    "termsAgreement": "Kayıt olarak",
+    "termsOfUse": "Kullanım Koşulları",
+    "privacyPolicy": "Gizlilik Politikası",
+    "signInTitle": "Hesabınıza giriş yapın",
+    "signInMessage": "Siparişlerinize, favorilerinize ve daha fazlasına erişin",
+    "setNewPassword": "Yeni Şifre Belirle",
+    "newPassword": "Yeni Şifre",
+    "updatePassword": "Şifreyi Güncelle",
+    "backToLogin": "Girişe Dön",
+    "emailAddress": "E-posta adresi",
+    "emailPlaceholder": "isim@ornek.com"
+  },
+  "validation": {
+    "fullNameRequired": "Ad soyad gereklidir.",
+    "fullNameTooShort": "Ad soyad en az 3 karakter olmalıdır.",
+    "fullNameTooLong": "Ad soyad en fazla 50 karakter olmalıdır.",
+    "usernameRequired": "Kullanıcı adı gereklidir.",
+    "usernameTooShort": "Kullanıcı adı çok kısa.",
+    "emailRequired": "E-posta gereklidir.",
+    "invalidFormat": "Geçerli bir e-posta adresi giriniz.",
+    "emailTooShort": "E-posta çok kısa.",
+    "emailTooLong": "E-posta çok uzun.",
+    "fullNameInvalidCharacters": "Ad soyad sadece harf ve boşluk içerebilir.",
+    "invalidCharactersDetected": "Geçersiz karakterler tespit edildi.",
+    "sqlInjection": "Geçersiz karakterler tespit edildi.",
+    "passwordRequired": "Şifre gereklidir",
+    "passwordUppercase": "En az bir büyük harf içermelidir",
+    "passwordLowercase": "En az bir küçük harf içermelidir",
+    "passwordSymbol": "En az bir sembol içermelidir",
+    "passwordLength": "En az 8 karakter uzunluğunda olmalıdır",
+    "passwordConfirm": "Lütfen şifrenizi onaylayın.",
+    "notSame": "Şifreler eşleşmiyor.",
+    "currentPasswordRequired": "Mevcut Şifre Gerekli",
+    "addressNameRequired": "Adres adı gereklidir",
+    "streetRequired": "Sokak adresi gereklidir",
+    "cityRequired": "Şehir gereklidir",
+    "countryRequired": "Ülke gereklidir",
+    "stateRequired": "İl/Eyalet gereklidir",
+    "postalCodeRequired": "Posta kodu gereklidir",
+    "phoneNameRequired": "Telefon adı gereklidir",
+    "phoneRequired": "Telefon numarası gereklidir",
+    "invalidPhone": "Geçersiz telefon numarası",
+    "newPasswordRequired": "Yeni Şifre Gerekli",
+    "newPasswordReEnter": "Yeni Şifre (Tekrar)",
+    "confirmPasswordRequired": "Şifre Onayı Gerekli",
+    "passwordsNotMatch": "Şifreler eşleşmiyor",
+    "nameRequired": "İsim gereklidir",
+    "nameTooShort": "İsim en az 2 karakter olmalıdır",
+    "subjectRequired": "Konu gereklidir",
+    "subjectTooShort": "Konu en az 5 karakter olmalıdır",
+    "messageRequired": "Mesaj gereklidir",
+    "messageTooShort": "Mesaj en az 10 karakter olmalıdır",
+    "messageTooLong": "Mesaj 500 karakteri geçemez",
+    "addressRequired": "Lütfen bir teslimat adresi seçin",
+    "invalidPostalCode": "Lütfen geçerli bir posta kodu girin",
+    "phoneNumberRequired": "Telefon numarası gereklidir",
+    "addressName": {
+      "required": "Adres adı gereklidir",
+      "minLength": "Adres adı en az 2 karakter olmalıdır",
+      "invalidCharacters": "Lütfen geçerli bir isim girin"
+    },
+    "phoneName": {
+      "required": "Telefon adı gereklidir",
+      "minLength": "Telefon adı en az 2 karakter olmalıdır",
+      "invalidCharacters": "Lütfen geçerli bir isim girin"
+    },
+    "phoneNumber": {
+      "required": "Telefon numarası gereklidir",
+      "invalid": "Lütfen geçerli bir telefon numarası girin",
+      "length": "Telefon numarası 10 haneli olmalıdır"
+    },
+    "postalCode": {
+      "required": "Posta kodu gereklidir",
+      "invalid": "Lütfen geçerli bir posta kodu girin",
+      "format": "En az 4 en fazla 6 rakamdan oluşmalıdır"
+    }
+  },
+  "address": {
+    "name": "Adres Adı",
+    "street": "Sokak Adresi",
+    "apartment": "Apartman, Daire vb. (opsiyonel)",
+    "city": "Şehir",
+    "state": "İl/Eyalet",
+    "postalCode": "Posta Kodu",
+    "country": "Ülke",
+    "modal": {
+      "title": "Yeni Adres Ekle",
+      "streetLabel": "Sokak Adresi",
+      "apartmentLabel": "Apartman, Daire vb. (opsiyonel)",
+      "cityLabel": "Şehir",
+      "stateLabel": "İl/Eyalet",
+      "postalCodeLabel": "Posta Kodu",
+      "countryLabel": "Ülke"
+    },
+    "namePlaceholder": "örn. Ev, İş vb.",
+    "streetPlaceholder": "Sokak adresini girin",
+    "apartmentPlaceholder": "Apartman veya daire numarası",
+    "setAsDefault": "Varsayılan adres olarak ayarla"
+  },
+  "profile": {
+    "userInfo": "Kullanıcı Bilgileri",
+    "username": "Kullanıcı Adı",
+    "fullName": "Ad Soyad",
+    "email": "E-posta",
+    "passwordChange": "Şifre Değiştirme",
+    "currentPassword": "Mevcut Şifre",
+    "newPassword": "Yeni Şifre",
+    "changePassword": "Şifre Değiştir",
+    "myAddresses": "Adreslerim",
+    "addNewAddress": "Yeni Adres Ekle",
+    "editAddress": "Adresi Düzenle",
+    "noAddresses": "Henüz kaydedilmiş adres bulunmuyor.",
+    "phoneNumber": "Telefon Numarası",
+    "myPhones": "Telefon Numaralarım",
+    "addNewPhone": "Yeni Telefon Ekle",
+    "editPhone": "Telefonu Düzenle",
+    "noPhones": "Henüz kaydedilmiş telefon numarası bulunmuyor."
+  },
+  "sidebar": {
+    "userMenu": "Kullanıcı menüsü",
+    "myAccount": "Hesabım",
+    "orders": "Siparişlerim",
+    "favorites": "Favorilerim",
+    "addresses": "Adreslerim",
+    "phones": "Telefonlarım",
+    "profile": "Profil Ayarları",
+    "logout": "Çıkış Yap",
+    "adminPanel": "Yönetici Paneli",
+    "myOrders": "Siparişlerim",
+    "myProfile": "Profilim",
+    "signOut": "Çıkış Yap"
+  },
+  "error": {
+    "unauthorizedAccess": "Yetkisiz Erişim",
+    "noAuthorizationMessage": "Bu sayfaya erişim yetkiniz bulunmamaktadır.",
+    "pageNotFound": "Sayfa Bulunamadı",
+    "pageNotFoundMessage": "Aradığınız sayfa taşınmış, silinmiş veya geçici olarak kullanım dışı olabilir."
+  },
+  "passwordReset": {
+    "title": "Şifre Sıfırlama",
+    "instructions": "E-posta adresinizi girin ve şifrenizi sıfırlamak için talimatları göndereceğiz.",
+    "sendResetLink": "Sıfırlama Bağlantısı Gönder",
+    "checkEmail": "E-postanızı Kontrol Edin",
+    "emailSentMessage": "Şifre sıfırlama talimatlarını e-posta adresinize gönderdik. Lütfen gelen kutunuzu ve spam klasörünüzü kontrol edin.",
+    "resendInstructions": "Talimatları Tekrar Gönder"
+  },
+  "orders": {
+    "searchPlaceholder": "Siparişlerde ara...",
+    "filters": {
+      "allOrders": "Tüm Siparişler",
+      "inProgress": "Devam Eden Siparişler",
+      "cancelled": "İptal Edilenler",
+      "returned": "İade Edilenler",
+      "completed": "Tamamlananlar"
+    },
+    "dateRange": {
+      "allTime": "Tüm Zamanlar",
+      "last30Days": "Son 30 gün",
+      "last6Months": "Son 6 ay",
+      "lastYear": "Son 1 yıl",
+      "yearAgo1": "1 yıl önce",
+      "yearAgo2": "2 yıl önce",
+      "yearAgo3": "3 yıl önce"
+    },
+    "noOrders": "Henüz sipariş bulunmuyor.",
+    "orderNo": "Sipariş No",
+    "quantity": "Adet",
+    "deliveryAddress": "Teslimat Adresi",
+    "orderDescription": "Sipariş Açıklaması"
+  },
+  "order": {
+    "title": "Siparişinizi Tamamlayın",
+    "selectedItems": "Seçili Ürünler",
+    "quantity": "Miktar",
+    "unitPrice": "Birim Fiyat",
+    "total": "Toplam",
+    "deliveryAddress": "Teslimat Adresi",
+    "selectDeliveryAddress": "Teslimat Adresi Seçin",
+    "chooseAddress": "Bir adres seçin...",
+    "addNewAddress": "Yeni Adres Ekle",
+    "selectedAddress": "Seçili Adres",
+    "contactPhone": "İletişim Telefonu",
+    "selectContactPhone": "İletişim Telefonu Seçin",
+    "choosePhone": "Bir telefon numarası seçin...",
+    "addNewPhone": "Yeni Telefon Ekle",
+    "selectedPhone": "Seçili Telefon",
+    "orderNotes": "Sipariş Notları",
+    "notesPlaceholder": "Siparişiniz için özel talimatları ekleyin...",
+    "orderSummary": "Sipariş Özeti",
+    "subtotal": "Ara Toplam",
+    "shipping": "Kargo",
+    "free": "Ücretsiz",
+    "completeOrder": "Siparişi Tamamla"
+  },
+  "orderSummary": {
+    "successMessage": "Siparişiniz Başarıyla Oluşturuldu!",
+    "orderNumber": "Sipariş Numarası",
+    "products": "Ürünler",
+    "quantity": "Adet",
+    "deliveryInfo": "Teslimat Bilgileri",
+    "deliveryAddress": "Teslimat Adresi",
+    "contactInfo": "İletişim Bilgileri",
+    "orderNote": "Sipariş Notu",
+    "paymentSummary": "Ödeme Özeti",
+    "price": "Fiyat",
+    "shipping": "Kargo",
+    "free": "Ücretsiz",
+    "totalPrice": "Toplam Fiyat",
+    "myOrders": "Siparişlerim",
+    "continueShopping": "Alışverişe Devam Et"
+  },
+  "newsletter": {
+    "unsubscribe": {
+      "title": "TUMDEX Bülteninden Çık",
+      "confirmMessage": "TUMDEX bülteninden çıkmak istediğinize emin misiniz?",
+      "button": "Abonelikten Çık",
+      "success": "Abonelikten çıkma işlemi başarılı."
+    },
+    "subscribe": "Bültenimize Abone Olun"
+  },
+  "home": {
+    "categories": "KATEGORİLER",
+    "exploreProducts": "Ürünlerimizi keşfedin",
+    "mostLikedProducts": "En Çok Beğenilen Ürünler",
+    "mostViewedProducts": "En Çok Görüntülenen Ürünler",
+    "bestSellingProducts": "En Çok Satan Ürünler",
+    "ourPicks": "Sizin İçin Seçtiklerimiz",
+    "cards": {
+      "quality": {
+        "title": "Yüksek Kalite",
+        "description": "En yüksek kalite standartlarında üretim yapıyoruz."
+      },
+      "innovation": {
+        "title": "İnovasyon",
+        "description": "Sürekli olarak yenilik ve gelişime odaklanıyoruz."
+      },
+      "customerFocus": {
+        "title": "Müşteri Odaklılık",
+        "description": "Müşteri memnuniyeti önceliğimizdir."
+      },
+      "sustainability": {
+        "title": "Sürdürülebilirlik",
+        "description": "Çevre dostu üretim ve sürdürülebilir çözümler sunuyoruz."
+      }
+    }
+  },
+  "contact": {
+    "title": "Bize Ulaşın",
+    "subtitle": "Herhangi bir soru için bizimle iletişime geçin",
+    "contactInfo": "İletişim Bilgileri",
+    "address": "Adres",
+    "phone": "Telefon",
+    "email": "E-posta",
+    "connectWithUs": "Bizimle Bağlantı Kurun",
+    "sendMessage": "Bize Mesaj Gönderin",
+    "form": {
+      "name": "Adınız",
+      "namePlaceholder": "Adınız",
+      "email": "E-postanız",
+      "emailPlaceholder": "E-postanız",
+      "subject": "Konu",
+      "subjectPlaceholder": "Konu",
+      "message": "Mesaj (En fazla 500 karakter)",
+      "messagePlaceholder": "Mesajınız",
+      "characters": "karakter",
+      "send": "Mesaj Gönder",
+      "sending": "Gönderiliyor..."
+    }
+  },
+  "phone": {
+    "addNew": "Yeni Telefon Ekle",
+    "name": "Telefon Adı",
+    "namePlaceholder": "örn. Cep, Ev, İş vb.",
+    "number": "Telefon Numarası",
+    "numberPlaceholder": "10 haneli telefon numarası girin",
+    "setAsDefault": "Varsayılan telefon numarası olarak ayarla",
+    "modal": {
+      "title": "Yeni Telefon Ekle",
+      "name": "Telefon Adı",
+      "namePlaceholder": "örn. Cep, Ev, İş vb.",
+      "number": "Telefon Numarası",
+      "numberPlaceholder": "10 haneli telefon numarası girin",
+      "setAsDefault": "Varsayılan telefon numarası olarak ayarla"
+    }
+  },
+  "buttons": {
+    "addAddress": "Yeni Adres Ekle",
+    "addPhone": "Yeni Telefon Ekle",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "completeOrder": "Siparişi Tamamla"
+  },
+  "messages": {
+    "orderInstructions": "Siparişiniz için özel talimatları ekleyin..."
+  },
+  "about": {
+    "title": "Tüm Trading Hakkında",
+    "mission": {
+      "title": "Ne için yola çıktık?",
+      "description": "Tüm Trading, farklı coğrafyalarda ticaret deneyimine sahip bir grup insan tarafından kuruldu. İş dünyasının önde gelen şirketlerine danışmanlık hizmeti veren Tüm Trading, bilgili, yetenekli ve deneyimli insan kaynağı ile tüm bölgesel ve küresel ticari operasyonların başarıyla sonuçlanmasını hedeflemektedir."
+    },
+    "expertise": {
+      "title": "Uzmanlığımız",
+      "description": "Uzmanlarımızdan güçlü analitik beceriler, verimli endüstriyel üretim ve durgunluğun temel nedenlerini inceleyen ve dönüşümü teşvik eden bir bakış açısına sahip olmaları beklenir. Amacımız, destekledikleri ticari işletmelerde tüm organizasyon seviyeleri arasında geniş bir işbirliği modeli sunarak işletmelerin tam potansiyellerini gerçekleştirmelerine ve sektörlerinde lider konuma gelmelerine yardımcı olmaktır."
+    },
+    "qualityPolicy": {
+      "title": "Kalite Politikası",
+      "intro": "Tüm Trading, tüm operasyonlarını \"kalite odaklı\" emeğe dayandırır. Bu yaklaşım doğrultusunda:",
+      "points": {
+        "leadership": "Şirket sahiplerini ve girişimcileri sektörlerinde liderlik ve yenilikçilik konumuna ilerletmek",
+        "satisfaction": "Özellikle çalışanlarımız olmak üzere çözümdeki her ortağın memnuniyetini sağlamak",
+        "development": "Sürdürülebilir kalkınma, verimli kaynak kullanımı ve sürekli ilerlemeyi yönlendirmek",
+        "innovation": "Yenilikçiliği ve girişimciliği teşvik etmek ve desteklemek",
+        "compliance": "İşleri yürürlükteki yasalara ve dünya çapındaki yönetim standartlarına uygun şekilde yürütmek"
+      }
+    },
+    "ethics": {
+      "title": "İş Etiğimiz",
+      "honesty": {
+        "title": "A. Dürüstlük",
+        "description": "Tüm ticari işlemlerimizde ve kişilerarası etkileşimlerimizde ana prensibimiz dürüstlük ve bütünlüktür. Çalışanlarımız dahil tüm paydaşlarımıza karşı dürüstlük ve bütünlük içinde davranırız."
+      },
+      "privacy": {
+        "title": "B. Gizlilik",
+        "description1": "Gizli ve özel bilgiler; ticari sırlar, henüz kamuya açıklanmamış finansal ve diğer bilgiler, personelin kişisel hakları ile ilgili bilgiler ve üçüncü şahıslarla yapılan \"gizlilik anlaşmaları\" kapsamına giren bilgileri içerir. Ayrıca, Tüm Grup Şirketleri'ne ait olan ve onları rekabet açısından dezavantajlı duruma düşürebilecek bilgileri de kapsar. Tüm Grup çalışanları olarak müşterilerimizin, ortaklarımızın ve diğer ilgili tarafların kişisel bilgilerinin korunması için önlem alırız.",
+        "description2": "Tüm Grup Şirketleri'ne ait herhangi bir gizli bilgiyi, borsalarda hisse senedi alım satımı dahil olmak üzere herhangi bir finansal fayda sağlamak için kullanmak kesinlikle kabul edilemez. İşimiz gereği sahip olmak zorunda olduğumuz hiçbir gizli belgeyi, projeyi, politikayı veya diğer bilgileri organizasyonumuzdan ayrılırken yanımızda götürmeyiz."
+      },
+      "responsibilities": {
+        "title": "D. Sorumluluklarımız",
+        "intro": "Yasal yükümlülüklerimize ek olarak, rakiplerimize, topluma, insanlığa ve firmamıza karşı sorumluluklarımızı yerine getirmeye özen gösteririz. Bu sorumluluklar müşterilerimize, çalışanlarımıza, hissedarlarımıza, tedarikçilerimize ve iş ortaklarımıza karşı olanları da içerir.",
+        "legal": {
+          "title": "1. Yasal Sorumluluklarımız",
+          "description": "Yurt içi ve yurt dışında sürdürdüğümüz tüm mevcut işlerimizi Türkiye Cumhuriyeti yasalarına ve uluslararası hukuka uygun olarak yürütürüz. Ayrıca, yasal düzenleyici kurum ve kuruluşlara doğru, tam ve anlaşılabilir bilgileri zamanında sunarız."
+        },
+        "customers": {
+          "title": "2. Müşterilerimize Karşı Sorumluluklarımız",
+          "description": "Müşteri memnuniyetini önceliklendiren ve müşterilerimizin ihtiyaç ve isteklerini hızlı ve doğru şekilde karşılamamıza olanak tanıyan proaktif bir stratejiye sahibiz. Terminlerimize uyar ve hizmetlerimizi anlaşıldığı şekilde sunarız; müşterilerimizle edep, eşitlik, adalet ve nezaket kuralları çerçevesinde iletişim kurarız."
+        }
+      }
+    },
+    "healthSafety": {
+      "title": "Sağlık ve Güvenlik Politikası",
+      "intro": "Tüm Trading, tüm operasyonlarında güvenli ve sağlıklı bir çalışma ortamı sunmayı hedefler. Bu hedef doğrultusunda şunları taahhüt ederiz:",
+      "points": {
+        "workforce": "Sağlıklı bir işgücü ve nüfus oluşturmak",
+        "prevention": "İş kazalarının ve meslek hastalıklarının önlenmesi için gerekli prosedürleri uygulamak",
+        "assessment": "Uygun risk seviyelerine ulaşmak için personel katılımıyla risk değerlendirmeleri yapmak",
+        "participation": "İş sağlığı ve güvenliği prosedürlerinin iyileştirilmesinde tüm organizasyon seviyelerinden katılım sağlamak",
+        "culture": "İşyeri sağlık ve güvenlik kültürünü teşvik etmek",
+        "compliance": "İş sağlığı ve güvenliği için geçerli yasa ve yönetmeliklere uymak",
+        "proactive": "Üretkenliği artırırken iş sağlığı ve güvenliğine proaktif bir yaklaşım sergilemek",
+        "training": "Personel, ziyaretçi, stajyer ve alt yüklenici personeli için eğitim programları sürdürmek"
+      }
+    }
+  }
+}

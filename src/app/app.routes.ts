@@ -24,7 +24,7 @@ export const routes: Routes = [
           { path: "brands/brand-create", loadComponent: () => import('./admin/components/brands/brand-create/brand-create.component').then(m => m.BrandCreateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "brands/brand-list", loadComponent: () => import('./admin/components/brands/brand-list/brand-list.component').then(m => m.BrandListComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "brands/brand-list/:pageNo",loadComponent:()=>import('./admin/components/brands/brand-list/brand-list.component').then(m=>m.BrandListComponent),canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
-          {path: 'brands/brand-update/:id',loadComponent:()=>import('./admin/components/brands/brand-update/brand-update.component').then(m=>m.BrandUpdateComponent),canActivate: [authGuard],data: {[Roles.ADMIN]: true} },
+          { path: 'brands/brand-update/:id',loadComponent:()=>import('./admin/components/brands/brand-update/brand-update.component').then(m=>m.BrandUpdateComponent),canActivate: [authGuard],data: {[Roles.ADMIN]: true} },
           { path: "features", loadComponent: () => import('./admin/components/features/features.component').then(m => m.FeaturesComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "features/feature-create", loadComponent: () => import('./admin/components/features/feature-create/feature-create.component').then(m => m.FeatureCreateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "features/feature-list", loadComponent: () => import('./admin/components/features/feature-list/feature-list.component').then(m => m.FeatureListComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
@@ -47,12 +47,14 @@ export const routes: Routes = [
           { path: "orders/:id",loadComponent:()=>import('./admin/components/orders/orders.component').then(m=>m.OrdersComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "unauthorized",loadComponent:()=>import('./admin/components/unauthorized/unauthorized.component').then(m=>m.UnauthorizedComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "logos", loadComponent:()=>import('./admin/components/logos/logos.component').then(m=>m.LogosComponent), canActivate:[authGuard],data:{[Roles.ADMIN]:true}},
-          { path: "logos/company-logo",loadComponent:()=>import('./admin/components/logos/company-logo/company-logo.component').then(m=>m.CompanyLogoComponent), canActivate:[authGuard],data:{[Roles.ADMIN]:true}}
+          { path: "logos/company-logo",loadComponent:()=>import('./admin/components/logos/company-logo/company-logo.component').then(m=>m.CompanyLogoComponent), canActivate:[authGuard],data:{[Roles.ADMIN]:true}},
+          { path: "monitoring",loadComponent: () => import('./admin/components/performance-monitoring/performance-monitoring.component').then(m => m.PerformanceMonitoringComponent),canActivate: [authGuard],data: { [Roles.ADMIN]: true }}
         ]
 
       },
       { path: "", component: HomeComponent },
       { path: "home", component: HomeComponent },
+      { path: "404", loadComponent: () => import('./ui/components/not-found/not-found.component').then(m => m.NotFoundComponent)},
       { path: "login", loadComponent: () => import('./ui/components/login/login.component').then(m => m.LoginComponent) },
       { path: "register", loadComponent: () => import('./ui/components/register/register.component').then(m => m.RegisterComponent) },
       { path: "search", loadComponent: () => import('./ui/components/search-results/search-results.component').then(m => m.SearchResultsComponent) },

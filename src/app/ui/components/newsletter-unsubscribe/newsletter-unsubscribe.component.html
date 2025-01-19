@@ -1,46 +1,46 @@
 <app-main-header></app-main-header>
 <app-navbar></app-navbar>
 <div class="container mt-5">
-    <div class="row justify-content-center">
-      <div class="col-md-6 text-center">
-        <h2>Unsubscribe TUMDEX Newsletter</h2>
-        <div class="mt-4">
-          <!-- Loading Spinner -->
-          <div *ngIf="loading" class="d-flex justify-content-center">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-          </div>
+   <div class="row justify-content-center">
+     <div class="col-md-6 text-center">
+       <h2>{{ 'newsletter.unsubscribe.title' | translate }}</h2>
+       <div class="mt-4">
+         <!-- Loading Spinner -->
+         <div *ngIf="loading" class="d-flex justify-content-center">
+           <div class="spinner-border text-primary" role="status">
+             <span class="visually-hidden">{{ 'common.loading' | translate }}</span>
+           </div>
+         </div>
 
-          <!-- Error Message -->
-          <div *ngIf="!loading && error" class="alert alert-danger">
-            {{ error }}
-          </div>
+         <!-- Error Message -->
+         <div *ngIf="!loading && error" class="alert alert-danger">
+           {{ error }}
+         </div>
 
-          <!-- Success Message -->
-          <div *ngIf="!loading && success" class="alert alert-success">
-            Unsubscribe successful.
-          </div>
+         <!-- Success Message -->
+         <div *ngIf="!loading && success" class="alert alert-success">
+           {{ 'newsletter.unsubscribe.success' | translate }}
+         </div>
 
-          <!-- Unsubscribe Button -->
-          <div *ngIf="!loading && !success && !error" class="mt-4">
-            <p class="mb-4">
-                Are you sure you want to unsubscribe from the TUMDEX newsletter?
-            </p>
-            <button class="btn btn-danger" (click)="unsubscribe()">
-              Unsubscribe
-            </button>
-          </div>
+         <!-- Unsubscribe Button -->
+         <div *ngIf="!loading && !success && !error" class="mt-4">
+           <p class="mb-4">
+               {{ 'newsletter.unsubscribe.confirmMessage' | translate }}
+           </p>
+           <button class="btn btn-danger" (click)="unsubscribe()">
+             {{ 'newsletter.unsubscribe.button' | translate }}
+           </button>
+         </div>
 
-          <!-- Return Home Link -->
-          <div *ngIf="!loading" class="mt-4">
-            <a href="/" class="text-decoration-none">
-              Home
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+         <!-- Return Home Link -->
+         <div *ngIf="!loading" class="mt-4">
+           <a href="/" class="text-decoration-none">
+             {{ 'common.home' | translate }}
+           </a>
+         </div>
+       </div>
+     </div>
+   </div>
+</div>
 <app-footer></app-footer>
 <app-downbar></app-downbar>

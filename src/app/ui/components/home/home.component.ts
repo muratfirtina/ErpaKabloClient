@@ -22,11 +22,12 @@ import { DownbarComponent } from '../downbar/downbar.component';
 import { ProductGridComponent } from '../product/product-grid/product-grid.component';
 import { FooterComponent } from '../footer/footer.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MainHeaderComponent, CommonModule, NavbarComponent,RouterModule,DownbarComponent,ProductGridComponent,FooterComponent],
+  imports: [MainHeaderComponent, CommonModule, NavbarComponent, RouterModule, DownbarComponent, ProductGridComponent, FooterComponent, TranslatePipe],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })

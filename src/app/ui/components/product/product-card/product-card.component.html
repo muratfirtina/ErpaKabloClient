@@ -31,6 +31,6 @@
       <button class="product-add-to-cart-button" 
               [disabled]="product.stock <= 0"
               (click)="onAddToCart($event)">
-        {{product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}}
+              {{product.stock > 0 ? ('product.addToCart' | translate) : ('product.outOfStock' | translate)}}
       </button>
     </div>

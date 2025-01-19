@@ -20,11 +20,12 @@ import { NavbarComponent } from '../../navbar/navbar.component';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../../footer/footer.component';
+import { TranslatePipe } from "../../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-cart-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavbarComponent, MainHeaderComponent, DownbarComponent,FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent, TranslatePipe],
   templateUrl: './cart-page.component.html',
   styleUrl: './cart-page.component.scss'
 })

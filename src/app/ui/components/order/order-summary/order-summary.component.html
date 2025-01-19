@@ -53,15 +53,15 @@
       <div class="success-icon">
         <i class="fas fa-check-circle"></i>
       </div>
-      <h1>Your Order Has Been Created Successfully!</h1>
-      <p class="order-code">Order Number: <strong>{{orderSummary?.orderCode}}</strong></p>
+      <h1>{{ 'orderSummary.successMessage' | translate }}</h1>
+      <p class="order-code">{{ 'orderSummary.orderNumber' | translate }}: <strong>{{orderSummary?.orderCode}}</strong></p>
     </div>
     <!-- Sipariş Detayları -->
     <div class="order-details">
 
       <!-- Ürünler -->
       <div class="products-section">
-        <h3>Products</h3>
+        <h3>{{ 'orderSummary.products' | translate }}</h3>
         <div class="product-list">
           <div *ngFor="let item of orderSummary?.orderItems" class="product-item">
             <img [src]="item.showcaseImage?.url || 'assets/default-product.png'" 
@@ -79,7 +79,7 @@
               </div>
             </div>
             <div class="price-info">
-              <div class="quantity">Quantity: {{item.quantity}}</div>
+              <div class="quantity">{{ 'orderSummary.quantity' | translate }}: {{item.quantity}}</div>
               <div class="price">{{item.price | currency:'USD':'symbol':'1.2-2'}}</div>
             </div>
           </div>
@@ -88,10 +88,10 @@
 
       <!-- Teslimat Bilgileri -->
       <div class="delivery-section">
-        <h3>Delivery Information</h3>
+        <h3>{{ 'orderSummary.deliveryInfo' | translate }}</h3>
         <div class="info-card">
           <div class="address-info">
-            <h4>Delivery Address</h4>
+            <h4>{{ 'orderSummary.deliveryAddress' | translate }}</h4>
             <p>{{orderSummary?.userAddress?.name}}</p>
             <p>{{orderSummary?.userAddress?.addressLine1}}</p>
             <p *ngIf="orderSummary?.userAddress?.addressLine2">{{orderSummary?.userAddress?.addressLine2}}</p>
@@ -99,7 +99,7 @@
             <p>{{orderSummary?.userAddress?.country}}</p>
           </div>
           <div class="contact-info">
-            <h4>Contact Information</h4>
+            <h4>{{ 'orderSummary.contactInfo' | translate }}</h4>
             <p>{{orderSummary?.phoneNumber?.name}}: {{orderSummary?.phoneNumber?.number}}</p>
             
           </div>
@@ -108,7 +108,7 @@
 
       <!-- Sipariş Notu -->
       <div class="notes-section" *ngIf="orderSummary?.description">
-        <h3>Order Note</h3>
+        <h3>{{ 'orderSummary.orderNote' | translate }}</h3>
         <div class="note-content">
           {{orderSummary?.description}}
         </div>
@@ -116,19 +116,19 @@
 
       <!-- Fiyat Özeti -->
       <div class="price-summary">
-        <h3>Payment Summary</h3>
+        <h3>{{ 'orderSummary.paymentSummary' | translate }}</h3>
         <div class="summary-items">
           <div class="summary-item">
-            <span>Price : </span>
+            <span>{{ 'orderSummary.price' | translate }}: </span>
             <span>{{orderSummary?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
           </div>
           <div class="summary-item">
-            <span>Kargo : </span>
-            <span>Ücretsiz</span>
+            <!-- <span>{{ 'orderSummary.shipping' | translate }}: </span>
+            <span>{{ 'orderSummary.free' | translate }}</span> -->
           </div>
           <div class="summary-item total">
-            <span>Total Price : </span>
-            <span>{{orderSummary?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
+            <span>{{ 'orderSummary.totalPrice' | translate }}: </span>
+             <span>{{orderSummary?.totalPrice | currency:'USD':'symbol':'1.2-2'}}</span>
           </div>
         </div>
       </div>
@@ -138,11 +138,11 @@
     <div class="action-buttons">
       <button class="btn btn-outline-primary" (click)="goToOrders()">
         <i class="fas fa-list me-2"></i>
-        My Orders
+        {{ 'orderSummary.myOrders' | translate }}
       </button>
       <button class="btn btn-primary" (click)="goToHome()">
         <i class="fas fa-home me-2"></i>
-        Continue Shopping
+        {{ 'orderSummary.continueShopping' | translate }}
       </button>
     </div>
     </div>

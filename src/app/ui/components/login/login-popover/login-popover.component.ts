@@ -7,11 +7,12 @@ import { ButtonSpinnerComponent } from 'src/app/base/spinner/button-spinner/butt
 import { AuthService } from 'src/app/services/common/auth.service';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { TranslatePipe } from "../../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-login-popover',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ButtonSpinnerComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ButtonSpinnerComponent, TranslatePipe],
   templateUrl: './login-popover.component.html',
   styleUrl: './login-popover.component.scss'
 })
@@ -59,9 +60,13 @@ export class LoginPopoverComponent extends BaseComponent {
         this.activatedRoute.queryParams.subscribe(params => {
           const returnUrl: string = params['returnUrl'];
           if (returnUrl) {
-            this.router.navigateByUrl(returnUrl);
+            this.router.navigateByUrl(returnUrl).then(() => {
+              window.location.reload();
+            });
           } else {
-            this.router.navigate([""]);
+            this.router.navigate([""]).then(() => {
+              window.location.reload();
+            });
           }
         });
       });

@@ -22,8 +22,9 @@
             <!-- Search Box -->
             <div class="search-box">
               <div class="input-group">
-                <input type="text" class="form-control border-start-0" placeholder="Search orders.."
-                  [(ngModel)]="searchQuery" (input)="searchOrders()">
+                <input type="text" class="form-control border-start-0"
+                  [placeholder]="'orders.searchPlaceholder' | translate" [(ngModel)]="searchQuery"
+                  (input)="searchOrders()">
               </div>
             </div>
 
@@ -33,34 +34,38 @@
                 <!-- Status Filter Buttons -->
                 <button class="btn" (click)="filterByStatus(OrderStatus.All)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.All)}">
-                  All Orders
+                  {{ 'orders.filters.allOrders' | translate }}
                 </button>
+
                 <button class="btn" (click)="filterByStatus(OrderStatus.Processing)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.Processing)}">
-                  Orders in progress
+                  {{ 'orders.filters.inProgress' | translate }}
                 </button>
+
                 <button class="btn" (click)="filterByStatus(OrderStatus.Cancelled)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.Cancelled)}">
-                  Cancelled
+                  {{ 'orders.filters.cancelled' | translate }}
                 </button>
+
                 <button class="btn" (click)="filterByStatus(OrderStatus.Returned)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.Returned)}">
-                  Returned
+                  {{ 'orders.filters.returned' | translate }}
                 </button>
+
                 <button class="btn" (click)="filterByStatus(OrderStatus.Completed)"
                   [ngClass]="{'active': isActiveFilter(OrderStatus.Completed)}">
-                  Completed
+                  {{ 'orders.filters.completed' | translate }}
                 </button>
 
                 <!-- Date Range Filter -->
                 <select class="btn" (change)="filterByDateRange($event)" [ngModel]="dateRange">
-                  <option value="all">All Time</option>
-                  <option value="30">Last 30 days</option>
-                  <option value="180">last 6 months</option>
-                  <option value="365">last 1 year</option>
-                  <option value="older1">1 year ago</option>
-                  <option value="older2">2 year ago</option>
-                  <option value="older3">3 year ago</option>
+                  <option value="all">{{ 'orders.dateRange.allTime' | translate }}</option>
+                  <option value="30">{{ 'orders.dateRange.last30Days' | translate }}</option>
+                  <option value="180">{{ 'orders.dateRange.last6Months' | translate }}</option>
+                  <option value="365">{{ 'orders.dateRange.lastYear' | translate }}</option>
+                  <option value="older1">{{ 'orders.dateRange.yearAgo1' | translate }}</option>
+                  <option value="older2">{{ 'orders.dateRange.yearAgo2' | translate }}</option>
+                  <option value="older3">{{ 'orders.dateRange.yearAgo3' | translate }}</option>
                 </select>
               </div>
             </div>
@@ -70,25 +75,25 @@
             </div>
             <!-- Orders List -->
             <div class="orders-list" [class.invisible]="loading">
-              
+
               <div *ngIf="loading" class="skeleton-container">
                 <div class="skeleton-item" *ngFor="let i of [1,2,3]">
                   <div class="skeleton-header">
                     <!-- Thumbnail skeleton -->
                     <div class="skeleton-thumbnail animate-pulse"></div>
-                    
+
                     <!-- Order info skeleton -->
                     <div class="skeleton-info">
                       <div class="skeleton-text-short animate-pulse"></div>
                       <div class="skeleton-text-shorter animate-pulse"></div>
                     </div>
-                    
+
                     <!-- Date skeleton -->
                     <div class="skeleton-date animate-pulse"></div>
-                    
+
                     <!-- Price skeleton -->
                     <div class="skeleton-price animate-pulse"></div>
-                    
+
                     <!-- Expand button skeleton -->
                     <div class="skeleton-expand animate-pulse"></div>
                   </div>
@@ -96,7 +101,7 @@
               </div>
               <!-- No Orders Message -->
               <div class="no-orders" *ngIf="orders.length === 0">
-                <p class="text-center text-muted my-5">There are no orders yet.</p>
+                <p class="text-center text-muted my-5">{{ 'orders.noOrders' | translate }}</p>
               </div>
 
               <!-- Orders -->
@@ -115,7 +120,7 @@
                   <!-- Order Info -->
                   <div class="order-info">
                     <div class="order-number">
-                      Order No: <span class="fw-semibold">{{order.orderCode}}</span>
+                      {{ 'orders.orderNo' | translate }}: <span class="fw-semibold">{{order.orderCode}}</span>
                     </div>
                     <div class="order-status fw-semibold" [ngClass]="getStatusColorClass(order.status)">
                       <!-- Status Icons -->
@@ -128,7 +133,7 @@
                         </i>
                         <i *ngSwitchCase="'Delivered'" class="bi bi-truck" style="color: green;">
                         </i>
-                        <i *ngSwitchCase="'Confirmed'" class="bi bi-check-all" style="color: green;">                         
+                        <i *ngSwitchCase="'Confirmed'" class="bi bi-check-all" style="color: green;">
                         </i>
                         <i *ngSwitchCase="'Returned'" class="bi bi-arrow-return-left">
                         </i>
@@ -191,7 +196,7 @@
 
                     <!-- Price Info -->
                     <div class="item-price">
-                      <div class="item-quantity">Quantity: {{item.quantity}}</div>
+                      <div class="item-quantity">{{ 'orders.quantity' | translate }}: {{item.quantity}}</div>
                       <div class="price-value">{{item.price | currency:'USD':'symbol-narrow':'1.2-2'}}</div>
                     </div>
                   </div>
@@ -200,12 +205,15 @@
                   <div class="shipping-address mt-3" *ngIf="order.userAddress">
                     <div class="address-header">
                       <i class="bi bi-geo-alt"></i>
-                      <span>Delivery Address</span>
+                      <span>{{ 'orders.deliveryAddress' | translate }}</span>
                     </div>
                     <div class="address-content">
                       <p class="mb-1">{{order.userAddress.name}}</p>
                       <p class="mb-1">{{order.userAddress.addressLine1}}</p>
-                      <p class="mb-0">{{order.userAddress.state}}/{{order.userAddress.city}}</p>
+                      <p class="mb-0">
+                        {{(order.userAddress?.state || order.userAddress?.city || 'N/A')}}/
+                        {{(order.userAddress?.city || order.userAddress?.city || 'N/A')}}
+                      </p>
                     </div>
                   </div>
 
@@ -213,7 +221,7 @@
                   <div class="order-notes mt-3" *ngIf="order.description">
                     <div class="notes-header">
                       <i class="bi bi-sticky"></i>
-                      <span>Order Description</span>
+                      <span>{{ 'orders.orderDescription' | translate }}</span>
                     </div>
                     <div class="notes-content">
                       <p class="mb-0">{{order.description}}</p>
@@ -233,7 +241,7 @@
       </div>
     </div>
   </div>
- 
+
   <app-downbar></app-downbar>
 </div>
 <app-footer></app-footer>

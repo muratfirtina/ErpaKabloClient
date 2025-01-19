@@ -165,7 +165,7 @@ export class ProductCreateComponent implements OnInit {
       brandSearch: [''],
       categoryId: ['', Validators.required],
       categorySearch: [''],
-      tax: [0, [Validators.required, Validators.min(0)]],
+      tax: [0, /* [Validators.required, Validators.min(0)] */],
       features: this.fb.array([]),
       variants: this.fb.array([])
     });

@@ -1,0 +1,28 @@
+{
+    "common": {
+      "search": "بحث",
+      "login": "تسجيل الدخول",
+      "register": "التسجيل",
+      "cart": "سلة التسوق",
+      "about": "من نحن",
+      "brands": "العلامات التجارية",
+      "categories": "الفئات",
+      "allProducts": "جميع المنتجات"
+    },
+    "product": {
+      "inStock": "متوفر",
+      "outOfStock": "غير متوفر",
+      "addToCart": "أضف إلى السلة",
+      "price": "السعر",
+      "description": "الوصف",
+      "features": "المميزات",
+      "relatedProducts": "منتجات ذات صلة"
+    },
+    "cart": {
+      "empty": "سلة التسوق فارغة",
+      "total": "المجموع",
+      "checkout": "الدفع",
+      "remove": "إزالة",
+      "quantity": "الكمية"
+    }
+  }

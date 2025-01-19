@@ -17,21 +17,21 @@
                     <!-- User Info Section -->
                     <div class="card fade-in">
                         <div class="card-header">
-                            <h3 class="card-title">User Info</h3>
+                            <h3 class="card-title">{{ 'profile.userInfo' | translate }}</h3>
                         </div>
                         <div class="card-body profile-info">
                             <div class="row" *ngIf="!isLoadingUser; else userSkeleton">
                                 <div class="row">
                                     <div class="col-md-6">
-                                        <div class="info-label">User Name</div>
+                                        <div class="info-label">{{ 'profile.username' | translate }}</div>
                                         <div class="info-value">{{ user?.userName }}</div>
                                     </div>
                                     <div class="col-md-6">
-                                        <div class="info-label">Full Name</div>
+                                        <div class="info-label">{{ 'profile.fullName' | translate }}</div>
                                         <div class="info-value">{{ user?.nameSurname }}</div>
                                     </div>
                                     <div class="col-12">
-                                        <div class="info-label">E-Mail</div>
+                                        <div class="info-label">{{ 'profile.email' | translate }}</div>
                                         <div class="info-value">{{ user?.email }}</div>
                                     </div>
                                 </div>
@@ -57,7 +57,7 @@
 
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h3 class="card-title mb-0">Password Change</h3>
+                            <h3 class="card-title">{{ 'profile.passwordChange' | translate }}</h3>
                         </div>
                         <div class="card-body">
                             <form [formGroup]="passwordForm" (ngSubmit)="onPasswordSubmit()">
@@ -65,11 +65,12 @@
                                     <input type="password" class="form-control" formControlName="currentPassword"
                                         id="currentPassword" placeholder="Current Password" [ngClass]="{'is-invalid': (component['currentPassword'].invalid && component['currentPassword'].dirty) || 
                                     (submitted && component['currentPassword'].invalid)}">
-                                    <label for="currentPassword">Current Password</label>
-                                    <div class="invalid-feedback" *ngIf="component['currentPassword'].invalid && 
+<label for="currentPassword">{{ 'profile.currentPassword' | translate }}</label>
+<div class="invalid-feedback" *ngIf="component['currentPassword'].invalid && 
                        (component['currentPassword'].dirty || submitted)">
-                                        <span *ngIf="component['currentPassword'].errors?.['required']">Current Password
-                                            Required</span>
+                                        <span *ngIf="component['currentPassword'].errors?.['required']">
+                                            {{ 'validation.currentPasswordRequired' | translate }}
+                                           </span>
                                     </div>
                                 </div>
 
@@ -79,20 +80,17 @@
                                         [ngClass]="{'is-invalid': (component['newPassword'].invalid && component['newPassword'].dirty) || 
                                     (submitted && component['newPassword'].invalid),
                                     'is-valid': component['newPassword'].valid && passwordForm.get('newPassword').value}">
-                                    <label for="newPassword">New Password</label>
-                                    <div class="invalid-feedback" *ngIf="component['newPassword'].invalid && 
+<label for="newPassword">{{ 'profile.newPassword' | translate }}</label>
+<div class="invalid-feedback" *ngIf="component['newPassword'].invalid && 
                        (component['newPassword'].dirty || submitted)">
-                                        <span *ngIf="component['newPassword'].errors?.['required']">New Password
-                                            Required</span>
+                                        <span *ngIf="component['newPassword'].errors?.['required']">{{ 'validation.newPasswordRequired' | translate }}</span>
                                         <ul *ngIf="component['newPassword'].errors?.['passwordStrength']" class="mb-0">
-                                            <li *ngIf="!passwordRequirements.uppercase">Password must contain at least one
-                                                uppercase letter</li>
-                                            <li *ngIf="!passwordRequirements.lowercase">Password must contain at least one
-                                                lowercase letter</li>
-                                            <li *ngIf="!passwordRequirements.symbol">Password must contain at least one
-                                                special character</li>
-                                            <li *ngIf="!passwordRequirements.length">Password must be at least 8 characters
-                                                long</li>
+                                            <li *ngIf="!passwordRequirements.uppercase">{{ 'validation.passwordUppercase' | translate }}</li>
+
+                                            <li *ngIf="!passwordRequirements.lowercase">{{ 'validation.passwordLowercase' | translate }}</li>
+
+                                            <li *ngIf="!passwordRequirements.symbol">{{ 'validation.passwordSymbol' | translate }}</li>
+                                            <li *ngIf="!passwordRequirements.length">{{ 'validation.passwordLength' | translate }}</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -104,19 +102,15 @@
                                     (submitted && component['confirmPassword'].invalid),
                                     'is-valid': component['confirmPassword'].valid && 
                                     passwordForm.get('newPassword').value === passwordForm.get('confirmPassword').value}">
-                                    <label for="confirmPassword">New Password (Re-Enter)</label>
+                                    <label for="confirmPassword">{{ 'validation.newPasswordReEnter' | translate }}</label>
                                     <div class="invalid-feedback" *ngIf="component['confirmPassword'].invalid && 
                        (component['confirmPassword'].dirty || submitted)">
-                                        <span *ngIf="component['confirmPassword'].errors?.['required']">Password
-                                            confirmation is required</span>
-                                        <span *ngIf="component['confirmPassword'].errors?.['notSame']">Passwords do not
-                                            match</span>
+                                        <span *ngIf="component['confirmPassword'].errors?.['required']">{{ 'validation.confirmPasswordRequired' | translate }}</span>
+                                        <span *ngIf="component['confirmPassword'].errors?.['notSame']">{{ 'validation.notSame' | translate }}</span>
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || submitted">
-                                    Change Password
-                                </button>
+                                <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || submitted">{{ 'profile.changePassword' | translate }}</button>
                             </form>
                         </div>
                     </div>
@@ -124,13 +118,13 @@
                     <!-- Addresses Section -->
                     <div class="card mb-4">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h3 class="card-title mb-0">My Addresses</h3>
+                            <h3 class="card-title mb-0">{{ 'profile.myAddresses' | translate }}</h3>
                             <button class="btn btn-primary btn-sm" (click)="showAddAddressForm()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                                     class="bi bi-plus" viewBox="0 0 16 16">
                                     <path
                                         d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                                </svg> Add New Address
+                                </svg>{{ 'profile.addNewAddress' | translate }}
                             </button>
                         </div>
                         <div class="card-body">
@@ -142,12 +136,12 @@
                                                 <div class="card-body">
                                                     <h5 class="card-title">
                                                         {{ address.name }}
-                                                        <span class="badge" *ngIf="address.isDefault">Default</span>
+                                                        <span class="badge" *ngIf="address.isDefault">{{ 'common.default' | translate }}</span>
                                                         <div class="btn-actions">
                                                             <button *ngIf="!address.isDefault"
                                                                 class="btn btn-outline-success btn-sm"
                                                                 (click)="setDefaultAddress(address.id)">
-                                                                <i class="bi bi-check-circle"></i> Set as Default
+                                                                <i class="bi bi-check-circle"></i>{{ 'common.setDefault' | translate }}
                                                             </button>
                                                         </div>
                                                     </h5>
@@ -162,11 +156,11 @@
                                                     <div class="btn-actions">
                                                         <button class="btn btn-outline-primary btn-sm"
                                                             (click)="editAddress(address)">
-                                                            <i class="bi bi-pencil"></i> Edit
+                                                            <i class="bi bi-pencil"></i>{{ 'common.edit' | translate }}
                                                         </button>
                                                         <button class="btn btn-outline-danger btn-sm"
                                                             (click)="confirmDeleteAddress(address.id)">
-                                                            <i class="bi bi-trash"></i> Delete
+                                                            <i class="bi bi-trash"></i>{{ 'common.delete' | translate }}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -176,7 +170,7 @@
 
                                     <div class="col-12" *ngIf="addresses.length === 0">
                                         <div class="alert alert-info">
-                                            No addresses have been saved yet.
+                                            {{ 'profile.noAddresses' | translate }}
                                         </div>
                                     </div>
                                 </ng-container>
@@ -202,13 +196,13 @@
                     <!-- Phone Numbers Section -->
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h3 class="card-title mb-0">My Phone Numbers</h3>
+                            <h3 class="card-title mb-0">{{ 'profile.myPhones' | translate }}</h3>
                             <button class="btn btn-primary btn-sm" (click)="showAddPhoneForm()">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                                     class="bi bi-plus" viewBox="0 0 16 16">
                                     <path
                                         d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4" />
-                                </svg> Add New Phone
+                                </svg>{{ 'profile.addNewPhone' | translate }}
                             </button>
                         </div>
                         <div class="card-body">
@@ -220,12 +214,12 @@
                                                 <div class="card-body">
                                                     <h5 class="card-title">
                                                         {{ phone.name }}
-                                                        <span class="badge" *ngIf="phone.isDefault">Default</span>
+                                                        <span class="badge" *ngIf="phone.isDefault">{{ 'common.default' | translate }}</span>
                                                         <div class="btn-actions">
                                                             <button *ngIf="!phone.isDefault"
                                                                 class="btn btn-outline-success btn-sm"
                                                                 (click)="setDefaultPhone(phone.id)">
-                                                                <i class="bi bi-check-circle"></i> Set as Default
+                                                                <i class="bi bi-check-circle"></i> {{ 'common.setDefault' | translate }}
                                                             </button>
                                                         </div>
                                                     </h5>
@@ -235,11 +229,11 @@
                                                     <div class="btn-actions">
                                                         <button class="btn btn-outline-primary btn-sm"
                                                             (click)="editPhone(phone)">
-                                                            <i class="bi bi-pencil"></i> Edit
+                                                            <i class="bi bi-pencil"></i>{{ 'common.edit' | translate }}
                                                         </button>
                                                         <button class="btn btn-outline-danger btn-sm"
                                                             (click)="confirmDeletePhone(phone.id)">
-                                                            <i class="bi bi-trash"></i> Delete
+                                                            <i class="bi bi-trash"></i>{{ 'common.delete' | translate }}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -248,7 +242,7 @@
                                     </div>
                                     <div class="col-12" *ngIf="phoneNumbers.length === 0">
                                         <div class="alert alert-info">
-                                            No phone numbers have been saved yet.
+                                            {{ 'profile.noPhones' | translate }}
                                         </div>
                                     </div>
                                 </ng-container>
@@ -293,7 +287,7 @@
                 <form [formGroup]="addressForm">
                     <!-- Address Name -->
                     <div class="form-field">
-                        <label>Address Name</label>
+                        <label>{{ 'address.name' | translate }}</label>
                         <div class="input-wrapper">
                             <div class="icon-wrapper">
                                 <i class="fas fa-tag"></i>
@@ -305,13 +299,13 @@
                                    placeholder="e.g., Home, Work, etc.">
                         </div>
                         <div class="error-message" *ngIf="addressForm.get('name')?.invalid && addressForm.get('name')?.touched">
-                            Address name is required
+                            {{ 'validation.addressNameRequired' | translate }}
                         </div>
                     </div>
 
                     <!-- Street Address -->
                     <div class="form-field">
-                        <label>Street Address</label>
+                        <label>{{ 'address.street' | translate }}</label>
                         <div class="input-wrapper">
                             <div class="icon-wrapper">
                                 <i class="fas fa-map-signs"></i>
@@ -323,13 +317,13 @@
                                    placeholder="Enter street address">
                         </div>
                         <div class="error-message" *ngIf="addressForm.get('addressLine1')?.invalid && addressForm.get('addressLine1')?.touched">
-                            Street address is required
+                            {{ 'validation.streetRequired' | translate }}
                         </div>
                     </div>
 
                     <!-- Address Line 2 -->
                     <div class="form-field">
-                        <label>Apartment, Suite, etc. (optional)</label>
+                        <label>{{ 'address.apartment' | translate }}</label>
                         <div class="input-wrapper">
                             <div class="icon-wrapper">
                                 <i class="fas fa-building"></i>
@@ -345,7 +339,7 @@
                     <div class="row gx-2">
                         <div class="col-md-6">
                             <div class="form-field">
-                                <label>City</label>
+                                <label>{{ 'address.city' | translate }}</label>
                                 <div class="input-wrapper">
                                     <div class="icon-wrapper">
                                         <i class="fas fa-city"></i>
@@ -357,13 +351,13 @@
                                            placeholder="Enter city">
                                 </div>
                                 <div class="error-message" *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">
-                                    City is required
+                                    {{ 'validation.cityRequired' | translate }}
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-field">
-                                <label>State/Province</label>
+                                <label>{{ 'address.state' | translate }}</label>
                                 <div class="input-wrapper">
                                     <div class="icon-wrapper">
                                         <i class="fas fa-map"></i>
@@ -375,7 +369,7 @@
                                            placeholder="Enter state">
                                 </div>
                                 <div class="error-message" *ngIf="addressForm.get('state')?.invalid && addressForm.get('state')?.touched">
-                                    State is required
+                                    {{ 'validation.stateRequired' | translate }}
                                 </div>
                             </div>
                         </div>
@@ -385,7 +379,7 @@
                     <div class="row gx-2">
                         <div class="col-md-6">
                             <div class="form-field">
-                                <label>Postal Code</label>
+                                <label>{{ 'address.postalCode' | translate }}</label>
                                 <div class="input-wrapper">
                                     <div class="icon-wrapper">
                                         <i class="fas fa-mail-bulk"></i>
@@ -394,21 +388,21 @@
                                            formControlName="postalCode" 
                                            class="form-input"
                                            [class.is-invalid]="addressForm.get('postalCode')?.invalid && addressForm.get('postalCode')?.touched"
-                                           placeholder="Enter 5-digit postal code">
+                                           placeholder="Enter postal code">
                                 </div>
                                 <div class="error-message" *ngIf="addressForm.get('postalCode')?.touched">
                                     <span *ngIf="addressForm.get('postalCode')?.errors?.['required']">
-                                        Postal code is required
+                                        {{ 'validation.postalCodeRequired' | translate }}
                                     </span>
                                     <span *ngIf="addressForm.get('postalCode')?.errors?.['invalidPostalCode']">
-                                        Please enter a valid 5-digit postal code
+                                        {{ 'validation.invalidPostalCode' | translate }}
                                     </span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-field">
-                                <label>Country</label>
+                                <label>{{ 'address.country' | translate }}</label>
                                 <div class="input-wrapper">
                                     <div class="icon-wrapper">
                                         <i class="fas fa-globe"></i>
@@ -420,7 +414,7 @@
                                            placeholder="Enter country">
                                 </div>
                                 <div class="error-message" *ngIf="addressForm.get('country')?.invalid && addressForm.get('country')?.touched">
-                                    Country is required
+                                    {{ 'validation.countryRequired' | translate }}
                                 </div>
                             </div>
                         </div>
@@ -434,7 +428,7 @@
                                    id="defaultAddress"
                                    formControlName="isDefault">
                             <label class="custom-control-label" for="defaultAddress">
-                                Set as default address
+                                {{ 'common.setDefault' | translate }}
                             </label>
                         </div>
                     </div>
@@ -446,7 +440,7 @@
                         class="btn btn-primary" 
                         (click)="saveAddress()" 
                         [disabled]="addressForm.invalid">
-                    Save Address
+                    {{ 'common.save' | translate }}
                 </button>
             </div>
         </div>
@@ -470,7 +464,7 @@
                 <form [formGroup]="phoneForm">
                     <!-- Phone Name -->
                     <div class="form-group">
-                        <label>Phone Name</label>
+                        <label>{{ 'profile.phoneName' | translate }}</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
@@ -483,13 +477,13 @@
                         </div>
                         <div class="invalid-feedback" *ngIf="phoneForm.get('name')?.errors?.['required'] && 
                                      phoneForm.get('name')?.touched">
-                            Phone name is required
+                            {{ 'validation.phoneNameRequired' | translate }}
                         </div>
                     </div>
 
                     <!-- Phone Number -->
                     <div class="form-group">
-                        <label>Phone Number</label>
+                        <label>{{ 'profile.phoneNumber' | translate }}</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
@@ -504,11 +498,11 @@
                         <div class="invalid-feedback">
                             <span *ngIf="phoneForm.get('number')?.errors?.['required'] && 
                                       phoneForm.get('number')?.touched">
-                                Phone number is required
+                                {{ 'validation.phoneRequired' | translate }}
                             </span>
                             <span *ngIf="phoneForm.get('number')?.errors?.['invalidPhone'] && 
                                       phoneForm.get('number')?.touched">
-                                Please enter a valid phone number (05XX XXX XX XX)
+                                {{ 'validation.invalidPhone' | translate }}
                             </span>
                         </div>
                     </div>
@@ -519,7 +513,7 @@
                             <input type="checkbox" class="custom-control-input" id="defaultPhone"
                                 formControlName="isDefault">
                             <label class="custom-control-label" for="defaultPhone">
-                                Set as default phone number
+                                {{ 'common.setDefault' | translate }}
                             </label>
                         </div>
                     </div>
@@ -528,12 +522,12 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times mr-2"></i>
-                    Cancel
+                    {{ 'common.cancel' | translate }}
                 </button>
                 <button type="button" class="btn btn-primary" (click)="savePhone()" 
                     [disabled]="phoneForm.invalid">
                     <i class="fas fa-check mr-2"></i>
-                    Save Phone
+                    {{ 'common.save' | translate }}
                 </button>
             </div>
         </div>
@@ -545,15 +539,15 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Delete Confirmation</h5>
+                <h5 class="modal-title">{{ 'common.delete' | translate }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <p>{{ deleteConfirmMessage }}</p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'common.cancel' | translate }}</button>
+                <button type="button" class="btn btn-danger" (click)="confirmDelete()">{{ 'common.delete' | translate }}</button>
             </div>
         </div>
     </div>

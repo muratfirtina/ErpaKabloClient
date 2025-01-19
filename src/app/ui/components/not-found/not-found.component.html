@@ -1,1 +1,12 @@
-<p>not-found works!</p>
+<div class="not-found-container">
+  <div class="content-wrapper">
+    <img src="/assets/homecard/TUMdex.png" alt="TUMdex Logo" class="logo">
+    <h1>404</h1>
+    <h2>{{ 'error.pageNotFound' | translate }}</h2>
+    <p>{{ 'error.pageNotFoundMessage' | translate }}</p>
+    <div class="buttons">
+      <a routerLink="/" class="home-button">{{ 'common.returnHome' | translate }}</a>
+      <a routerLink="/contact" class="contact-button">{{ 'common.contactUs' | translate }}</a>
+    </div>
+  </div>
+</div>

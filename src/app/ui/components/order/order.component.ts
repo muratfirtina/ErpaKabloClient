@@ -17,23 +17,25 @@ import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../footer/footer.component';
 import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
+import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-order',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    MatPaginatorModule, 
-    NavbarComponent, 
-    MainHeaderComponent, 
-    BreadcrumbComponent, 
-    DesktopUserSidebarComponent, 
+    CommonModule,
+    FormsModule,
+    MatPaginatorModule,
+    NavbarComponent,
+    MainHeaderComponent,
+    BreadcrumbComponent,
+    DesktopUserSidebarComponent,
     DownbarComponent,
     BreadcrumbComponent,
     FooterComponent,
-    SpinnerComponent
-  ],
+    SpinnerComponent,
+    TranslatePipe
+],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss']
 })

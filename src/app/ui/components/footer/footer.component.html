@@ -1,11 +1,11 @@
+<!-- Footer -->
 <footer class="py-5" style="background-color: #e0e0e0;">
   <div class="container">
     <div class="row g-4">
       <!-- Company Info -->
       <div class="col-lg-4 col-md-6">
         <img src="assets/homecard/TUMdex.png" alt="TUMdex Logo" class="mb-3" style="max-height: 50px;">
-        <p>TUMdex adds value to its customers by providing reliable and professional trading solutions. Quality and
-          customer satisfaction are our priorities.</p>
+        <p>{{ 'home.cards.customerFocus.description' | translate }}</p>
         <div class="contact-info">
           <p>
             <i class="bi bi-geo-alt-fill me-2"></i>
@@ -24,28 +24,28 @@
 
       <!-- Quick Links -->
       <div class="col-lg-2 col-md-6">
-        <h5 class="mb-3">Quick Links</h5>
+        <h5 class="mb-3">{{ 'common.quickLinks' | translate }}</h5>
         <ul class="list-unstyled">
-          <li><a href="/about-us" class="text-decoration-none mb-2 d-block">About Us</a></li>
-          <li><a href="/brands-page" class="text-decoration-none mb-2 d-block">Brands</a></li>
-          <li><a href="/categories-page" class="text-decoration-none mb-2 d-block">Categories</a></li>
-          <li><a href="/contact" class="text-decoration-none mb-2 d-block">Contact</a></li>
+          <li><a href="/about-us" class="text-decoration-none mb-2 d-block">{{ 'common.about' | translate }}</a></li>
+          <li><a href="/brands-page" class="text-decoration-none mb-2 d-block">{{ 'common.brands' | translate }}</a></li>
+          <li><a href="/categories-page" class="text-decoration-none mb-2 d-block">{{ 'common.categories' | translate }}</a></li>
+          <li><a href="/contact" class="text-decoration-none mb-2 d-block">{{ 'common.contactUs' | translate }}</a></li>
         </ul>
       </div>
 
       <!-- Customer Service -->
       <div class="col-lg-3 col-md-6">
-        <h5 class="mb-3">Customer Service</h5>
+        <h5 class="mb-3">{{ 'common.customerService' | translate }}</h5>
         <ul class="list-unstyled">
-          <li><a href="/faq" class="text-decoration-none mb-2 d-block">FAQ</a></li>
-          <li><a href="/shipping" class="text-decoration-none mb-2 d-block">Shipping Information</a></li>
-          <li><a href="/privacy" class="text-decoration-none mb-2 d-block">Privacy Policy</a></li>
+          <li><a href="/faq" class="text-decoration-none mb-2 d-block">{{ 'common.faq' | translate }}</a></li>
+          <li><a href="/shipping" class="text-decoration-none mb-2 d-block">{{ 'common.shippingInfo' | translate }}</a></li>
+          <li><a href="/privacy" class="text-decoration-none mb-2 d-block">{{ 'common.privacyPolicy' | translate }}</a></li>
         </ul>
       </div>
 
       <!-- Social Media -->
       <div class="col-lg-3 col-md-6">
-        <h5 class="mb-3">Follow Us</h5>
+        <h5 class="mb-3">{{ 'common.followUs' | translate }}</h5>
         <div class="card">
           <a [href]="companyInfo.SocialMedia.LinkedIn" 
              target="_blank" 
@@ -69,34 +69,34 @@
         </div>
 
         <div class="newsletter mt-4">
-          <h6>Subscribe to Our Newsletter</h6>
+          <h6>{{ 'newsletter.subscribe' | translate }}</h6>
           <form [formGroup]="newsletterForm" (ngSubmit)="subscribeToNewsletter()">
             <div class="input-group">
               <input type="email" 
                      class="form-control" 
-                     placeholder="Your email address" 
+                     [placeholder]="'auth.emailPlaceholder' | translate" 
                      formControlName="email"
                      [class.is-invalid]="newsletterForm.get('email')?.invalid && newsletterForm.get('email')?.touched">
               <button class="btn btn-danger" 
                       type="submit" 
                       [disabled]="newsletterForm.invalid">
-                Subscribe
+                {{ 'common.subscribe' | translate }}
               </button>
             </div>
             <!-- Validation Messages -->
             <div class="invalid-feedback d-block"
                  *ngIf="newsletterForm.get('email')?.touched && newsletterForm.get('email')?.errors as errors">
               <small class="text-danger" *ngIf="errors['invalidFormat']">
-                Please enter a valid email address
+                {{ 'validation.invalidFormat' | translate }}
               </small>
               <small class="text-danger" *ngIf="errors['sqlInjection']">
-                Invalid characters detected
+                {{ 'validation.sqlInjection' | translate }}
               </small>
               <small class="text-danger" *ngIf="errors['tooShort']">
-                Email address is too short
+                {{ 'validation.emailTooShort' | translate }}
               </small>
               <small class="text-danger" *ngIf="errors['tooLong']">
-                Email address is too long
+                {{ 'validation.emailTooLong' | translate }}
               </small>
             </div>
           </form>
@@ -109,7 +109,7 @@
       <div class="col-12">
         <hr class="bg-light">
         <p class="text-center mb-0">
-          © {{currentYear}} TUMdex. All rights reserved.
+          © {{currentYear}} TUMdex. {{ 'common.allRightsReserved' | translate }}
         </p>
       </div>
     </div>

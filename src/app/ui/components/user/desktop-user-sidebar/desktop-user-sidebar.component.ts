@@ -3,11 +3,12 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { UserService } from 'src/app/services/common/models/user.service';
+import { TranslatePipe } from "../../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-desktop-user-sidebar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './desktop-user-sidebar.component.html',
   styleUrl: './desktop-user-sidebar.component.scss'
 })

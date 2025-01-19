@@ -22,6 +22,7 @@ import { Router, RouterModule } from '@angular/router';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
+import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 interface CategoryWithSubcategories extends Category {
   subcategories?: CategoryWithSubcategories[];
@@ -31,7 +32,7 @@ interface CategoryWithSubcategories extends Category {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule,SpinnerComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, SpinnerComponent, TranslatePipe],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss', '../../../../styles.scss']
 })

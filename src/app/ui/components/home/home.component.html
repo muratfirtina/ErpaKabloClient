@@ -12,7 +12,7 @@
         <div class="text-content">
           <h2 class="slide-title">{{item.name}}</h2>
           <p class="slide-description">{{item.description}}</p>
-          <a href="#" class="btn-cta">Learn More</a>
+          <a href="#" class="btn-cta">{{ 'common.learnMore' | translate }}</a>
         </div>
         <div class="image-content">
           <img [src]="item.carouselImageFiles[0]?.url" [alt]="item.name">
@@ -33,7 +33,7 @@
 
 <section class="categories">
   
-  <h2 class="category-header"*ngIf="!isMobile">KATEGORİLER</h2>
+  <h2 class="category-header" *ngIf="!isMobile">{{ 'home.categories' | translate }}</h2>
   <div class="container">
     <div class="category-grid" #categoryGrid>
       <div class="category-card" *ngFor="let category of mainCategories" [routerLink]="['/'+category.id]">
@@ -42,7 +42,7 @@
         </div>
         <div class="category-content">
           <h3 class="category-title">{{ category.name }}</h3>
-          <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p>
+          <p class="category-description" *ngIf="!isMobile" >{{ category.title || ('home.exploreProducts' | translate) }}</p>
         </div>
       </div>
     </div>
@@ -54,71 +54,72 @@
   <app-product-grid 
     *ngIf="mostLikedProducts"
     [products]="mostLikedProducts.items"
-    [title]="'Most Liked Products'">
+    [title]="'home.mostLikedProducts' | translate">
   </app-product-grid>
-</section>
-
-<section class="products">
+ </section>
+ 
+ <section class="products">
   <app-product-grid 
     *ngIf="mostViewedProducts"
     [products]="mostViewedProducts.items"
-    [title]="'En Çok Ziyaret Edilen Ürünler'">
+    [title]="'home.mostViewedProducts' | translate">
   </app-product-grid>
-</section>
-
-<section class="products">
+ </section>
+ 
+ <section class="products">
   <app-product-grid 
     *ngIf="bestSellingProducts"
     [products]="bestSellingProducts.items"
-    [title]="'En Çok Satan Ürünler'">
+    [title]="'home.bestSellingProducts' | translate">
   </app-product-grid>
-</section>
-
-<section class="products">
+ </section>
+ 
+ <section class="products">
   <app-product-grid 
     *ngIf="randomProducts"
     [products]="randomProducts.items"
-    [title]="'Sizin İçin Seçtiklerimiz'">
+    [title]="'home.ourPicks' | translate">
   </app-product-grid>
-</section>
+ </section>
+ 
 
 <section class="info-cards">
   <div class="container">
     <div class="card-grid">
       <div class="info-card">
         <div class="card-image">
-          <img src="../../../../assets/homecard/smddawgolytxwkhqhvll-1280x854.webp" alt="Kalite">
+          <img src="../../../../assets/homecard/smddawgolytxwkhqhvll-1280x854.webp" alt="Quality">
         </div>
         <div class="card-content">
-          <h3 class="card-title">Yüksek Kalite</h3>
-          <p class="card-description">En yüksek kalite standartlarında üretim yapıyoruz.</p>
+          <h3 class="card-title">{{ 'home.cards.quality.title' | translate }}</h3>
+          <p class="card-description">{{ 'home.cards.quality.description' | translate }}</p>
         </div>
       </div>
       <div class="info-card">
         <div class="card-image">
-          <img src="../../../../assets/homecard/endustri-gorsel-scaled.jpg" alt="İnovasyon">
+          <img src="../../../../assets/homecard/endustri-gorsel-scaled.jpg" alt="Innovation">
         </div>
         <div class="card-content">
-          <h3 class="card-title">İnovasyon</h3>
-          <p class="card-description">Sürekli yenilik ve gelişim odaklı çalışıyoruz.</p>
+          <h3 class="card-title">{{ 'home.cards.innovation.title' | translate }}</h3>
+          <p class="card-description">{{ 'home.cards.innovation.description' | translate }}</p>
         </div>
       </div>
       <div class="info-card">
         <div class="card-image">
-          <img src="../../../../assets/homecard/inventario.webp" alt="Müşteri Hizmetleri">
+          <img src="../../../../assets/homecard/inventario.webp" alt="Customer Services">
         </div>
         <div class="card-content">
-          <h3 class="card-title">Müşteri Odaklılık</h3>
-          <p class="card-description">Müşteri memnuniyeti bizim önceliğimizdir.</p>
+          <h3 class="card-title">{{ 'home.cards.customerFocus.title' | translate }}</h3>
+          <p class="card-description">{{ 'home.cards.customerFocus.description' | translate }}</p>
         </div>
       </div>
       <div class="info-card">
         <div class="card-image">
-          <img src="../../../../assets/homecard/dasdasdasdadqqqq.jpeg" alt="Sürdürülebilirlik">
+          <img src="../../../../assets/homecard/dasdasdasdadqqqq.jpeg" alt="Sustainability">
         </div>
         <div class="card-content">
-          <h3 class="card-title">Sürdürülebilirlik</h3>
-          <p class="card-description">Çevre dostu üretim ve sürdürülebilir çözümler sunuyoruz.</p>
+          <h3 class="card-title">{{ 'home.cards.sustainability.title' | translate }}</h3>
+          <p class="card-description">{{ 'home.cards.sustainability.description' | translate }}</p>
         </div>
       </div>
     </div>

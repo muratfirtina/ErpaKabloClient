@@ -34,12 +34,12 @@
                               </div>
                             </div>
                             <span>{{item.quantity}}</span>
-                            <span>{{item.price | currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
+                            <span>{{item.price | currency:'USD':'symbol-narrow':'1.2-2'}}</span>
                           </div>
                     </div>
                     <div class="order-total">
                         <strong>Toplam: </strong>
-                        <span>{{notification.totalAmount| currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
+                        <span>{{notification.totalAmount| currency:'USD':'symbol-narrow':'1.2-2'}}</span>
                     </div>
                 </div>
             </div>
@@ -110,15 +110,15 @@
                                 <div class="price-column">
                                     <div class="price-content" *ngIf="item.price.changed">
                                       <span class="previous-price">
-                                        {{item.price.previous | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                                        {{item.price.previous | currency:'USD':'symbol-narrow':'1.2-2'}}
                                       </span>
                                       <i class="fas fa-arrow-right"></i>
                                       <span class="current-price">
-                                        {{item.price.current | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                                        {{item.price.current | currency:'USD':'symbol-narrow':'1.2-2'}}
                                       </span>
                                     </div>
                                     <div *ngIf="!item.price.changed">
-                                      {{item.price.current | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                                      {{item.price.current | currency:'USD':'symbol-narrow':'1.2-2'}}
                                     </div>
                                   </div>
                                 
@@ -140,11 +140,11 @@
                         <div class="change-label">Toplam Tutar:</div>
                         <div class="change-values">
                             <span class="previous-value">
-                                {{update.totalAmount.previous | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                                {{update.totalAmount.previous | currency:'USD':'symbol-narrow':'1.2-2'}}
                             </span>
                             <i class="fas fa-arrow-right"></i>
                             <span class="current-value">
-                                {{update.totalAmount.current | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                                {{update.totalAmount.current | currency:'USD':'symbol-narrow':'1.2-2'}}
                             </span>
                         </div>
                     </div>

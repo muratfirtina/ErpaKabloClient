@@ -160,7 +160,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       categoryId: ['', Validators.required],
       brandId: ['', Validators.required],
       varyantGroupID: [''],
-      tax: [0, [Validators.required, Validators.min(0)]],
+      tax: [0, /* [Validators.required, Validators.min(0)] */],
       stock: [0, [Validators.required, Validators.min(0)]],
       price: [0, [Validators.required, Validators.min(0)]],
       sku: ['', Validators.required],

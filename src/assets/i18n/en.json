@@ -1,0 +1,448 @@
+{
+    "common": {
+      "search": "Search",
+      "login": "Sign In",
+      "register": "Register",
+      "cart": "Cart",
+      "about": "About Us",
+      "brands": "Brands",
+      "categories": "Categories",
+      "allProducts": "All Products",
+      "searchPlaceholder": "Search products, categories or brands",
+      "showAll": "Show All",
+      "and": "and",
+      "default": "Default",
+      "setDefault": "Set as Default",
+      "edit": "Edit",
+      "delete": "Delete",
+      "save": "Save",
+      "cancel": "Cancel",
+      "deleteConfirmation": "Delete Confirmation",
+      "admin": "Admin",
+      "closeMenu": "Close Menu",
+      "returnHome": "Return Home Page",
+      "contactUs": "Contact Us",
+      "loading": "Loading...",
+      "home": "Home",
+      "learnMore": "Learn More",
+      "quickLinks": "Quick Links",
+      "customerService": "Customer Service",
+      "followUs": "Follow Us",
+      "faq": "FAQ",
+      "shippingInfo": "Shipping Information",
+      "privacyPolicy": "Privacy Policy",
+      "subscribe": "Subscribe",
+      "allRightsReserved": "All rights reserved."
+    },
+    "search": {
+      "recentSearches": "Recent Searches",
+      "clearHistory": "Clear History",
+      "products": "Products",
+      "categories": "Categories",
+      "brands": "Brands",
+      "resultsFor": "Search Result",
+      "productsFound": "product found",
+      "sortedBy": "Sorted by",
+      "sortOptions": {
+        "default": "Default",
+        "priceLowHigh": "Price (Low - High)",
+        "priceHighLow": "Price (High - Low)"
+      },
+      "noResults": "Sorry, no results were found for"
+    },
+    "product": {
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock",
+      "addToCart": "Add to Cart",
+      "price": "Price",
+      "description": "Description",
+      "features": "Features",
+      "relatedProducts": "Related Products",
+      "recommended": "Recommended"
+    },
+    "cart": {
+      "empty": "Your cart is empty",
+      "total": "Total",
+      "checkout": "Checkout",
+      "remove": "Remove",
+      "quantity": "Quantity",
+      "cart": "Cart",
+      "title": "Cart",
+      "product": "product",
+      "unitPrice": "U.Price",
+      "totalPrice": "Total Price",
+      "selectedProducts": "Selected Products",
+      "getOffer": "Get An Offer",
+      "increase": "Increase quantity",
+      "decrease": "Decrease quantity"
+    },
+    "auth": {
+      "welcomeBack": "Welcome Back",
+      "usernameOrEmail": "Username or Email",
+      "password": "Password", 
+      "forgotPassword": "Forgot Password?",
+      "signIn": "Sign In",
+      "signUp": "Sign up",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create an Account",
+      "alreadyHaveAccount": "Already have an account?",
+      "fullName": "Full Name",
+      "username": "User Name",
+      "email": "Email address",
+      "confirmPassword": "Confirm Password",
+      "termsAgreement": "By signing up, you agree to our",
+      "termsOfUse": "Terms of Use",
+      "privacyPolicy": "Privacy Policy",
+      "signInTitle": "Sign in to your account",
+      "signInMessage": "Access your orders, favorites and more",
+      "setNewPassword": "Set New Password",
+      "newPassword": "New Password",
+      "updatePassword": "Update Password",
+      "backToLogin": "Back to Login",
+      "emailAddress": "Email address",
+      "emailPlaceholder": "name@example.com"
+    },
+    "validation": {
+      "fullNameRequired": "Full name is required.",
+      "fullNameTooShort": "Full name must be at least 3 characters long.",
+      "fullNameTooLong": "Full name must be at most 50 characters long.",
+      "usernameRequired": "Username is required.",
+      "usernameTooShort": "Username is too short.",
+      "emailRequired": "Email is required.",
+      "invalidFormat": "Please enter a valid email address.",
+      "emailTooShort": "Email is too short.",
+      "emailTooLong": "Email is too long.",
+      "fullNameInvalidCharacters": "Full name can only contain letters and spaces.",
+      "invalidCharactersDetected": "Invalid characters detected.",
+      "sqlInjection": "Invalid characters detected.",
+      "passwordRequired": "Password is required",
+      "passwordUppercase": "Must contain at least one uppercase letter",
+      "passwordLowercase": "Must contain at least one lowercase letter",
+      "passwordSymbol": "Must contain at least one symbol",
+      "passwordLength": "Must be at least 8 characters long",
+      "passwordConfirm": "Please confirm your password.",
+      "notSame": "Passwords do not match.",
+      "currentPasswordRequired": "Current Password Required",
+      "addressNameRequired": "Address name is required",
+      "streetRequired": "Street address is required",
+      "cityRequired": "City is required",
+      "countryRequired": "Country is required",
+      "stateRequired": "State/Province is required",
+      "postalCodeRequired": "Postal Code is required",
+      "phoneNameRequired": "Phone name is required",
+      "phoneRequired": "Phone number is required",
+      "invalidPhone": "Invalid phone number",
+      "newPasswordRequired": "New Password Required",
+      "newPasswordReEnter": "New Password (Re-Enter)",
+      "confirmPasswordRequired": "Confirm Password Required",
+      "passwordsNotMatch": "Passwords do not match",
+      "nameRequired": "Name is required",
+      "nameTooShort": "Name must be at least 2 characters",
+      "subjectRequired": "Subject is required",
+      "subjectTooShort": "Subject must be at least 5 characters",
+      "messageRequired": "Message is required",
+      "messageTooShort": "Message must be at least 10 characters",
+      "messageTooLong": "Message cannot exceed 500 characters",
+      "addressRequired": "Please select a delivery address",
+      "invalidPostalCode": "Please enter a valid postal code",
+      "phoneNumberRequired": "Phone number is required",
+      "addressName": {
+        "required": "Address name is required",
+        "minLength": "Address name must be at least 2 characters",
+        "invalidCharacters": "Please enter a valid name"
+      },
+      "phoneName": {
+        "required": "Phone name is required",
+        "minLength": "Phone name must be at least 2 characters",
+        "invalidCharacters": "Please enter a valid name"
+      },
+      "phoneNumber": {
+        "required": "Phone number is required",
+        "invalid": "Please enter a valid phone number",
+        "length": "Phone number must be 10 digits"
+      },
+      "postalCode": {
+        "required": "Postal code is required",
+        "invalid": "Please enter a valid postal code",
+        "format": "It should consist of at least 4 max. 6 numbers"
+      }
+    },
+    "address": {
+      "name": "Address Name",
+      "street": "Street Address", 
+      "apartment": "Apartment, Suite, etc. (optional)",
+      "city": "City",
+      "state": "State/Province",
+      "postalCode": "Postal Code",
+      "country": "Country",
+      "modal": {
+        "title": "Add New Address",
+        "streetLabel": "Street Address",
+        "apartmentLabel": "Apartment, Suite, etc. (optional)",
+        "cityLabel": "City",
+        "stateLabel": "State/Province",
+        "postalCodeLabel": "Postal Code",
+        "countryLabel": "Country"
+      },
+      "namePlaceholder": "e.g., Home, Work, etc.",
+      "streetPlaceholder": "Enter street address",
+      "apartmentPlaceholder": "Apartment or suite number",
+      "setAsDefault": "Set as default address"
+    },
+    "profile": {
+      "userInfo": "User Info",
+      "username": "User Name", 
+      "fullName": "Full Name",
+      "email": "E-Mail",
+      "passwordChange": "Password Change",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "changePassword": "Change Password",
+      "myAddresses": "My Addresses",
+      "addNewAddress": "Add New Address",
+      "editAddress": "Edit Address",
+      "noAddresses": "No addresses have been saved yet.",
+      "phoneNumber": "Phone Number",
+      "myPhones": "My Phone Numbers",
+      "addNewPhone": "Add New Phone",
+      "editPhone": "Edit Phone",
+      "noPhones": "No phone numbers have been saved yet."
+    },
+    "sidebar": {
+      "userMenu": "User menu",
+      "myAccount": "My Account",
+      "orders": "My Orders",
+      "favorites": "My Favorites",
+      "addresses": "My Addresses",
+      "phones": "My Phones",
+      "profile": "Profile Settings",
+      "logout": "Logout",
+      "adminPanel": "Admin Panel",
+      "myOrders": "My Orders", 
+      "myProfile": "My Profile",
+      "signOut": "Sign Out"
+    },
+    "error": {
+      "unauthorizedAccess": "Unauthorized Access",
+      "noAuthorizationMessage": "You do not have authorization to access this page.",
+      "pageNotFound": "Page Not Found",
+      "pageNotFoundMessage": "The page you are looking for may be moved, deleted or temporarily out of use."
+    },
+    "passwordReset": {
+      "title": "Reset Password",
+      "instructions": "Enter your email address and we'll send you instructions to reset your password.",
+      "sendResetLink": "Send Reset Link",
+      "checkEmail": "Check Your Email",
+      "emailSentMessage": "We've sent password reset instructions to your email address. Please check your inbox and spam folder.",
+      "resendInstructions": "Resend Instructions"
+    },
+    "orders": {
+      "searchPlaceholder": "Search orders...",
+      "filters": {
+        "allOrders": "All Orders",
+        "inProgress": "Orders in progress",
+        "cancelled": "Cancelled",
+        "returned": "Returned",
+        "completed": "Completed"
+      },
+      "dateRange": {
+        "allTime": "All Time",
+        "last30Days": "Last 30 days",
+        "last6Months": "Last 6 months",
+        "lastYear": "Last 1 year",
+        "yearAgo1": "1 year ago",
+        "yearAgo2": "2 years ago",
+        "yearAgo3": "3 years ago"
+      },
+      "noOrders": "There are no orders yet.",
+      "orderNo": "Order No",
+      "quantity": "Quantity",
+      "deliveryAddress": "Delivery Address",
+      "orderDescription": "Order Description"
+    },
+    "order": {
+      "title": "Complete Your Order",
+      "selectedItems": "Selected Items",
+      "quantity": "Quantity",
+      "unitPrice": "U.Price",
+      "total": "Total",
+      "deliveryAddress": "Delivery Address",
+      "selectDeliveryAddress": "Select Delivery Address",
+      "chooseAddress": "Choose an address...",
+      "addNewAddress": "Add New Address",
+      "selectedAddress": "Selected Address",
+      "contactPhone": "Contact Phone",
+      "selectContactPhone": "Select Contact Phone",
+      "choosePhone": "Choose a phone number...",
+      "addNewPhone": "Add New Phone",
+      "selectedPhone": "Selected Phone",
+      "orderNotes": "Order Notes",
+      "notesPlaceholder": "Add any special instructions for your order...",
+      "orderSummary": "Order Summary",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "free": "Free",
+      "completeOrder": "Complete Order"
+    },
+    "orderSummary": {
+      "successMessage": "Your Order Has Been Created Successfully!",
+      "orderNumber": "Order Number",
+      "products": "Products",
+      "quantity": "Quantity",
+      "deliveryInfo": "Delivery Information",
+      "deliveryAddress": "Delivery Address",
+      "contactInfo": "Contact Information",
+      "orderNote": "Order Note",
+      "paymentSummary": "Payment Summary",
+      "price": "Price",
+      "shipping": "Shipping",
+      "free": "Free",
+      "totalPrice": "Total Price",
+      "myOrders": "My Orders",
+      "continueShopping": "Continue Shopping"
+    },
+    "newsletter": {
+      "unsubscribe": {
+        "title": "Unsubscribe TUMDEX Newsletter",
+        "confirmMessage": "Are you sure you want to unsubscribe from the TUMDEX newsletter?",
+        "button": "Unsubscribe",
+        "success": "Unsubscribe successful."
+      },
+      "subscribe": "Subscribe to Our Newsletter"
+    },
+    "home": {
+      "categories": "CATEGORIES",
+      "exploreProducts": "Explore our products",
+      "mostLikedProducts": "Most Liked Products",
+      "mostViewedProducts": "Most Viewed Products",
+      "bestSellingProducts": "Best Selling Products",
+      "ourPicks": "Our Picks For You",
+      "cards": {
+        "quality": {
+          "title": "High Quality",
+          "description": "We manufacture at the highest quality standards."
+        },
+        "innovation": {
+          "title": "Innovation",
+          "description": "We are constantly focused on innovation and development."
+        },
+        "customerFocus": {
+          "title": "Customer Focus",
+          "description": "Customer satisfaction is our priority."
+        },
+        "sustainability": {
+          "title": "Sustainability",
+          "description": "We offer environmentally friendly production and sustainable solutions."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contact Us",
+      "subtitle": "Get in touch with us for any inquiries",
+      "contactInfo": "Contact Information",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "connectWithUs": "Connect With Us",
+      "sendMessage": "Send us a Message",
+      "form": {
+        "name": "Your Name",
+        "namePlaceholder": "Your Name",
+        "email": "Your Email",
+        "emailPlaceholder": "Your Email",
+        "subject": "Subject",
+        "subjectPlaceholder": "Subject",
+        "message": "Message (Max 500 characters)",
+        "messagePlaceholder": "Message",
+        "characters": "characters",
+        "send": "Send Message",
+        "sending": "Sending..."
+      }
+    },
+    "phone": {
+      "addNew": "Add New Phone",
+      "name": "Phone Name",
+      "namePlaceholder": "e.g., Mobile, Home, Work, etc.",
+      "number": "Phone Number",
+      "numberPlaceholder": "Enter 10-digit phone number",
+      "setAsDefault": "Set as default phone number",
+      "modal": {
+        "title": "Add New Phone",
+        "name": "Phone Name",
+        "namePlaceholder": "e.g., Mobile, Home, Work, etc.",
+        "number": "Phone Number",
+        "numberPlaceholder": "Enter 10-digit phone number",
+        "setAsDefault": "Set as default phone number"
+      }
+    },
+    "buttons": {
+      "addAddress": "Add New Address",
+      "addPhone": "Add New Phone",
+      "save": "Save",
+      "cancel": "Cancel",
+      "completeOrder": "Complete Order"
+    },
+    "messages": {
+      "orderInstructions": "Add any special instructions for your order..."
+    },
+    "about": {
+      "title": "About Tüm Trading",
+      "mission": {
+        "title": "What did we set out for?",
+        "description": "Tüm Trading was founded by a group of people with trading experience in different geographies. Providing consultancy services to the leading companies of the business world, Tüm Trading aims to ensure the successful conclusion of all regional and global commercial operations with its knowledgeable, talented, and experienced human resources."
+      },
+      "expertise": {
+        "title": "Our Expertise",
+        "description": "Our specialists are expected to possess strong analytical skills, efficient industrial manufacturing, and access to a viewpoint that examines stagnation's root causes and promotes transformation. Our goal is to assist businesses in realizing their full potential and emerging as industry leaders by providing a broad model of collaboration across all organizational levels in the commercial enterprises they support."
+      },
+      "qualityPolicy": {
+        "title": "Quality Policy",
+        "intro": "Tüm Trading bases all of its operations on \"quality-oriented\" labor. In keeping with this approach:",
+        "points": {
+          "leadership": "Advancing company owners and entrepreneurs to a position of leadership and innovation in their industries",
+          "satisfaction": "To guarantee the contentment of every partner in the solution, particularly our staff",
+          "development": "To direct sustainable development, efficient resource use, and ongoing progress",
+          "innovation": "To encourage and support innovation and entrepreneurship",
+          "compliance": "To conduct business in compliance with applicable laws and worldwide management standards"
+        }
+      },
+      "ethics": {
+        "title": "Our Business Ethics",
+        "honesty": {
+          "title": "A. Honesty",
+          "description": "Our main principles in all of our commercial dealings and interpersonal interactions are honesty and integrity. We conduct ourselves with honesty and integrity toward all of our stakeholders, including our employees."
+        },
+        "privacy": {
+          "title": "B. Privacy",
+          "description1": "Confidential and proprietary information comprises trade secrets, financial and other information that hasn't been made public yet, information about personnel's personal rights, and information that falls under the purview of \"confidentiality agreements\" signed with third parties. It also includes information that belongs to Tüm Group Companies that might put them at a competitive disadvantage. As staff members of Tüm Group, we take precautions to safeguard the personal information of our clients, partners, and other pertinent parties.",
+          "description2": "It is absolutely unacceptable for us to obtain any financial benefit by disclosing any private information owned by Tüm Group Companies, including trading shares on stock markets. We do not take with us any confidential documents, projects, policies, or other information that we are required to have because of our work when we leave our organization."
+        },
+        "responsibilities": {
+          "title": "D. Our Responsibilities",
+          "intro": "In addition to our legal obligations, we make sure to meet our following responsibilities towards our competitors, society, mankind, and our firm. These responsibilities include those towards our customers, employees, shareholders, suppliers, and business partners.",
+          "legal": {
+            "title": "1. Our Legal Responsibilities",
+            "description": "We conduct all of our present business both domestically and internationally in accordance with the rules of the Republic of Turkey and international law. We also promptly and accurately supply legal regulatory bodies and organizations with information that is clear, comprehensive, and correct."
+          },
+          "customers": {
+            "title": "2. Our Responsibilities Towards Our Customers",
+            "description": "We have a proactive strategy that prioritizes client satisfaction and allows us to promptly and accurately address our clients' needs and requests. We meet our deadlines and provide our services as agreed upon; we deal with our clients in accordance with the principles of decency, fairness, equality, and civility."
+          }
+        }
+      },
+      "healthSafety": {
+        "title": "Health and Safety Policy",
+        "intro": "Tüm Trading strives to offer a safe and healthy working environment for all of its operations. In keeping with this objective, we commit to:",
+        "points": {
+          "workforce": "Creating a healthy workforce and population",
+          "prevention": "Implementing essential procedures for preventing workplace accidents and occupational ailments",
+          "assessment": "Carrying out risk assessments with staff participation to attain suitable risk levels",
+          "participation": "Ensuring participation from all organizational levels in enhancing occupational health and safety procedures",
+          "culture": "Fostering a culture of workplace health and safety",
+          "compliance": "Complying with applicable laws and regulations for occupational health and safety",
+          "proactive": "Taking a proactive stance toward occupational health and safety while boosting productivity",
+          "training": "Maintaining training programs for staff, visitors, interns, and subcontractor personnel"
+        }
+      }
+    }
+}

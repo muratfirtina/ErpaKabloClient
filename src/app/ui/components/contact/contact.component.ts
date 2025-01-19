@@ -12,19 +12,21 @@ import { MainHeaderComponent } from '../main-header/main-header.component';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { ValidationService } from 'src/app/services/common/validation.service';
 import { COMPANY_INFO } from 'src/app/config/company-info.config';
+import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-contact',
   standalone: true,
   imports: [
-    CommonModule, 
+    CommonModule,
     ReactiveFormsModule,
     MainHeaderComponent,
     NavbarComponent,
     BreadcrumbComponent,
     DownbarComponent,
-    FooterComponent
-  ],
+    FooterComponent,
+    TranslatePipe
+],
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.scss'
 })

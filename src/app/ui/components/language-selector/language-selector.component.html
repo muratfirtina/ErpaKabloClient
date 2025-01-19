@@ -1,0 +1,21 @@
+<div class="language-selector-container">
+  <div class="language-selector" (click)="$event.stopPropagation()">
+    <button type="button" class="selected-language" (click)="toggleDropdown()">
+      <span class="flag">{{getCurrentLanguageOption()?.flag}}</span>
+      <span class="lang-name">{{getCurrentLanguageOption()?.name}}</span>
+      <span class="arrow" [class.open]="isDropdownOpen">▼</span>
+    </button>
+    
+    <div class="dropdown-content" [class.show]="isDropdownOpen">
+      <button 
+        type="button"
+        class="language-option"
+        *ngFor="let option of languageOptions"
+        [class.active]="option.code === currentLanguage"
+        (click)="changeLanguage(option.code)">
+        <span class="flag">{{option.flag}}</span>
+        <span class="lang-name">{{option.name}}</span>
+      </button>
+    </div>
+  </div>
+</div>

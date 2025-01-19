@@ -11,11 +11,12 @@ import { MainHeaderComponent } from '../main-header/main-header.component';
 import { NavbarComponent } from '../navbar/navbar.component';
 import { FooterComponent } from '../footer/footer.component';
 import { DownbarComponent } from '../downbar/downbar.component';
+import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-newsletter-unsubscribe',
   standalone: true,
-  imports: [CommonModule,MainHeaderComponent,NavbarComponent,FooterComponent,DownbarComponent],
+  imports: [CommonModule, MainHeaderComponent, NavbarComponent, FooterComponent, DownbarComponent, TranslatePipe],
   templateUrl: './newsletter-unsubscribe.component.html',
   styleUrl: './newsletter-unsubscribe.component.scss',
 })

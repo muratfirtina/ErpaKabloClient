@@ -89,7 +89,7 @@
         <button (click)="increaseQuantity()">+</button>
       </div>
       <button class="add-to-cart-button" [disabled]="product.stock <= 0" (click)="addToCart(product)">
-        Add To Cart
+        {{ 'product.addToCart' | translate }}
       </button>
     </div>
   </div>
@@ -100,7 +100,7 @@
 <div class="product-detail-tabs">
   <ul class="tab-headers">
     <li class="tab-header" [class.active]="activeTab === 'description'" (click)="setActiveTab('description')">
-      Descriptions
+      {{ 'product.description' | translate }}
     </li>
 <!--     <li class="tab-header" [class.active]="activeTab === 'reviews'" (click)="setActiveTab('reviews')">
       Değerlendirmeler <span class="badge">1899</span>

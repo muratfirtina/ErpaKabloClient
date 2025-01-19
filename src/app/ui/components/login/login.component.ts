@@ -45,9 +45,13 @@ export class LoginComponent extends BaseComponent {
         this.activatedRoute.queryParams.subscribe(params => {
           const returnUrl: string = params['returnUrl'];
           if (returnUrl) {
-            this.router.navigateByUrl(returnUrl);
+            this.router.navigateByUrl(returnUrl).then(() => {
+              window.location.reload();
+            });
           } else {
-            this.router.navigate([""]);
+            this.router.navigate([""]).then(() => {
+              window.location.reload();
+            });
           }
         });
       });

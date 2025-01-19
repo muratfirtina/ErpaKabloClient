@@ -6,22 +6,25 @@
           <!-- All Products Dropdown (Desktop) -->
           <div class="all-products-dropdown d-none d-lg-block">
             <button class="dropdown-toggle" (click)="toggleAllProducts()">
-              All Products
+              {{ 'common.allProducts' | translate }}
             </button>
           </div>
 
           <!-- Brands Button (Mobile) -->
           <div class="brands d-lg-none mobile-brands">
-            <button class="btn" routerLink="/brands-page">Brands</button>
+            <button class="btn" routerLink="/brands-page">
+              {{ 'common.brands' | translate }}
+            </button>
           </div>
 
           <!-- Search Bar -->
           <div class="search-bar flex-grow-1 mx-2 mx-lg-4">
             <form class="d-flex w-100" [formGroup]="searchForm" (submit)="onSearchSubmit($event)">
-              <input type="text" class="form-control search-input" formControlName="searchTerm"
-                placeholder="Search for products, categories or brands" 
-                (focus)="onSearchFocus()"
-                (blur)="onSearchBlur()">
+              <input type="text" class="form-control search-input" 
+  formControlName="searchTerm"
+  [placeholder]="'common.searchPlaceholder' | translate"
+  (focus)="onSearchFocus()"
+  (blur)="onSearchBlur()">
               <button type="submit" class="search-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
@@ -35,8 +38,10 @@
               <!-- Recent Searches -->
               <div class="recent-searches" *ngIf="recentSearches.length > 0">
                 <div class="recent-searches-header">
-                  <h4>Recent Searches</h4>
-                  <span class="clear-history" (click)="clearSearchHistory()">Clear Search History</span>
+                  <h4>{{ 'search.recentSearches' | translate }}</h4>
+                  <span class="clear-history" (click)="clearSearchHistory()">
+                    {{ 'search.clearHistory' | translate }}
+                  </span>
                 </div>
                 <ul>
                   <li *ngFor="let search of recentSearches" 
@@ -50,7 +55,7 @@
               <div class="search-results">
                 <!-- Products -->
                 <div class="products" *ngIf="searchResults.products.length > 0">
-                  <h4>Products</h4>
+                  <h4>{{ 'search.products' | translate }}</h4>
                   <ul>
                     <li *ngFor="let product of searchResults.products" (click)="onProductClick(product)">
                       <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name"
@@ -69,7 +74,7 @@
 
                 <!-- Categories -->
                 <div class="categories" *ngIf="searchResults.categories.length > 0">
-                  <h4>Categories</h4>
+                  <h4>{{ 'search.categories' | translate }}</h4>
                   <ul>
                     <li *ngFor="let category of searchResults.categories"
                       (click)="navigateToSearchResult(category.id)">
@@ -82,7 +87,7 @@
 
                 <!-- Brands -->
                 <div class="brands" *ngIf="searchResults.brands.length > 0">
-                  <h4>Brands</h4>
+                  <h4>{{ 'search.brands' | translate }}</h4>
                   <ul>
                     <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult(brand.id)">
                       <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" [alt]="brand.name"
@@ -98,12 +103,23 @@
           <div class="nav-right">
             <!-- Brands (Desktop) -->
             <div class="brands d-none d-lg-block">
-              <button class="btn" routerLink="/brands-page">Brands</button>
+              <button class="btn" routerLink="/brands-page">
+                {{ 'common.brands' | translate }}
+              </button>
             </div>
             <span class="d-none d-lg-block" style="color:#e0e0e0;">|</span>
             <!-- About Us -->
             <div class="about-us d-none d-lg-block">
-              <button routerLink="/about-us" class="btn">About Us</button>
+              <button routerLink="/about-us" class="btn">
+                {{ 'common.about' | translate }}
+              </button>
+            </div>
+            <span class="d-none d-lg-block" style="color:#e0e0e0;">|</span>
+            <!-- About Us -->
+            <div class="about-us d-none d-lg-block">
+              <button routerLink="/contact" class="btn">
+                {{ 'common.contactUs' | translate }}
+              </button>
             </div>
           </div>
 
@@ -158,8 +174,8 @@
           <app-spinner [spinnerType]="'s2'" *ngIf="recommendedLoading"></app-spinner>
           <div [class.invisible]="recommendedLoading">
           <div class="recommended-header">
-            <h3>Recommended {{ selectedCategory.name }}</h3>
-            <a href="#" class="view-all">Show All →</a>
+            <h3>{{ 'product.recommended' | translate }} {{ selectedCategory.name }}</h3>
+            <a href="#" class="view-all">{{ 'common.showAll' | translate }} →</a>
           </div>
           <div class="product-grid">
             <div class="product-item" *ngFor="let product of recommendedProducts.items"

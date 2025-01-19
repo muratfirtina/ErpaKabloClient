@@ -10,11 +10,12 @@ import { OrderService } from 'src/app/services/common/models/order.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../../footer/footer.component';
+import { TranslatePipe } from "../../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-order-summary',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent],
+  imports: [CommonModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent, TranslatePipe],
   templateUrl: './order-summary.component.html',
   styleUrls: ['./order-summary.component.scss']
 })
