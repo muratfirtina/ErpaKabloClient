@@ -9,11 +9,12 @@ import {
   ToastrPosition,
 } from 'src/app/services/ui/custom-toastr.service';
 import { COMPANY_INFO } from 'src/app/config/company-info.config';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })
