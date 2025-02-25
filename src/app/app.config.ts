@@ -50,10 +50,10 @@ export const appConfig: ApplicationConfig = {
       JwtModule.forRoot({
         config: {
           tokenGetter: () => localStorage.getItem("accessToken"),
-          allowedDomains: ["localhost:5199", "192.168.0.10:5199"],
-          disallowedRoutes: ["localhost:5199/api/auth/login", "192.168.0.10:5199/api/auth/login"]
+          allowedDomains: ["localhost:5000","www.tumdex.com", "tumdex.com"],
+          disallowedRoutes: ["localhost:5000/api/auth/login","www.tumdex.com/api/auth/login", "tumdex.com/api/auth/login"]
         }
-      }),
+      })
     ),
     SafeUrlPipe,
     SafeHtmlPipe,
@@ -68,7 +68,7 @@ export const appConfig: ApplicationConfig = {
     ),
     { 
       provide: "baseUrl", 
-      useValue: "https://localhost:5199/api", 
+      useValue: "https://www.tumdex.com/api", 
       multi: true 
     }, 
     provideAnimationsAsync(),

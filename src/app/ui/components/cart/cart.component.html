@@ -5,7 +5,7 @@
 
 <div class="cart-drawer" [class.open]="isOpen">
   <div class="cart-header">
-    <h2>{{ 'cart.title' | translate }} ({{ totalItemCount }} {{ 'cart.product' | translate }})</h2>
+    <h2>Cart ({{ totalItemCount }} product)</h2>
     <button class="close-button" (click)="close()">
       <i class="fas fa-times"></i>
     </button>
@@ -15,7 +15,7 @@
     <ng-container *ngIf="totalItemCount === 0">
       <div class="text-center py-5">
         <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
-        <p class="h6 text-muted">{{ 'cart.empty' | translate }}</p>
+        <p class="h6 text-muted">Cart is empty</p>
       </div>
     </ng-container>
 
@@ -57,11 +57,11 @@
           <div class="product-price-controls">
             <div class="price-info">
               <div class="unit-price">
-                <span class="price-label">{{ 'cart.unitPrice' | translate }}:</span>
+                <span class="price-label">U.Price:</span>
                 <span class="price-value">{{ cartItem.unitPrice | currency:'USD':'symbol':'1.2-2' }}</span>
               </div>
               <div class="total-price">
-                <span class="price-label">{{ 'cart.total' | translate }}:</span>
+                <span class="price-label">Total:</span>
                 <span class="price-value">{{ cartItem.quantityPrice | currency:'USD':'symbol':'1.2-2' }}</span>
               </div>
             </div>
@@ -70,8 +70,7 @@
               <div class="quantity-controls">
                 <button 
                   (click)="cartItem.quantity === 1 ? removeCartItem(cartItem.cartItemId) : changeQuantity(-1, cartItem)" 
-                  [class.delete-btn]="cartItem.quantity === 1"
-                  [attr.aria-label]="cartItem.quantity === 1 ? ('cart.remove' | translate) : ('cart.decrease' | translate)">
+                  [class.delete-btn]="cartItem.quantity === 1">
                   <i class="fas" 
                      [class.fa-minus]="cartItem.quantity > 1" 
                      [class.fa-trash]="cartItem.quantity === 1"></i>
@@ -79,18 +78,13 @@
                 <input type="number" 
                        [value]="cartItem.quantity" 
                        (input)="onQuantityInput($event, cartItem)" 
-                       [attr.aria-label]="'cart.quantity' | translate"
                        min="1">
-                <button (click)="changeQuantity(1, cartItem)"
-                        [attr.aria-label]="'cart.increase' | translate">
+                <button (click)="changeQuantity(1, cartItem)">
                   <i class="fas fa-plus"></i>
                 </button>
               </div>
 
-              <button class="remove-button" 
-                      (click)="removeCartItem(cartItem.cartItemId)" 
-                      style="color: #e53935;"
-                      [attr.aria-label]="'cart.remove' | translate">
+              <button class="remove-button" (click)="removeCartItem(cartItem.cartItemId)" style="color: #e53935;">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -103,17 +97,17 @@
   <div class="cart-footer">
     <div class="cart-summary">
       <div class="selected-count">
-        {{ 'cart.selectedProducts' | translate }}: {{ selectedItemCount }}
+        Selected Products: {{ selectedItemCount }}
       </div>
       <div class="total-price">
-        <span>{{ 'cart.totalPrice' | translate }}:</span>
+        <span>Total Price:</span>
         <span>{{ totalSelectedCartPrice | currency:'USD':'symbol':'1.2-2' }}</span>
       </div>
     </div>
     <button class="checkout-button" 
             (click)="shoppingCompleting()" 
             [disabled]="selectedItemCount === 0">
-      {{ 'cart.getOffer' | translate }}
+            Get An Offer
     </button>
   </div>
 </div>

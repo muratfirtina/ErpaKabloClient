@@ -1,5 +1,5 @@
 
-
+$font-family-base: 'Source Sans Pro', sans-serif;
 // Variables
 $home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
@@ -25,6 +25,11 @@ $text-light: #e0e0e0;
 $transition-speed: 0.3s;
 
 .main-header {
+  font-family: $font-family-base;
+  
+  * {
+    font-family: inherit;
+  }
   height: $header-height;
   background: linear-gradient(135deg, $header-bg-dark 0%, darken($header-bg-dark, 10%) 100%);
   position: relative;

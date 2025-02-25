@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    baseUrl: 'https://example.com'
+    baseUrl: 'https://www.tumdex.com'
   };

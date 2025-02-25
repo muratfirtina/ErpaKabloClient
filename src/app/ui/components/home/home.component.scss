@@ -26,7 +26,7 @@ $breakpoint-large: 1400px;
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
 }
 
 body {
@@ -45,7 +45,7 @@ body {
   display: flex;
   overflow-x: auto;
   gap: 20px;
-  padding: 20px 0;
+  //padding: 20px 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -70,14 +70,14 @@ body {
 }
 
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
   color: $home-text-color;
   line-height: 1.6;
 }
 
 .hero-carousel {
   position: relative;
-  height: 450px;
+  height: 300px;
   background-color: #1e1e1e;
 
   @media (max-width: $breakpoint-tablet) {
@@ -85,7 +85,7 @@ body {
   }
 
   @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-laptop) {
-    height: 350px;
+    height: 250px;
 
     .slide-content {
       .text-content {
@@ -154,6 +154,7 @@ body {
         z-index: 1; // Metnin görüntünün üstünde kalmasını sağla
 
         .slide-title {
+          font-family: 'Source Sans Pro', sans-serif;
           font-size: 2.5rem;
           font-weight: bold;
           margin-bottom: 1rem;
@@ -183,7 +184,7 @@ body {
         left: 15%;
 
         img {
-          height: 450px;
+          height: 300px;
           object-fit: cover;
           mask-image: linear-gradient(
             to right,
@@ -262,18 +263,22 @@ body {
 }
 
 .categories {
-  padding: 20px 0;
+  
   position: relative; // Ok butonlarının yerleşimini kolaylaştırır
   background-color: $light-text;
+  margin: 2rem;
 
   .category-header {
-    font-size: 1.3rem;
+    font-family: "Bebas Neue", serif;
+    font-size: 2.5rem;
     color: $home-primary-color;
     font-weight: 500;
     margin: 0 auto 0;
     max-width: 1320px;
     padding: 0 0 10px;
     position: relative;
+    display: flex;
+    justify-content: center;
 
     @media (max-width: $breakpoint-tablet) {
       font-size: 1.1rem;
@@ -283,7 +288,7 @@ body {
       content: "";
       position: absolute;
       bottom: 0;
-      left: 0;
+      transform: translateX(-60%);
       width: 100px;
       height: 4px;
       background-image: linear-gradient(
@@ -342,7 +347,7 @@ body {
       gap: 1rem;
       scroll-snap-type: x mandatory;
       overflow-x: auto;
-      padding: 20px 0;
+      padding: 20px 0 0 0;
       scroll-behavior: smooth;
 
       @media (max-width: $breakpoint-tablet) { // 480px ve altı için
@@ -447,9 +452,9 @@ body {
         .category-title {
           margin-top: 20px;
           line-height: normal;
-          font-size: 1rem;
-          font-weight: bold;
-          color: $home-primary-color;
+          font-size: 0.9rem;
+          font-weight: 500;
+          color: $text-color;
           margin: 0 auto 0;
           max-width: 1320px;
           padding: 0 0 10px;
@@ -459,10 +464,10 @@ body {
 
         .category-description {
           line-height: normal;
-          margin-top: 20px;
+          margin-top: 5px;
           width: 150px;
           height: 50px;
-          font-size: 0.9rem;
+          font-size: 0.75rem;
           //margin-bottom: 15px;
           display: -webkit-box;
             -webkit-box-orient: vertical;
@@ -494,6 +499,7 @@ body {
 .info-cards {
   padding: 50px 0;
   background-color: #f8f9fa;
+  font-family: 'Source Sans Pro', sans-serif;
 
   .container {
     width: 100%;
@@ -570,6 +576,7 @@ body {
     }
 
     .card-title {
+      font-family: 'Source Sans Pro', sans-serif;
       font-size: 1.25rem;
       font-weight: 600;
       margin-bottom: 20px; // Margin'i arttırdık
@@ -596,6 +603,7 @@ body {
   }
 
   .card-description {
+    font-family: 'Source Sans Pro', sans-serif;
     font-size: 0.9rem;
     color: #666;
     line-height: 1.5;

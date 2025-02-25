@@ -1,3 +1,4 @@
+$font-family-base: 'Source Sans Pro', sans-serif;
 $home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
@@ -31,6 +32,11 @@ $link-color: #0000ee;
   }
   
   .login-popover, .register-popover {
+    font-family: $font-family-base;
+  
+  * {
+    font-family: inherit;
+  }
     position: fixed;
     top: 80px;
     right: auto;
@@ -148,19 +154,44 @@ $link-color: #0000ee;
         }
       }
     }
-  
-    .forgot-password {
-      text-align: right;
-      margin: -5px 0 10px;
-      
-      a {
-        color: #484848;
-        font-size: 0.9rem;
-        text-decoration: none;
-  
-        &:hover {
-          text-decoration: underline;
-          color: #e53935;
+
+    .login-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    
+      .remember-me {
+        .checkbox-container {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          cursor: pointer;
+          
+          input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+          }
+    
+          .label-text {
+            font-size: 0.9rem;
+            color: #666;
+            user-select: none;
+          }
+        }
+      }
+    
+      .forgot-password {
+        margin: 0; // Mevcut margin'i sıfırlıyoruz
+        a {
+          color: #484848;
+          font-size: 0.9rem;
+          text-decoration: none;
+    
+          &:hover {
+            text-decoration: underline;
+            color: #e53935;
+          }
         }
       }
     }

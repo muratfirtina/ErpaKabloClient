@@ -25,6 +25,7 @@ import { ButtonSpinnerComponent } from 'src/app/base/spinner/button-spinner/butt
 export class LoginComponent extends BaseComponent {
   logoUrl = 'assets/homecard/TUMdex.png';
   loading: boolean = false;
+  rememberMe: boolean = false;
 
   constructor(
     private userAuthService: UserAuthService,
@@ -34,12 +35,37 @@ export class LoginComponent extends BaseComponent {
     private router: Router,
   ) {
     super(spinner);
+    this.checkRememberMe();
+  }
+
+  private checkRememberMe() {
+    const rememberedUser = localStorage.getItem('rememberedUser');
+    if (rememberedUser) {
+      const userData = JSON.parse(rememberedUser);
+      // Form alanlarını otomatik doldur
+      setTimeout(() => {
+        const usernameInput = document.getElementById('usernameOrEmail') as HTMLInputElement;
+        if (usernameInput) {
+          usernameInput.value = userData.username;
+        }
+      });
+    }
   }
 
   async login(userNameOrEmail: string, password: string) {
     this.loading = true;
     try {
       await this.userAuthService.login(userNameOrEmail, password, () => {
+        // Remember me seçiliyse kullanıcı bilgilerini kaydet
+        if (this.rememberMe) {
+          localStorage.setItem('rememberedUser', JSON.stringify({
+            username: userNameOrEmail
+          }));
+        } else {
+          // Remember me seçili değilse kayıtlı bilgileri temizle
+          localStorage.removeItem('rememberedUser');
+        }
+
         this.authService.identityCheck();
         sessionStorage.clear();
         this.activatedRoute.queryParams.subscribe(params => {

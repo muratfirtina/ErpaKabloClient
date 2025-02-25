@@ -113,21 +113,22 @@ export class ProductService {
     successCallBack();
   }
 
-  createMultiple(formData: FormData, SuccessCallback?: () => void, ErrorCallback?: (errorMessage: string) => void) {
-    this.httpClientService.post({
-      controller: "products",
-      action: "multiple"
-    }, formData).subscribe({
-      next: (response) => {
-        console.log('Server response:', response);
-        SuccessCallback();
-      },
-      error: (error) => {
-        console.error('Server error:', error);
-        ErrorCallback(error);
-      }
-    });
+  async createMultiple(formData: FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void) {
+  const observable = this.httpClientService.post({
+    controller: "products",
+    action: "multiple"
+  }, formData);
+
+  // Subscribe yerine firstValueFrom kullanıyoruz
+  try {
+    const response = await firstValueFrom(observable);
+    successCallback?.(); // Başarılı callback'i çağır
+    return response;
+  } catch (error) {
+    errorCallback?.(error);
+    throw error;
   }
+}
 
   async getRandomProductsByCategory(categoryId: string, count: number = 4): Promise<GetListResponse<Product>> {
     const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({

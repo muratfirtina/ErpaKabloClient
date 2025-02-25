@@ -9,12 +9,11 @@ import {
   ToastrPosition,
 } from 'src/app/services/ui/custom-toastr.service';
 import { COMPANY_INFO } from 'src/app/config/company-info.config';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })

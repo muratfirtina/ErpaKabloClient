@@ -12,7 +12,6 @@ import { ThemeService } from 'src/app/services/common/theme.service';
 import { DrawerService } from 'src/app/services/common/drawer.service';
 import { Roles } from 'src/app/contracts/user/roles';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
-import { TranslatePipe } from "../../../../pipes/translate.pipe";
 
 interface UserData {
   name: string;
@@ -32,7 +31,7 @@ interface MenuItem {
 @Component({
   selector: 'app-user-sidebar',
   standalone: true,
-  imports: [CommonModule, TranslatePipe],
+  imports: [CommonModule],
   templateUrl: './user-sidebar.component.html',
   styleUrls: ['./user-sidebar.component.scss']
 })
@@ -52,11 +51,11 @@ export class UserSidebarComponent extends BaseDrawerComponent implements OnInit 
   
   // Tüm menü itemlarını burada tanımlayalım
   readonly menuItems: MenuItem[] = [
-    { id: 1,label: 'sidebar.adminPanel', icon: 'fas fa-user-shield', route: '/admin',roles: [Roles.ADMIN] },
-    { id: 2,label: 'sidebar.myOrders', icon: 'fas fa-box', route: '/order'},
-    { id: 3,label: 'sidebar.myProfile', icon: 'fas fa-user', route: '/user'},
-    { id: 4,label: 'sidebar.favorites', icon: 'fas fa-heart', route: '/my-favorites'},
-    { id: 5,label: 'sidebar.signOut', icon: 'fas fa-sign-out-alt', route: 'logout'}
+    { id: 1,label: 'Admin Panel', icon: 'fas fa-user-shield', route: '/admin',roles: [Roles.ADMIN] },
+    { id: 2,label: 'My Orders', icon: 'fas fa-box', route: '/order'},
+    { id: 3,label: 'My Profile', icon: 'fas fa-user', route: '/user'},
+    { id: 4,label: 'Favorites', icon: 'fas fa-heart', route: '/my-favorites'},
+    { id: 5,label: 'Sign Out', icon: 'fas fa-sign-out-alt', route: 'logout'}
   ];
 
   // Görüntülenecek menü itemlarını filtreleyen getter

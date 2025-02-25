@@ -22,12 +22,11 @@ import { DownbarComponent } from '../downbar/downbar.component';
 import { ProductGridComponent } from '../product/product-grid/product-grid.component';
 import { FooterComponent } from '../footer/footer.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MainHeaderComponent, CommonModule, NavbarComponent, RouterModule, DownbarComponent, ProductGridComponent, FooterComponent, TranslatePipe],
+  imports: [MainHeaderComponent, CommonModule, NavbarComponent, RouterModule, DownbarComponent, ProductGridComponent, FooterComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
@@ -97,7 +96,6 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
 
   async loadMostLikedProducts()
   {
-    const pageRequest: PageRequest = { pageIndex: 1, pageSize: 10 };
     this.mostLikedProducts = await this.productService.getMostLikedProducts(10);
     if (this.authService.isAuthenticated) {
       const productIds = this.mostLikedProducts.items.map(p => p.id);

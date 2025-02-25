@@ -6,11 +6,8 @@
   <div class="registerform">
     <form [formGroup]="frm" (ngSubmit)="onSubmit(frm.value)">
       <div class="title_container">
-        <p class="title">{{ 'auth.createAccount' | translate }}</p>
-        <p class="subtitle">
-          {{ 'auth.alreadyHaveAccount' | translate }} 
-          <a routerLink="/login">{{ 'auth.signIn' | translate }}</a>
-         </p>
+        <p class="title">Create an Account</p>
+        <p class="subtitle">Already have an account? <a routerLink="/login">Sign in</a></p>
       </div>
       <br>
 
@@ -21,13 +18,13 @@
                id="nameSurname" 
                [ngClass]="{'is-invalid': (component['nameSurname'].invalid && component['nameSurname'].dirty) || (submitted && component['nameSurname'].invalid),
                           'is-valid': component['nameSurname'].valid && frm.get('nameSurname').value}">
-        <label for="nameSurname">{{ 'auth.fullName' | translate }}</label>
+        <label for="nameSurname">Full Name</label>
         <div class="invalid-feedback" *ngIf="component['nameSurname'].invalid && (component['nameSurname'].dirty || submitted)">
-          <span *ngIf="component['nameSurname'].errors?.['required']">{{ 'validation.fullNameRequired' | translate }}</span>
-          <span *ngIf="component['nameSurname'].errors?.['tooShort']">{{ 'validation.fullNameTooShort' | translate }}</span>
-          <span *ngIf="component['nameSurname'].errors?.['tooLong']">{{ 'validation.fullNameTooLong' | translate }}</span>
-          <span *ngIf="component['nameSurname'].errors?.['invalidCharacters']">{{ 'validation.fullNameInvalidCharacters' | translate }}</span>
-          <span *ngIf="component['nameSurname'].errors?.['sqlInjection'] || component['nameSurname'].errors?.['htmlTags'] || component['nameSurname'].errors?.['scriptTags'] || component['nameSurname'].errors?.['commandInjection']">{{ 'validation.invalidCharactersDetected' | translate }}</span>
+          <span *ngIf="component['nameSurname'].errors?.['required']">Full name is required.</span>
+          <span *ngIf="component['nameSurname'].errors?.['tooShort']">Full name must be at least 3 characters long.</span>
+          <span *ngIf="component['nameSurname'].errors?.['tooLong']">Full name cannot exceed 50 characters.</span>
+          <span *ngIf="component['nameSurname'].errors?.['invalidCharacters']">Full name can only contain letters and spaces.</span>
+          <span *ngIf="component['nameSurname'].errors?.['sqlInjection'] || component['nameSurname'].errors?.['htmlTags'] || component['nameSurname'].errors?.['scriptTags'] || component['nameSurname'].errors?.['commandInjection']">Invalid characters detected.</span>
         </div>
       </div>
 
@@ -38,13 +35,13 @@
                id="userName" 
                [ngClass]="{'is-invalid': (component['userName'].invalid && component['userName'].dirty) || (submitted && component['userName'].invalid),
                           'is-valid': component['userName'].valid && frm.get('userName').value}">
-        <label for="username">{{ 'auth.username' | translate }}</label>
+        <label for="username">User Name</label>
         <div class="invalid-feedback" *ngIf="component['userName'].invalid && (component['userName'].dirty || submitted)">
-          <span *ngIf="component['userName'].errors?.['required']">{{ 'validation.usernameRequired' | translate }}</span>
-          <span *ngIf="component['userName'].errors?.['tooShort']">{{ 'validation.usernameTooShort' | translate }}</span>
-          <span *ngIf="component['userName'].errors?.['tooLong']">{{ 'validation.usernameTooLong' | translate }}</span>
-          <span *ngIf="component['userName'].errors?.['invalidCharacters']">{{ 'validation.usernameInvalidCharacters' | translate }}</span>
-          <span *ngIf="component['userName'].errors?.['sqlInjection'] || component['userName'].errors?.['htmlTags'] || component['userName'].errors?.['scriptTags'] || component['userName'].errors?.['commandInjection']">{{ 'validation.invalidCharactersDetected' | translate }}</span>
+          <span *ngIf="component['userName'].errors?.['required']">Username is required.</span>
+          <span *ngIf="component['userName'].errors?.['tooShort']">Username must be at least 3 characters long.</span>
+          <span *ngIf="component['userName'].errors?.['tooLong']">Username cannot exceed 50 characters.</span>
+          <span *ngIf="component['userName'].errors?.['invalidCharacters']">Username can only contain letters, numbers, underscores and hyphens.</span>
+          <span *ngIf="component['userName'].errors?.['sqlInjection'] || component['userName'].errors?.['htmlTags'] || component['userName'].errors?.['scriptTags'] || component['userName'].errors?.['commandInjection']">Invalid characters detected.</span>
         </div>
       </div>
 
@@ -58,48 +55,48 @@
                               (submitted && component['email'].invalid),
                  'is-valid': component['email'].valid && component['email'].touched
                }">
-        <label for="email">{{ 'auth.email' | translate }}</label>
+        <label for="email">Email address</label>
         <div class="invalid-feedback" *ngIf="(component['email'].invalid && 
              (component['email'].dirty || component['email'].touched)) || submitted">
-          <span *ngIf="component['email'].errors?.['required']">{{ 'validation.emailRequired' | translate }}</span>
-          <span *ngIf="component['email'].errors?.['invalidFormat']">{{ 'validation.invalidFormat' | translate }}</span>
-          <span *ngIf="component['email'].errors?.['emailTooShort']">{{ 'validation.emailTooShort' | translate }}</span>
-          <span *ngIf="component['email'].errors?.['emailTooLong']">{{ 'validation.emailTooLong' | translate }}</span>
-          <span *ngIf="component['email'].errors?.['sqlInjection']">{{ 'validation.invalidCharactersDetected' | translate }}</span>
+          <span *ngIf="component['email'].errors?.['required']">Email is required.</span>
+          <span *ngIf="component['email'].errors?.['invalidFormat']">Please enter a valid email address.</span>
+          <span *ngIf="component['email'].errors?.['tooShort']">Email is too short.</span>
+          <span *ngIf="component['email'].errors?.['tooLong']">Email is too long.</span>
+          <span *ngIf="component['email'].errors?.['sqlInjection']">Invalid characters detected.</span>
         </div>
       </div>
       
       <div class="form-floating">
-        <input type="password"
-               formControlName="password"
-               class="form-control"
-               id="password"
+        <input type="password" 
+               formControlName="password" 
+               class="form-control" 
+               id="password" 
                [ngClass]="{
-                 'is-invalid': ((component['password'].invalid && component['password'].dirty) ||
+                 'is-invalid': ((component['password'].invalid && component['password'].dirty) || 
                                (submitted && component['password'].invalid)),
-                 'is-valid': component['password'].valid && component['password'].dirty &&
-                            component['password'].value?.length >= 8 && passwordRequirements.uppercase &&
+                 'is-valid': component['password'].valid && component['password'].dirty && 
+                            component['password'].value?.length >= 8 && passwordRequirements.uppercase && 
                             passwordRequirements.lowercase && passwordRequirements.symbol
                }">
-        <label for="password">{{ 'auth.password' | translate }}</label>
+        <label for="password">Password</label>
         <div class="invalid-feedback" *ngIf="(component['password'].dirty || submitted) && component['password'].invalid">
-          <span *ngIf="component['password'].errors?.['passwordRequired']">{{ 'validation.passwordRequired' | translate }}</span>
+          <span *ngIf="component['password'].errors?.['required']">Password is required.</span>
           <ul *ngIf="component['password'].value">
             <li [class.text-success]="passwordRequirements.uppercase">
               <i [class]="passwordRequirements.uppercase ? 'fas fa-check' : 'fas fa-times'"></i>
-              {{ 'validation.passwordUppercase' | translate }}
+              Must contain at least one uppercase letter
             </li>
             <li [class.text-success]="passwordRequirements.lowercase">
               <i [class]="passwordRequirements.lowercase ? 'fas fa-check' : 'fas fa-times'"></i>
-              {{ 'validation.passwordLowercase' | translate }}
+              Must contain at least one lowercase letter
             </li>
             <li [class.text-success]="passwordRequirements.symbol">
               <i [class]="passwordRequirements.symbol ? 'fas fa-check' : 'fas fa-times'"></i>
-              {{ 'validation.passwordSymbol' | translate }}
+              Must contain at least one symbol
             </li>
             <li [class.text-success]="passwordRequirements.length">
               <i [class]="passwordRequirements.length ? 'fas fa-check' : 'fas fa-times'"></i>
-              {{ 'validation.passwordLength' | translate }}
+              Must be at least 8 characters long
             </li>
           </ul>
         </div>
@@ -112,24 +109,19 @@
                id="confirmPassword"
                [ngClass]="{'is-invalid': (frm.get('confirmPassword').invalid && frm.get('confirmPassword').dirty) || (submitted && frm.get('confirmPassword').invalid),
                           'is-valid': frm.get('confirmPassword').valid && frm.get('password').value === frm.get('confirmPassword').value}">
-        <label for="confirmPassword">{{ 'auth.confirmPassword' | translate }}</label>
+        <label for="confirmPassword">Confirm Password</label>
         <div class="invalid-feedback" *ngIf="component['confirmPassword'].invalid && (component['confirmPassword'].dirty || submitted)">
-          <span *ngIf="component['confirmPassword'].errors?.['passwordConfirm']">{{ 'validation.passwordConfirm' | translate }}</span>
-          <span *ngIf="component['confirmPassword'].errors?.['notSame']">{{ 'validation.notSame' | translate }}</span>
+          <span *ngIf="component['confirmPassword'].errors?.['required']">Please confirm your password.</span>
+          <span *ngIf="component['confirmPassword'].errors?.['notSame']">Passwords do not match.</span>
         </div>
       </div>
 
       <button type="submit" class="btn-submit" [disabled]="frm.invalid || loading">
-        <span [class.invisible]="loading">{{ 'auth.signUp' | translate }}</span>
+        <span [class.invisible]="loading">Create Account</span>
         <app-button-spinner *ngIf="loading"></app-button-spinner>
       </button>
 
-      <p class="terms">
-        {{ 'auth.termsAgreement' | translate }}
-        <a href="#">{{ 'auth.termsOfUse' | translate }}</a> 
-        {{ 'common.and' | translate }} 
-        <a href="#">{{ 'auth.privacyPolicy' | translate }}</a>
-       </p>
+      <p class="terms">By signing up, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a></p>
     </form>
   </div>
 </div>

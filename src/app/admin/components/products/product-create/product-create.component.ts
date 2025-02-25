@@ -107,7 +107,7 @@ export class ProductCreateComponent implements OnInit {
     private featureService: FeatureService,
     private productService: ProductService,
     private spinnerService: NgxSpinnerService,
-    private toastrService: CustomToastrService,
+    private customToasterService: CustomToastrService,
     private dialogService: DialogService,
     private dialog: MatDialog,
     private changeDetectorRef: ChangeDetectorRef,
@@ -212,7 +212,7 @@ export class ProductCreateComponent implements OnInit {
       this.changeDetectorRef.detectChanges();
     } catch (error) {
       console.error('Error loading categories:', error);
-      this.toastrService.message("Kategoriler yüklenemedi", "Hata", {
+      this.customToasterService.message("Kategoriler yüklenemedi", "Hata", {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
@@ -315,7 +315,7 @@ export class ProductCreateComponent implements OnInit {
     try {
       const response = await this.brandService.getBrandsByDynamicQuery(
         { filter: { field: 'name', operator: 'contains', value: searchTerm } },
-        { pageIndex: 0, pageSize: 10 }
+        { pageIndex: -1, pageSize: -1 }
       );
       this.filteredBrands = response.items;
       this.showBrandResults = true;
@@ -505,7 +505,7 @@ export class ProductCreateComponent implements OnInit {
 
   async onSubmit() {
     if (!this.productForm.valid) {
-      this.toastrService.message('Lütfen tüm gerekli alanları doldurun', 'Hata', {
+      this.customToasterService.message('Lütfen tüm gerekli alanları doldurun', 'Hata', {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
@@ -515,65 +515,64 @@ export class ProductCreateComponent implements OnInit {
     try {
       this.loading = true;
       this.spinnerService.show(SpinnerType.BallSpinClockwise);
+      this.productForm.disable();
   
       const formData = new FormData();
       this.variants.controls.forEach((variant, index) => {
         this.appendVariantData(formData, variant, index);
       });
   
-      // Form elemanlarını devre dışı bırak
-      this.productForm.disable();
-  
       await this.productService.createMultiple(
         formData,
         () => {
-          // Başarılı durumda sadece gerekli alanları temizle
           this.loading = false;
           this.spinnerService.hide();
-          this.productForm.enable(); // Form elemanlarını tekrar aktif et
+          this.productForm.enable();
   
-          // Sadece ürün adını temizle
-          this.productForm.patchValue({
-            name: ''
-          });
-  
-          // Özellikleri temizle
+          // Form temizleme işlemleri
+          this.productForm.patchValue({ name: '' });
           while (this.featureFormArray.length > 0) {
             this.featureFormArray.removeAt(0);
           }
-  
-          // Varyantları temizle
           this.variants.clear();
           this.variantsCreated = false;
           this.canGenerateVariants = false;
           this.allSelected = false;
   
-          this.toastrService.message('Ürünler başarıyla oluşturuldu', 'Başarılı', {
+          // Başarı mesajını göster
+          this.customToasterService.message('Ürünler başarıyla oluşturuldu', 'Başarılı', {
             toastrMessageType: ToastrMessageType.Success,
             position: ToastrPosition.TopRight
           });
         },
         (error) => {
-          // Hata durumunda
           this.loading = false;
           this.spinnerService.hide();
-          this.productForm.enable(); // Form elemanlarını tekrar aktif et
+          this.productForm.enable();
           
-          this.toastrService.message(error, 'Hata', {
-            toastrMessageType: ToastrMessageType.Error,
-            position: ToastrPosition.TopRight
-          });
+          this.customToasterService.message(
+            'Ürün oluşturulamadı',
+            'Hata',
+            {
+              toastrMessageType: ToastrMessageType.Error,
+              position: ToastrPosition.TopRight
+            }
+          );
         }
       );
     } catch (error) {
       this.loading = false;
       this.spinnerService.hide();
-      this.productForm.enable(); // Form elemanlarını tekrar aktif et
+      this.productForm.enable();
       
-      this.toastrService.message('Bir hata oluştu', 'Hata', {
-        toastrMessageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight
-      });
+      this.customToasterService.message(
+        error?.message || 'Bir hata oluştu',
+        'Hata',
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
     }
   }
 
@@ -620,7 +619,7 @@ export class ProductCreateComponent implements OnInit {
   }
 
   private handleSuccess(message: string) {
-    this.toastrService.message(message, 'Başarılı', {
+    this.customToasterService.message(message, 'Başarılı', {
       toastrMessageType: ToastrMessageType.Success,
       position: ToastrPosition.TopRight
     });
@@ -629,7 +628,7 @@ export class ProductCreateComponent implements OnInit {
 
   private handleError(message: string, error: any) {
     console.error('Error:', error);
-    this.toastrService.message(message, 'Hata', {
+    this.customToasterService.message(message, 'Hata', {
       toastrMessageType: ToastrMessageType.Error,
       position: ToastrPosition.TopRight
     });

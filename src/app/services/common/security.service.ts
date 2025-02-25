@@ -42,7 +42,7 @@ export class SecurityService {
     // Kategori format kontrolü: [kategori-adı]-c-[8 karakter hexadecimal]
     const categoryPattern = /^([\w-]+)-c-([a-f0-9]{8})$/;
     // Marka format kontrolü: [marka-adı]-b-[8 karakter hexadecimal]
-    const brandPattern = /^([\w-]+)-b-([a-f0-9]{8})$/;
+    const brandPattern = /^[\w-]+$/;
 
     // Ürün kontrolü
     const productMatch = param.match(productPattern);
@@ -69,10 +69,9 @@ export class SecurityService {
     // Marka kontrolü
     const brandMatch = param.match(brandPattern);
     if (brandMatch) {
-      const [, slug, id] = brandMatch;
       return {
         isValid: true,
-        expectedId: `${slug}-b-${id}`,
+        expectedId: param,
         type: 'brand'
       };
     }

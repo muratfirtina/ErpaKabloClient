@@ -4,17 +4,17 @@ import { CommonModule } from '@angular/common';
 import { filter, Subject, takeUntil } from 'rxjs';
 
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { BrandComponent } from 'src/app/ui/components/brand/brand.component';
 import { CategoryComponent } from 'src/app/ui/components/category/category.component';
 import { ProductDetailComponent } from 'src/app/ui/components/product/product-detail/product-detail.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { SecurityService } from 'src/app/services/common/security.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { BrandPageComponent } from 'src/app/ui/components/brand/brand-page/brand-page.component';
 
 @Component({
   selector: 'app-dynamic-router',
   standalone: true,
-  imports: [CommonModule, ProductDetailComponent, CategoryComponent, BrandComponent],
+  imports: [CommonModule, ProductDetailComponent, CategoryComponent, BrandPageComponent],
   template: `
     <ng-container [ngSwitch]="componentType">
       <app-product-detail 
@@ -27,11 +27,11 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
         [categoryId]="id" 
         [key]="navigationCounter">
       </app-category>
-      <app-brand 
+      <app-brand-page 
         *ngSwitchCase="'brand'" 
         [brandId]="id" 
         [key]="navigationCounter">
-      </app-brand>
+      </app-brand-page>
     </ng-container>
   `
 })

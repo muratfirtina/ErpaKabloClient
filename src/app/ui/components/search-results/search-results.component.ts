@@ -26,7 +26,6 @@ import { DownbarComponent } from '../downbar/downbar.component';
 import { MatIconModule } from '@angular/material/icon';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../footer/footer.component';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-search-results',
@@ -41,7 +40,7 @@ import { TranslatePipe } from "../../../pipes/translate.pipe";
     FilterComponent,
     RouterModule,
     DownbarComponent,
-    FooterComponent, TranslatePipe],
+    FooterComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss'
 })

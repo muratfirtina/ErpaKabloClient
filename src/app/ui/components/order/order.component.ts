@@ -17,7 +17,6 @@ import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../footer/footer.component';
 import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-order',
@@ -33,8 +32,7 @@ import { TranslatePipe } from "../../../pipes/translate.pipe";
     DownbarComponent,
     BreadcrumbComponent,
     FooterComponent,
-    SpinnerComponent,
-    TranslatePipe
+    SpinnerComponent
 ],
   templateUrl: './order.component.html',
   styleUrls: ['./order.component.scss']

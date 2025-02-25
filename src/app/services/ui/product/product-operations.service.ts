@@ -47,7 +47,7 @@ export class ProductOperationsService {
             "Successful",
             {
               toastrMessageType: ToastrMessageType.Success,
-              position: ToastrPosition.TopRight
+              position: ToastrPosition.BottomRight
             }
           );
         },
@@ -57,7 +57,7 @@ export class ProductOperationsService {
             "You can add products up to the maximum stock number", "Warning",
             {
               toastrMessageType: ToastrMessageType.Warning,
-              position: ToastrPosition.TopRight
+              position: ToastrPosition.BottomRight
             }
           );
         }

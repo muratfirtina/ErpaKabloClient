@@ -22,7 +22,6 @@ import { Router, RouterModule } from '@angular/router';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 interface CategoryWithSubcategories extends Category {
   subcategories?: CategoryWithSubcategories[];
@@ -32,7 +31,7 @@ interface CategoryWithSubcategories extends Category {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, SpinnerComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, SpinnerComponent],
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss', '../../../../styles.scss']
 })
@@ -419,9 +418,6 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
   }
 
   async loadRecommendedProductsWithCache(categoryId: string) {
-    if (this.categoryCache.has(categoryId)) {
-      this.recommendedProducts = this.categoryCache.get(categoryId)!;
-    } else {
       this.recommendedLoading = true;
       this.showSpinner(SpinnerType.SquareLoader);
       try {
@@ -436,7 +432,7 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
         this.hideSpinner(SpinnerType.SquareLoader);
       }
     }
-  }
+  
 
   toggleAllProducts() {
     this.isAllProductsOpen = !this.isAllProductsOpen;

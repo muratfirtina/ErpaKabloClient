@@ -248,16 +248,17 @@ app-user-sidebar {
             justify-content: flex-start;
             gap: 20px;
             .item-names {
+              font-family: 'Source Sans Pro', sans-serif;
               width: 300px;
 
               .item-brand {
                 color: $primary-color;
                 font-size: 14px;
-                margin-bottom: 4px;
+                font-weight: 700;
               }
 
               .item-name {
-                font-weight: 500;
+                font-weight: 700;
                 margin-bottom: 2px;
               }
 
@@ -309,14 +310,20 @@ app-user-sidebar {
         }
 
         // Address and Notes Styles
+        .information {
+          display: flex;
+          justify-content: space-around;
+        }
         .shipping-address,
         .order-notes {
-          background: white;
+
           border-radius: 6px;
           padding: 12px;
           margin-top: 12px;
 
-          .address-header,
+          .address-header {
+            color: $success-color;
+          }
           .notes-header {
             display: flex;
             align-items: center;

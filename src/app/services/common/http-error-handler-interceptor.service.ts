@@ -70,4 +70,53 @@ export class HttpErrorHandlerInterceptorService implements HttpInterceptor {
     
     
   }
+
+  // Mevcut ErrorService'e ekleyebilirsiniz
+handleError(error: any, customMessage?: string): void {
+  let errorMessage = customMessage || 'An error occurred';
+  
+  console.error('Error details:', error);
+  
+  // HTTP hata yanıtlarını ele al
+  if (error.error) {
+    // Backend'den gelen hata mesajı
+    if (typeof error.error === 'string') {
+      errorMessage = error.error;
+    }
+    // Daha karmaşık hata nesnesi
+    else if (error.error.message) {
+      errorMessage = error.error.message;
+    }
+    // Validation hataları
+    else if (error.error.errors) {
+      const validationErrors = Object.values(error.error.errors).join(', ');
+      errorMessage = `Validation error: ${validationErrors}`;
+    }
+  }
+  
+  // HTTP durum koduna göre kullanıcı dostu mesajlar
+  if (error.status === 400) {
+    errorMessage = customMessage || 'Invalid request. Please check your information.';
+  } else if (error.status === 401) {
+    errorMessage = 'Authentication required. Please log in.';
+    // Oturumun süresi dolmuş olabilir, login sayfasına yönlendir
+    // this.router.navigate(['/login']);
+  } else if (error.status === 403) {
+    errorMessage = 'You do not have permission to perform this action.';
+  } else if (error.status === 404) {
+    errorMessage = 'The requested resource was not found.';
+  } else if (error.status === 500) {
+    errorMessage = 'Server error. Please try again later.';
+  }
+  
+  // Toast bildirimini göster
+  this.toastrService.message(
+    errorMessage,
+    'Error',
+    {
+      toastrMessageType: ToastrMessageType.Error,
+      position: ToastrPosition.TopRight
+    }
+  );
+}
 }

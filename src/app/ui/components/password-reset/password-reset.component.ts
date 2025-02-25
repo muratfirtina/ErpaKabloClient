@@ -6,12 +6,11 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-password-reset',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './password-reset.component.html',
   styleUrls: ['./password-reset.component.scss']
 })

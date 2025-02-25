@@ -29,9 +29,19 @@
         <label for="password">Password</label>
       </div>
 
+    <div class="remember">
+      <div class="remember-me">
+        <label class="checkbox-container">
+          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
+          <span class="checkmark"></span>
+          Remember me
+        </label>
+      </div>
+
       <div class="forgot-password">
         <a routerLink="/password-reset">Forgot Password?</a>
       </div>
+    </div>
 
       <button type="submit" class="btn-login" [disabled]="loading">
         <span [class.invisible]="loading">Sign In</span>

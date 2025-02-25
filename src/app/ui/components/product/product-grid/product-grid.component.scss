@@ -15,16 +15,17 @@ $link-color: #0000ee;
 .product-grid-container {
   margin: 0 auto;
   max-width: 1320px;
-  padding-top: 2rem;
+  padding-top: 0.8rem;
 
   h2 {
-    font-size: 1.3rem;
+    font-family: "Bebas Neue", serif;
+    font-size: 2rem;
     color: $secondary-color;
     font-weight: 500;
     margin: auto;
     max-width: 1200px;
     border-top: 1px solid $border-color;
-    padding: 40px 0 0 0;
+    padding: 20px 0 0 0;
   }
 
   .container {

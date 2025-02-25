@@ -1,4 +1,4 @@
-// Variables
+$font-family-base: 'Source Sans Pro', sans-serif;
 $home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
@@ -62,6 +62,9 @@ $widescreen: 1400px;
 }
 
 .cart-drawer {
+  font-family: $font-family-base;
+  
+  
   position: fixed;
   top: 0;
   right: -100%;
@@ -99,6 +102,7 @@ $widescreen: 1400px;
   }
 
   .cart-header {
+    font-family: 'Source Sans Pro', sans-serif;
     padding: 16px;
     border-bottom: 1px solid #e0e0e0;
     display: flex;

@@ -17,12 +17,11 @@ import { BaseDrawerComponent } from '../base-drawer.component';
 import { AnimationService } from 'src/app/services/common/animation.service';
 import { Subscription } from 'rxjs';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './cart.component.html',
   styleUrls: ['./cart.component.scss']
 })

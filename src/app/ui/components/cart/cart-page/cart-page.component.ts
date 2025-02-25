@@ -20,12 +20,11 @@ import { NavbarComponent } from '../../navbar/navbar.component';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../../footer/footer.component';
-import { TranslatePipe } from "../../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-cart-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent],
   templateUrl: './cart-page.component.html',
   styleUrl: './cart-page.component.scss'
 })
@@ -86,7 +85,7 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
   }
 
   async ngOnInit(): Promise<void> {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+    this.showSpinner(SpinnerType.SquareLoader);
     
     try {
       // CartStateService'den veriyi al
@@ -142,7 +141,7 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
     } catch (error) {
       this.errorService.handleError(error, 'Error loading order information');
     } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
   private async loadAddressesAndPhones(): Promise<void> {
@@ -207,7 +206,7 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
       return;
     }
   
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+    this.showSpinner(SpinnerType.SquareLoader);
   
     try {
       const createOrderRequest = {
@@ -215,35 +214,49 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
         cartItems: this.cartData.selectedItems
       };
   
-      await this.orderService.create(
+      console.log('Submitting order:', createOrderRequest);
+  
+      const response = await this.orderService.create(
         createOrderRequest,
-        async (response) => {
-          // Backend'den güncel sepet verilerini al
-          const updatedCart = await this.cartService.get();
+        response => {
+          console.log('Order created successfully:', response);
           
-          // State'i güncelle
-          this.cartStateService.updateCartData({
-            selectedItems: updatedCart,
-            totalPrice: updatedCart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+          // Backend'den güncel sepet verilerini al
+          this.cartService.get().then(updatedCart => {
+            // State'i güncelle
+            this.cartStateService.updateCartData({
+              selectedItems: updatedCart,
+              totalPrice: updatedCart.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0)
+            });
+            
+            this.toastrService.message(
+              'Order created successfully',
+              'Success',
+              {
+                toastrMessageType: ToastrMessageType.Success,
+                position: ToastrPosition.TopRight
+              }
+            );
+            
+            // Yanıtı konsola yazdıralım
+            console.log('Navigating to order summary with ID:', response.orderId);
+            
+            // Explicit timeout ile yönlendirmeyi garantiye alalım
+            setTimeout(() => {
+              this.router.navigate(['/order-summary', response.orderId]);
+            }, 100);
           });
-  
-          this.toastrService.message(
-            'Order created successfully',
-            'Success',
-            {
-              toastrMessageType: ToastrMessageType.Success,
-              position: ToastrPosition.TopRight
-            }
-          );
-  
-          this.router.navigate(['/order-summary', response.orderId]);
         },
         errorMessage => {
-          this.errorService.handleError(errorMessage);
+          console.error('Error creating order:', errorMessage);
+          this.errorService.handleError(errorMessage, 'Failed to create order. Please try again.');
+          this.hideSpinner(SpinnerType.BallSpinClockwise);
         }
       );
     } catch (error) {
-      this.errorService.handleError(error);
+      console.error('Exception during order creation:', error);
+      this.errorService.handleError(error, 'An unexpected error occurred while creating your order.');
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
     } finally {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     }

@@ -20,21 +20,24 @@ export class OrderService {
 
   constructor(private httpClientService: HttpClientService) { }
 
-    async create(createOrder: CreateOrder, successCallback?: (response: any) => void, errorCallback?: (errorMessage: string) => void): Promise<any> {
+  async create(createOrder: CreateOrder, successCallback?: (response: any) => void, errorCallback?: (errorMessage: string) => void): Promise<any> {
+    try {
       const observable: Observable<any> = this.httpClientService.post({
         controller: 'orders',
         action: 'convert-cart-to-order'
       }, createOrder);
     
-      const promiseData = firstValueFrom(observable);
-      promiseData.then((response) => {
-        if (successCallback) successCallback(response);
-      }).catch(error => {
-        if (errorCallback) errorCallback(error);
-      });
-    
-      return await promiseData;
+      const response = await firstValueFrom(observable);
+      console.log('Order creation response:', response); // Response'u loglayalım
+      
+      if (successCallback) successCallback(response);
+      return response;
+    } catch (error) {
+      console.error('Order creation error:', error);
+      if (errorCallback) errorCallback(error);
+      throw error;
     }
+  }
 
   async getAllOrders(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Order>>{
     const observable : Observable<GetListResponse<Order>> = this.httpClientService.get<GetListResponse<Order>>({

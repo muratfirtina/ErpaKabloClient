@@ -23,6 +23,7 @@ $link-color: #0000ee;
     top: 20px;
     //width: 250px;
     max-height: calc(100vh - 40px);
+    margin-bottom: 50px;
   }
 }
 
@@ -36,6 +37,7 @@ $link-color: #0000ee;
   border: 1px solid $border-color;
   padding: 1rem;
   font-family: "Roboto", Arial, sans-serif;
+  border-radius: 10px;
 
   @include media-breakpoint-down(md) {
     border: none;
@@ -243,6 +245,7 @@ $link-color: #0000ee;
         background-color: $primary-color;
         color: white;
         border: none;
+        border-radius: 6px;
         cursor: pointer;
         transition: background-color 0.2s;
 

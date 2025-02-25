@@ -21,8 +21,8 @@ export interface SecurityConfig {
     },
     monitoring: {
       performance: {
-        highLatencyThresholdMs: 1000,    // 1 saniye
-        criticalLatencyThresholdMs: 3000  // 3 saniye
+        highLatencyThresholdMs: 2000,    // 1 saniye
+        criticalLatencyThresholdMs: 5000  // 3 saniye
       }
     },
     auth: {

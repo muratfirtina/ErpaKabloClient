@@ -22,7 +22,6 @@ import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { DesktopUserSidebarComponent } from './desktop-user-sidebar/desktop-user-sidebar.component';
 import { ValidationService } from 'src/app/services/common/validation.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 
 declare var $: any;
@@ -30,7 +29,7 @@ declare var $: any;
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MainHeaderComponent, NavbarComponent, DesktopUserSidebarComponent, DownbarComponent, BreadcrumbComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, MainHeaderComponent, NavbarComponent, DesktopUserSidebarComponent, DownbarComponent, BreadcrumbComponent],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })

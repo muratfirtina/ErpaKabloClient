@@ -7,12 +7,11 @@ import { ButtonSpinnerComponent } from 'src/app/base/spinner/button-spinner/butt
 import { AuthService } from 'src/app/services/common/auth.service';
 import { UserAuthService } from 'src/app/services/common/models/user-auth.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
-import { TranslatePipe } from "../../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-login-popover',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ButtonSpinnerComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, RouterModule, ButtonSpinnerComponent],
   templateUrl: './login-popover.component.html',
   styleUrl: './login-popover.component.scss'
 })
@@ -21,6 +20,7 @@ export class LoginPopoverComponent extends BaseComponent {
   isVisible = false;
   isDarkTheme = false;
   loading: boolean = false;
+  rememberMe: boolean = false;
 
   constructor(
     private userAuthService: UserAuthService,
@@ -33,6 +33,7 @@ export class LoginPopoverComponent extends BaseComponent {
     super(spinner);
     // Check system theme preference
     this.isDarkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    this.checkRememberMe();
   }
 
   @HostListener('document:click', ['$event'])
@@ -51,10 +52,32 @@ export class LoginPopoverComponent extends BaseComponent {
     this.closePopover.emit();
   }
 
+  private checkRememberMe() {
+    const rememberedUser = localStorage.getItem('rememberedUser');
+    if (rememberedUser) {
+      const userData = JSON.parse(rememberedUser);
+      setTimeout(() => {
+        const usernameInput = document.getElementById('usernameOrEmail') as HTMLInputElement;
+        if (usernameInput) {
+          usernameInput.value = userData.username;
+        }
+      });
+    }
+  }
+
   async login(userNameOrEmail: string, password: string) {
     this.loading = true;
     try {
       await this.userAuthService.login(userNameOrEmail, password, () => {
+        // Remember me seçiliyse kullanıcı bilgilerini kaydet
+        if (this.rememberMe) {
+          localStorage.setItem('rememberedUser', JSON.stringify({
+            username: userNameOrEmail
+          }));
+        } else {
+          localStorage.removeItem('rememberedUser');
+        }
+
         this.authService.identityCheck();
         sessionStorage.clear();
         this.activatedRoute.queryParams.subscribe(params => {

@@ -19,8 +19,6 @@ import { StoreService } from 'src/app/services/common/store.service';
 import { ThemeService } from 'src/app/services/common/theme.service';
 import { LoginPopoverComponent } from '../login/login-popover/login-popover.component';
 import { RegisterPopoverComponent } from '../register/register-popover/register-popover.component';
-import { LanguageSelectorComponent } from '../language-selector/language-selector.component';
-import { TranslatePipe } from 'src/app/pipes/translate.pipe';
 
 @Component({
   selector: 'app-main-header',
@@ -33,8 +31,6 @@ import { TranslatePipe } from 'src/app/pipes/translate.pipe';
     CartComponent,
     UserSidebarComponent,
     LoginPopoverComponent,
-    LanguageSelectorComponent,
-    TranslatePipe
   ],
   templateUrl: './main-header.component.html',
   styleUrls: ['./main-header.component.scss']

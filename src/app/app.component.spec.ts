@@ -15,13 +15,13 @@ describe('AppComponent', () => {
   it(`should have the 'ErpaKabloClient' title`, () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('ErpaKabloClient');
+    expect(app.title).toEqual('TumdexClient');
   });
 
   it('should render title', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('ErpaKabloClient app is running!');
+    expect(compiled.querySelector('.content span')?.textContent).toContain('TumdexClient app is running!');
   });
 });

@@ -2,8 +2,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, firstValueFrom } from 'rxjs';
-import { environment } from 'src/enviroments/enviroment';
+
 import { OptimizedImage } from 'src/app/contracts/seo/seo.types';
+import { environment } from 'src/enviroments/enviroment.prod';
 
 interface ImageOptimizationResponse {
   optimizedUrl: string;

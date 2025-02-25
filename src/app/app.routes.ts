@@ -60,7 +60,7 @@ export const routes: Routes = [
       { path: "search", loadComponent: () => import('./ui/components/search-results/search-results.component').then(m => m.SearchResultsComponent) },
       { path: 'about-us',loadComponent: () => import('./ui/components/about-us/about-us.component').then(m => m.AboutUsComponent)},
       { path: 'contact',loadComponent: () => import('./ui/components/contact/contact.component').then(m => m.ContactComponent)},
-      { path: "brands-page", loadComponent: () => import('./ui/components/brand/brands-page/brands-page.component').then(m => m.BrandsPageComponent) },
+      { path: 'brand',loadComponent: () => import('./ui/components/brand/brand.component').then(m => m.BrandComponent)},
       { path: "categories-page",loadComponent: () => import('./ui/components/category/categories-page/categories-page.component').then(m => m.CategoriesPageComponent) },
       { path: "unauthorized", loadComponent: () => import('./ui/components/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent) },
       { path: "order", loadComponent: () => import('./ui/components/order/order.component').then(m => m.OrderComponent), canActivate: [authGuard] },

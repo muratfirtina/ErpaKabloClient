@@ -23,7 +23,6 @@ import { ProductOperationsService } from 'src/app/services/ui/product/product-op
 import { FEATURE_CONFIGS, FeatureType } from 'src/app/enums/featureType';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../../footer/footer.component';
-import { TranslatePipe } from "../../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-product-detail',
@@ -40,8 +39,7 @@ import { TranslatePipe } from "../../../../pipes/translate.pipe";
     BreadcrumbComponent,
     DownbarComponent,
     ProductGridComponent,
-    FooterComponent,
-    TranslatePipe
+    FooterComponent
 ]
 })
 export class ProductDetailComponent extends BaseComponent implements OnInit,OnChanges {

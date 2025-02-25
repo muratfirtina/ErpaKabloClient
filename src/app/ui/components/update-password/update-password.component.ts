@@ -8,12 +8,11 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 import { DownbarComponent } from '../downbar/downbar.component';
 import { UserService } from 'src/app/services/common/models/user.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-update-password',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, DownbarComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, DownbarComponent],
   templateUrl: './update-password.component.html',
   styleUrls: ['./update-password.component.scss']
 })

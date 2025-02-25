@@ -13,12 +13,11 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 import { DownbarComponent } from '../downbar/downbar.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { ButtonSpinnerComponent } from 'src/app/base/spinner/button-spinner/button-spinner.component';
-import { TranslatePipe } from "../../../pipes/translate.pipe";
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, DownbarComponent, RouterModule, ButtonSpinnerComponent, TranslatePipe],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, DownbarComponent, RouterModule, ButtonSpinnerComponent],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })

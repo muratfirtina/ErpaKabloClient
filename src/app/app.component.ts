@@ -20,5 +20,5 @@ export class AppComponent implements OnInit {
     this.seoService.initWebVitals();
   }
 
-  title = 'ErpaKabloClient';
+  title = 'TumdexClient';
 }
