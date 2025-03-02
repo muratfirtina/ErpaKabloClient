@@ -45,7 +45,9 @@ export class UserAuthService {
           controller: 'auth', // 'token' yerine 'auth' olarak güncellendi
           action: 'refresh'
         },
-        { refreshToken: token }
+        { refreshToken: token,
+          IpAddress: "", 
+          UserAgent: "" }
       );
 
       const response = await firstValueFrom(observable);

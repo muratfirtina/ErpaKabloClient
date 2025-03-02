@@ -71,8 +71,8 @@ export class AuthService {
           action: 'login'
         },
         {
-          usernameOrEmail: userNameOrEmail,
-          password: password
+          UsernameOrEmail: userNameOrEmail,
+          Password: password
         }
       );
 
