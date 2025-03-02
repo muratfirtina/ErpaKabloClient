@@ -15,7 +15,7 @@ import { TranslatePipe } from "../../../../pipes/translate.pipe";
 @Component({
   selector: 'app-order-summary',
   standalone: true,
-  imports: [CommonModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent, TranslatePipe],
+  imports: [CommonModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent],
   templateUrl: './order-summary.component.html',
   styleUrls: ['./order-summary.component.scss']
 })
