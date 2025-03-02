@@ -6,6 +6,7 @@ import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
 import { CreateCartItem } from 'src/app/contracts/cart/createCartItem';
 import { UpdateCartItem } from 'src/app/contracts/cart/updateCarItem';
 import { IsCheckedCartItem } from 'src/app/contracts/cart/isCheckedCartItem';
+import { AnalyticsService } from '../analytics.services';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,7 @@ export class CartService {
   constructor(
     private httpClientService: HttpClientService,
     private authService: AuthService,
+    private analyticsService: AnalyticsService
   ) {
     // Only load initial cart items if user is authenticated
     if (this.authService.isAuthenticated) {
@@ -71,6 +73,8 @@ export class CartService {
           controller: 'carts'
         }, { createCartItem })
       );
+      
+      
 
       const updatedCart = await this.fetchCartItems();
       this.cartItemsSubject.next(updatedCart);

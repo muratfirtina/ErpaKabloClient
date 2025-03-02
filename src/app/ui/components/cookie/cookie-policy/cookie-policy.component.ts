@@ -45,11 +45,15 @@ export class CookiePolicyComponent implements OnInit {
           title: '3. How to Manage Your Cookie Preferences',
           content: 'You can control or delete cookies through your browser settings. However, disabling necessary cookies may affect the functionality of our website.'
         },
+        gdprCompliance: {
+          title: '4. GDPR Compliance',
+          content: 'We are committed to complying with the General Data Protection Regulation (GDPR). You have the right to access, rectify, and erase your personal data. You can manage your cookie preferences at any time through our cookie settings panel.'
+        },
         contactUs: {
-          title: '4. Contact Us',
+          title: '5. Contact Us',
           content: 'If you have any questions about our cookie policy, please contact us:',
-          email: 'Email: global@tumtrading.com',
-          phone: 'Phone: +90 212 438 0 333'
+          email: 'Email: info@tumdex.com',
+          phone: 'Phone: +90 533 803 7714'
         }
       }
     },
@@ -80,11 +84,15 @@ export class CookiePolicyComponent implements OnInit {
           title: '3. Çerez Tercihlerinizi Nasıl Yönetebilirsiniz?',
           content: 'Tarayıcı ayarlarınızdan çerezleri kontrol edebilir veya silebilirsiniz. Ancak, gerekli çerezleri devre dışı bırakmanız durumunda web sitemizin bazı özellikleri düzgün çalışmayabilir.'
         },
+        gdprCompliance: {
+          title: '4. GDPR Uyumu',
+          content: 'Genel Veri Koruma Tüzüğü (GDPR) ile uyumlu olmaya özen gösteriyoruz. Kişisel verilerinize erişme, düzeltme ve silme hakkına sahipsiniz. Çerez tercihlerinizi, çerez ayarları panelimiz üzerinden istediğiniz zaman yönetebilirsiniz.'
+        },
         contactUs: {
-          title: '4. İletişim',
+          title: '5. İletişim',
           content: 'Çerez politikamız hakkında sorularınız için bizimle iletişime geçebilirsiniz:',
-          email: 'E-posta: global@tumtrading.com',
-          phone: 'Telefon: +90 212 438 0 333'
+          email: 'E-posta: info@tumdex.com',
+          phone: 'Telefon: +90 533 803 7714'
         }
       }
     },
@@ -115,11 +123,15 @@ export class CookiePolicyComponent implements OnInit {
           title: '3. Как управлять настройками файлов cookie?',
           content: 'Вы можете управлять файлами cookie через настройки браузера. Однако отключение необходимых файлов cookie может повлиять на функциональность сайта.'
         },
+        gdprCompliance: {
+          title: '4. Соответствие GDPR',
+          content: 'Мы стремимся соблюдать Общий регламент по защите данных (GDPR). Вы имеете право на доступ, исправление и удаление ваших персональных данных. Вы можете управлять своими предпочтениями в отношении файлов cookie в любое время через панель настроек файлов cookie.'
+        },
         contactUs: {
-          title: '4. Свяжитесь с нами',
+          title: '5. Свяжитесь с нами',
           content: 'Если у вас есть вопросы о нашей политике использования файлов cookie, пожалуйста, свяжитесь с нами:',
-          email: 'Email: global@tumtrading.com',
-          phone: 'Телефон: +90 212 438 0 333'
+          email: 'Email: info@tumdex.com',
+          phone: 'Телефон: +90 533 803 7714'
         }
       }
     }

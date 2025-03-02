@@ -12,13 +12,14 @@ import { CreateOrder } from 'src/app/contracts/order/createOrder';
 import { Order } from 'src/app/contracts/order/order';
 import { OrderItem } from 'src/app/contracts/order/orderItem';
 import { OrderStatus } from 'src/app/contracts/order/orderStatus';
+import { AnalyticsService } from '../analytics.services';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
 
-  constructor(private httpClientService: HttpClientService) { }
+  constructor(private httpClientService: HttpClientService, private analyticsService:AnalyticsService) { }
 
   async create(createOrder: CreateOrder, successCallback?: (response: any) => void, errorCallback?: (errorMessage: string) => void): Promise<any> {
     try {
@@ -26,14 +27,11 @@ export class OrderService {
         controller: 'orders',
         action: 'convert-cart-to-order'
       }, createOrder);
-    
       const response = await firstValueFrom(observable);
-      console.log('Order creation response:', response); // Response'u loglayalım
-      
       if (successCallback) successCallback(response);
+      this.analyticsService.trackPurchase(createOrder);
       return response;
     } catch (error) {
-      console.error('Order creation error:', error);
       if (errorCallback) errorCallback(error);
       throw error;
     }

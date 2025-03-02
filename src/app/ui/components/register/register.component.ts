@@ -13,11 +13,23 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 import { DownbarComponent } from '../downbar/downbar.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { ButtonSpinnerComponent } from 'src/app/base/spinner/button-spinner/button-spinner.component';
+import { PrivacyPolicyComponent } from 'src/app/dialogs/privacy/privacy-policy/privacy-policy.component';
+import { TermsOfUseComponent } from 'src/app/dialogs/privacy/terms-of-use/terms-of-use.component';
+
 
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, DownbarComponent, RouterModule, ButtonSpinnerComponent],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    FormsModule, 
+    DownbarComponent, 
+    RouterModule, 
+    ButtonSpinnerComponent,
+    TermsOfUseComponent,
+    PrivacyPolicyComponent
+  ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -88,7 +100,8 @@ export class RegisterComponent extends BaseComponent implements OnInit {
           this.validationService.passwordsMatchValidator
         ],
         updateOn: 'change'
-      }]
+      }],
+      agreeToTerms: [false, Validators.requiredTrue]
     });
 
     this.subscribeToPasswordChanges();
@@ -119,57 +132,40 @@ export class RegisterComponent extends BaseComponent implements OnInit {
   get component() { return this.frm.controls; }
 
   async onSubmit(user: User) {
+    if (this.submitted) return;
     this.submitted = true;
-    
+    this.loading = true;
+  
     if (this.frm.invalid) {
       const firstError = document.querySelector('.is-invalid');
       if (firstError) {
         firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
+      this.loading = false;
+      this.submitted = false;
       return;
     }
-
+  
     this.loading = true;
     try {
       const result: CreateUser = await this.userService.create(user);
-
+  
       if (result.isSuccess) {
-        this.toastrService.message(result.message, "User Created Successfully", {
-          toastrMessageType: ToastrMessageType.Success,
-          position: ToastrPosition.TopRight
-        });
-
-        try {
-          await new Promise<void>((resolve, reject) => {
-            this.userAuthService.login(user.userName || user.email, user.password, () => {
-              resolve();
-            });
-          });
-
-          await this.authService.identityCheck();
-
-          const returnUrl: string = this.activatedRoute.snapshot.queryParams["returnUrl"];
-          if (returnUrl) {
-            this.router.navigateByUrl(returnUrl);
-          } else {
-            this.router.navigateByUrl("/").then(() => {
-              location.reload();
-            });
+        this.toastrService.message(
+          "Please check your email to activate your account.",
+          "Registration Successful",
+          {
+            toastrMessageType: ToastrMessageType.Success,
+            position: ToastrPosition.TopRight
           }
-        } catch (loginError) {
-          console.error("Login error:", loginError);
-          this.toastrService.message(
-            "Registration successful but automatic login failed. Please try logging in manually.",
-            "Login Error",
-            {
-              toastrMessageType: ToastrMessageType.Warning,
-              position: ToastrPosition.TopRight
-            }
-          );
-          this.router.navigateByUrl("/login");
-        }
+        );
+  
+        // Kullanıcıyı aktivasyon bilgilendirme sayfasına yönlendir
+        this.router.navigate(['/activation-info'], {
+          queryParams: { email: user.email }
+        });
       } else {
-        this.toastrService.message(result.message, "User Creation Failed", {
+        this.toastrService.message(result.message, "Registration Failed", {
           toastrMessageType: ToastrMessageType.Error,
           position: ToastrPosition.TopRight
         });
@@ -186,6 +182,7 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       );
     } finally {
       this.loading = false;
+      this.submitted = false;
     }
   }
 
@@ -199,5 +196,4 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       length: false
     };
   }
-  
 }

@@ -470,3 +470,102 @@ $dark-input-bg: darken($background-color, 85%);
     }
   }
 }
+.policy-link {
+  color: #e53935;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    text-decoration: underline;
+    color: darken(#e53935, 10%);
+  }
+}
+
+.policy-content {
+  h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: #333;
+  }
+
+  p {
+    margin-bottom: 15px;
+    line-height: 1.5;
+    color: #444;
+  }
+
+  ul {
+    margin-bottom: 15px;
+    padding-left: 20px;
+
+    li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+      color: #444;
+    }
+  }
+}
+
+.terms-checkbox {
+  margin-bottom: 20px;
+  
+  .form-check-input {
+    margin-top: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+    
+    &:checked {
+      background-color: #e53935;
+      border-color: #e53935;
+    }
+    
+    &:focus {
+      border-color: #e53935;
+      box-shadow: 0 0 0 0.2rem rgba(#e53935, 0.25);
+    }
+    
+    &.is-invalid {
+      border-color: #dc3545;
+    }
+  }
+  
+  .form-check-label {
+    color: #444;
+    font-size: 0.9rem;
+    display: inline;
+    margin-left: 0.5rem;
+  }
+
+  app-terms-of-use, app-privacy-policy {
+    display: inline;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .policy-link {
+    color: lighten(#e53935, 10%);
+    
+    &:hover {
+      color: lighten(#e53935, 20%);
+    }
+  }
+  
+  .terms-checkbox {
+    .form-check-input {
+      background-color: #333;
+      border-color: #666;
+      
+      &:checked {
+        background-color: lighten(#e53935, 5%);
+        border-color: lighten(#e53935, 5%);
+      }
+    }
+    
+    .form-check-label {
+      color: #ddd;
+    }
+  }
+}

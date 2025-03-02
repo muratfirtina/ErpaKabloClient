@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Language } from 'src/app/enums/language';
+import { AnalyticsService } from 'src/app/services/common/analytics.services';
+import { environment } from 'src/enviroments/enviroment.prod';
 
 @Component({
   selector: 'app-cookie-consent',
@@ -20,8 +22,8 @@ export class CookieConsentComponent implements OnInit {
 
   cookieSettings = {
     necessary: true,
-    analytics: false,
-    marketing: false
+    analytics: true,
+    marketing: true
   };
 
   translations = {
@@ -37,7 +39,12 @@ export class CookieConsentComponent implements OnInit {
         marketing: 'Marketing Cookies',
         required: '(Required)',
         save: 'Save Settings',
-        cancel: 'Cancel'
+        cancel: 'Cancel',
+        descriptions: {
+          necessary: 'These cookies are essential for the basic functionality of the website and cannot be disabled.',
+          analytics: 'These cookies help us understand how visitors use our website. Google Analytics is used.',
+          marketing: 'These cookies are used to deliver more relevant advertisements to you.'
+        }
       }
     },
     [Language.TR]: {
@@ -52,7 +59,12 @@ export class CookieConsentComponent implements OnInit {
         marketing: 'Pazarlama Çerezleri',
         required: '(Zorunlu)',
         save: 'Ayarları Kaydet',
-        cancel: 'İptal'
+        cancel: 'İptal',
+        descriptions: {
+          necessary: 'Bu çerezler, web sitemizin temel işlevleri için gereklidir ve devre dışı bırakılamazlar.',
+          analytics: 'Bu çerezler, ziyaretçilerimizin web sitemizi nasıl kullandıklarını anlamamıza yardımcı olur. Google Analytics kullanılır.',
+          marketing: 'Bu çerezler, size daha alakalı reklamlar sunmak için kullanılır.'
+        }
       }
     },
     [Language.RU]: {
@@ -67,16 +79,24 @@ export class CookieConsentComponent implements OnInit {
         marketing: 'Маркетинговые файлы cookie',
         required: '(Обязательно)',
         save: 'Сохранить настройки',
-        cancel: 'Отмена'
+        cancel: 'Отмена',
+        descriptions: {
+          necessary: 'Эти файлы cookie необходимы для основных функций веб-сайта и не могут быть отключены.',
+          analytics: 'Эти файлы cookie помогают нам понять, как посетители используют наш веб-сайт. Используется Google Analytics.',
+          marketing: 'Эти файлы cookie используются для показа более релевантной рекламы.'
+        }
       }
     }
   };
+
+  constructor(private analyticsService: AnalyticsService) {}
 
   ngOnInit(): void {
     const consent = localStorage.getItem('cookieConsent');
     if (consent) {
       this.isConsented = true;
       this.cookieSettings = JSON.parse(consent);
+      this.initializeServices(); // Sayfa yüklendiğinde ayarları uygula
     }
 
     // Dil tercihini localStorage'dan al veya varsayılan olarak İngilizce kullan
@@ -126,16 +146,34 @@ export class CookieConsentComponent implements OnInit {
   }
 
   private initializeServices(): void {
+    // Analytics servisleri başlat
     if (this.cookieSettings.analytics) {
-      // Google Analytics veya benzeri servisleri başlat
-      console.log('Analytics initialized');
+      this.analyticsService.initGoogleAnalytics(environment.googleAnalyticsId);
+      console.log('Analytics initialized with user consent');
     }
 
     if (this.cookieSettings.marketing) {
       // Marketing çerezlerini başlat
       console.log('Marketing cookies initialized');
+      // Burada Facebook Pixel veya diğer pazarlama araçlarını başlatabilirsiniz
     }
   }
+
+  resetCookieConsent(): void {
+    // Çerez tercihlerini sıfırlama (test veya ayar sıfırlama için)
+    localStorage.removeItem('cookieConsent');
+    sessionStorage.removeItem('tempCookieConsent');
+    this.isConsented = false;
+    this.cookieSettings = {
+      necessary: true,
+      analytics: false,
+      marketing: false
+    };
+    
+    // Kullanıcıya tercihlerin sıfırlandığı bilgisini verebilirsiniz
+    console.log('Cookie preferences have been reset');
+  }
+
   changeLanguage(lang: Language): void {
     this.currentLang = lang;
     localStorage.setItem('preferredLanguage', lang);

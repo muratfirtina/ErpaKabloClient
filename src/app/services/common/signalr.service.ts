@@ -76,7 +76,7 @@ export class SignalrService {
         this.hubConnection = new HubConnectionBuilder()
           .withUrl(HubUrls.OrderHub, { 
             accessTokenFactory: () => this.authService.getToken(),
-            transport: HttpTransportType.WebSockets,  // signalR. prefix'ini kaldırdık
+            transport: HttpTransportType.WebSockets,
             skipNegotiation: true
           })
           .withAutomaticReconnect({
@@ -123,45 +123,45 @@ export class SignalrService {
     } finally {
       this.connecting = false;
     }
-}
+  }
 
-private setupConnectionEvents() {
-  this.hubConnection.onreconnecting((error) => {
-    console.log('SignalR reconnecting:', error);
-    this.connecting = true;
-    this.toastrService.message(
-      "SignalR bağlantısı yeniden kurulmaya çalışılıyor...",
-      "Bilgi",
-      {
-        toastrMessageType: ToastrMessageType.Warning,
-        position: ToastrPosition.TopRight
+  private setupConnectionEvents() {
+    this.hubConnection.onreconnecting((error) => {
+      console.log('SignalR reconnecting:', error);
+      this.connecting = true;
+      this.toastrService.message(
+        "SignalR bağlantısı yeniden kurulmaya çalışılıyor...",
+        "Bilgi",
+        {
+          toastrMessageType: ToastrMessageType.Warning,
+          position: ToastrPosition.TopRight
+        }
+      );
+    });
+
+    this.hubConnection.onreconnected((connectionId) => {
+      console.log('SignalR reconnected. ConnectionId:', connectionId);
+      this.connecting = false;
+      this.connectionRetryCount = 0;
+      this.toastrService.message(
+        "SignalR bağlantısı yeniden kuruldu",
+        "Başarılı",
+        {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        }
+      );
+    });
+
+    this.hubConnection.onclose((error) => {
+      console.log('SignalR connection closed:', error);
+      this.connecting = false;
+      if (this.connectionRetryCount < this.maxRetries) {
+        this.connectionRetryCount++;
+        setTimeout(() => this.startConnection(), 2000);
       }
-    );
-  });
-
-  this.hubConnection.onreconnected((connectionId) => {
-    console.log('SignalR reconnected. ConnectionId:', connectionId);
-    this.connecting = false;
-    this.connectionRetryCount = 0;
-    this.toastrService.message(
-      "SignalR bağlantısı yeniden kuruldu",
-      "Başarılı",
-      {
-        toastrMessageType: ToastrMessageType.Success,
-        position: ToastrPosition.TopRight
-      }
-    );
-  });
-
-  this.hubConnection.onclose((error) => {
-    console.log('SignalR connection closed:', error);
-    this.connecting = false;
-    if (this.connectionRetryCount < this.maxRetries) {
-      this.connectionRetryCount++;
-      setTimeout(() => this.startConnection(), 2000);
-    }
-  });
-}
+    });
+  }
 
   public async disconnect() {
     try {
@@ -232,40 +232,40 @@ private setupConnectionEvents() {
     if (!this.hubConnection) return;
 
     this.hubConnection.off("ReceiveOrderCreated");
-  this.hubConnection.off(ReceiveFunctions.OrderUpdatedMessageReceivedFunction);
+    this.hubConnection.off(ReceiveFunctions.OrderUpdatedMessageReceivedFunction);
 
-  // Yeni sipariş bildirimi
-  this.hubConnection.on("ReceiveOrderCreated", (notification: any) => {
-    const formattedNotification: OrderCreateNotification = {
-      type: notification.Type,
-      orderId: notification.OrderId,
-      orderNumber: notification.OrderNumber,
-      message: notification.Message,
-      timestamp: new Date(notification.Timestamp),
-      customerName: notification.CustomerName,
-      items: notification.Items?.map(item => ({
-        productName: item.ProductName,
-        brandName: item.BrandName,
-        quantity: item.Quantity,
-        price: item.Price,
-        featureValues: item.FeatureValues?.map((feature: any) => ({
-          featureName: feature.FeatureName,
-          valueName: feature.ValueName
-      })),
-      })),
-      totalAmount: notification.TotalAmount
-    };
+    // Yeni sipariş bildirimi
+    this.hubConnection.on("ReceiveOrderCreated", (notification: any) => {
+      const formattedNotification: OrderCreateNotification = {
+        type: notification.Type,
+        orderId: notification.OrderId,
+        orderNumber: notification.OrderNumber,
+        message: notification.Message,
+        timestamp: new Date(notification.Timestamp),
+        customerName: notification.CustomerName,
+        items: notification.Items?.map(item => ({
+          productName: item.ProductName,
+          brandName: item.BrandName,
+          quantity: item.Quantity,
+          price: item.Price,
+          featureValues: item.FeatureValues?.map((feature: any) => ({
+            featureName: feature.FeatureName,
+            valueName: feature.ValueName
+        })),
+        })),
+        totalAmount: notification.TotalAmount
+      };
 
-    this.orderNotifications.next([formattedNotification, ...this.orderNotifications.value]);
-        
-        this.toastrService.message(
-            `Yeni sipariş: #${notification.OrderNumber}`,
-            "Yeni Sipariş",
-            {
-                toastrMessageType: ToastrMessageType.Info,
-                position: ToastrPosition.TopRight
-            }
-        );
+      this.orderNotifications.next([formattedNotification, ...this.orderNotifications.value]);
+          
+      this.toastrService.message(
+          `Yeni sipariş: #${notification.OrderNumber}`,
+          "Yeni Sipariş",
+          {
+              toastrMessageType: ToastrMessageType.Info,
+              position: ToastrPosition.TopRight
+          }
+      );
     });
 
     this.hubConnection.on(ReceiveFunctions.OrderUpdatedMessageReceivedFunction, 
@@ -317,16 +317,16 @@ private setupConnectionEvents() {
   
         this.orderUpdates.next([formattedNotification, ...this.orderUpdates.value]);
             
-            this.toastrService.message(
-                notification.Message,
-                "Sipariş Güncellendi",
-                {
-                    toastrMessageType: ToastrMessageType.Info,
-                    position: ToastrPosition.TopRight
-                }
-            );
+        this.toastrService.message(
+            notification.Message,
+            "Sipariş Güncellendi",
+            {
+                toastrMessageType: ToastrMessageType.Info,
+                position: ToastrPosition.TopRight
+            }
+        );
     });
-}
+  }
 
   getOrderNotifications() {
     return this.orderNotifications.asObservable();

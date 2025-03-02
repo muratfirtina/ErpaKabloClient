@@ -263,10 +263,10 @@ body {
 }
 
 .categories {
-  
   position: relative; // Ok butonlarının yerleşimini kolaylaştırır
   background-color: $light-text;
   margin: 2rem;
+  padding: 1rem 0;
 
   .category-header {
     font-family: "Bebas Neue", serif;
@@ -275,7 +275,6 @@ body {
     font-weight: 500;
     margin: 0 auto 0;
     max-width: 1320px;
-    padding: 0 0 10px;
     position: relative;
     display: flex;
     justify-content: center;
@@ -288,6 +287,7 @@ body {
       content: "";
       position: absolute;
       bottom: 0;
+      top: 35px;
       transform: translateX(-60%);
       width: 100px;
       height: 4px;
@@ -665,6 +665,7 @@ body {
 
     .category-header {
       color: $light-text;
+      margin-top: 15px;
 
       &::after {
         background-image: linear-gradient(

@@ -155,6 +155,14 @@ export class UserSidebarComponent extends BaseDrawerComponent implements OnInit 
     
   }
 
+  async logoutFromAllDevices(): Promise<void> {
+    if (confirm('Tüm cihazlarda oturumunuzu kapatmak istediğinize emin misiniz?')) {
+      await this.authService.logoutFromAllDevices(() => {
+        this.router.navigate(['/login']);
+      });
+    }
+  }
+
   isActiveRoute(route: string): boolean {
     return this.currentRoute === route;
   }

@@ -1,10 +1,17 @@
-import { Injectable } from "@angular/core";
-import { JwtHelperService } from "@auth0/angular-jwt";
-import { UserService } from "./models/user.service";
-import { UserAuthService } from "./models/user-auth.service";
-import { Router } from "@angular/router";
-import { BehaviorSubject } from 'rxjs';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { Router } from '@angular/router';
+import { HttpClientService } from './http-client.service';
+import { TokenService } from './token.service';
+import { UserService } from './models/user.service';
 import { StoreService } from './store.service';
+import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../ui/custom-toastr.service';
+import { AnalyticsService } from './analytics.services';
+
+// API yanıt tipleri
+interface VerifyResetTokenResponse {
+  state: boolean;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -14,24 +21,24 @@ export class AuthService {
   authState$ = this.authStateSubject.asObservable();
 
   constructor(
-    private jwtHelper: JwtHelperService,
+    private tokenService: TokenService,
     private userService: UserService,
-    private userAuthService: UserAuthService,
+    private httpClientService: HttpClientService,
     private router: Router,
-    private store: StoreService
+    private store: StoreService,
+    private toastrService: CustomToastrService,
+    private analyticsService: AnalyticsService,
   ) {
     this.checkAuthState();
   }
 
   private async checkAuthState() {
-    await this.identityCheck();
-    this.authStateSubject.next(_isAuthenticated);
+    const isAuthenticated = await this.identityCheck();
+    this.authStateSubject.next(isAuthenticated);
     
-    if (_isAuthenticated) {
-      // Rolleri kontrol et
-      const userRoles = await this.getUserRoles();
-      
+    if (isAuthenticated) {
       try {
+        // Kullanıcı bilgilerini al ve store'a kaydet
         const user = await this.userService.getCurrentUser();
         this.store.update('user', {
           isAuthenticated: true,
@@ -44,126 +51,231 @@ export class AuthService {
     }
   }
 
+  // Eski kodlarla uyumluluk için getToken metodu
   getToken(): string | null {
-    return localStorage.getItem("accessToken");
+    return this.tokenService.getAccessToken();
   }
 
-  async getUserRoles(): Promise<string[]> {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return [];
-
-    try {
-      const decodedToken = this.jwtHelper.decodeToken(token);
-      // Role claim'ini kontrol et
-      const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      
-      // Eğer tek bir rol varsa string olarak gelir, birden fazla varsa array olarak gelir
-      if (typeof roles === 'string') {
-        return [roles];
-      } else if (Array.isArray(roles)) {
-        return roles;
-      }
-      
-      return [];
-    } catch (error) {
-      console.error('Token decode error:', error);
-      return [];
-    }
-  }
-
+  // Kimlik doğrulama durumunu kontrol et
   async identityCheck(): Promise<boolean> {
-    const token: string | null = localStorage.getItem("accessToken");
-
-    if (!token) {
-      _isAuthenticated = false;
-      return false;
-    }
-
-    try {
-      const isExpired = this.jwtHelper.isTokenExpired(token);
-      _isAuthenticated = !isExpired;
-      return _isAuthenticated;
-    } catch (error) {
-      console.error('Token validation error:', error);
-      _isAuthenticated = false;
-      return false;
-    }
+    // Token geçerliliğini TokenService üzerinden kontrol et
+    return await this.tokenService.ensureValidToken();
   }
 
-  async refreshToken(): Promise<boolean> {
-    const refreshToken = localStorage.getItem("refreshToken");
-    if (!refreshToken) return false;
-
+  // Giriş işlemi
+  async login(userNameOrEmail: string, password: string, callBackFunction?: () => void): Promise<boolean> {
     try {
-      const response = await this.userAuthService.refreshTokenLogin(refreshToken);
-      if (response && response.accessToken) {
-        localStorage.setItem("accessToken", response.accessToken);
-        if (response.refreshToken) {
-          localStorage.setItem("refreshToken", response.refreshToken);
+      const observable = this.httpClientService.post<any>(
+        {
+          controller: 'auth', // 'token' yerine 'auth' olarak güncellendi
+          action: 'login'
+        },
+        {
+          usernameOrEmail: userNameOrEmail,
+          password: password
         }
+      );
+
+      const response = await firstValueFrom(observable);
+
+      if (response && response.token) {
+        // Token'ları ve kullanıcı bilgilerini kaydet
+        this.tokenService.storeTokens(
+          response.token.accessToken,
+          response.token.refreshToken,
+          response.token.userId
+        );
+        // Kimlik durumunu güncelle
+        this.authStateSubject.next(true);
+
+        // Kullanıcı bilgilerini al ve store'a kaydet
+        try {
+          const user = await this.userService.getCurrentUser();
+          this.store.update('user', {
+            isAuthenticated: true,
+            data: user
+          });
+        } catch (error) {
+          console.error('Error loading user data after login:', error);
+        }
+
+        this.toastrService.message('Login successful', 'Success', {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight,
+        });
+
+        if (callBackFunction) callBackFunction();
+        this.analyticsService.trackLogin('email');
         return true;
       }
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  async logout() {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    _isAuthenticated = false;
-    
-    this.authStateSubject.next(false);
-    this.store.update('user', {
-      isAuthenticated: false,
-      data: null
-    });
-    await this.router.navigate(['/']);
-    if(this.router.url === '/') {
-      window.location.reload();
-    }
-  }
-
-  getUserNameSurname(): string | null {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return null;
-
-    try {
-      const decodedToken = this.jwtHelper.decodeToken(token);
-      return decodedToken ? decodedToken['NameSurname'] : null;
-    } catch {
-      return null;
-    }
-  }
-
-  hasRole(role: string): boolean {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return false;
-
-    try {
-      const decodedToken = this.jwtHelper.decodeToken(token);
-      const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
       
-      if (typeof roles === 'string') {
-        return roles === role;
-      } else if (Array.isArray(roles)) {
-        return roles.includes(role);
+      return false;
+    } catch (error) {
+      console.error('Login error:', error);
+      this.toastrService.message('Login failed', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight,
+      });
+      return false;
+    }
+  }
+
+  // Çıkış işlemi
+  async logout(callbackFunction?: () => void): Promise<boolean> {
+    try {
+      // TokenService üzerinden token'ı iptal et
+      await this.tokenService.revokeToken();
+    } catch (error) {
+      console.error('Error during token revocation:', error);
+    } finally {
+      // Token'ları ve kullanıcı verilerini temizle
+      this.tokenService.clearTokens();
+      
+      // Kimlik durumunu güncelle
+      this.authStateSubject.next(false);
+      
+      // Store'daki kullanıcı bilgilerini temizle
+      this.store.update('user', {
+        isAuthenticated: false,
+        data: null
+      });
+      
+      // Callback fonksiyonu varsa çağır
+      if (callbackFunction) callbackFunction();
+      
+      // Ana sayfaya yönlendir
+      await this.router.navigate(['/']);
+      
+      // Ana sayfadaysak sayfayı yenile
+      if (this.router.url === '/') {
+        window.location.reload();
+      }
+    }
+    
+    return true; // Çıkış başarılı
+  }
+
+  // Tüm cihazlardan çıkış
+  async logoutFromAllDevices(callBackFunction?: () => void): Promise<boolean> {
+    try {
+      // TokenService üzerinden tüm token'ları iptal et
+      const success = await this.tokenService.revokeAllTokens();
+      
+      if (success) {
+        // Token'ları ve kullanıcı verilerini temizle
+        this.tokenService.clearTokens();
+        
+        // Kimlik durumunu güncelle
+        this.authStateSubject.next(false);
+        
+        // Store'daki kullanıcı bilgilerini temizle
+        this.store.update('user', {
+          isAuthenticated: false,
+          data: null
+        });
+        
+        this.toastrService.message('Logged out from all devices successfully', 'Success', {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight,
+        });
+        
+        // Callback fonksiyonu varsa çağır
+        if (callBackFunction) callBackFunction();
+        
+        return true;
       }
       
       return false;
-    } catch {
+    } catch (error) {
+      console.error('Logout from all devices error:', error);
+      
+      this.toastrService.message('Failed to logout from all devices', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight,
+      });
+      
       return false;
     }
   }
 
+  // Kullanıcı isim-soyisim bilgisini al
+  getUserNameSurname(): string | null {
+    return this.tokenService.getUserNameFromToken();
+  }
+
+  // Kullanıcı rolünü kontrol et
+  hasRole(role: string): boolean {
+    return this.tokenService.hasRole(role);
+  }
+
+  // Yardımcı getter'lar
   get isAuthenticated(): boolean {
-    return _isAuthenticated;
+    return this.tokenService.isTokenValid();
   }
 
   get isAdmin(): boolean {
-    return this.hasRole('Admin');
+    return this.tokenService.hasRole('Admin');
+  }
+
+  // Şifre sıfırlama
+  async passwordReset(email: string): Promise<boolean> {
+    try {
+      const observable = this.httpClientService.post(
+        {
+          controller: 'auth',
+          action: 'password-reset'
+        },
+        { email }
+      );
+
+      await firstValueFrom(observable);
+      return true;
+    } catch (error) {
+      console.error('Password reset error:', error);
+      return false;
+    }
+  }
+
+  // Şifre sıfırlama token doğrulama
+  async verifyResetPasswordToken(userId: string, resetToken: string): Promise<boolean> {
+    try {
+      const observable = this.httpClientService.post<VerifyResetTokenResponse>(
+        {
+          controller: 'auth',
+          action: 'verify-reset-password-token'
+        },
+        { userId, resetToken }
+      );
+
+      const response = await firstValueFrom(observable);
+      return response?.state === true;
+    } catch (error) {
+      console.error('Token verification error:', error);
+      return false;
+    }
+  }
+
+  // Şifre güncelleme
+  async updatePassword(userId: string, resetToken: string, password: string, passwordConfirm: string): Promise<boolean> {
+    try {
+      const observable = this.httpClientService.post(
+        {
+          controller: 'users',
+          action: 'update-forgot-password'
+        },
+        {
+          userId,
+          resetToken,
+          password,
+          passwordConfirm
+        }
+      );
+
+      await firstValueFrom(observable);
+      return true;
+    } catch (error) {
+      console.error('Password update error:', error);
+      return false;
+    }
   }
 }
-
-export let _isAuthenticated: boolean = false;

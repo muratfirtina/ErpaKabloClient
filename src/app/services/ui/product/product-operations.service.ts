@@ -8,6 +8,7 @@ import { AuthService } from '../../common/auth.service';
 import { CartService } from '../../common/models/cart.service';
 import { ProductLikeService } from '../../common/models/product-like.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../custom-toastr.service';
+import { AnalyticsService } from '../../common/analytics.services';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,8 @@ export class ProductOperationsService {
     private productLikeService: ProductLikeService,
     private customToasterService: CustomToastrService,
     private router: Router,
-    private spinner: NgxSpinnerService
+    private spinner: NgxSpinnerService,
+    private analyticsService: AnalyticsService
   ) { }
 
   async addToCart(product: Product, quantity: number = 1) {
@@ -66,6 +68,8 @@ export class ProductOperationsService {
       this.spinner.hide(SpinnerType.BallSpinClockwise);
       console.error('Add to cart error:', error);
     }
+    this.analyticsService.trackAddToCart(product, quantity);
+    
   }
 
   async toggleLike(product: Product): Promise<{ isLiked: boolean, likeCount: number }> {
@@ -89,7 +93,7 @@ export class ProductOperationsService {
           position: ToastrPosition.TopRight
         }
       );
-
+      this.analyticsService.trackEvent('toggle_like', 'Engagement', product.isLiked ? 'Like' : 'Unlike', product.name);
       return { isLiked, likeCount };
     } catch (error) {
       console.error('Error toggling like:', error);
@@ -104,5 +108,6 @@ export class ProductOperationsService {
     } finally {
       this.spinner.hide(SpinnerType.BallSpinClockwise);
     }
+    
   }
 }

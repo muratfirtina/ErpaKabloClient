@@ -52,4 +52,11 @@ export class DesktopUserSidebarComponent implements OnInit {
     this.authService.logout();
     this.router.navigate(['/']); // Ana sayfaya yönlendir
   }
+  async logoutFromAllDevices(): Promise<void> {
+    if (confirm('Tüm cihazlarda oturumunuzu kapatmak istediğinize emin misiniz?')) {
+      await this.authService.logoutFromAllDevices(() => {
+        this.router.navigate(['/login']);
+      });
+    }
+  }
 }

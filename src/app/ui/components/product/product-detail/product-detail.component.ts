@@ -23,6 +23,7 @@ import { ProductOperationsService } from 'src/app/services/ui/product/product-op
 import { FEATURE_CONFIGS, FeatureType } from 'src/app/enums/featureType';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../../footer/footer.component';
+import { AnalyticsService } from 'src/app/services/common/analytics.services';
 
 @Component({
   selector: 'app-product-detail',
@@ -75,6 +76,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
     private authService: AuthService,
     private productLikeService: ProductLikeService,
     private productOperations: ProductOperationsService,
+    private analyticsService: AnalyticsService,
     spinner: SpinnerService
   ) {
     super(spinner);
@@ -139,6 +141,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
   
       this.clearFeatures();
       this.product = await this.productService.getById(productId,()=>{},()=>{});
+      this.analyticsService.trackViewItem(this.product)
       
       if (!this.product) {
         throw new Error('Product not found');

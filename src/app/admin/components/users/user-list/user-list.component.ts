@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,17 +12,16 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { PageRequest } from 'src/app/contracts/pageRequest';
 import { User } from 'src/app/contracts/user/user';
-import { UserDto } from 'src/app/contracts/user/userDto';
 import { AuthorizeUserDialogComponent } from 'src/app/dialogs/authorize-user-dialog/authorize-user-dialog.component';
 import { DialogService } from 'src/app/services/common/dialog.service';
 import { UserService } from 'src/app/services/common/models/user.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { DeleteDirectiveComponent } from 'src/app/directives/admin/delete-directive/delete-directive.component';
-import { error } from 'jquery';
 import { DynamicQuery, Filter } from 'src/app/contracts/dynamic-query';
 import { UserFilterByDynamic } from 'src/app/contracts/user/userFilterByDynamic';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { TokenService } from 'src/app/services/common/token.service';
 
 @Component({
   selector: 'app-user-list',
@@ -54,7 +53,7 @@ export class UserListComponent extends BaseComponent implements OnInit {
   pages: number = 0;
   pageList: number[] = [];
 
-  displayedColumns: string[] = ['No', 'userName', 'email', 'nameSurname', 'twoFactorEnabled', 'role', 'delete'];
+  displayedColumns: string[] = ['No', 'userName', 'email', 'nameSurname', 'twoFactorEnabled', 'role', 'actions', 'delete'];
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
@@ -67,6 +66,7 @@ export class UserListComponent extends BaseComponent implements OnInit {
     private userService: UserService,
     private toastrService: CustomToastrService,
     private dialogService: DialogService,
+    private tokenService: TokenService,
     spinner: SpinnerService,
     private fb: FormBuilder
   ) {
@@ -215,6 +215,41 @@ export class UserListComponent extends BaseComponent implements OnInit {
     if (this.pagedUsers.length === 0 && this.currentPageNo > 1) {
       this.currentPageNo--;
       this.getAllUsers();
+    }
+  }
+  async revokeUserTokens(userId: string, userName: string) {
+    if (confirm(`${userName} kullanıcısının tüm oturumlarını sonlandırmak istediğinize emin misiniz?`)) {
+      this.showSpinner(SpinnerType.BallSpinClockwise);
+      
+      try {
+        const success = await this.tokenService.revokeUserTokens(userId);
+        
+        if (success) {
+          this.toastrService.message(
+            `${userName} kullanıcısının tüm oturumları başarıyla sonlandırıldı.`, 
+            'Başarılı', 
+            {
+              toastrMessageType: ToastrMessageType.Success,
+              position: ToastrPosition.TopRight
+            }
+          );
+        } else {
+          throw new Error('İşlem başarısız oldu');
+        }
+      } catch (error) {
+        console.error('Token iptal hatası:', error);
+        
+        this.toastrService.message(
+          `${userName} kullanıcısının oturumları sonlandırılırken bir hata oluştu.`, 
+          'Hata', 
+          {
+            toastrMessageType: ToastrMessageType.Error,
+            position: ToastrPosition.TopRight
+          }
+        );
+      } finally {
+        this.hideSpinner(SpinnerType.BallSpinClockwise);
+      }
     }
   }
 }

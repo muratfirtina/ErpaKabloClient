@@ -116,12 +116,26 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-submit" [disabled]="frm.invalid || loading">
+      <div class="form-check terms-checkbox">
+        <input type="checkbox" 
+               formControlName="agreeToTerms" 
+               class="form-check-input" 
+               id="agreeToTerms"
+               [ngClass]="{'is-invalid': (submitted && component['agreeToTerms'].invalid)}">
+        <label class="form-check-label" for="agreeToTerms">
+          I agree to the <app-terms-of-use></app-terms-of-use> and <app-privacy-policy></app-privacy-policy>
+        </label>
+        <div class="invalid-feedback" *ngIf="submitted && component['agreeToTerms'].invalid">
+          You must agree to the Terms of Use and Privacy Policy to continue.
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit" [disabled]="loading">
         <span [class.invisible]="loading">Create Account</span>
         <app-button-spinner *ngIf="loading"></app-button-spinner>
       </button>
 
-      <p class="terms">By signing up, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a></p>
+      <p class="terms">By signing up, you agree to receive promotional emails from TUMDEX.</p>
     </form>
   </div>
 </div>

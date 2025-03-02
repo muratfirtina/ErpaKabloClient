@@ -11,6 +11,20 @@ export interface SecurityConfig {
     };
     auth: {
       tokenRefreshThresholdMinutes: number;
+      maxLoginAttempts: number;
+      loginLockoutMinutes: number;
+    };
+    routes: {
+      secureRoutePatterns: {
+        product: RegExp;
+        category: RegExp;
+        brand: RegExp;
+      };
+    };
+    inputs: {
+      maxInputLength: number;
+      emailRegex: RegExp;
+      passwordMinLength: number;
     };
   }
   
@@ -26,6 +40,20 @@ export interface SecurityConfig {
       }
     },
     auth: {
-      tokenRefreshThresholdMinutes: 5
+      tokenRefreshThresholdMinutes: 5,
+      maxLoginAttempts: 5,
+      loginLockoutMinutes: 15
+    },
+    routes: {
+      secureRoutePatterns: {
+        product: /^([\w-]+)-p-([a-f0-9]{8})$/,
+        category: /^([\w-]+)-c-([a-f0-9]{8})$/,
+        brand: /^[\w-]+$/
+      }
+    },
+    inputs: {
+      maxInputLength: 255,
+      emailRegex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      passwordMinLength: 8
     }
   };

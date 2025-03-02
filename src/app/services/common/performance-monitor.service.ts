@@ -3,6 +3,7 @@ import { SecurityConfig, DEFAULT_SECURITY_CONFIG } from '../../config/security.c
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../ui/custom-toastr.service';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 export interface PerformanceAlert {
   endpoint: string;
@@ -30,7 +31,7 @@ export class PerformanceMonitorService {
 
   constructor(
     private toastrService: CustomToastrService,
-    private authService: AuthService
+    private jwtHelper: JwtHelperService // JwtHelperService ekleyin
   ) {
     this.config = DEFAULT_SECURITY_CONFIG;
   }
@@ -66,8 +67,8 @@ export class PerformanceMonitorService {
     }
     this.alertsSubject.next(this.alerts);
 
-    // Sadece admin rolüne sahip kullanıcılara toastr göster
-    if (this.authService.hasRole('Admin')) {
+    // Admin kontrolünü doğrudan JWT token'ı ile yapın
+    if (this.isUserAdmin()) {
       this.toastrService.message(
         `Yüksek gecikme tespit edildi: ${duration}ms - ${endpoint}`,
         "Performans Uyarısı",
@@ -76,6 +77,27 @@ export class PerformanceMonitorService {
           position: ToastrPosition.TopRight
         }
       );
+    }
+  }
+
+  // Token'da admin rolünü kontrol eden yardımcı metot
+  private isUserAdmin(): boolean {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return false;
+
+    try {
+      const decodedToken = this.jwtHelper.decodeToken(token);
+      const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      
+      if (typeof roles === 'string') {
+        return roles === 'Admin';
+      } else if (Array.isArray(roles)) {
+        return roles.includes('Admin');
+      }
+      
+      return false;
+    } catch {
+      return false;
     }
   }
 

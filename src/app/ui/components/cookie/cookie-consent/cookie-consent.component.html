@@ -1,81 +1,85 @@
 <!-- Cookie Banner -->
 <div *ngIf="!isConsented" class="cookie-banner">
-    <div class="cookie-content">
-      <!-- Language Selector -->
-      <div class="language-selector">
-        <button 
-          *ngFor="let lang of [Language.EN, Language.TR, Language.RU]"
-          (click)="changeLanguage(lang)"
-          [class.active]="currentLang === lang"
-          class="lang-btn">
-          {{ lang.toUpperCase() }}
-        </button>
+  <div class="cookie-content">
+    <!-- Language Selector -->
+    <div class="language-selector">
+      <button *ngFor="let lang of [Language.EN, Language.TR, Language.RU]" (click)="changeLanguage(lang)"
+        [class.active]="currentLang === lang" class="lang-btn">
+        {{ lang.toUpperCase() }}
+      </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="consent-content">
+      <div class="cookie-text">
+        <p>{{ translations[currentLang].description }}</p>
+        <a routerLink="/cookie-policy" class="policy-link">
+          {{ translations[currentLang].cookiePolicy }}
+        </a>
       </div>
-  
-      <!-- Main Content -->
-      <div class="consent-content">
-        <div class="cookie-text">
-          <p>{{ translations[currentLang].description }}</p>
-          <a routerLink="/cookie-policy" class="policy-link">
-            {{ translations[currentLang].cookiePolicy }}
-          </a>
-        </div>
-  
-        <div class="cookie-buttons">
-          <button class="btn-settings" (click)="showSettings = true">
-            {{ translations[currentLang].customizeSettings }}
-          </button>
-          <button class="btn-accept" (click)="acceptAll()">
-            {{ translations[currentLang].acceptAll }}
-          </button>
-        </div>
+
+      <div class="cookie-buttons">
+        <button class="btn-settings" (click)="showSettings = true">
+          {{ translations[currentLang].customizeSettings }}
+        </button>
+        <button class="btn-accept" (click)="acceptAll()">
+          {{ translations[currentLang].acceptAll }}
+        </button>
       </div>
     </div>
   </div>
-  
-  <!-- Settings Modal -->
-  <div *ngIf="showSettings" class="cookie-modal">
-    <div class="modal-overlay" (click)="showSettings = false"></div>
-    <div class="modal-content">
-      <h2>{{ translations[currentLang].settings.title }}</h2>
-      
-      <div class="cookie-options">
-        <!-- Necessary Cookies -->
-        <div class="cookie-option">
+</div>
+
+<!-- Settings Modal -->
+<div *ngIf="showSettings" class="cookie-modal">
+  <div class="modal-overlay" (click)="showSettings = false"></div>
+  <div class="modal-content">
+    <h2>{{ translations[currentLang].settings.title }}</h2>
+    
+    <div class="cookie-options">
+      <!-- Necessary Cookies -->
+      <div class="cookie-option">
+        <div class="option-info">
           <label class="option-label">
             <input type="checkbox" [checked]="true" disabled>
             <span>{{ translations[currentLang].settings.necessary }}</span>
           </label>
-          <span class="option-required">
-            {{ translations[currentLang].settings.required }}
-          </span>
+          <span class="option-required">{{ translations[currentLang].settings.required }}</span>
         </div>
-  
-        <!-- Analytics Cookies -->
-        <div class="cookie-option">
+        <p class="option-description">{{ translations[currentLang].settings.descriptions.necessary }}</p>
+      </div>
+
+      <!-- Analytics Cookies -->
+      <div class="cookie-option">
+        <div class="option-info">
           <label class="option-label">
             <input type="checkbox" [(ngModel)]="cookieSettings.analytics">
             <span>{{ translations[currentLang].settings.analytics }}</span>
           </label>
         </div>
-  
-        <!-- Marketing Cookies -->
-        <div class="cookie-option">
+        <p class="option-description">{{ translations[currentLang].settings.descriptions.analytics }}</p>
+      </div>
+
+      <!-- Marketing Cookies -->
+      <div class="cookie-option">
+        <div class="option-info">
           <label class="option-label">
             <input type="checkbox" [(ngModel)]="cookieSettings.marketing">
             <span>{{ translations[currentLang].settings.marketing }}</span>
           </label>
         </div>
-      </div>
-  
-      <!-- Modal Buttons -->
-      <div class="modal-buttons">
-        <button class="btn-cancel" (click)="showSettings = false">
-          {{ translations[currentLang].settings.cancel }}
-        </button>
-        <button class="btn-save" (click)="saveSettings()">
-          {{ translations[currentLang].settings.save }}
-        </button>
+        <p class="option-description">{{ translations[currentLang].settings.descriptions.marketing }}</p>
       </div>
     </div>
+
+    <!-- Modal Buttons -->
+    <div class="modal-buttons">
+      <button class="btn-cancel" (click)="showSettings = false">
+        {{ translations[currentLang].settings.cancel }}
+      </button>
+      <button class="btn-save" (click)="saveSettings()">
+        {{ translations[currentLang].settings.save }}
+      </button>
+    </div>
   </div>
+</div>
