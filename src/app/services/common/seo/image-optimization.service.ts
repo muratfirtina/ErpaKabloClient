@@ -4,7 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, firstValueFrom } from 'rxjs';
 
 import { OptimizedImage } from 'src/app/contracts/seo/seo.types';
-import { environment } from 'src/enviroments/enviroment.prod';
+import { environment } from 'src/environments/environment.prod';
 
 interface ImageOptimizationResponse {
   optimizedUrl: string;

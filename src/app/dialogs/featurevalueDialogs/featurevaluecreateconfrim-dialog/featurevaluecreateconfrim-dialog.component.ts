@@ -1,12 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
-import { BaseDialog } from '../../baseDialog';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButton, MatButtonModule } from '@angular/material/button';
+import { CommonModule } from '@angular/common';
+import { BaseDialog } from '../../baseDialog';
 
 @Component({
   selector: 'app-featurevaluecreateconfrim-dialog',
   standalone: true,
-  imports: [MatDialogModule,MatButton],
+  imports: [CommonModule, MatDialogModule, MatButtonModule],
   templateUrl: './featurevaluecreateconfrim-dialog.component.html',
   styleUrl: './featurevaluecreateconfrim-dialog.component.scss'
 })
@@ -20,7 +21,6 @@ export class FeaturevaluecreateconfrimDialogComponent extends BaseDialog<Feature
   onNoClick(): void {
     this.dialogRef.close();
   }
-
 }
 
 export enum FeaturevalueCreateConfrimDialogState {

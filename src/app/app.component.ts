@@ -6,7 +6,7 @@ import { CookieConsentComponent } from './ui/components/cookie/cookie-consent/co
 import { SeoService } from './services/common/seo/seo.service';
 import { TokenService } from './services/common/token.service';
 import { AnalyticsService } from './services/common/analytics.services';
-import { environment } from 'src/enviroments/enviroment.prod';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-root',

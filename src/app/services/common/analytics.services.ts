@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { environment } from 'src/enviroments/enviroment.prod';
+import { environment } from 'src/environments/environment.prod';
 
 declare let gtag: Function;
 

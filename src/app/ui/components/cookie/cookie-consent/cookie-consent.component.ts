@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Language } from 'src/app/enums/language';
 import { AnalyticsService } from 'src/app/services/common/analytics.services';
-import { environment } from 'src/enviroments/enviroment.prod';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-cookie-consent',
