@@ -43,7 +43,7 @@ export class MainHeaderComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   isDarkTheme = false;
   DrawerType = DrawerType;
-  logoUrl = 'assets/homecard/TUMdex.png';
+  logoUrl = 'assets//icons/TUMdex.png';
   topline = 'assets/homecard/top-line.png';
   companySlogan = 'For All Industrial Products';
   

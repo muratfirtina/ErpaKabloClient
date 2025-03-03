@@ -52,7 +52,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
   randomProductsForBrands: GetListResponse<Product>;
   user: User;
   currentImageIndex = 0;
-  defaultProductImage = 'assets/product/ecommerce-default-product.png';
+  defaultProductImage = 'assets/icons/product/ecommerce-default-product.png';
   selectedFeatures: { [key: string]: string } = {};
   sortedAvailableFeatures: { [key: string]: string[] } = {};
   visualFeatures: string[] = [];

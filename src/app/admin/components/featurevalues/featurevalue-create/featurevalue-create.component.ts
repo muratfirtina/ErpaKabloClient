@@ -14,8 +14,8 @@ import { MatSelectModule } from '@angular/material/select';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
 import { MatRadioModule } from '@angular/material/radio';
-import { FeaturevaluecreateconfrimDialogComponent } from 'src/app/dialogs/featureValueDialogs/featurevaluecreateconfrim-dialog/featurevaluecreateconfrim-dialog.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { FeaturevaluecreateconfrimDialogComponent } from 'src/app/dialogs/featurevalueDialogs/featurevaluecreateconfrim-dialog/featurevaluecreateconfrim-dialog.component';
 
 @Component({
   selector: 'app-featurevalue-create',

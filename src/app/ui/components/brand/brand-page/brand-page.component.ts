@@ -46,7 +46,7 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
   @Input() key: number;
 
   brand: Brand;
-  defaultBrandImageUrl: string = 'assets/brand/ecommerce-default-brand.png';
+  defaultBrandImageUrl: string = 'assets/icons/brand/ecommerce-default-brand.png';
   subCategories: Category[] = [];
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];

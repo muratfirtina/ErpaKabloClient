@@ -40,7 +40,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
   mostViewedProducts: GetListResponse<Product>;
   bestSellingProducts: GetListResponse<Product>;
   randomProducts: GetListResponse<Product>;
-  defaultProductImage = 'assets/product/ecommerce-default-product.png';
+  defaultProductImage = 'assets/icons/product/ecommerce-default-product.png';
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
