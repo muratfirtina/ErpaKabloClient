@@ -18,7 +18,6 @@ import { DrawerType, DrawerService } from 'src/app/services/common/drawer.servic
 import { StoreService } from 'src/app/services/common/store.service';
 import { ThemeService } from 'src/app/services/common/theme.service';
 import { LoginPopoverComponent } from '../login/login-popover/login-popover.component';
-import { RegisterPopoverComponent } from '../register/register-popover/register-popover.component';
 
 @Component({
   selector: 'app-main-header',
@@ -60,16 +59,6 @@ export class MainHeaderComponent implements OnInit, OnDestroy {
   }
   
 
-  showRegisterPopover(event: MouseEvent) {
-    event.stopPropagation();
-    const registerPopover = this.registerPopoverComponent;
-    if (registerPopover) {
-      registerPopover.show();
-    }
-  }
-  @ViewChild(RegisterPopoverComponent)
-  registerPopoverComponent: RegisterPopoverComponent;
-
   @ViewChild(LoginPopoverComponent)
   loginPopoverComponent: LoginPopoverComponent;
 
@@ -79,13 +68,17 @@ export class MainHeaderComponent implements OnInit, OnDestroy {
     private store: StoreService,
     private cartService: CartService,
     private userService: UserService,
-    public authService: AuthService,
-    public animationService: AnimationService
+    private authService: AuthService,
+    private animationService: AnimationService
   ) {}
 
   createRipple(event: MouseEvent): void {
     const element = event.currentTarget as HTMLElement;
     this.animationService.createRippleEffect(event, element);
+  }
+
+  get isAuthenticated(): boolean {
+    return this.authService.isAuthenticated;
   }
 
   async ngOnInit() {

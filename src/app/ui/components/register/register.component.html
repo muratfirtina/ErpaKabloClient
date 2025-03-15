@@ -1,6 +1,6 @@
 <div class="register-container">
   <div class="logo">
-    <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/">
+    <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/" style="cursor: pointer;">
     <span class="logo-subtext" translate="yes">For All Industrial Products</span>
   </div>
   <div class="registerform">
@@ -119,7 +119,7 @@
       <div class="form-check terms-checkbox">
         <input type="checkbox" 
                formControlName="agreeToTerms" 
-               class="form-check-input" 
+               class="form-check-input"
                id="agreeToTerms"
                [ngClass]="{'is-invalid': (submitted && component['agreeToTerms'].invalid)}">
         <label class="form-check-label" for="agreeToTerms">

@@ -138,9 +138,6 @@ $dark-input-bg: darken($background-color, 85%);
 .register-container {
   font-family: $font-family-base;
   
-  * {
-    font-family: inherit;
-  }
   display: flex;
   justify-content: center;
   flex-direction: column;

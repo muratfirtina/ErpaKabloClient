@@ -16,11 +16,11 @@ export const securityInterceptor: HttpInterceptorFn = (
   const performanceMonitor = inject(PerformanceMonitorService);
   const router = inject(Router);
 
-  // Rate limiting kontrolü sadece API istekleri için
+  // Rate limiting check only for API requests
   if (!rateLimitService.checkRateLimit(req.url)) {
     toastrService.message(
-      "Çok fazla istek gönderildi. Lütfen bir süre bekleyin.", 
-      "Rate Limit Aşıldı",
+      "Too many requests have been sent. Please wait a while.",
+      "Rate Limit Exceeded",
       {
         toastrMessageType: ToastrMessageType.Warning,
         position: ToastrPosition.TopRight
@@ -29,10 +29,10 @@ export const securityInterceptor: HttpInterceptorFn = (
     return throwError(() => new Error('Rate limit exceeded'));
   }
 
-  // Performans ölçümü başlat
+  // Start performance measurement
   const startTime = performanceMonitor.startMeasurement(req.url);
 
-  // Token varsa ekle
+  // Add token if available
   const token = localStorage.getItem("accessToken");
   if (token) {
     req = req.clone({
@@ -49,12 +49,12 @@ export const securityInterceptor: HttpInterceptorFn = (
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         localStorage.removeItem("accessToken");
-        router.navigate(["login"], { 
-          queryParams: { returnUrl: router.routerState.snapshot.url } 
+        router.navigate(["login"], {
+          queryParams: { returnUrl: router.routerState.snapshot.url }
         });
         toastrService.message(
-          "Oturumunuz sonlandırıldı.", 
-          "Yetkisiz Erişim",
+          "Your session has expired.",
+          "Unauthorized Access",
           {
             toastrMessageType: ToastrMessageType.Warning,
             position: ToastrPosition.TopRight
@@ -64,8 +64,8 @@ export const securityInterceptor: HttpInterceptorFn = (
         rateLimitService.clearRateLimits();
         router.navigate(["/unauthorized"]);
         toastrService.message(
-          "Bu işlem için yetkiniz bulunmamaktadır.", 
-          "Yetkisiz İşlem",
+          "You are not authorized to perform this action.",
+          "Unauthorized Action",
           {
             toastrMessageType: ToastrMessageType.Warning,
             position: ToastrPosition.TopRight
@@ -73,8 +73,8 @@ export const securityInterceptor: HttpInterceptorFn = (
         );
       } else if (error.status === 429) {
         toastrService.message(
-          "Çok fazla istek gönderildi. Lütfen bir süre bekleyin.", 
-          "Rate Limit Aşıldı",
+          "Too many requests have been sent. Please wait a while.",
+          "Rate Limit Exceeded",
           {
             toastrMessageType: ToastrMessageType.Warning,
             position: ToastrPosition.TopRight
@@ -82,8 +82,8 @@ export const securityInterceptor: HttpInterceptorFn = (
         );
       } else {
         toastrService.message(
-          "Bir hata oluştu.", 
-          "Hata",
+          "An error occurred.",
+          "Error",
           {
             toastrMessageType: ToastrMessageType.Error,
             position: ToastrPosition.TopRight

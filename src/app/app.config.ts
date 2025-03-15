@@ -23,8 +23,8 @@ import { JwtModule } from '@auth0/angular-jwt';
 import { HttpErrorHandlerInterceptorService } from './services/common/http-error-handler-interceptor.service';
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
 import { FileSizePipe } from './pipes/file-size.pipe';
-import { securityInterceptor } from './interceptors/security.interceptor';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { TokenValidatorInterceptor } from './interceptors/tokenValidator.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -51,25 +51,31 @@ export const appConfig: ApplicationConfig = {
       JwtModule.forRoot({
         config: {
           tokenGetter: () => localStorage.getItem("accessToken"),
-          allowedDomains: ["localhost:5000","www.tumdex.com", "tumdex.com"],
-          disallowedRoutes: ["localhost:5000/api/auth/login","www.tumdex.com/api/auth/login", "tumdex.com/api/auth/login"]
+          allowedDomains: ["localhost:5183","www.tumdex.com", "tumdex.com"],
+          disallowedRoutes: ["localhost:5183/api/auth/login","www.tumdex.com/api/auth/login", "tumdex.com/api/auth/login"]
         }
       })
     ),
     SafeUrlPipe,
     SafeHtmlPipe,
     FileSizePipe,
+    // Her interceptor için ayrı bir provider tanımı
     {
       provide: HTTP_INTERCEPTORS, 
-      useClass: HttpErrorHandlerInterceptorService, 
+      useClass: HttpErrorHandlerInterceptorService,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS, 
+      useClass: TokenValidatorInterceptor,
       multi: true
     },
     provideHttpClient(
-      withInterceptors([securityInterceptor,authInterceptor])
+      withInterceptors([authInterceptor])
     ),
     { 
       provide: "baseUrl", 
-      useValue: "https://www.tumdex.com/api", 
+      useValue: "https://localhost:5183/api", 
       multi: true 
     }, 
     provideAnimationsAsync(),

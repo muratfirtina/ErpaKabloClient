@@ -7,6 +7,9 @@ import { UserService } from './models/user.service';
 import { StoreService } from './store.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../ui/custom-toastr.service';
 import { AnalyticsService } from './analytics.services';
+import { VerifyActivationCodeResponse } from 'src/app/contracts/auth/verifyActivationCodeResponse';
+import { ResendActivationCodeResponse } from 'src/app/contracts/auth/resendActivationCodeResponse';
+import { VerifyActivationTokenResponse } from 'src/app/contracts/token/verifyActivationTokenResponse';
 
 // API yanıt tipleri
 interface VerifyResetTokenResponse {
@@ -112,10 +115,6 @@ export class AuthService {
       return false;
     } catch (error) {
       console.error('Login error:', error);
-      this.toastrService.message('Login failed', 'Error', {
-        toastrMessageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight,
-      });
       return false;
     }
   }
@@ -158,10 +157,19 @@ export class AuthService {
   // Tüm cihazlardan çıkış
   async logoutFromAllDevices(callBackFunction?: () => void): Promise<boolean> {
     try {
+      console.log("AuthService: Tüm cihazlardan çıkış yapılıyor...");
+      
+      this.toastrService.message('Tüm cihazlardan çıkış yapılıyor...', 'İşlem Sürüyor', {
+        toastrMessageType: ToastrMessageType.Info,
+        position: ToastrPosition.TopRight,
+      });
+      
       // TokenService üzerinden tüm token'ları iptal et
       const success = await this.tokenService.revokeAllTokens();
       
       if (success) {
+        console.log("AuthService: Tüm cihazlardan çıkış başarılı");
+        
         // Token'ları ve kullanıcı verilerini temizle
         this.tokenService.clearTokens();
         
@@ -174,7 +182,7 @@ export class AuthService {
           data: null
         });
         
-        this.toastrService.message('Logged out from all devices successfully', 'Success', {
+        this.toastrService.message('Tüm cihazlardan başarıyla çıkış yapıldı', 'Başarılı', {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight,
         });
@@ -182,14 +190,24 @@ export class AuthService {
         // Callback fonksiyonu varsa çağır
         if (callBackFunction) callBackFunction();
         
+        // Login sayfasına yönlendir
+        await this.router.navigate(['/login']);
+        
         return true;
       }
       
+      console.error("AuthService: Tüm cihazlardan çıkış başarısız oldu");
+      
+      this.toastrService.message('Tüm cihazlardan çıkış yapılırken bir hata oluştu', 'Hata', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight,
+      });
+      
       return false;
     } catch (error) {
-      console.error('Logout from all devices error:', error);
+      console.error('AuthService: Tüm cihazlardan çıkış hatası:', error);
       
-      this.toastrService.message('Failed to logout from all devices', 'Error', {
+      this.toastrService.message('Tüm cihazlardan çıkış yapılamadı', 'Hata', {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight,
       });
@@ -278,4 +296,96 @@ export class AuthService {
       return false;
     }
   }
+
+  // Aktivasyon kodu doğrulama
+async verifyActivationCode(userId: string, code: string): Promise<VerifyActivationCodeResponse> {
+  try {
+    const observable = this.httpClientService.post<VerifyActivationCodeResponse>(
+      {
+        controller: 'auth',
+        action: 'verify-activation-code'
+      },
+      { userId, code }
+    );
+
+    const response = await firstValueFrom(observable);
+    return response || { verified: false };
+  } catch (error) {
+    console.error('Activation code verification error:', error);
+    
+    // API hata yanıtlarını ele al
+    if (error.status === 400 || error.status === 429) {
+      return {
+        verified: false,
+        message: error.error?.message || 'Verification failed',
+        remainingAttempts: error.error?.remainingAttempts || 0,
+        exceeded: error.error?.exceeded || false
+      };
+    }
+    
+    return { 
+      verified: false,
+      message: 'An error occurred during verification'
+    };
+  }
+}
+
+// Aktivasyon kodu yeniden gönderme
+async resendActivationCode(email: string): Promise<ResendActivationCodeResponse> {
+  try {
+    const observable = this.httpClientService.post<ResendActivationCodeResponse>(
+      {
+        controller: 'auth',
+        action: 'resend-activation-code'
+      },
+      { email }
+    );
+
+    const response = await firstValueFrom(observable);
+    return response || { success: true, message: 'Activation code sent' };
+  } catch (error) {
+    console.error('Resend activation code error:', error);
+    
+    if (error.status === 429) {
+      return { 
+        success: false, 
+        message: error.error?.message || 'Too many requests. Please try again later.' 
+      };
+    }
+    
+    return { 
+      success: false, 
+      message: 'Failed to send activation code'
+    };
+  }
+}
+
+async verifyActivationToken(token: string): Promise<VerifyActivationTokenResponse> {
+  try {
+    const observable = this.httpClientService.get<VerifyActivationTokenResponse>(
+      {
+        controller: 'auth',
+        action: 'verify-activation-token',
+        queryString: `token=${encodeURIComponent(token)}`
+      }
+    );
+
+    const response = await firstValueFrom(observable);
+    
+    // API'den gelen yanıtı döndür
+    return {
+      success: response?.success || false,
+      userId: response?.userId,
+      email: response?.email,
+      message: response?.message
+    };
+  } catch (error) {
+    console.error('Activation token verification error:', error);
+    
+    return {
+      success: false,
+      message: error.error?.message || 'Token doğrulama işlemi başarısız oldu.'
+    };
+  }
+}
 }

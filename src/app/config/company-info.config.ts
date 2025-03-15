@@ -1,4 +1,5 @@
 export const COMPANY_INFO = {
+    Logo:"assets/icons/TUMdex.png",
     Name:"TUMDEX.com (Tüm Trading Dış Ticaret Ltd. Şti.)",
     Address: 'Oruçreis Mah. Tekstilkent Cd. Koza Plaza B Blok K 5 İç Kapı 19, 34235 Esenler / İSTANBUL TÜRKİYE',
     Phone: '+90 212 438 0 333 , +90 533 803 77 14',

@@ -1,9 +1,9 @@
 <header class="main-header" [class.dark-theme]="isDarkTheme">
   <div class="container">
     <div class="header-content">
-      <!-- Logo Section -->
+      <!-- Logo Section with z-index to ensure it's fully visible -->
       <div class="logo" (click)="createRipple($event)">
-        <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/home" style="cursor: pointer;">
+        <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/home">
         <div class="logo-text">
           <span class="logo-subtext">{{companySlogan}}</span>
         </div>
@@ -12,10 +12,8 @@
       <!-- Actions Section -->
       <div class="user-actions">
         <!-- User Account Section -->
-        <ng-container *ngIf="authService.isAuthenticated; else notAuthenticated">
-          <a class="user-profile-link"
-            style="color:#e0e0e0; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;"
-            (click)="toggleDrawer(DrawerType.UserMenu)" [attr.aria-label]="'Open user menu'">
+        <ng-container *ngIf="isAuthenticated; else notAuthenticated">
+          <a class="user-profile-link" (click)="toggleDrawer(DrawerType.UserMenu)" [attr.aria-label]="'Open user menu'">
             <i>
               <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-person"
                 viewBox="0 0 16 16">
@@ -30,28 +28,24 @@
         <ng-template #notAuthenticated>
           <div class="auth-links" style="display: flex; align-items: center; gap: 1rem;">
             <!-- Login Trigger ve Popover -->
-            <div class="position-relative">
+            <div class="sign-in">
               <a style="color:#e0e0e0; cursor: pointer;" 
                  (click)="showLoginPopover($event)" 
-                 [attr.aria-label]="'Sign in'">
-                Sign In
-              </a>
+                 [attr.aria-label]="'Sign in'">Sign In</a>
               <app-login-popover></app-login-popover>
             </div>
             
             <span style="color:#e0e0e0;">|</span>
             
             <!-- Register Link -->
-        
-            <a style="color:#0d6efd; cursor: pointer;" (click)="toggleDrawer(DrawerType.UserMenu)"
-              [attr.aria-label]="'Register'">
+            <a class="register-link" (click)="toggleDrawer(DrawerType.UserMenu)" [attr.aria-label]="'Register'">
               Register
             </a>
           </div>
         </ng-template>
 
         <!-- Cart Button -->
-        <button style="border: none;" class="btn btn-cart" [class.has-items]="cartItems?.length > 0"
+        <button class="btn-cart" [class.has-items]="cartItems?.length > 0"
           (click)="toggleDrawer(DrawerType.Cart)" [attr.aria-label]="'Open shopping cart'">
           <i>
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-cart3"
@@ -61,7 +55,7 @@
             </svg>
           </i>
           <span class="btn-text">Cart</span>
-          <span class="position-absolute start-200 badge rounded-pill bg-danger" *ngIf="cartItems?.length > 0">
+          <span class="badge" *ngIf="cartItems?.length > 0">
             {{ cartItems.length }}
           </span>
         </button>

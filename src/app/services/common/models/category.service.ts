@@ -22,7 +22,6 @@ export class CategoryService {
       controller: "categories"
     }, categoryData).subscribe({
       next: (response) => {
-        console.log('Server response:', response);
         successCallback();
       },
       error: (error) => {

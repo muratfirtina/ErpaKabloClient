@@ -1,6 +1,6 @@
 <div class="login-container">
   <div class="logo">
-    <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/">
+    <img [src]="companyLogoUrl" alt="Company Logo" class="logo-image" routerLink="/" style="cursor: pointer;">
     <span class="logo-subtext" translate="yes">For All Industrial Products</span>
   </div>
   <div class="loginform">
@@ -9,22 +9,36 @@
         <p class="title">Welcome Back</p>
         <p class="subtitle">Don't have an account? <a routerLink="/register">Sign up</a></p>
       </div>
-      <br>
+
+      <!-- Error Message Display -->
+      <div *ngIf="showError" class="alert alert-danger">
+        <p>{{ errorMessage }}</p>
+        <p *ngIf="!isLockedOut && errorMessage.includes('Invalid')">
+          <a class="alert-link" routerLink="/password-reset">Forgot your password?</a>
+        </p>
+      </div>
+
+      <!-- Lockout Timer Display -->
+      <div *ngIf="isLockedOut" class="alert alert-warning">
+        <p>Account temporarily locked. Please try again in {{ lockoutTimeRemaining }} seconds.</p>
+      </div>
 
       <div class="form-floating">
-        <input #txtUsernameOrEmail type="text" 
-               class="form-control" 
-               id="usernameOrEmail" 
+        <input #txtUsernameOrEmail type="text"
+               class="form-control"
+               id="usernameOrEmail"
                placeholder=" "
+               [disabled]="isLockedOut"
                required>
         <label for="usernameOrEmail">Username or Email</label>
       </div>
 
       <div class="form-floating">
-        <input #txtPassword type="password" 
-               class="form-control" 
-               id="password" 
+        <input #txtPassword type="password"
+               class="form-control"
+               id="password"
                placeholder=" "
+               [disabled]="isLockedOut"
                required>
         <label for="password">Password</label>
       </div>
@@ -32,7 +46,7 @@
     <div class="remember">
       <div class="remember-me">
         <label class="checkbox-container">
-          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
+          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" [disabled]="isLockedOut">
           <span class="checkmark"></span>
           Remember me
         </label>
@@ -43,7 +57,7 @@
       </div>
     </div>
 
-      <button type="submit" class="btn-login" [disabled]="loading">
+      <button type="submit" class="btn-login" [disabled]="loading || isLockedOut">
         <span [class.invisible]="loading">Sign In</span>
         <app-button-spinner *ngIf="loading"></app-button-spinner>
       </button>

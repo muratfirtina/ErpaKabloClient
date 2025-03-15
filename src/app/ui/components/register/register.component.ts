@@ -48,7 +48,7 @@ export class RegisterComponent extends BaseComponent implements OnInit {
     super(spinner);
   }
 
-  logoUrl = 'assets/homecard/TUMdex.png';
+  logoUrl = 'assets/icons/TUMdex.png';
   frm: FormGroup;
   passwordRequirements = {
     uppercase: false,
@@ -119,12 +119,12 @@ export class RegisterComponent extends BaseComponent implements OnInit {
         length: false
       };
   
-      // Şifre gereksinimlerini karşılamıyorsa invalid işaretle
+      // Mark as invalid if password doesn't meet requirements
       if (validationResult) {
         control.setErrors(validationResult);
       }
   
-      // Confirm password'ü tekrar validate et
+      // Revalidate confirm password
       this.frm.get('confirmPassword').updateValueAndValidity();
     });
   }
@@ -132,57 +132,104 @@ export class RegisterComponent extends BaseComponent implements OnInit {
   get component() { return this.frm.controls; }
 
   async onSubmit(user: User) {
-    if (this.submitted) return;
+    if (this.submitted || this.loading) return;
     this.submitted = true;
     this.loading = true;
-  
-    if (this.frm.invalid) {
-      const firstError = document.querySelector('.is-invalid');
-      if (firstError) {
-        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-      this.loading = false;
-      this.submitted = false;
-      return;
-    }
-  
-    this.loading = true;
+    
+    // Show spinner
+    this.showSpinner(SpinnerType.SquareLoader);
+    
+    // 30 second timeout
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => reject(new Error("Request timed out")), 30000);
+    });
+    
     try {
-      const result: CreateUser = await this.userService.create(user);
-  
+      // Perform registration with timeout check using Promise.race
+      const result: CreateUser = await Promise.race([
+        this.userService.create(user),
+        timeoutPromise
+      ]) as CreateUser;
+      
       if (result.isSuccess) {
         this.toastrService.message(
-          "Please check your email to activate your account.",
+          "Your registration has been successfully created. Your activation code has been sent to your email address.",
           "Registration Successful",
           {
             toastrMessageType: ToastrMessageType.Success,
             position: ToastrPosition.TopRight
           }
         );
-  
-        // Kullanıcıyı aktivasyon bilgilendirme sayfasına yönlendir
-        this.router.navigate(['/activation-info'], {
-          queryParams: { email: user.email }
-        });
+        
+        // Redirect with token if available, otherwise with userId and email
+        if (result.activationToken) {
+          
+          // Redirect with token
+          this.router.navigate(['/activation-code'], {
+            queryParams: {
+              token: result.activationToken
+            }
+          }).then(navigated => {
+            if (!navigated) {
+              console.error('Redirection to activation page failed');
+              // Use window.location as an alternative method
+              window.location.href = `/activation-code?token=${encodeURIComponent(result.activationToken)}`;
+            }
+          });
+        } else {
+          // Redirect with userId and email (backup method)
+          
+          this.router.navigate(['/activation-code'], {
+            queryParams: {
+              userId: result.userId,
+              email: user.email
+            }
+          }).then(navigated => {
+            if (!navigated) {
+              console.error('Redirection to activation page failed');
+              // Use window.location as an alternative method
+              window.location.href = `/activation-code?userId=${encodeURIComponent(result.userId)}&email=${encodeURIComponent(user.email)}`;
+            }
+          });
+        }
       } else {
-        this.toastrService.message(result.message, "Registration Failed", {
+        this.toastrService.message(result.message, "Registration Error", {
           toastrMessageType: ToastrMessageType.Error,
           position: ToastrPosition.TopRight
         });
       }
     } catch (error) {
+      // Handle timeout or other errors with appropriate message
+      let errorMessage = "An error occurred during the registration process.";
+      
+      if (error.message === "Request timed out") {
+        errorMessage = "Server did not respond. Please try again later.";
+        
+        // Offer the user the option to go to the activation page
+        this.toastrService.message(
+          "The registration process may have completed, but we didn't receive a response. Would you like to go to the activation page?",
+          "Process Uncertain",
+          {
+            toastrMessageType: ToastrMessageType.Warning,
+            position: ToastrPosition.TopRight
+          }
+        );
+      }
+      
       console.error("Registration error:", error);
-      this.toastrService.message(
-        "An error occurred during registration. Please try again.",
-        "Registration Error",
-        {
-          toastrMessageType: ToastrMessageType.Error,
-          position: ToastrPosition.TopRight
-        }
-      );
+      this.toastrService.message(errorMessage, "Registration Error", {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
     } finally {
-      this.loading = false;
-      this.submitted = false;
+      // Hide spinner
+      this.hideSpinner(SpinnerType.SquareLoader);
+      
+      // Reset state, with a short delay to prevent double clicks
+      setTimeout(() => {
+        this.loading = false;
+        this.submitted = false;
+      }, 1000);
     }
   }
 

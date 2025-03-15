@@ -130,7 +130,7 @@
       </div>
     </main>
      <!-- Performans İzleme (Sadece Admin) -->
-     <app-performance-monitoring *ngIf="authService.isAdmin"></app-performance-monitoring>
+     <app-performance-monitoring *ngIf="isAdmin"></app-performance-monitoring>
   
      <!-- Site Haritası İzleme -->
      <app-sitemap-monitoring></app-sitemap-monitoring>

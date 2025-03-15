@@ -1,53 +1,68 @@
 <div class="login-popover" [class.show]="isVisible" [class.dark-theme]="isDarkTheme">
-    <div class="popover-content">
-      <div class="popover-header">
-        <h5>Welcome Back</h5>
-        <button type="button" class="btn-close" (click)="close()">×</button>
-      </div>
-      
-      <form #loginForm="ngForm" (ngSubmit)="login(txtUsernameOrEmail.value, txtPassword.value)">
-        <div class="form-floating mb-3">
-          <input #txtUsernameOrEmail 
-                 type="text" 
-                 class="form-control" 
-                 id="usernameOrEmail" 
-                 placeholder=" "
-                 required>
-          <label for="usernameOrEmail">Username or Email</label>
-        </div>
-
-        <div class="form-floating mb-3">
-          <input #txtPassword 
-                 type="password" 
-                 class="form-control" 
-                 id="password" 
-                 placeholder=" "
-                 required>
-          <label for="password">Password</label>
-        </div>
-
-        <div class="login-actions mb-3">
-          <div class="remember-me">
-            <label class="checkbox-container">
-              <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
-              <span class="label-text">Remember me</span>
-            </label>
-          </div>
-          <div class="forgot-password">
-            <a routerLink="/password-reset" (click)="close()">Forgot Password?</a>
-          </div>
-        </div>
-
-        <button type="submit" class="btn-login" [disabled]="loading">
-          <span [class.invisible]="loading">Sign In</span>
-          <app-button-spinner *ngIf="loading"></app-button-spinner>
-        </button>
-
-        <p class="register-link">
-          Don't have an account? 
-          <a routerLink="/register" (click)="close()">Sign up</a>
-        </p>
-      </form>
+  <div class="popover-content">
+    <div class="popover-header">
+      <h5>Welcome Back</h5>
+      <button type="button" class="btn-close" (click)="close()">×</button>
     </div>
+
+    <form #loginForm="ngForm" (ngSubmit)="login(txtUsernameOrEmail.value, txtPassword.value)">
+      <!-- Error Message Display -->
+      <div *ngIf="showError" class="alert alert-danger">
+        <p>{{ errorMessage }}</p>
+        <p *ngIf="!isLockedOut && errorMessage.includes('Invalid')">
+          <a class="alert-link" (click)="navigateToPasswordReset()">Forgot your password?</a>
+        </p>
+      </div>
+
+      <!-- Lockout Timer Display -->
+      <div *ngIf="isLockedOut" class="alert alert-warning">
+        <p>Account temporarily locked. Please try again in {{ lockoutTimeRemaining }} seconds.</p>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input #txtUsernameOrEmail
+               type="text"
+               class="form-control"
+               id="usernameOrEmail"
+               placeholder=" "
+               required
+               [disabled]="isLockedOut">
+        <label for="usernameOrEmail">Username or Email</label>
+      </div>
+
+      <div class="form-floating mb-3">
+        <input #txtPassword
+               type="password"
+               class="form-control"
+               id="password"
+               placeholder=" "
+               required
+               [disabled]="isLockedOut">
+        <label for="password">Password</label>
+      </div>
+
+      <div class="login-actions mb-3">
+        <div class="remember-me">
+          <label class="checkbox-container">
+            <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" [disabled]="isLockedOut">
+            <span class="label-text">Remember me</span>
+          </label>
+        </div>
+        <div class="forgot-password">
+          <a routerLink="/password-reset" (click)="close()">Forgot Password?</a>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login" [disabled]="loading || isLockedOut">
+        <span [class.invisible]="loading">Sign In</span>
+        <app-button-spinner *ngIf="loading"></app-button-spinner>
+      </button>
+
+      <p class="register-link">
+        Don't have an account?
+        <a routerLink="/register" (click)="close()">Sign up</a>
+      </p>
+    </form>
   </div>
-  <div class="overlay" [class.show]="isVisible" (click)="close()"></div>
+</div>
+<div class="overlay" [class.show]="isVisible" (click)="close()"></div>

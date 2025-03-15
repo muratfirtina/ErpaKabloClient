@@ -409,8 +409,7 @@ body {
 
       .category-card {
         cursor: pointer;
-        min-width: 205px;
-        max-width: 205px;
+        width: 205px;
         //min-height: 300px; // Kartların genişliği sabit olmalı
         background-color: $home-secondary-color;
         //border-radius: 10px;

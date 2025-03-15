@@ -16,9 +16,6 @@ $link-color: #0000ee;
 .product-card {
   font-family: $font-family-base;
   
-  * {
-    font-family: inherit;
-  }
   display: flex;
   flex-direction: column;
   min-height: 450px;

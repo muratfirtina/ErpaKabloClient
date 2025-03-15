@@ -72,9 +72,9 @@ export const routes: Routes = [
       { path: "password-reset", loadComponent: () => import('./ui/components/password-reset/password-reset.component').then(m => m.PasswordResetComponent) },
       { path: "update-password/:userId/:resetToken", loadComponent: () => import('./ui/components/update-password/update-password.component').then(m => m.UpdatePasswordComponent) },
       { path: "newsletter/unsubscribe", loadComponent: () => import('./ui/components/newsletter-unsubscribe/newsletter-unsubscribe.component').then(m => m.NewsletterUnsubscribeComponent) },
-      { path: "activation-info", loadComponent: () => import('./ui/components/activation/activation-info/activation-info.component').then(m => m.ActivationInfoComponent) },
-      { path: 'confirm-email/:userId/:token',loadComponent: () => import('./ui/components/activation/confirmed-email/confirmed-email.component').then(m => m.ConfirmedEmailComponent)},
+      { path: "activation-code", loadComponent: () => import('./ui/components/activation/activation-code/activation-code.component').then(m => m.ActivationCodeComponent) },
       { path: "resend-activation", loadComponent: () => import('./ui/components/activation/resend-activation/resend-activation.component').then(m => m.ResendActivationComponent) },
+      
       
       // New wildcard route for handling SEO-friendly URLs
     

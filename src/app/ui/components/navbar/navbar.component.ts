@@ -25,7 +25,6 @@ import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
 
 interface CategoryWithSubcategories extends Category {
   subcategories?: CategoryWithSubcategories[];
-  
 }
 
 @Component({
@@ -45,6 +44,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   categoryLoading: boolean = false;
   subcategoryLoading: boolean = false;
   recommendedLoading: boolean = false;
+  isCategoriesLoaded: boolean = false;
   
   private categorySubject = new Subject<string>();
   private categoryCache: Map<string, GetListResponse<Product>> = new Map();
@@ -88,7 +88,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
             queryParams: { term: this.searchTerm }
         });
     }
-}
+  }
 
   private setupCategorySubject() {
     this.categorySubject
@@ -227,12 +227,12 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     } catch (error) {
         console.error('Search error:', error);
     }
-}
+  }
 
-// Yardımcı metod: Tekrarlanan sonuçları kaldır
-private removeDuplicates<T>(array: T[], key: keyof T): T[] {
-    return Array.from(new Map(array.map(item => [item[key], item])).values());
-}
+  // Yardımcı metod: Tekrarlanan sonuçları kaldır
+  private removeDuplicates<T>(array: T[], key: keyof T): T[] {
+      return Array.from(new Map(array.map(item => [item[key], item])).values());
+  }
 
   private buildFilters(searchTerm: string): Filter[] {
     // Arama terimlerini küçük harfe çevirip boşluklara göre ayırıyoruz
@@ -359,87 +359,114 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
   }
 
   ngOnInit(): void {
-    this.loadCategories();
+    // Remove loading categories on init
+    // Now only setup other initialization tasks if needed
   }
 
   async loadCategories() {
+    if (this.isCategoriesLoaded) {
+      return; // Skip if categories are already loaded
+    }
+    
     this.categoryLoading = true;
     this.showSpinner(SpinnerType.SquareLoader);
     try {
-      const pageRequest: PageRequest = { pageIndex: 0, pageSize: 1000 };
-      const response = await this.categoryService.getCategories(pageRequest);
-      this.categories = response.items;
-      this.organizeCategories();
+      // Sadece ana kategorileri yükle
+      const pageRequest: PageRequest = { pageIndex: -1, pageSize: -1 };
+      const response = await this.categoryService.getMainCategories(pageRequest);
+      this.topLevelCategories = response.items.map(category => ({
+        ...category,
+        subcategories: [] // Başlangıçta boş alt kategoriler
+      }));
+      this.isCategoriesLoaded = true;
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error('Error loading main categories:', error);
     } finally {
       this.categoryLoading = false;
       this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
 
-  organizeCategories() {
-    const categoryMap = new Map<string, CategoryWithSubcategories>();
-
-    this.categories.forEach((category) => {
-      categoryMap.set(category.id, { ...category, subcategories: [] });
-    });
-
-    this.categories.forEach((category) => {
-      if (category.parentCategoryId) {
-        const parentCategory = categoryMap.get(category.parentCategoryId);
-        if (parentCategory) {
-          parentCategory.subcategories?.push(categoryMap.get(category.id)!);
-        }
-      }
-    });
-
-    this.topLevelCategories = Array.from(categoryMap.values()).filter(
-      (category) => !category.parentCategoryId
-    );
-
-    if (this.showOnlyMainCategories) {
-      this.topLevelCategories.forEach(category => {
-        category.subcategories = [];
-      });
-    }
-  }
+  // Bu metod artık kullanılmıyor, ana kategoriler direkt olarak yükleniyor
+  // ve alt kategoriler talep üzerine (hover) ayrı ayrı yükleniyor
 
   async selectCategory(category: CategoryWithSubcategories) {
     this.subcategoryLoading = true;
     this.selectedCategory = category;
     this.showSpinner(SpinnerType.SquareLoader);
+    
     try {
+      // Alt kategorileri sadece onları henüz yüklemediyse yükle
+      if (!category.subcategories || category.subcategories.length === 0) {
+        await this.loadSubcategories(category);
+      }
+      
+      // Önerilen ürünleri yükle
       this.categorySubject.next(category.id);
     } finally {
       this.subcategoryLoading = false;
       this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
+  
+  async loadSubcategories(category: CategoryWithSubcategories) {
+    try {
+      const response = await this.categoryService.getSubCategories(category.id);
+      
+      // Alt kategorileri set et
+      category.subcategories = response.items.map(subCategory => ({
+        ...subCategory,
+        subcategories: [] // Başlangıçta boş alt-alt kategoriler
+      }));
+      
+      // Her bir alt kategori için alt-alt kategorileri yüklemek istersen:
+      // Bu özelliği aktif etmek için aşağıdaki kod bloğunu yorum satırından çıkar
+      /*
+      for (const subCategory of category.subcategories) {
+        try {
+          const nestedResponse = await this.categoryService.getSubCategories(subCategory.id);
+          subCategory.subcategories = nestedResponse.items;
+        } catch (error) {
+          console.error(`Error loading nested subcategories for ${subCategory.name}:`, error);
+        }
+      }
+      */
+    } catch (error) {
+      console.error(`Error loading subcategories for ${category.name}:`, error);
+      category.subcategories = []; // Hata durumunda boş dizi
+    }
+  }
 
   async loadRecommendedProductsWithCache(categoryId: string) {
-      this.recommendedLoading = true;
-      this.showSpinner(SpinnerType.SquareLoader);
-      try {
-        const response = await this.productService.getRandomProductsByCategory(categoryId);
-        this.categoryCache.set(categoryId, response);
-        this.recommendedProducts = response;
-      } catch (error) {
-        console.error(`Error loading recommended products for category ${categoryId}:`, error);
-        this.recommendedProducts = { items: [], index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false };
-      } finally {
-        this.recommendedLoading = false;
-        this.hideSpinner(SpinnerType.SquareLoader);
-      }
+    this.recommendedLoading = true;
+    this.showSpinner(SpinnerType.SquareLoader);
+    try {
+      const response = await this.productService.getRandomProductsByCategory(categoryId);
+      this.categoryCache.set(categoryId, response);
+      this.recommendedProducts = response;
+    } catch (error) {
+      console.error(`Error loading recommended products for category ${categoryId}:`, error);
+      this.recommendedProducts = { items: [], index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false };
+    } finally {
+      this.recommendedLoading = false;
+      this.hideSpinner(SpinnerType.SquareLoader);
     }
-  
+  }
 
   toggleAllProducts() {
     this.isAllProductsOpen = !this.isAllProductsOpen;
+    
+    if (this.isAllProductsOpen && !this.isCategoriesLoaded) {
+      this.loadCategories();
+    }
   }
 
   openAllProducts() {
     this.isAllProductsOpen = true;
+    
+    if (!this.isCategoriesLoaded) {
+      this.loadCategories();
+    }
   }
 
   public closeAllProducts() {
@@ -451,7 +478,6 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
       this.closeAllProducts();
     }
   }
-
 
   navigateToSearchResult(id: string) {
     const url = `/${id}`;
@@ -483,13 +509,8 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
     this.closeAllProducts();
   }
   
-  /* navigateToCategory(categoryId: string) {
-    this.router.navigate(['/category', categoryId]);
-    this.closeAllProducts();
-  } */
   onProductClick(product: Product) {
-    console.log('Product clicked:', product);
-    this.navigateToSearchResult( product.id);
+    this.navigateToSearchResult(product.id);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -506,11 +527,6 @@ private removeDuplicates<T>(array: T[], key: keyof T): T[] {
       this.closeMobileMenu();
     }
   }
-
-  /* toggleMobileMenu() {
-    this.isMobileMenuOpen = !this.isMobileMenuOpen;
-    this.updateBodyScroll();
-  } */
 
   closeMobileMenu() {
     this.isMobileMenuOpen = false;

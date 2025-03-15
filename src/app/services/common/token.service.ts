@@ -142,19 +142,37 @@ export class TokenService {
   // Kullanıcının tüm cihazlardaki token'larını iptal et
   async revokeAllTokens(): Promise<boolean> {
     try {
+      console.log("Tüm cihazlardan çıkış yapılıyor...");
+      
+      // API isteği gönderirken authentication token'ı otomatik olarak eklenecek
       const observable: Observable<any> = this.httpClientService.post(
         {
-          controller: 'auth', // 'token' yerine 'auth' olarak güncellendi
-          action: 'logout-all'
+          controller: 'auth',
+          action: 'logout-all'  // "logout-all" endpoint'ine istek gönder
         },
-        {}
+        {} // Boş body gönder
       );
-
-      await firstValueFrom(observable);
+  
+      const response = await firstValueFrom(observable);
+      console.log("Tüm cihazlardan çıkış yapıldı:", response);
+      
+      // İşlem başarılı
       return true;
     } catch (error) {
-      console.error('All tokens revocation error:', error);
-      return false;
+      // Hata detaylarını logla - bu önemli bir hata ayıklama adımı
+      console.error('Tüm cihazlardan çıkış hatası:', error);
+      
+      // Hata tipini kontrol et
+      if (error.status === 401) {
+        console.error('Yetkilendirme hatası - token geçersiz olabilir');
+        return false;
+      } 
+      else if (error.status === 404) {
+        console.error('Endpoint bulunamadı - "logout-all" endpoint\'i mevcut değil');
+        return false;
+      }
+      
+      return false; // Diğer hata durumlarında başarısız kabul et
     }
   }
   

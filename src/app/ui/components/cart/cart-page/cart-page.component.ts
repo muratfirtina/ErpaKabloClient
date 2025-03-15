@@ -95,7 +95,6 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
       this.subscription.add(
         this.cartStateService.cartData$.subscribe(data => {
           if (data) {
-            console.log("Cart data updated:", data);
             
             // Sadece seçili ürünleri filtrele
             const selectedItems = data.selectedItems.filter(item => item.isChecked);
@@ -214,12 +213,9 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
         cartItems: this.cartData.selectedItems
       };
   
-      console.log('Submitting order:', createOrderRequest);
-  
       const response = await this.orderService.create(
         createOrderRequest,
         response => {
-          console.log('Order created successfully:', response);
           
           // Backend'den güncel sepet verilerini al
           this.cartService.get().then(updatedCart => {
@@ -237,9 +233,6 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
                 position: ToastrPosition.TopRight
               }
             );
-            
-            // Yanıtı konsola yazdıralım
-            console.log('Navigating to order summary with ID:', response.orderId);
             
             // Explicit timeout ile yönlendirmeyi garantiye alalım
             setTimeout(() => {

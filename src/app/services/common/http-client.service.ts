@@ -28,12 +28,12 @@ export class HttpClientService {
      
     }
 
-    return this.httpClient.get<T>(url, {headers: requestParameters.headers, responseType: requestParameters.responseType as "json"})
+    return this.httpClient.get<T>(url, {headers: requestParameters.headers, responseType: requestParameters.responseType as "json" , withCredentials: true })
 
   }
 
   post<T>(requestParameters: Partial<RequestParameters>, body: DynamicQuery | Partial<T> | any): Observable<T> {
-      let url: string = "";
+    let url: string = "";
     if(requestParameters.fullEndpoint){
       url = requestParameters.fullEndpoint;
     }
@@ -41,8 +41,22 @@ export class HttpClientService {
       url = `${this.url(requestParameters)}${requestParameters.queryString ? `?${requestParameters.queryString}` : ""}`.trim();
     }
     
-    return this.httpClient.post<T>(url,body,{headers: requestParameters.headers, responseType: requestParameters.responseType as "json"});
-
+    // CORS hatalarını daha iyi ele al
+    const options = {
+      headers: requestParameters.headers, 
+      responseType: requestParameters.responseType as "json", 
+      withCredentials: true
+    };
+    
+    // CSRF header'ı özel olarak kontrol edin
+    if (requestParameters.headers && requestParameters.headers.has('X-CSRF-TOKEN') && 
+        url.includes('/api/auth/login')) {
+      // Login için CSRF header'ını kaldır
+      const headersWithoutCsrf = requestParameters.headers.delete('X-CSRF-TOKEN');
+      options.headers = headersWithoutCsrf;
+    }
+    
+    return this.httpClient.post<T>(url, body, options);
   }
 
   put<T>(requestParameters: Partial<RequestParameters>, body: Partial<T> | FormData, options?: any): Observable<T>{
@@ -54,7 +68,7 @@ export class HttpClientService {
       url = `${this.url(requestParameters)}${requestParameters.queryString ? `?${requestParameters.queryString}` : ""}`.trim();
     }
     
-    return this.httpClient.put<T>(url,body,{headers: requestParameters.headers, responseType: requestParameters.responseType as "json"});
+    return this.httpClient.put<T>(url,body,{headers: requestParameters.headers, responseType: requestParameters.responseType as "json", withCredentials: true });
 
   }
   delete<T>(requestParameters: Partial<RequestParameters>, id: string): Observable<T> {
@@ -66,7 +80,7 @@ export class HttpClientService {
       url = `${this.url(requestParameters).trim()}/${id}${requestParameters.queryString ? `?${requestParameters.queryString}` : ""}`.trim();
     }
     
-    return this.httpClient.delete<T>(url,{headers: requestParameters.headers, responseType: requestParameters.responseType as "json"});
+    return this.httpClient.delete<T>(url,{headers: requestParameters.headers, responseType: requestParameters.responseType as "json" , withCredentials: true });
     
   }
 }

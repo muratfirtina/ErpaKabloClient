@@ -1,4 +1,3 @@
-
 $font-family-base: 'Source Sans Pro', sans-serif;
 // Variables
 $home-primary-color: #333333;
@@ -6,7 +5,7 @@ $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
 $home-text-color: #333;
 $light-text: #e0e0e0;
-$dark-text: #3333;
+$dark-text: #333333;
 $primary-color: #e53935;
 $secondary-color: #212121;
 $background-color: #ffffff;
@@ -17,19 +16,18 @@ $success-color: #059669;
 $link-color: #0000ee;
 
 $header-height: 100px;
+$header-height-mobile: 70px;
 $header-bg-light: #f8f9fa;
 $header-bg-dark: #333333;
 $border-color: rgba(255, 255, 255, 0.1);
 $accent-red: #9e1818;
 $text-light: #e0e0e0;
+$register-blue: #0d6efd;
 $transition-speed: 0.3s;
 
 .main-header {
   font-family: $font-family-base;
-  
-  * {
-    font-family: inherit;
-  }
+
   height: $header-height;
   background: linear-gradient(135deg, $header-bg-dark 0%, darken($header-bg-dark, 10%) 100%);
   position: relative;
@@ -42,7 +40,7 @@ $transition-speed: 0.3s;
     position: absolute;
     left: 0;
     width: 100%;
-    height: 7px;
+    height: 5px;
     background: $accent-red;
   }
 
@@ -62,7 +60,7 @@ $transition-speed: 0.3s;
     max-width: 1440px;
     position: relative;
 
-    // Diagonal background effect
+    // Diagonal background effect - adjusted to avoid overlap with sign in/register
     &::after {
       content: '';
       position: absolute;
@@ -83,6 +81,15 @@ $transition-speed: 0.3s;
     justify-content: space-between;
     position: relative;
     z-index: 10;
+    
+    // Create more space between logo and user actions
+    & > * {
+      flex: 0 1 auto;
+    }
+    
+    & > .logo {
+      margin-right: auto;
+    }
   }
 
   // Logo section
@@ -92,11 +99,14 @@ $transition-speed: 0.3s;
     gap: 1rem;
     padding-right: 2rem;
     z-index: 10;
+    position: relative;
+    cursor: pointer;
     
     .logo-image {
       max-height: 55px;
       width: auto;
       transition: transform $transition-speed;
+      cursor: pointer;
       
       &:hover {
         transform: scale(1.05);
@@ -118,11 +128,18 @@ $transition-speed: 0.3s;
     display: flex;
     align-items: center;
     gap: 2rem;
+    position: relative;
+    z-index: 15; // Higher z-index to ensure it stays above the diagonal background
 
     .auth-links {
       display: flex;
       align-items: center;
       gap: 1.5rem;
+      position: relative;
+
+      .sign-in{
+        width: 50px;
+      }
 
       a {
         color: $text-light;
@@ -130,7 +147,11 @@ $transition-speed: 0.3s;
         border-radius: 4px;
         transition: all $transition-speed;
         font-size: 0.9rem;
-       
+        cursor: pointer;
+        
+        &.register-link {
+          color: $register-blue;
+        }
       }
 
       .separator {
@@ -146,6 +167,8 @@ $transition-speed: 0.3s;
       padding: 0.5rem 1rem;
       border-radius: 4px;
       transition: all $transition-speed;
+      color: $text-light;
+      cursor: pointer;
       
       &:hover {
         background: rgba(255, 255, 255, 0.1);
@@ -167,6 +190,9 @@ $transition-speed: 0.3s;
       border-radius: 4px;
       position: relative;
       transition: all $transition-speed;
+      border: none;
+      outline: none;
+      cursor: pointer;
       
       &:hover {
         background: rgba(255, 255, 255, 0.1);
@@ -197,11 +223,15 @@ $transition-speed: 0.3s;
   }
 }
 
-// Responsive styles
+// Responsive styles - improved breakpoints
 @media (max-width: 1200px) {
   .main-header {
     .container {
       padding: 0 1rem;
+      
+      &::after {
+        width: 60%;
+      }
     }
     
     .user-actions {
@@ -212,32 +242,88 @@ $transition-speed: 0.3s;
 
 @media (max-width: 992px) {
   .main-header {
-    height: auto;
-    padding: 1rem 0;
-
-    .header-content {
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .logo {
-      padding-right: 0;
-    }
-
-    .user-actions {
-      width: 100%;
-      justify-content: center;
-      flex-wrap: wrap;
+    height: $header-height-mobile;
+    
+    .container::after {
+      width: 70%;
     }
   }
 }
 
 @media (max-width: 768px) {
   .main-header {
+    .container::after {
+      width: 70%;
+    }
+    
+    .header-content {
+      justify-content: space-between;
+    }
+    
+    .logo {
+      padding-right: 0;
+      
+      .logo-image {
+        max-height: 45px;
+      }
+      
+      .logo-text {
+        display:none;
+      }
+    }
+    
+    .user-actions {
+      gap: 0.5rem;
+      
+      .auth-links {
+        gap: 0.8rem;
+        
+        a {
+          font-size: 0.8rem;
+        }
+      }
+      
+      .btn-cart {
+        padding: 0.4rem 0.8rem;
+        
+        .btn-text {
+          display: none;
+        }
+      }
+      
+      .user-profile-link {
+        padding: 0.4rem 0.8rem;
+        
+        .btn-text {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+// Extra small devices
+@media (max-width: 576px) {
+  .main-header {
+    .container::after {
+      width: 54%;
+      left: -5%;
+    }
+    
+    .logo {
+      .logo-image {
+        max-height: 40px;
+        //margin-right: 1rem;
+      }
+    }
+    
     .user-actions {
       .auth-links {
-        flex-direction: column;
+        padding-left: 16px; 
         gap: 0.5rem;
+        .separator {
+          margin: 0 0.2rem;
+        }
       }
     }
   }
@@ -247,7 +333,7 @@ $transition-speed: 0.3s;
 .main-header.dark-theme {
   background: linear-gradient(135deg, darken($header-bg-dark, 5%) 0%, darken($header-bg-dark, 15%) 100%);
   
-  .container::before {
+  .container::after {
     background-color: rgba(255, 255, 255, 0.03);
   }
 }

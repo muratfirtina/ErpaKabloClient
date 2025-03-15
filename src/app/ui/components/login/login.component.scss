@@ -18,10 +18,6 @@ $link-color: #0000ee;
 .login-container {
 
   font-family: $font-family-base;
-  
-  * {
-    font-family: inherit;
-  }
     margin-top: 40px;
     display: flex;
     justify-content: center;
@@ -417,4 +413,89 @@ $dark-input-bg: darken($background-color, 85%);
   }
   @include dark-mode;
 }
+}
+/* Add these to your existing login.component.scss file */
+
+.alert {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.5rem;
+  font-size: 0.9rem;
+  
+  p {
+    margin-bottom: 0.5rem;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+  
+  a.alert-link {
+    color: #5a171c;
+    text-decoration: underline;
+    cursor: pointer;
+    font-weight: 500;
+    
+    &:hover {
+      color: #491319;
+      text-decoration: underline;
+    }
+  }
+}
+
+.alert-warning {
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+}
+
+/* Disabled form elements styling */
+input:disabled {
+  background-color: #f2f2f2;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.btn-login:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Ensure alert is properly positioned in the form flow */
+.loginform form .alert {
+  width: 100%;
+  margin-top: 0.5rem;
+  margin-bottom: 1.25rem;
+  box-sizing: border-box;
+}
+
+/* Media query for dark mode if your app supports it */
+@media (prefers-color-scheme: dark) {
+  .alert-danger {
+    background-color: rgba(220, 53, 69, 0.2);
+    color: #f8d7da;
+    border-color: rgba(220, 53, 69, 0.5);
+    
+    a.alert-link {
+      color: #fff;
+    }
+  }
+  
+  .alert-warning {
+    background-color: rgba(255, 193, 7, 0.2);
+    color: #fff3cd;
+    border-color: rgba(255, 193, 7, 0.5);
+  }
+  
+  input:disabled {
+    background-color: #2c2c2c;
+    color: #aaa;
+  }
 }

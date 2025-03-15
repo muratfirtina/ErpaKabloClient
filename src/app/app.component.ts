@@ -7,6 +7,7 @@ import { SeoService } from './services/common/seo/seo.service';
 import { TokenService } from './services/common/token.service';
 import { AnalyticsService } from './services/common/analytics.services';
 import { environment } from 'src/environments/environment.prod';
+import { TokenCheckService } from './services/common/tokenCheck.service';
 
 @Component({
   selector: 'app-root',
@@ -19,11 +20,13 @@ export class AppComponent implements OnInit {
   constructor(
     private seoService: SeoService,
     private tokenService: TokenService,
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private tokenCheckService: TokenCheckService
     ) {}
 
  async ngOnInit() {
     // Web Vitals izlemeyi başlat
+    this.tokenCheckService.startPeriodicCheck(30)
     const token = this.tokenService.getAccessToken();
   const refreshToken = this.tokenService.getRefreshToken();
   

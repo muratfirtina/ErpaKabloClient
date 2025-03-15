@@ -1,0 +1,326 @@
+$font-family-base: 'Source Sans Pro', sans-serif;
+
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #059669;
+$light-text: #fff;
+
+.container {
+  font-family: $font-family-base;
+}
+
+.card {
+  transition: all 0.3s;
+  overflow: hidden;
+  border-radius: 11px;
+  box-shadow: 0px 20px 30px rgba(0, 0, 0, 0.05),
+              0px 10px 15px rgba(0, 0, 0, 0.03);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.card-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 25px 20px;
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $text-color;
+    margin-bottom: 0.5rem;
+  }
+  
+  .text-muted {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 20px 15px;
+    
+    h2 {
+      font-size: 1.3rem;
+    }
+  }
+}
+
+.card-body {
+  padding: 25px;
+  
+  @media (max-width: 480px) {
+    padding: 20px 15px;
+  }
+}
+
+/* Digit Input Styling */
+.digit-inputs-container {
+  margin: 15px 0;
+}
+
+.digit-input-wrapper {
+  width: 45px;
+  padding: 0 4px;
+  
+  @media (max-width: 480px) {
+    width: 40px;
+    padding: 0 3px;
+  }
+  
+  @media (max-width: 360px) {
+    width: 35px;
+    padding: 0 2px;
+  }
+}
+
+.digit-input {
+  height: 50px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  border: 1px solid $border-color;
+  background-color: $background-color;
+  transition: all 0.2s;
+  padding: 0;
+  
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 0.15rem rgba($primary-color, 0.25);
+    outline: none;
+  }
+  
+  @media (max-width: 576px) {
+    height: 45px;
+    font-size: 1.2rem;
+  }
+  
+  @media (max-width: 360px) {
+    height: 40px;
+    font-size: 1.1rem;
+  }
+}
+
+/* Success State */
+.verification-success-icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: rgba($success-color, 0.1);
+  animation: pulse 1.5s infinite;
+  
+  i {
+    font-size: 3.5rem;
+    color: $success-color;
+  }
+  
+  @media (max-width: 480px) {
+    width: 70px;
+    height: 70px;
+    
+    i {
+      font-size: 3rem;
+    }
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba($success-color, 0.4);
+  }
+  
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 15px rgba($success-color, 0);
+  }
+  
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba($success-color, 0);
+  }
+}
+
+/* Button Styling */
+.btn-primary {
+  background-color: $primary-color;
+  border-color: $primary-color;
+  color: $light-text;
+  font-weight: 500;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  min-height: 44px;
+  
+  &:hover:not(:disabled) {
+    background-color: darken($primary-color, 10%);
+    border-color: darken($primary-color, 10%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+    background-color: darken($primary-color, 5%);
+    border-color: darken($primary-color, 5%);
+  }
+  
+  .spinner-border {
+    width: 1rem;
+    height: 1rem;
+    border-width: 0.15em;
+  }
+}
+
+.btn-link {
+  color: $text-color;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.3s ease;
+  
+  &:hover:not(:disabled) {
+    color: $primary-color;
+    text-decoration: underline;
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  i {
+    margin-right: 5px;
+  }
+}
+
+/* Alert styling */
+.text-danger, .text-warning {
+  font-size: 0.8rem;
+  margin-top: 8px;
+}
+
+.text-danger {
+  color: #dc3545;
+}
+
+.text-warning {
+  color: #ffc107;
+}
+
+/* Token processing spinner */
+.token-processing {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 1000;
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba($primary-color, 0.3);
+    border-radius: 50%;
+    border-top-color: $primary-color;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+  }
+  
+  p {
+    font-weight: 500;
+    color: $text-color;
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Dark mode support */
+$dark-bg: darken($background-color, 90%);
+$dark-form-bg: darken($background-color, 87%);
+$dark-text: lighten($text-color, 60%);
+$dark-border: darken($border-color, 60%);
+$dark-subtitle: darken($light-text, 30%);
+$dark-input-bg: darken($background-color, 85%);
+
+@mixin dark-mode {
+  .card {
+    background-color: $dark-form-bg;
+    box-shadow: 0px 20px 30px rgba(0, 0, 0, 0.2),
+                0px 10px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    background-color: $dark-form-bg;
+    border-bottom-color: $dark-border;
+    
+    h2 {
+      color: $dark-text;
+    }
+    
+    .text-muted {
+      color: $dark-subtitle;
+    }
+  }
+  
+  .digit-input {
+    background-color: $dark-input-bg;
+    border-color: $dark-border;
+    color: $dark-text;
+    
+    &:focus {
+      border-color: lighten($primary-color, 10%);
+      background-color: darken($dark-input-bg, 3%);
+    }
+  }
+  
+  .text-muted {
+    color: $dark-subtitle !important;
+  }
+  
+  .btn-link {
+    color: $dark-text;
+    
+    &:hover:not(:disabled) {
+      color: lighten($primary-color, 15%);
+    }
+  }
+  
+  .text-danger {
+    color: lighten(#dc3545, 20%) !important;
+  }
+  
+  .text-warning {
+    color: lighten(#ffc107, 10%) !important;
+  }
+  
+  .token-processing {
+    background-color: rgba(0, 0, 0, 0.8);
+    
+    p {
+      color: $dark-text;
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  @include dark-mode;
+}

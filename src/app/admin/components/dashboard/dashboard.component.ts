@@ -30,9 +30,13 @@ export class DashboardComponent extends BaseComponent implements OnInit, OnDestr
   constructor(
     spinner: SpinnerService,
     private signalrService: SignalrService,
-    public authService: AuthService
+    private authService: AuthService
   ) {
     super(spinner);
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.isAdmin;
   }
 
   async ngOnInit() {

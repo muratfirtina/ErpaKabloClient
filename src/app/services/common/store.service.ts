@@ -65,12 +65,7 @@ export class StoreService {
   private loadState(): void {
     const savedState = localStorage.getItem('appState');
     if (savedState) {
-      try {
-        this.state.next({ ...this.initialState, ...JSON.parse(savedState) });
-      } catch (error) {
-        console.error('Failed to parse saved state:', error);
-        this.state.next(this.initialState);
-      }
+      this.state.next({ ...this.initialState, ...JSON.parse(savedState) });
     }
   }
 
@@ -80,10 +75,10 @@ export class StoreService {
   }
 
   // State Updates
-  update<K extends keyof AppState>(key: K, value: Partial<AppState[K]>): void {
+  update<K extends keyof AppState>(key: K, value: AppState[K]): void {
     this.state.next({
       ...this.state.value,
-      [key]: { ...this.state.value[key], ...value }
+      [key]: value
     });
   }
 
@@ -103,15 +98,6 @@ export class StoreService {
 
   setTheme(theme: { name: string; isDark: boolean }): void {
     this.update('theme', theme);
-  }
-
-  // Auth State Updates
-  setAuthenticated(isAuthenticated: boolean): void {
-    this.update('auth', { isAuthenticated });
-    // Kullanıcı durumunu da güncelle
-    if (!isAuthenticated) {
-      this.update('user', { isAuthenticated: false, data: null });
-    }
   }
 
   // State Reset

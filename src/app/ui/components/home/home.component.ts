@@ -56,11 +56,8 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
     private carouselService: CarouselService,
     private productService: ProductService,
     private productLikeService: ProductLikeService,
-    private router: Router,
-    private customToasterService: CustomToastrService,
     private productOperations: ProductOperationsService,
     private authService: AuthService,
-    private cartService: CartService
   ) {
     super(spinner);
   }

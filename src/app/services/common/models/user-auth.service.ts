@@ -4,6 +4,8 @@ import { HttpClientService } from '../http-client.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../ui/custom-toastr.service';
 import { AuthService } from '../auth.service';
 import { TokenResponse } from 'src/app/contracts/token/tokenResponse';
+import { VerifyActivationCodeResponse } from 'src/app/contracts/auth/verifyActivationCodeResponse';
+import { ResendActivationCodeResponse } from 'src/app/contracts/auth/resendActivationCodeResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -21,16 +23,6 @@ export class UserAuthService {
     this.loadRateLimitData();
   }
 
-  // Geri uyumluluk için eski metotları koruyoruz
-  // Bu metotlar AuthService'deki yeni metotları çağıracak
-  async login(userNameOrEmail: string, password: string, callBackFunction?: () => void): Promise<any> {
-    try {
-      const success = await this.authService.login(userNameOrEmail, password, callBackFunction);
-      return success ? { succeeded: true } : { succeeded: false };
-    } catch (error) {
-      return { succeeded: false, error };
-    }
-  }
 
   async refreshTokenLogin(refreshToken: string, callBackFunction?: (state) => void): Promise<any> {
     try {
@@ -214,6 +206,76 @@ export class UserAuthService {
     
     if (hasChanges) {
       this.saveRateLimitData();
+    }
+  }
+  async verifyActivationCode(userId: string, code: string): Promise<VerifyActivationCodeResponse> {
+    try {
+      const response = await this.authService.verifyActivationCode(userId, code);
+      return response;
+    } catch (error) {
+      // Hata yanıtını dön
+      return {
+        verified: false,
+        message: error.message || 'Verification failed',
+        remainingAttempts: error.remainingAttempts || 0,
+        exceeded: error.exceeded || false
+      };
+    }
+  }
+  
+  // Aktivasyon kodu yeniden gönder
+  async resendActivationCode(email: string): Promise<ResendActivationCodeResponse> {
+    try {
+      // E-posta için hız sınırlaması kontrol ediliyor
+      const now = Date.now();
+      const lastSentTime = this.lastEmailSentTime[email] || 0;
+      const timeElapsed = now - lastSentTime;
+      
+      if (timeElapsed < this.EMAIL_COOLDOWN_MS) {
+        const secondsRemaining = Math.ceil((this.EMAIL_COOLDOWN_MS - timeElapsed) / 1000);
+        this.toastrService.message(
+          `Please wait ${secondsRemaining} seconds before requesting a new code`,
+          'Warning',
+          {
+            toastrMessageType: ToastrMessageType.Warning,
+            position: ToastrPosition.TopRight,
+          }
+        );
+      }
+      
+      const response = await this.authService.resendActivationCode(email);
+      
+      if (response.success) {
+        // Başarılı olursa e-posta gönderim zamanını güncelle
+        this.lastEmailSentTime[email] = Date.now();
+        this.saveRateLimitData();
+      }
+      
+      return response;
+    } catch (error) {
+      console.error('Email resend error:', error);
+      
+      // Eğer API'den rate limit hatası gelirse, yine de zamanı kaydet
+      if (error.status === 429) {
+        this.lastEmailSentTime[email] = Date.now();
+        this.saveRateLimitData();
+      }
+      
+      return { 
+        success: false, 
+        message: error.message || 'Failed to resend activation code' 
+      };
+    }
+  }
+
+  async verifyActivationToken(token: string): Promise<{ success: boolean; userId?: string; email?: string; message?: string }> {
+    try {
+      return await this.authService.verifyActivationToken(token);
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message || 'Token doğrulama işlemi başarısız oldu.'
+      };
     }
   }
 }
