@@ -1,75 +1,83 @@
-// location.service.ts
-import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
-import { HttpClientService } from './http-client.service';
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
+import { GetListResponse } from "src/app/contracts/getListResponse";
+import { City } from "src/app/contracts/location/city";
+import { Country } from "src/app/contracts/location/country";
+import { District } from "src/app/contracts/location/district";
+import { HttpClientService, RequestParameters } from "./http-client.service";
 
-// Define interfaces for the response data
-interface GeoNamesResponse<T> {
-  geonames: T[];
-  totalResultsCount?: number;
-}
-
-interface LocationItem {
-  id: string;
-  name: string;
-}
-
-// location.service.ts
 @Injectable({
     providedIn: 'root'
   })
   export class LocationService {
-    private readonly API_BASE_URL = 'https://countriesnow.space/api/v0.1';
+    private controller = "locations";
   
-    constructor(private httpClientService: HttpClientService) {}
+    constructor(private httpClientService: HttpClientService) { }
   
-    async getCountries(): Promise<LocationItem[]> {
-      const observable = this.httpClientService.get<any>({
-        fullEndpoint: `${this.API_BASE_URL}/countries`
-      });
-  
-      try {
-        const response = await firstValueFrom(observable);
-        return response.data.map((country: any) => ({
-          id: country.iso2,
-          name: country.country
-        }));
-      } catch (error) {
-        console.error('Ülkeler yüklenirken hata oluştu:', error);
-        return [];
-      }
+    // Country methods
+    getAllCountries(): Observable<GetListResponse<Country>> {
+      const requestParams: Partial<RequestParameters> = {
+        controller: this.controller,
+        action: "countries"
+      };
+      return this.httpClientService.get<GetListResponse<Country>>(requestParams);
     }
   
-    async getCities(countryName: string): Promise<LocationItem[]> {
-      const observable = this.httpClientService.post<any>({
-        fullEndpoint: `${this.API_BASE_URL}/countries/population/cities/filter`
-      }, {
-        country: countryName,
-        order: "asc",
-        orderBy: "name",
-        limit: 100
-      });
-  
-      try {
-        const response = await firstValueFrom(observable);
-        if (response.error === false && response.data && response.data.length > 0) {
-          return response.data.map((city: any) => ({
-            id: city.city,
-            name: city.city
-          }));
-        } else {
-          console.error('Bu ülke için şehir bulunamadı:', countryName);
-          return [];
-        }
-      } catch (error) {
-        console.error('Şehirler yüklenirken hata oluştu:', error);
-        return [];
-      }
+    getCountryById(id: number): Observable<Country> {
+      const requestParams: Partial<RequestParameters> = {
+        controller: this.controller,
+        action: "countries"
+      };
+      return this.httpClientService.get<Country>(requestParams, id.toString());
     }
   
-    async getDistricts(countryName: string, cityName: string): Promise<LocationItem[]> {
-      // API ilçe verisi sağlamıyor
-      console.warn('API ilçe verisi sağlamıyor. İlçe verileri yerel olarak saklanmalı.');
-      return [];
+    // City methods
+    getAllCities(): Observable<GetListResponse<City>> {
+      const requestParams: Partial<RequestParameters> = {
+        controller: this.controller,
+        action: "cities"
+      };
+      return this.httpClientService.get<GetListResponse<City>>(requestParams);
+    }
+  
+    getCityById(id: number): Observable<City> {
+      const requestParams: Partial<RequestParameters> = {
+        controller: this.controller,
+        action: "cities"
+      };
+      return this.httpClientService.get<City>(requestParams, id.toString());
+    }
+  
+    getCitiesByCountryId(countryId: number): Observable<GetListResponse<City>> {
+      const requestParams: Partial<RequestParameters> = {
+        controller: this.controller,
+        action: `countries/${countryId}/cities`
+      };
+      return this.httpClientService.get<GetListResponse<City>>(requestParams);
+    }
+  
+    // District methods
+    getAllDistricts(): Observable<GetListResponse<District>> {
+      const requestParams: Partial<RequestParameters> = {
+        controller: this.controller,
+        action: "districts"
+      };
+      return this.httpClientService.get<GetListResponse<District>>(requestParams);
+    }
+  
+    getDistrictById(id: number): Observable<District> {
+      const requestParams: Partial<RequestParameters> = {
+        controller: this.controller,
+        action: "districts"
+      };
+      return this.httpClientService.get<District>(requestParams, id.toString());
+    }
+  
+    getDistrictsByCityId(cityId: number): Observable<GetListResponse<District>> {
+      const requestParams: Partial<RequestParameters> = {
+        controller: this.controller,
+        action: `cities/${cityId}/districts`
+      };
+      return this.httpClientService.get<GetListResponse<District>>(requestParams);
     }
   }

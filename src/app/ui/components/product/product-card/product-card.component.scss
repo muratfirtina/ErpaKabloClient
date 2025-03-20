@@ -149,9 +149,9 @@ $link-color: #0000ee;
       }
 
       .current-price {
-        font-weight: 600;
-        color: $secondary-color;
-        text-decoration: line-through;
+        font-weight: 300;
+        color: $primary-color;
+        //text-decoration: line-through;
         opacity: 0.7;
       }
     }

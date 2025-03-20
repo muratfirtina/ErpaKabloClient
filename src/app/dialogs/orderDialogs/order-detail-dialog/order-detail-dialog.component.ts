@@ -70,9 +70,10 @@ export class OrderDetailDialogComponent implements OnInit, AfterViewInit {
         adminNote: [this.order.adminNote],
         userAddress: this.fb.group({
           addressLine1: [this.order.userAddress?.addressLine1],
-          city: [this.order.userAddress?.city],
+          countryName: [this.order.userAddress?.countryName],
+          cityName: [this.order.userAddress?.cityName],
+          districtName: [this.order.userAddress?.districtName],
           postalCode: [this.order.userAddress?.postalCode],
-          country: [this.order.userAddress?.country]
         })
       });
 
@@ -193,10 +194,50 @@ export class OrderDetailDialogComponent implements OnInit, AfterViewInit {
     const dialogRef = this.dialog.open(OrderDetailConfirmDialogComponent, { 
       width: '400px' 
     });
-
+  
     dialogRef.closed.subscribe(async result => {
       if (result === 'confirm') {
-        await this.updateOrder();
+        try {
+          // Toplu güncelleme için
+          const updatedItems = this.order.orderItems
+            .filter(item => item.markedForUpdate && !item.markedForDeletion);
+            
+          if (updatedItems.length > 0) {
+            await this.orderService.updateOrderItems(this.order.id, updatedItems);
+          }
+          
+          // Silinecek öğeler
+          const deletedItems = this.order.orderItems
+            .filter(item => item.markedForDeletion);
+            
+          if (deletedItems.length > 0) {
+            for (const item of deletedItems) {
+              await this.orderService.deleteOrderItem(item.id);
+            }
+          }
+          
+          // Sipariş durumu güncellemesi
+          const updatedOrder = { 
+            ...this.order, 
+            ...this.orderForm.value, 
+            totalPrice: this.updatedTotalPrice 
+          };
+  
+          await this.orderService.updateOrder(updatedOrder);
+          
+          this.toastrService.message(
+            "Order updated successfully", 
+            "Success", 
+            { 
+              toastrMessageType: ToastrMessageType.Success,
+              position: ToastrPosition.TopRight 
+            }
+          );
+          
+          this.dialogRef.close('update');
+        } catch (error) {
+          this.handleError("An error occurred while updating the order");
+        }
       }
     });
   }

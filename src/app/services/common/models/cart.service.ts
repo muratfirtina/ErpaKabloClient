@@ -34,13 +34,16 @@ export class CartService {
     }
   }
 
-  private async fetchCartItems(): Promise<CartItem[]> {
+  async fetchCartItems(): Promise<CartItem[]> {
     if (!this.authService.isAuthenticated) {
       return [];
     }
     
+    // Cache kontrolünü devre dışı bırakma parametresi ekleyin
+    const timestamp = new Date().getTime();
     const observable = this.httpClientService.get<CartItem[]>({
-      controller: 'carts'
+      controller: 'carts',
+      queryString: `timestamp=${timestamp}` // Bu, her istekte yeni bir URL oluşturur
     });
     return await firstValueFrom(observable);
   }
@@ -66,19 +69,22 @@ export class CartService {
       if (errorCallBack) errorCallBack('User not authenticated');
       return;
     }
-
+  
     try {
+      // Önce API çağrısı yap
       await firstValueFrom(
         this.httpClientService.post<CreateCartItem>({
           controller: 'carts'
         }, { createCartItem })
       );
       
+      // Ufak bir gecikme ekle - backend'in cache işlemlerini tamamlaması için
+      await new Promise(resolve => setTimeout(resolve, 300));
       
-
+      // Sonra sepeti yeniden yükle
       const updatedCart = await this.fetchCartItems();
       this.cartItemsSubject.next(updatedCart);
-
+  
       if (successCallBack) successCallBack();
     } catch (error) {
       if (errorCallBack) errorCallBack(error as string);

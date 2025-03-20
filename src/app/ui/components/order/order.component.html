@@ -207,8 +207,8 @@
                       <p class="mb-1">{{order.userAddress.name}}</p>
                       <p class="mb-1">{{order.userAddress.addressLine1}}</p>
                       <p class="mb-0">
-                        {{(order.userAddress?.state || order.userAddress?.city || 'N/A')}}/
-                        {{(order.userAddress?.city || order.userAddress?.city || 'N/A')}}
+                        {{(order.userAddress?.districtName || order.userAddress?.cityName || 'N/A')}}/
+                        {{(order.userAddress?.cityName || order.userAddress?.cityName || 'N/A')}}
                     </p>
                     </div>
                   </div>

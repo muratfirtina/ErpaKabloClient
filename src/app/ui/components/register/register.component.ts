@@ -132,8 +132,20 @@ export class RegisterComponent extends BaseComponent implements OnInit {
   get component() { return this.frm.controls; }
 
   async onSubmit(user: User) {
-    if (this.submitted || this.loading) return;
-    this.submitted = true;
+    this.submitted = true; // Form gönderildiğini işaretle
+    
+    // Form geçerli değilse işlemi durdur
+    if (!this.frm.valid) {
+      // Tüm form kontrollerini dokunulmuş olarak işaretle
+      Object.keys(this.frm.controls).forEach(key => {
+        const control = this.frm.get(key);
+        control.markAsTouched();
+        control.updateValueAndValidity();
+      });
+      return;
+    }
+  
+    if (this.loading) return;
     this.loading = true;
     
     // Show spinner
@@ -228,7 +240,7 @@ export class RegisterComponent extends BaseComponent implements OnInit {
       // Reset state, with a short delay to prevent double clicks
       setTimeout(() => {
         this.loading = false;
-        this.submitted = false;
+        // this.submitted = false; // Bunu yoruma alıyoruz ki form hata mesajları görünmeye devam etsin
       }, 1000);
     }
   }

@@ -155,9 +155,8 @@
                                                         {{ address.addressLine1 }}<br>
                                                         <span *ngIf="address.addressLine2">{{ address.addressLine2
                                                             }}<br></span>
-                                                        {{ address.city }}, {{ address.state }} {{ address.postalCode
-                                                        }}<br>
-                                                        {{ address.country }}
+                                                        {{ address.districtName }}, {{ address.cityName }} {{ address.postalCode }}<br>
+                                                        {{ address.countryName }}
                                                     </p>
                                                     <div class="btn-actions">
                                                         <button class="btn btn-outline-primary btn-sm"
@@ -276,285 +275,26 @@
 </div>
 <app-downbar></app-downbar>
 
-<!-- Address Modal -->
-<div class="modal fade" id="addressModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-map-marker-alt mr-2" style="color: #059669;"></i>
-                    {{ isEditMode ? 'Edit Address' : 'Add New Address' }}
-                </h5>
-                <button type="button" class="btn-close" style="margin: 0px 0 8px 20px;" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form [formGroup]="addressForm">
-                    <!-- Address Name -->
-                    <div class="form-field">
-                        <label>Address Name</label>
-                        <div class="input-wrapper">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-tag"></i>
-                            </div>
-                            <input type="text" 
-                                   formControlName="name" 
-                                   class="form-input" 
-                                   [class.is-invalid]="addressForm.get('name')?.invalid && addressForm.get('name')?.touched"
-                                   placeholder="e.g., Home, Work, etc.">
-                        </div>
-                        <div class="error-message" *ngIf="addressForm.get('name')?.invalid && addressForm.get('name')?.touched">
-                            Address name is required
-                        </div>
-                    </div>
+<!-- Address Modal Component -->
+<app-address-modal
+    [isEditMode]="isEditMode"
+    [currentAddress]="currentAddress"
+    (saveAddress)="handleSaveAddress($event)"
+    (cancelEdit)="handleCancelEdit()">
+</app-address-modal>
 
-                    <!-- Street Address -->
-                    <div class="form-field">
-                        <label>Street Address</label>
-                        <div class="input-wrapper">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-map-signs"></i>
-                            </div>
-                            <input type="text" 
-                                   formControlName="addressLine1" 
-                                   class="form-input"
-                                   [class.is-invalid]="addressForm.get('addressLine1')?.invalid && addressForm.get('addressLine1')?.touched"
-                                   placeholder="Enter street address">
-                        </div>
-                        <div class="error-message" *ngIf="addressForm.get('addressLine1')?.invalid && addressForm.get('addressLine1')?.touched">
-                            Street address is required
-                        </div>
-                    </div>
+<!-- Phone Modal Component -->
+<app-phone-modal
+    [isEditMode]="isEditMode"
+    [currentPhone]="currentPhone"
+    (savePhone)="handleSavePhone($event)"
+    (cancelEdit)="handleCancelPhoneEdit()">
+</app-phone-modal>
 
-                    <!-- Address Line 2 -->
-                    <div class="form-field">
-                        <label>Apartment, Suite, etc. (optional)</label>
-                        <div class="input-wrapper">
-                            <div class="icon-wrapper">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <input type="text" 
-                                   formControlName="addressLine2" 
-                                   class="form-input"
-                                   placeholder="Apartment or suite number">
-                        </div>
-                    </div>
-
-                    <!-- City and State -->
-                    <div class="row gx-2">
-                        <div class="col-md-6">
-                            <div class="form-field">
-                                <label>City</label>
-                                <div class="input-wrapper">
-                                    <div class="icon-wrapper">
-                                        <i class="fas fa-city"></i>
-                                    </div>
-                                    <input type="text" 
-                                           formControlName="city" 
-                                           class="form-input"
-                                           [class.is-invalid]="addressForm.get('city')?.invalid && addressForm.get('city')?.touched"
-                                           placeholder="Enter city">
-                                </div>
-                                <div class="error-message" *ngIf="addressForm.get('city')?.invalid && addressForm.get('city')?.touched">
-                                    City is required
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-field">
-                                <label>State/Province</label>
-                                <div class="input-wrapper">
-                                    <div class="icon-wrapper">
-                                        <i class="fas fa-map"></i>
-                                    </div>
-                                    <input type="text" 
-                                           formControlName="state" 
-                                           class="form-input"
-                                           [class.is-invalid]="addressForm.get('state')?.invalid && addressForm.get('state')?.touched"
-                                           placeholder="Enter state">
-                                </div>
-                                <div class="error-message" *ngIf="addressForm.get('state')?.invalid && addressForm.get('state')?.touched">
-                                    State is required
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Postal Code and Country -->
-                    <div class="row gx-2">
-                        <div class="col-md-6">
-                            <div class="form-field">
-                                <label>Postal Code</label>
-                                <div class="input-wrapper">
-                                    <div class="icon-wrapper">
-                                        <i class="fas fa-mail-bulk"></i>
-                                    </div>
-                                    <input type="text" 
-                                           formControlName="postalCode" 
-                                           class="form-input"
-                                           [class.is-invalid]="addressForm.get('postalCode')?.invalid && addressForm.get('postalCode')?.touched"
-                                           placeholder="Enter 5-digit postal code">
-                                </div>
-                                <div class="error-message" *ngIf="addressForm.get('postalCode')?.touched">
-                                    <span *ngIf="addressForm.get('postalCode')?.errors?.['required']">
-                                        Postal code is required
-                                    </span>
-                                    <span *ngIf="addressForm.get('postalCode')?.errors?.['invalidPostalCode']">
-                                        Please enter a valid 5-digit postal code
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-field">
-                                <label>Country</label>
-                                <div class="input-wrapper">
-                                    <div class="icon-wrapper">
-                                        <i class="fas fa-globe"></i>
-                                    </div>
-                                    <input type="text" 
-                                           formControlName="country" 
-                                           class="form-input"
-                                           [class.is-invalid]="addressForm.get('country')?.invalid && addressForm.get('country')?.touched"
-                                           placeholder="Enter country">
-                                </div>
-                                <div class="error-message" *ngIf="addressForm.get('country')?.invalid && addressForm.get('country')?.touched">
-                                    Country is required
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Set as Default -->
-                    <div class="form-field mt-3">
-                        <div class="custom-control custom-switch">
-                            <input type="checkbox" 
-                                   class="custom-control-input" 
-                                   id="defaultAddress"
-                                   formControlName="isDefault">
-                            <label class="custom-control-label" for="defaultAddress">
-                                Set as default address
-                            </label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" 
-                        class="btn btn-primary" 
-                        (click)="saveAddress()" 
-                        [disabled]="addressForm.invalid">
-                    Save Address
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Phone Modal -->
-<div class="modal fade" id="phoneModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-phone mr-2" style="color: #059669;"></i>
-                    {{ isEditMode ? 'Edit Phone' : 'Add New Phone' }}
-                </h5>
-                <button type="button" class="btn-close" style="margin: 0px 0 8px 20px;" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form [formGroup]="phoneForm">
-                    <!-- Phone Name -->
-                    <div class="form-group">
-                        <label>Phone Name</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">
-                                    <i class="fas fa-tag"></i>
-                                </span>
-                            </div>
-                            <input type="text" formControlName="name" class="form-control"
-                                placeholder="e.g., Mobile, Home, Work, etc." [class.is-invalid]="phoneForm.get('name')?.errors?.['required'] && 
-                                     phoneForm.get('name')?.touched">
-                        </div>
-                        <div class="invalid-feedback" *ngIf="phoneForm.get('name')?.errors?.['required'] && 
-                                     phoneForm.get('name')?.touched">
-                            Phone name is required
-                        </div>
-                    </div>
-
-                    <!-- Phone Number -->
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">
-                                    <i class="fas fa-phone"></i>
-                                </span>
-                            </div>
-                            <input type="tel" formControlName="number" class="form-control"
-                                placeholder="Enter  phone number" [class.is-invalid]="(phoneForm.get('number')?.errors?.['required'] || 
-                                      phoneForm.get('number')?.errors?.['invalidPhone']) && 
-                                      phoneForm.get('number')?.touched">
-                        </div>
-                        <div class="invalid-feedback">
-                            <span *ngIf="phoneForm.get('number')?.errors?.['required'] && 
-                                      phoneForm.get('number')?.touched">
-                                Phone number is required
-                            </span>
-                            <span *ngIf="phoneForm.get('number')?.errors?.['invalidPhone'] && 
-                                      phoneForm.get('number')?.touched">
-                                Please enter a valid phone number (05XX XXX XX XX)
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Set as Default -->
-                    <div class="form-group mb-0">
-                        <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" id="defaultPhone"
-                                formControlName="isDefault">
-                            <label class="custom-control-label" for="defaultPhone">
-                                Set as default phone number
-                            </label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times mr-2"></i>
-                    Cancel
-                </button>
-                <button type="button" class="btn btn-primary" (click)="savePhone()" 
-                    [disabled]="phoneForm.invalid">
-                    <i class="fas fa-check mr-2"></i>
-                    Save Phone
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Delete Confirmation Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Delete Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>{{ deleteConfirmMessage }}</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
-            </div>
-        </div>
-    </div>
-</div>
+<!-- Delete Confirmation Modal Component -->
+<app-delete-confirm-modal
+    [message]="deleteConfirmMessage"
+    (confirmDelete)="handleDeleteConfirm()"
+    (cancelDelete)="handleCancelDelete()">
+</app-delete-confirm-modal>
+<app-footer></app-footer>

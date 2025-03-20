@@ -55,7 +55,7 @@
           </div>
 
           <div class="product-price-controls">
-            <div class="price-info">
+            <!-- <div class="price-info">
               <div class="unit-price">
                 <span class="price-label">U.Price:</span>
                 <span class="price-value">{{ cartItem.unitPrice | currency:'USD':'symbol':'1.2-2' }}</span>
@@ -64,7 +64,7 @@
                 <span class="price-label">Total:</span>
                 <span class="price-value">{{ cartItem.quantityPrice | currency:'USD':'symbol':'1.2-2' }}</span>
               </div>
-            </div>
+            </div> -->
 
             <div class="controls-wrapper">
               <div class="quantity-controls">
@@ -99,10 +99,10 @@
       <div class="selected-count">
         Selected Products: {{ selectedItemCount }}
       </div>
-      <div class="total-price">
+      <!-- <div class="total-price">
         <span>Total Price:</span>
         <span>{{ totalSelectedCartPrice | currency:'USD':'symbol':'1.2-2' }}</span>
-      </div>
+      </div> -->
     </div>
     <button class="checkout-button" 
             (click)="shoppingCompleting()" 

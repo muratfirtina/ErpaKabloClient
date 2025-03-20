@@ -10,11 +10,12 @@ import {
 } from 'src/app/services/ui/custom-toastr.service';
 import { COMPANY_INFO } from 'src/app/config/company-info.config';
 import { RouterModule } from '@angular/router';
+import { PrivacyPolicyComponent } from 'src/app/dialogs/privacy/privacy-policy/privacy-policy.component';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule,RouterModule,PrivacyPolicyComponent],
   templateUrl: './footer.component.html',
   styleUrl: './footer.component.scss',
 })

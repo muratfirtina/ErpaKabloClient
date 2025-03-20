@@ -181,7 +181,7 @@ export class ValidationService {
     return Object.keys(errors).length ? errors : null;
   }
   
-  cityValidator = (control: AbstractControl): ValidationErrors | null => {
+  /* cityValidator = (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) return null;
   
     const value = control.value.toString().trim();
@@ -197,7 +197,7 @@ export class ValidationService {
     }
   
     return Object.keys(errors).length > 0 ? errors : null;
-  }
+  } */
   
   addressLineValidator = (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) return null;

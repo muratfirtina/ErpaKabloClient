@@ -20,7 +20,7 @@ export class TokenCheckService implements OnDestroy {
   ) {}
 
   // Periyodik token kontrolünü başlat
-  startPeriodicCheck(intervalSeconds: number = 30): void {
+  startPeriodicCheck(intervalSeconds: number = 300): void {
     // Önceki interval'ı temizle
     this.stopPeriodicCheck();
     
@@ -40,8 +40,8 @@ export class TokenCheckService implements OnDestroy {
       // Özel validate-token endpoint'ine istek yaparak token'ın hala geçerli olup olmadığını kontrol et
       const observable = this.httpClientService.get<{isValid: boolean}>(
         {
-          controller: 'auth',
-          action: 'validate-token'
+          controller: 'token',
+          action: 'validate'
         }
       );
       

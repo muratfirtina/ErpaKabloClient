@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Observable, firstValueFrom } from 'rxjs';
+import { Observable, catchError, defaultIfEmpty, firstValueFrom } from 'rxjs';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClientService } from './http-client.service';
 import { SecurityConfig, DEFAULT_SECURITY_CONFIG } from '../../config/security.config';
-import { TokenResponse } from 'src/app/contracts/token/tokenResponse';
 import { StoreService } from './store.service';
+import { VerifyActivationCodeResponse } from 'src/app/contracts/auth/verifyActivationCodeResponse';
+import { ResendActivationCodeResponse } from 'src/app/contracts/auth/resendActivationCodeResponse';
+import { VerifyActivationTokenResponse } from 'src/app/contracts/token/verifyActivationTokenResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -94,7 +96,7 @@ export class TokenService {
     try {
       const observable: Observable<any> = this.httpClientService.post(
         {
-          controller: 'auth', // 'token' yerine 'auth' olarak güncellendi
+          controller: 'token', // Changed to token controller
           action: 'refresh'
         },
         { refreshToken }
@@ -125,7 +127,7 @@ export class TokenService {
     try {
       const observable: Observable<any> = this.httpClientService.post(
         {
-          controller: 'auth', // 'token' yerine 'auth' olarak güncellendi
+          controller: 'auth', // Keep this with auth controller since it's a logout operation
           action: 'logout'
         },
         { refreshToken }
@@ -147,8 +149,8 @@ export class TokenService {
       // API isteği gönderirken authentication token'ı otomatik olarak eklenecek
       const observable: Observable<any> = this.httpClientService.post(
         {
-          controller: 'auth',
-          action: 'logout-all'  // "logout-all" endpoint'ine istek gönder
+          controller: 'token', // Changed to token controller
+          action: 'logout-all'
         },
         {} // Boş body gönder
       );
@@ -181,8 +183,8 @@ export class TokenService {
     try {
       const observable: Observable<any> = this.httpClientService.post(
         {
-          controller: 'auth', // 'token' yerine 'auth' olarak güncellendi
-          action: `admin/users/${userId}/revoke-tokens`
+          controller: 'token', // Changed to token controller
+          action: `admin/users/${userId}/revoke`
         },
         {}
       );
@@ -190,8 +192,146 @@ export class TokenService {
       await firstValueFrom(observable);
       return true;
     } catch (error) {
-      console.error(`Error revoking tokens for user ${userId}:`, error);
+      console.error(`Error revoking token for user ${userId}:`, error);
       return false;
+    }
+  }
+  
+  // Token doğrulama
+  async validateToken(): Promise<boolean> {
+    try {
+      const observable: Observable<any> = this.httpClientService.get(
+        {
+          controller: 'token', // Changed to token controller
+          action: 'validate'
+        }
+      );
+
+      const response = await firstValueFrom(observable);
+      return response?.isValid === true;
+    } catch (error) {
+      console.error('Token validation error:', error);
+      return false;
+    }
+  }
+  
+  // Aktivasyon kodu doğrulama
+  // token.service.ts
+// token.service.ts
+async verifyActivationCode(userId: string, code: string): Promise<VerifyActivationCodeResponse> {
+  try {
+    console.log('Sending verification request to server:', { userId, code });
+    
+    const observable = this.httpClientService.post<VerifyActivationCodeResponse>(
+      {
+        controller: 'token',
+        action: 'activation-code/verify'
+      },
+      { userId, code }
+    );
+
+    // EMPTY hatası almamak için defaultIfEmpty operatörü ekleyelim
+    const response = await firstValueFrom(
+      observable.pipe(
+        catchError(error => {
+          console.error('HTTP Error in verification:', error);
+          // HTTP hatası olduğunda, hatayı dışarı fırlat
+          throw error;
+        }),
+        defaultIfEmpty({ verified: false, message: 'No response from server' })
+      )
+    );
+    
+    console.log('Server response:', response);
+    return response;
+  } catch (error) {
+    console.error('Activation code verification error:', error);
+    
+    // HTTP hatası mı kontrol et
+    if (error.status) {
+      if (error.status === 429) {
+        // 429 Too Many Requests hatası
+        return {
+          verified: false,
+          message: error.error?.message || 'Too many attempts',
+          remainingAttempts: 0,
+          exceeded: true,
+          requiresNewCode: error.error?.requiresNewCode || true
+        };
+      }
+      
+      // Diğer HTTP hataları
+      return { 
+        verified: false,
+        message: error.error?.message || 'An error occurred during verification',
+        remainingAttempts: error.error?.remainingAttempts
+      };
+    }
+    
+    // Ağ veya diğer hatalar
+    return { 
+      verified: false,
+      message: 'An error occurred during verification'
+    };
+  }
+}
+
+  // Aktivasyon kodu yeniden gönderme
+  async resendActivationCode(email: string): Promise<ResendActivationCodeResponse> {
+    try {
+      const observable = this.httpClientService.post<ResendActivationCodeResponse>(
+        {
+          controller: 'token', // Changed to token controller
+          action: 'activation-code/resend'
+        },
+        { email }
+      );
+
+      const response = await firstValueFrom(observable);
+      return response || { success: true, message: 'Activation code sent' };
+    } catch (error) {
+      console.error('Resend activation code error:', error);
+      
+      if (error.status === 429) {
+        return { 
+          success: false, 
+          message: error.error?.message || 'Too many requests. Please try again later.' 
+        };
+      }
+      
+      return { 
+        success: false, 
+        message: 'Failed to send activation code'
+      };
+    }
+  }
+
+  // Aktivasyon tokeni doğrulama
+  async verifyActivationToken(token: string): Promise<VerifyActivationTokenResponse> {
+    try {
+      const observable = this.httpClientService.get<VerifyActivationTokenResponse>(
+        {
+          controller: 'token', // Changed to token controller
+          action: 'activation/verify',
+          queryString: `token=${encodeURIComponent(token)}`
+        }
+      );
+
+      const response = await firstValueFrom(observable);
+      
+      return {
+        success: response?.success || false,
+        userId: response?.userId,
+        email: response?.email,
+        message: response?.message
+      };
+    } catch (error) {
+      console.error('Activation token verification error:', error);
+      
+      return {
+        success: false,
+        message: error.error?.message || 'Token doğrulama işlemi başarısız oldu.'
+      };
     }
   }
   

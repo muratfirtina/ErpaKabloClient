@@ -3,4 +3,5 @@ export interface VerifyActivationCodeResponse {
     message?: string;
     remainingAttempts?: number;
     exceeded?: boolean;
+    requiresNewCode?: boolean;
   }

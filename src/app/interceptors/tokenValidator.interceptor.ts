@@ -31,8 +31,8 @@ export class TokenValidatorInterceptor implements HttpInterceptor {
             
             // Kullanıcıya bildir
             this.toastrService.message(
-              'Oturumunuz başka bir cihazdan sonlandırıldı',
-              'Oturum Sonlandırıldı', 
+              'Your session has been terminated from another device',
+              'Session terminated', 
               {
                 toastrMessageType: ToastrMessageType.Warning,
                 position: ToastrPosition.TopRight
@@ -41,8 +41,8 @@ export class TokenValidatorInterceptor implements HttpInterceptor {
           } else if (error.status === 401) {
             // Standart yetkilendirme hatası
             this.toastrService.message(
-              'Oturumunuz sona erdi, yeniden giriş yapın',
-              'Oturum Süresi Doldu', 
+              'Your session is over, log in again',
+              'The session time is full',
               {
                 toastrMessageType: ToastrMessageType.Warning,
                 position: ToastrPosition.TopRight

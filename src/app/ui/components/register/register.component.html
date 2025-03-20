@@ -121,11 +121,11 @@
                formControlName="agreeToTerms" 
                class="form-check-input"
                id="agreeToTerms"
-               [ngClass]="{'is-invalid': (submitted && component['agreeToTerms'].invalid)}">
-        <label class="form-check-label" for="agreeToTerms">
+               [ngClass]="{'is-invalid': (submitted && component['agreeToTerms'].invalid) || (frm.get('agreeToTerms').touched && frm.get('agreeToTerms').invalid)}">
+               <label class="form-check-label" for="agreeToTerms">
           I agree to the <app-terms-of-use></app-terms-of-use> and <app-privacy-policy></app-privacy-policy>
         </label>
-        <div class="invalid-feedback" *ngIf="submitted && component['agreeToTerms'].invalid">
+        <div class="invalid-feedback" *ngIf="(submitted && component['agreeToTerms'].invalid) || (frm.get('agreeToTerms').touched && frm.get('agreeToTerms').invalid)">
           You must agree to the Terms of Use and Privacy Policy to continue.
         </div>
       </div>

@@ -10,7 +10,7 @@
         <div class="card-header bg-white text-center">
           <img [src]="companyLogoUrl" alt="Logo" class="mb-3" style="height: 50px;" routerLink="/">
           <h2 class="fw-bold">Email Verification</h2>
-          <p class="text-muted" *ngIf="!activationSuccess && !attemptsExceeded">
+          <p class="text-muted" *ngIf="!activationSuccess && !showTooManyAttemptsError">
             <span class="d-block mb-1">Enter the 6-digit code sent to your email</span>
             <small>{{email}}</small>
           </p>
@@ -32,12 +32,12 @@
           </div>
           
           <!-- Exceeded Attempts View -->
-          <div *ngIf="attemptsExceeded && !activationSuccess" class="text-center py-4">
+          <div *ngIf="showTooManyAttemptsError && !activationSuccess" class="text-center py-4">
             <div class="mb-4">
               <i class="bi bi-exclamation-triangle-fill text-warning" style="font-size: 3.5rem;"></i>
             </div>
             <h3 class="mb-3 fw-bold">Too Many Attempts</h3>
-            <p class="text-muted mb-4">You've made too many failed attempts. Please request a new verification code.</p>
+            <p class="text-muted mb-4">You've made too many failed attempts. Your activation code has been invalidated. Please request a new verification code.</p>
             <button 
               class="btn btn-primary px-5" 
               [disabled]="isResending"
@@ -51,7 +51,7 @@
           </div>
           
           <!-- Email resend option -->
-          <div *ngIf="showResendOption && !activationSuccess && !attemptsExceeded" class="py-4">
+          <div *ngIf="showResendOption && !activationSuccess && !showTooManyAttemptsError" class="py-4">
             <h3 class="text-center mb-3 fw-bold">Request New Code</h3>
             <p class="text-center text-muted mb-4">Enter your email address to receive a new activation code</p>
             
@@ -79,7 +79,7 @@
           </div>
           
           <!-- Verification Form -->
-          <form [formGroup]="codeForm" (ngSubmit)="onSubmit()" *ngIf="!activationSuccess && !attemptsExceeded && !showResendOption">
+          <form [formGroup]="codeForm" (ngSubmit)="onSubmit()" *ngIf="!activationSuccess && !showTooManyAttemptsError && !showResendOption">
             <!-- Hidden main input field for the combined code -->
             <input type="hidden" formControlName="code">
             

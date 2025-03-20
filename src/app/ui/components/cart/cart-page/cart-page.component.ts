@@ -3,6 +3,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import * as bootstrap from 'bootstrap';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { CartSummary } from 'src/app/contracts/cart/cartSummary';
 import { PhoneNumber } from 'src/app/contracts/user/phoneNumber';
@@ -20,11 +21,24 @@ import { NavbarComponent } from '../../navbar/navbar.component';
 import { CartService } from 'src/app/services/common/models/cart.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../../footer/footer.component';
+import { AddressModalComponent } from '../../user/address-modal/address-modal.component';
+import { PhoneModalComponent } from '../../user/phone-modal/phone-modal.component';
+
 
 @Component({
   selector: 'app-cart-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule, NavbarComponent, MainHeaderComponent, DownbarComponent, FooterComponent],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    RouterModule, 
+    NavbarComponent, 
+    MainHeaderComponent, 
+    DownbarComponent, 
+    FooterComponent,
+    AddressModalComponent,
+    PhoneModalComponent
+  ],
   templateUrl: './cart-page.component.html',
   styleUrl: './cart-page.component.scss'
 })
@@ -34,11 +48,11 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
   phones: PhoneNumber[] = [];
   
   cartForm: FormGroup;
-  addressForm: FormGroup;
-  phoneForm: FormGroup;
-
-  showAddressModal: boolean = false;
-  showPhoneModal: boolean = false;
+  
+  // For modals
+  isEditMode: boolean = false;
+  currentAddress: UserAddress | null = null;
+  currentPhone: PhoneNumber | null = null;
 
   private subscription = new Subscription();
 
@@ -59,28 +73,15 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
     this.initializeForms();
   }
 
+  private getModal(id: string): any {
+    return document.getElementById(id);
+  }
+
   private initializeForms(): void {
     this.cartForm = this.formBuilder.group({
       addressId: ['', Validators.required],
       phoneNumberId: ['', Validators.required],
       description: ['']
-    });
-
-    this.addressForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      addressLine1: ['', Validators.required],
-      addressLine2: [''],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      postalCode: ['', [Validators.required, this.validationService.postalCodeValidator]],
-      country: ['', Validators.required],
-      isDefault: [false]
-    });
-
-    this.phoneForm = this.formBuilder.group({
-      name: ['', Validators.required],
-      number: ['', [Validators.required, this.validationService.phoneNumberValidator]],
-      isDefault: [false]
     });
   }
 
@@ -108,14 +109,6 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
             
             // Eğer hiç seçili ürün kalmadıysa ana sayfaya yönlendir
             if (!selectedItems.length) {
-              this.toastrService.message(
-                'No items selected in cart',
-                'Warning',
-                {
-                  toastrMessageType: ToastrMessageType.Warning,
-                  position: ToastrPosition.TopRight
-                }
-              );
               this.router.navigate(['/']);
               return;
             }
@@ -124,14 +117,6 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
       );
 
       if (!this.cartData || !this.cartData.selectedItems?.length) {
-        this.toastrService.message(
-          'No items selected in cart',
-          'Warning',
-          {
-            toastrMessageType: ToastrMessageType.Warning,
-            position: ToastrPosition.TopRight
-          }
-        );
         this.router.navigate(['/']);
         return;
       }
@@ -143,6 +128,7 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
       this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
+  
   private async loadAddressesAndPhones(): Promise<void> {
     try {
       // Paralel olarak her iki veriyi de yükle
@@ -255,90 +241,85 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
     }
   }
 
-  async onAddressSubmit(): Promise<void> {
-    if (this.addressForm.invalid) {
-      this.toastrService.message(
-        'Please check the address form fields',
-        'Validation Error',
-        {
-          toastrMessageType: ToastrMessageType.Warning,
-          position: ToastrPosition.TopRight
-        }
-      );
-      return;
-    }
+  // Address Modal Methods
+  showAddAddressForm() {
+    this.isEditMode = false;
+    this.currentAddress = null;
+    const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('addressModal'));
+    modal.show();
+  }
 
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-
+  async handleSaveAddress(addressData: UserAddress) {
     try {
-      const newAddress = await this.userAddressService.addAddress(this.addressForm.value);
-      this.addresses.push(newAddress);
-      this.cartForm.patchValue({ addressId: newAddress.id });
-      
-      this.toastrService.message(
-        'Address added successfully',
-        'Success',
-        {
+      if (this.isEditMode && addressData.id) {
+        await this.userAddressService.updateAddress(addressData.id, addressData);
+        this.toastrService.message('Address update success', 'Success', {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight
-        }
-      );
-      
-      this.showAddressModal = false;
-      this.addressForm.reset();
+        });
+      } else {
+        await this.userAddressService.addAddress(addressData);
+        this.toastrService.message('New Address added', 'Success', {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        });
+      }
+      // Reload addresses to get the updated list
+      await this.loadAddressesAndPhones();
     } catch (error) {
-      this.errorService.handleError(error, 'Error adding new address');
-    } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.toastrService.message('Error', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
     }
   }
 
-  async onPhoneSubmit(): Promise<void> {
-    if (this.phoneForm.invalid) {
-      this.toastrService.message(
-        'Please check the phone form fields',
-        'Validation Error',
-        {
-          toastrMessageType: ToastrMessageType.Warning,
-          position: ToastrPosition.TopRight
-        }
-      );
-      return;
-    }
+  handleCancelEdit() {
+    this.isEditMode = false;
+    this.currentAddress = null;
+  }
 
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+  // Phone Modal Methods
+  showAddPhoneForm() {
+    this.isEditMode = false;
+    this.currentPhone = null;
+    const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('phoneModal'));
+    modal.show();
+  }
 
+  async handleSavePhone(phoneData: PhoneNumber) {
     try {
-      const newPhone = await this.phoneNumberService.addPhone(this.phoneForm.value);
-      this.phones.push(newPhone);
-      this.cartForm.patchValue({ phoneNumberId: newPhone.id });
-      
-      this.toastrService.message(
-        'Phone number added successfully',
-        'Success',
-        {
+      if (this.isEditMode && phoneData.id) {
+        await this.phoneNumberService.updatePhone(phoneData.id, phoneData);
+        this.toastrService.message('Phone number updated', 'Success', {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight
-        }
-      );
-      
-      this.showPhoneModal = false;
-      this.phoneForm.reset();
+        });
+      } else {
+        await this.phoneNumberService.addPhone(phoneData);
+        this.toastrService.message('New phone number added', 'Success', {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        });
+      }
+      // Reload phones to get the updated list
+      await this.loadAddressesAndPhones();
     } catch (error) {
-      this.errorService.handleError(error, 'Error adding new phone');
-    } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.toastrService.message('Error', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
     }
+  }
+  
+  handleCancelPhoneEdit() {
+    this.isEditMode = false;
+    this.currentPhone = null;
   }
 
   async setDefaultAddress(id: string): Promise<void> {
     try {
       await this.userAddressService.setDefaultAddress(id);
-      this.addresses = this.addresses.map(address => ({
-        ...address,
-        isDefault: address.id === id
-      }));
-
       this.toastrService.message(
         'Default address updated',
         'Success',
@@ -347,6 +328,7 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
           position: ToastrPosition.TopRight
         }
       );
+      await this.loadAddressesAndPhones();
     } catch (error) {
       this.errorService.handleError(error, 'Error setting default address');
     }
@@ -355,11 +337,6 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
   async setDefaultPhone(id: string): Promise<void> {
     try {
       await this.phoneNumberService.setDefaultPhone(id);
-      this.phones = this.phones.map(phone => ({
-        ...phone,
-        isDefault: phone.id === id
-      }));
-
       this.toastrService.message(
         'Default phone updated',
         'Success',
@@ -368,15 +345,18 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
           position: ToastrPosition.TopRight
         }
       );
+      await this.loadAddressesAndPhones();
     } catch (error) {
       this.errorService.handleError(error, 'Error setting default phone');
     }
   }
+  
   getTotalPrice(): number {
     return this.cartData?.selectedItems
       ?.filter(item => item.isChecked)
       .reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0) || 0;
   }
+  
   getSelectedItemCount(): number {
     return this.cartData?.selectedItems?.filter(item => item.isChecked).length || 0;
   }
@@ -389,30 +369,7 @@ export class CartPageComponent extends BaseComponent implements OnInit, OnDestro
     return this.phones.find(p => p.id === this.cartForm.get('phoneNumberId')?.value);
   }
 
-  openAddressModal(): void {
-    this.showAddressModal = true;
-    document.body.classList.add('modal-open');
-  }
-
-  closeAddressModal(): void {
-    this.showAddressModal = false;
-    document.body.classList.remove('modal-open');
-    this.addressForm.reset();
-  }
-
-  openPhoneModal(): void {
-    this.showPhoneModal = true;
-    document.body.classList.add('modal-open');
-  }
-
-  closePhoneModal(): void {
-    this.showPhoneModal = false;
-    document.body.classList.remove('modal-open');
-    this.phoneForm.reset();
-  }
-
   ngOnDestroy() {
     this.subscription.unsubscribe();
-    document.body.classList.remove('modal-open');
   }
 }

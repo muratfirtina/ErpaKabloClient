@@ -51,8 +51,8 @@ export const appConfig: ApplicationConfig = {
       JwtModule.forRoot({
         config: {
           tokenGetter: () => localStorage.getItem("accessToken"),
-          allowedDomains: ["localhost:5183","www.tumdex.com", "tumdex.com"],
-          disallowedRoutes: ["localhost:5183/api/auth/login","www.tumdex.com/api/auth/login", "tumdex.com/api/auth/login"]
+          allowedDomains: ["localhost:5001","www.tumdex.com", "tumdex.com"],
+          disallowedRoutes: ["localhost:5001/api/auth/login","www.tumdex.com/api/auth/login", "tumdex.com/api/auth/login"]
         }
       })
     ),
@@ -75,7 +75,7 @@ export const appConfig: ApplicationConfig = {
     ),
     { 
       provide: "baseUrl", 
-      useValue: "https://localhost:5183/api", 
+      useValue: "https://www.tumdex.com/api", 
       multi: true 
     }, 
     provideAnimationsAsync(),

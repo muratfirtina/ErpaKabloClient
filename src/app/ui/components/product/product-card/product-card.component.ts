@@ -30,17 +30,20 @@ export class ProductCardComponent {
     this.productOperations.toggleLike(this.product);
   }
 
-  onAddToCart(event: Event) {
+  addToCart(event: Event) {
     event.stopPropagation();
     this.productOperations.addToCart(this.product);
   }
 
   formatCurrency(value: number | undefined): string {
-    if (value === undefined) return 'N/A';
+    if (value === undefined || value === 0) return '*Please Request Quote';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
     }).format(value);
+  }
+  isProductAvailable(product: Product): boolean {
+    return product.stock === -1 || product.stock > 0;
   }
   
 }

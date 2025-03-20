@@ -1,4 +1,4 @@
-// order-page.component.scss
+// cart-page.component.scss
 $home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
@@ -476,6 +476,9 @@ $light: #f8fafc;
         cursor: not-allowed;
       }
     }
+  }
+  .information-text{
+    color: #e53935;
   }
 }
 

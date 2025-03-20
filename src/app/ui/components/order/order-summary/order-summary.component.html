@@ -53,8 +53,8 @@
       <div class="success-icon">
         <i class="fas fa-check-circle"></i>
       </div>
-      <h1>Your Order Has Been Created Successfully!</h1>
-      <p class="order-code">Order Number: <strong>{{orderSummary?.orderCode}}</strong></p>
+      <h1>Your Price Quote Request Has Been Created Successfully!</h1>
+      <p class="order-code">Quote Number: <strong>{{orderSummary?.orderCode}}</strong></p>
     </div>
     <!-- Sipariş Detayları -->
     <div class="order-details">
@@ -95,8 +95,8 @@
             <p>{{orderSummary?.userAddress?.name}}</p>
             <p>{{orderSummary?.userAddress?.addressLine1}}</p>
             <p *ngIf="orderSummary?.userAddress?.addressLine2">{{orderSummary?.userAddress?.addressLine2}}</p>
-            <p>{{orderSummary?.userAddress?.city}}, {{orderSummary?.userAddress?.state}} {{orderSummary?.userAddress?.postalCode}}</p>
-            <p>{{orderSummary?.userAddress?.country}}</p>
+            <p>{{orderSummary?.userAddress?.cityName}}, {{orderSummary?.userAddress?.districtName}} {{orderSummary?.userAddress?.postalCode}}</p>
+            <p>{{orderSummary?.userAddress?.countryName}}</p>
           </div>
           <div class="contact-info">
             <h4>Contact Information</h4>
@@ -108,7 +108,7 @@
 
       <!-- Sipariş Notu -->
       <div class="notes-section" *ngIf="orderSummary?.description">
-        <h3>Order Note</h3>
+        <h3>Quote Note</h3>
         <div class="note-content">
           {{orderSummary?.description}}
         </div>
@@ -138,7 +138,7 @@
     <div class="action-buttons">
       <button class="btn btn-outline-primary" (click)="goToOrders()">
         <i class="fas fa-list me-2"></i>
-        My Orders
+        My Quotes
       </button>
       <button class="btn btn-primary" (click)="goToHome()">
         <i class="fas fa-home me-2"></i>

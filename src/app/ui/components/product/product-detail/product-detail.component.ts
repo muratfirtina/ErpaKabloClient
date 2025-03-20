@@ -375,26 +375,9 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
       return hasMatchingFeature && hasSizeMatch;
     }) || null;
   }
-
-  
-  
-  /* private getProductImageUrl(product: Product | null): string {
-    if (!product) return this.defaultProductImage;
-    
-    // Önce showcase resmi kontrol et
-    if (product.showcaseImage?.url) {
-      return product.showcaseImage.url;
-    }
-    
-    // Showcase resmi yoksa, productImageFiles'dan showcase olan veya ilk resmi al
-    if (product.productImageFiles?.length > 0) {
-      const showcaseImage = product.productImageFiles.find(img => img.showcase);
-      return showcaseImage?.url || product.productImageFiles[0].url;
-    }
-    
-    return this.defaultProductImage;
-  } */
-  
+  isProductAvailable(product: Product): boolean {
+    return product.stock === -1 || product.stock > 0;
+  }
 
   // Özellik seçimi ve kontrolü
   onFeatureSelect(featureName: string, featureValue: string) {
@@ -483,12 +466,12 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
 
   // Yardımcı metodlar
   formatCurrency(value: number | undefined): string {
-    if (value === undefined) return 'N/A';
+    if (value === undefined || value === 0) return '*Please Request Quote';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
     }).format(value);
-}
+  }
 
   updateBreadcrumbs() {
     if (!this.product) return;

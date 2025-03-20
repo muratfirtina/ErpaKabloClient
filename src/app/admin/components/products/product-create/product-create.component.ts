@@ -109,9 +109,7 @@ export class ProductCreateComponent implements OnInit {
     private spinnerService: NgxSpinnerService,
     private customToasterService: CustomToastrService,
     private dialogService: DialogService,
-    private dialog: MatDialog,
     private changeDetectorRef: ChangeDetectorRef,
-    private cdr: ChangeDetectorRef
   ) {
     this.createForm();
     this.setupBrandSearch();
@@ -337,7 +335,7 @@ export class ProductCreateComponent implements OnInit {
   toggleCategory(category: CategoryNode, event: Event) {
     event.stopPropagation();
     category.expanded = !category.expanded;
-    this.cdr.detectChanges(); // Değişiklikleri tetikle
+    this.changeDetectorRef.detectChanges(); // Değişiklikleri tetikle
   }
 
   async selectCategory(category: CategoryNode) {
@@ -413,7 +411,7 @@ export class ProductCreateComponent implements OnInit {
       selected: [false],
       combination: [combination],
       price: [0, [Validators.required, Validators.min(0)]],
-      stock: [0, [Validators.required, Validators.min(0)]],
+      stock: [-1, [Validators.required, Validators.min(-1)]],
       sku: ['', Validators.required],
       title: [''],
       description: [''],
@@ -845,5 +843,6 @@ updateSelectedVariantsValue(field: string, value: any, currentIndex: number): vo
       }
   });
 }
+
 
 }

@@ -118,6 +118,23 @@ export class OrderService {
     return await promiseData;
   }
 
+  // OrderService içinde yeni bir metot ekleyin:
+async updateOrderItems(orderId: string, items: OrderItem[], successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
+  const observable: Observable<any> = this.httpClientService.put({
+    controller: 'orders',
+    action: 'update-items'  // Yeni bir endpoint oluşturacağız
+  }, { orderId, items });
+
+  const promiseData = firstValueFrom(observable);
+  promiseData.then(() => {
+    if (successCallback) successCallback();
+  }).catch(error => {
+    if (errorCallback) errorCallback(error);
+  });
+
+  return await promiseData;
+}
+
   async deleteOrderItem(id: string, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<void> {
     const observable: Observable<any> = this.httpClientService.delete({
       controller: 'orders',

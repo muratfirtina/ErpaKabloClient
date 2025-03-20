@@ -1,0 +1,110 @@
+<div class="modal fade" id="phoneModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-phone mr-2" style="color: #059669;"></i>
+                    {{ isEditMode ? 'Edit Phone' : 'Add New Phone' }}
+                </h5>
+                <button type="button" class="btn-close" style="margin: 0px 0 8px 20px;" data-bs-dismiss="modal">
+                </button>
+            </div>
+            <div class="modal-body">
+                <form [formGroup]="phoneForm">
+                    <!-- Phone Name -->
+                    <div class="form-group">
+                        <label>Phone Name</label>
+                        <div class="input-wrapper">
+                            <div class="icon-wrapper">
+                                <i class="fas fa-tag"></i>
+                            </div>
+                            <input type="text" formControlName="name" class="form-input"
+                                placeholder="e.g., Mobile, Home, Work, etc." 
+                                [class.is-invalid]="phoneForm.get('name')?.errors?.['required'] && 
+                                     phoneForm.get('name')?.touched">
+                        </div>
+                        <div class="error-message" *ngIf="phoneForm.get('name')?.errors?.['required'] && 
+                                     phoneForm.get('name')?.touched">
+                            Phone name is required
+                        </div>
+                    </div>
+
+                    <!-- Phone Number with integrated country code -->
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <div class="phone-input-container">
+                            <!-- Country Dropdown Button -->
+                            <div class="country-code-selector" (click)="toggleCountryDropdown($event)">
+                                <span class="country-code">+{{ selectedCountry?.phoneCode}}</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            
+                            <!-- Country Dropdown Menu -->
+                            <div class="country-dropdown" *ngIf="showCountryDropdown">
+                                <div class="search-box">
+                                    <input type="text" placeholder="Search countries..." 
+                                           [(ngModel)]="countrySearchText" 
+                                           (ngModelChange)="onCountrySearchChange()"
+                                           [ngModelOptions]="{standalone: true}"
+                                           (click)="$event.stopPropagation()">
+                                </div>
+                                <div class="country-list">
+                                    <div class="country-item" 
+                                         *ngFor="let country of filteredCountries"
+                                         (click)="selectCountry(country, $event)">
+                                        <span class="country-name">{{ country.name }}</span>
+                                        <span class="country-phone-code">+{{ country.phoneCode }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Phone Number Input -->
+                            <input type="tel" formControlName="number" class="form-input phone-number"
+                                placeholder="Enter phone number" 
+                                [class.is-invalid]="(phoneForm.get('number')?.errors?.['required'] || 
+                                      phoneForm.get('number')?.errors?.['invalidPhone']) && 
+                                      phoneForm.get('number')?.touched">
+                        </div>
+                        <div class="error-message">
+                            <span *ngIf="phoneForm.get('number')?.errors?.['required'] && 
+                                      phoneForm.get('number')?.touched">
+                                Phone number is required
+                            </span>
+                            <span *ngIf="phoneForm.get('number')?.errors?.['invalidPhone'] && 
+                                      phoneForm.get('number')?.touched">
+                                Please enter a valid phone number
+                            </span>
+                        </div>
+                        <div class="form-info">
+                            Your number will be saved as: +{{ selectedCountry?.phoneCode}} {{ phoneForm.get('number')?.value }}
+                        </div>
+                    </div>
+
+                    <!-- Set as Default -->
+                    <div class="form-field mt-3">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" 
+                                   class="custom-control-input" 
+                                   id="defaultPhone"
+                                   formControlName="isDefault">
+                            <label class="custom-control-label" for="defaultPhone">
+                                Set as default phone number
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times mr-2"></i>
+                    Cancel
+                </button>
+                <button type="button" class="btn btn-primary" (click)="onSubmit()" 
+                    [disabled]="phoneForm.invalid">
+                    <i class="fas fa-check mr-2"></i>
+                    Save Phone
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

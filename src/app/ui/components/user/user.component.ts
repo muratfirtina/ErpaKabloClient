@@ -1,13 +1,11 @@
-// user.component.ts
+// user.component.ts (Updated)
 import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { UserAddress } from 'src/app/contracts/user/userAddress';
 import { UserDto } from 'src/app/contracts/user/userDto';
-
 import { UserAddressService } from 'src/app/services/common/models/user-address.service';
-
 import { UserService } from 'src/app/services/common/models/user.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import * as bootstrap from 'bootstrap'; 
@@ -22,14 +20,29 @@ import { BreadcrumbService } from 'src/app/services/common/breadcrumb.service';
 import { DesktopUserSidebarComponent } from './desktop-user-sidebar/desktop-user-sidebar.component';
 import { ValidationService } from 'src/app/services/common/validation.service';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
-
+import { AddressModalComponent } from './address-modal/address-modal.component';
+import { PhoneModalComponent } from './phone-modal/phone-modal.component';
+import { DeleteConfirmModalComponent } from '../delete-confirm-modal/delete-confirm-modal.component';
+import { FooterComponent } from '../footer/footer.component';
 
 declare var $: any;
 
 @Component({
   selector: 'app-user',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MainHeaderComponent, NavbarComponent, DesktopUserSidebarComponent, DownbarComponent, BreadcrumbComponent],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    MainHeaderComponent, 
+    NavbarComponent, 
+    DesktopUserSidebarComponent, 
+    DownbarComponent, 
+    BreadcrumbComponent,
+    AddressModalComponent,
+    PhoneModalComponent,
+    DeleteConfirmModalComponent,
+    FooterComponent
+  ],
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.scss']
 })
@@ -39,12 +52,12 @@ export class UserComponent extends BaseComponent implements OnInit {
   phoneNumbers: PhoneNumber[] = [];
   
   passwordForm: FormGroup;
-  addressForm: FormGroup;
   phoneForm: FormGroup;
   
   isSidebarOpen: boolean = false;
   isEditMode = false;
-  currentItemId: string | null = null;
+  currentAddress: UserAddress | null = null;
+  currentPhone: PhoneNumber | null = null;
   deleteConfirmMessage = '';
   deleteItemType: 'address' | 'phone' | null = null;
   deleteItemId: string | null = null;
@@ -76,50 +89,31 @@ export class UserComponent extends BaseComponent implements OnInit {
     this.initializeForms();
   }
 
-  
-
   private getModal(id: string): any {
     return document.getElementById(id);
   }
   
-
   private initializeForms() {
     this.passwordForm = this.formBuilder.group({
       currentPassword: ['', Validators.required],
       newPassword: ['', [
           Validators.required,
-          this.passwordStrengthValidator.bind(this)  // this binding'i ekleyelim
+          this.passwordStrengthValidator.bind(this)
       ]],
       confirmPassword: ['', [
           Validators.required,
           this.passwordsMatchValidator.bind(this)
       ]]
-      
-  });
+    });
 
-  // Password değişikliklerini dinle
-  this.addressForm = this.formBuilder.group({
-    name: ['', Validators.required],
-    addressLine1: ['', Validators.required],
-    addressLine2: [''],
-    city: ['', Validators.required],
-    state: ['', Validators.required], // State'i required yaptık
-    postalCode: ['', [
-      Validators.required,
-      this.validationService.postalCodeValidator // Yeni validator
-    ]],
-    country: ['', Validators.required],
-    isDefault: [false]
-  });
-
-  this.phoneForm = this.formBuilder.group({
-    name: ['', Validators.required],
-    number: ['', [
-      Validators.required,
-      this.validationService.phoneNumberValidator // pattern yerine custom validator
-    ]],
-    isDefault: [false]
-  });
+    this.phoneForm = this.formBuilder.group({
+      name: ['', Validators.required],
+      number: ['', [
+        Validators.required,
+        this.validationService.phoneNumberValidator
+      ]],
+      isDefault: [false]
+    });
   }
 
   ngOnInit() {
@@ -140,7 +134,7 @@ export class UserComponent extends BaseComponent implements OnInit {
         symbol: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/.test(password),
         length: password.length >= 8
     };
-}
+  }
 
   passwordsMatchValidator(control: AbstractControl): { [key: string]: any } | null {
     const password = control.root.get('newPassword');
@@ -148,9 +142,8 @@ export class UserComponent extends BaseComponent implements OnInit {
   }
 
   passwordStrengthValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const value: string = control.value || '';  // Eğer value null ise boş string kullan
+    const value: string = control.value || '';
     
-    // Eğer değer boşsa ve alan required değilse validation'ı geç
     if (!value && !control.hasValidator(Validators.required)) {
         return null;
     }
@@ -162,7 +155,6 @@ export class UserComponent extends BaseComponent implements OnInit {
   
     const valid = hasUpperCase && hasLowerCase && hasSymbol && isLongEnough;
     
-    // Validation durumuna göre password requirements'ı güncelle
     this.passwordRequirements = {
         uppercase: hasUpperCase,
         lowercase: hasLowerCase,
@@ -171,9 +163,7 @@ export class UserComponent extends BaseComponent implements OnInit {
     };
 
     return valid ? null : { 'passwordStrength': true };
-}
-
-  
+  }
 
   async loadUserData() {
     try {
@@ -219,7 +209,6 @@ export class UserComponent extends BaseComponent implements OnInit {
     }
   }
   
-
   async onPasswordSubmit() {
     this.submitted = true;
     if (this.passwordForm.invalid) return;
@@ -228,16 +217,13 @@ export class UserComponent extends BaseComponent implements OnInit {
         this.showSpinner(SpinnerType.BallSpinClockwise);
         const { currentPassword, newPassword } = this.passwordForm.value;
         
-        // Şifre değiştirme isteği
         await this.userService.changePassword(currentPassword, newPassword);
         
-        // Başarılı durumda
         this.toastr.message('Password changed successfully', 'Success', {
             toastrMessageType: ToastrMessageType.Success,
             position: ToastrPosition.TopRight
         });
         
-        // Formu resetle
         this.passwordForm.reset();
         this.submitted = false;
 
@@ -254,114 +240,111 @@ export class UserComponent extends BaseComponent implements OnInit {
     } finally {
         this.hideSpinner(SpinnerType.BallSpinClockwise);
     }
-}
+  }
   
+  // Address Modal Methods
   showAddAddressForm() {
     this.isEditMode = false;
-    this.currentItemId = null;
-    this.addressForm.reset();
+    this.currentAddress = null;
     const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('addressModal'));
     modal.show();
   }
 
   editAddress(address: UserAddress) {
     this.isEditMode = true;
-    this.currentItemId = address.id;
-    this.addressForm.patchValue({
-      name: address.name,
-      addressLine1: address.addressLine1,
-      addressLine2: address.addressLine2,
-      city: address.city,
-      state: address.state,
-      postalCode: address.postalCode,
-      country: address.country,
-      isDefault: address.isDefault ?? false 
-    });
+    this.currentAddress = address;
     const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('addressModal'));
     modal.show();
   }
 
-  async saveAddress() {
-    if (this.addressForm.valid) {
-      try {
-        const addressData: Omit<UserAddress, 'id'> = {
-          name: this.addressForm.get('name')?.value,
-          addressLine1: this.addressForm.get('addressLine1')?.value,
-          addressLine2: this.addressForm.get('addressLine2')?.value,
-          city: this.addressForm.get('city')?.value,
-          state: this.addressForm.get('state')?.value,
-          postalCode: this.addressForm.get('postalCode')?.value,
-          country: this.addressForm.get('country')?.value,
-          isDefault: this.addressForm.get('isDefault')?.value ?? false 
-        };
-        
-        if (this.isEditMode && this.currentItemId) {
-          await this.addressService.updateAddress(this.currentItemId, {
-            ...addressData,
-            id: this.currentItemId
-          });
-          this.toastr.message('Address update success', 'Success', {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight
-          });
-        } else {
-          await this.addressService.addAddress(addressData as UserAddress);
-          this.toastr.message('New Address added', 'Success', {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight
-          });
-        }
-        
-        const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('addressModal'));
-        modal.hide();
-        this.loadAddresses();
-        this.addressForm.reset();
-      } catch (error) {
-        this.toastr.message('Error', 'Error', {
-          toastrMessageType: ToastrMessageType.Error,
+  async handleSaveAddress(addressData: UserAddress) {
+    try {
+      if (this.isEditMode && addressData.id) {
+        await this.addressService.updateAddress(addressData.id, addressData);
+        this.toastr.message('Address update success', 'Success', {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        });
+      } else {
+        await this.addressService.addAddress(addressData);
+        this.toastr.message('New Address added', 'Success', {
+          toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight
         });
       }
+      this.loadAddresses();
+    } catch (error) {
+      this.toastr.message('Error', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
     }
+  }
+
+  handleCancelEdit() {
+    this.isEditMode = false;
+    this.currentAddress = null;
   }
 
   async setDefaultAddress(id: string) {
     try {
-        await this.addressService.setDefaultAddress(id);
-        this.toastr.message('Default address updated successfully', 'Success', {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight
-        });
-        this.loadAddresses();
+      await this.addressService.setDefaultAddress(id);
+      this.toastr.message('Default address updated successfully', 'Success', {
+        toastrMessageType: ToastrMessageType.Success,
+        position: ToastrPosition.TopRight
+      });
+      this.loadAddresses();
     } catch (error) {
-        this.toastr.message('Failed to update default address', 'Error', {
-            toastrMessageType: ToastrMessageType.Error,
-            position: ToastrPosition.TopRight
-        });
+      this.toastr.message('Failed to update default address', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
     }
-}
+  }
 
   showAddPhoneForm() {
     this.isEditMode = false;
-    this.currentItemId = null;
-    this.phoneForm.reset();
+    this.currentPhone = null;
     const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('phoneModal'));
     modal.show();
   }
 
   editPhone(phone: PhoneNumber) {
     this.isEditMode = true;
-    this.currentItemId = phone.id;
-    this.phoneForm.patchValue({
-      name: phone.name,
-      number: phone.number,
-      isDefault: phone.isDefault ?? false
-    });
+    this.currentPhone = phone;
     const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('phoneModal'));
     modal.show();
   }
+  
+  async handleSavePhone(phoneData: PhoneNumber) {
+    try {
+      if (this.isEditMode && phoneData.id) {
+        await this.phoneService.updatePhone(phoneData.id, phoneData);
+        this.toastr.message('Phone number updated', 'Success', {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        });
+      } else {
+        await this.phoneService.addPhone(phoneData);
+        this.toastr.message('New phone number added', 'Success', {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        });
+      }
+      await this.loadPhoneNumbers();
+    } catch (error) {
+      this.toastr.message('Error', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+    }
+  }
+  
+  handleCancelPhoneEdit() {
+    this.isEditMode = false;
+    this.currentPhone = null;
+  }
 
-  // Diğer modal işlemleri için de aynı şekilde güncelleyin:
   confirmDeleteAddress(addressId: string) {
     this.deleteItemType = 'address';
     this.deleteItemId = addressId;
@@ -378,13 +361,15 @@ export class UserComponent extends BaseComponent implements OnInit {
     modal.show();
   }
 
-  async confirmDelete() {
+
+
+  async handleDeleteConfirm() {
     if (this.deleteItemId && this.deleteItemType) {
       try {
         if (this.deleteItemType === 'address') {
           await this.addressService.deleteAddress(this.deleteItemId);
           this.loadAddresses();
-          this.toastr.message('Addess deleted', 'Success', {
+          this.toastr.message('Address deleted', 'Success', {
             toastrMessageType: ToastrMessageType.Success,
             position: ToastrPosition.TopRight
           });
@@ -396,9 +381,6 @@ export class UserComponent extends BaseComponent implements OnInit {
             position: ToastrPosition.TopRight
           });
         }
-        
-        const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('deleteConfirmModal'));
-        modal.hide();
       } catch (error) {
         this.toastr.message('Error', 'Error', {
           toastrMessageType: ToastrMessageType.Error,
@@ -407,56 +389,29 @@ export class UserComponent extends BaseComponent implements OnInit {
       }
     }
   }
-
-
-  async savePhone() {
-    if (this.phoneForm.valid) {
-      try {
-        const phoneData: Omit<PhoneNumber, 'id'> = {
-          name: this.phoneForm.get('name')?.value,
-          number: this.phoneForm.get('number')?.value,
-          isDefault: this.phoneForm.get('isDefault')?.value ?? false
-        };
-        
-        if (this.isEditMode && this.currentItemId) {
-          await this.phoneService.updatePhone(this.currentItemId, {
-            ...phoneData,
-            id: this.currentItemId
-          });
-          this.toastr.message('Phone number updated', 'Success', {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight
-          });
-        } else {
-          await this.phoneService.addPhone(phoneData as PhoneNumber);
-          this.toastr.message('New phone number added', 'Success', {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight
-          });
-        }
-        
-        const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('phoneModal'));
-        modal.hide();
-        this.loadPhoneNumbers();
-        this.phoneForm.reset();
-      } catch (error) {
-        this.toastr.message('Error', 'Error', {
-          toastrMessageType: ToastrMessageType.Error,
-          position: ToastrPosition.TopRight
-        });
-      }
-    }
+  
+  handleCancelDelete() {
+    this.deleteItemId = null;
+    this.deleteItemType = null;
+    this.deleteConfirmMessage = '';
   }
 
   async setDefaultPhone(id: string) {
     try {
+      console.log('Setting default phone:', id);
       await this.phoneService.setDefaultPhone(id);
+      console.log('Default phone set successfully');
+      
       this.toastr.message('Default phone number updated successfully', 'Success', {
         toastrMessageType: ToastrMessageType.Success,
         position: ToastrPosition.TopRight
       });
-      this.loadPhoneNumbers();
+      
+      console.log('Reloading phone numbers');
+      await this.loadPhoneNumbers();
+      console.log('Phone numbers reloaded');
     } catch (error) {
+      console.error('Error setting default phone:', error);
       this.toastr.message('Failed to update default phone number', 'Error', {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
@@ -480,17 +435,10 @@ export class UserComponent extends BaseComponent implements OnInit {
       document.body.classList.remove('sidebar-open');
     }
   }
+  
   ngOnDestroy() {
     document.body.classList.remove('sidebar-open');
-    
   }
 
-  close() {
-    this.deleteItemId = null;
-    this.deleteItemType = null;
-    this.deleteConfirmMessage = '';
-    const modal = bootstrap.Modal.getOrCreateInstance(this.getModal('deleteConfirmModal'));
-    modal.hide();
-  }
 
 }

@@ -527,6 +527,11 @@ $dark-input-bg: darken($background-color, 85%);
     &.is-invalid {
       border-color: #dc3545;
     }
+    
+    /* Bu kuralı ekleyin - checkbox için hata mesajının görünmesini sağlar */
+    &.is-invalid ~ .invalid-feedback {
+      display: block;
+    }
   }
   
   .form-check-label {
@@ -538,6 +543,19 @@ $dark-input-bg: darken($background-color, 85%);
 
   app-terms-of-use, app-privacy-policy {
     display: inline;
+  }
+  
+  /* Hata mesajı için özel stil ekleyin (isteğe bağlı) */
+  .invalid-feedback {
+    display: none;
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.1);
+    padding: 5px 10px;
+    border-radius: 4px;
+    text-align: center;
   }
 }
 

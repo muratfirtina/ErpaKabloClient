@@ -1,3 +1,5 @@
+// activation-code.component.ts
+
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ElementRef, ViewChildren, QueryList, AfterViewInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -26,11 +28,12 @@ export class ActivationCodeComponent implements OnInit, AfterViewInit {
   showResendOption = false;
   resendEmail: string = '';
   
-  // Track remaining attempts
-  remainingAttempts = 3;
+  // Track remaining attempts and status
+  remainingAttempts = 5;
   attemptsExceeded = false;
+  showTooManyAttemptsError = false;  // Yeni eklenen flag
   
-  // For digit input UI - Her rakam için ayrı FormControl
+  // For digit input UI
   digitControls: FormControl[] = Array(6).fill(null).map(() => 
     new FormControl('', [Validators.required, Validators.pattern('[0-9]')])
   );
@@ -339,160 +342,87 @@ export class ActivationCodeComponent implements OnInit, AfterViewInit {
   }
 
   // Submit the activation code
-  async onSubmit(): Promise<void> {
-    if (this.codeForm.invalid || this.isSubmitting) return;
+  // activation-code.component.ts - onSubmit metodu
+async onSubmit(): Promise<void> {
+  if (this.codeForm.invalid || this.isSubmitting || this.attemptsExceeded) return;
 
-    this.isSubmitting = true;
-    const code = this.codeForm.get('code')?.value;
+  this.isSubmitting = true;
+  const code = this.codeForm.get('code')?.value;
 
-    try {
-      const response = await this.userAuthService.verifyActivationCode(this.userId, code);
-      
-      this.isSubmitting = false;
-      if (!this.userId) {
-        this.toastr.message(
-          'User ID not found. Please revisit the activation page.',
-          'Error',
-          {
-            toastrMessageType: ToastrMessageType.Error,
-            position: ToastrPosition.TopRight
-          }
-        );
-        return;
-      }
-      
-      if (response && response.verified === true) {
-        this.activationSuccess = true;
-        
-        // Clear session information
-        sessionStorage.removeItem('activationToken');
-        sessionStorage.removeItem('activationUserId');
-        sessionStorage.removeItem('activationEmail');
-        
-        this.toastr.message(
-          'Your email address has been successfully verified.',
-          'Success',
-          {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight
-          }
-        );
-        
-        // Redirect to login page after a short delay
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 3000);
-      } else {
-        // Reset form
-        this.resetForm();
-        
-        // Determine remaining attempts
-        if (response && response.remainingAttempts !== undefined) {
-          this.remainingAttempts = response.remainingAttempts;
+  try {
+    console.log('Sending verification code:', code, 'for userId:', this.userId);
+    const response = await this.userAuthService.verifyActivationCode(this.userId, code);
+    console.log('Verification response:', response);
+    
+    this.isSubmitting = false;
+    
+    if (!this.userId) {
+      this.toastr.message(
+        'User ID not found. Please revisit the activation page.',
+        'Error',
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
         }
-        
-        // If attempts exceeded
-        if (response.remainingAttempts <= 0 || (response && response.exceeded === true)) {
-          this.attemptsExceeded = true;
-          this.toastr.message(
-            'Too many failed attempts. Please request a new activation code.',
-            'Warning',
-            {
-              toastrMessageType: ToastrMessageType.Warning,
-              position: ToastrPosition.TopRight
-            }
-          );
-        } else {
-          // Use message directly from API
-          const errorMessage = response?.message || `Invalid activation code. You have ${response.remainingAttempts} attempts remaining.`;
-          
-          this.toastr.message(
-            errorMessage,
-            'Error',
-            {
-              toastrMessageType: ToastrMessageType.Error,
-              position: ToastrPosition.TopRight
-            }
-          );
-        }
-      }
-    } catch (error) {
-      console.error('Verification error:', error);
-      this.isSubmitting = false;
+      );
+      return;
+    }
+    
+    if (response && response.verified === true) {
+      this.activationSuccess = true;
       
+      // Clear session information
+      sessionStorage.removeItem('activationToken');
+      sessionStorage.removeItem('activationUserId');
+      sessionStorage.removeItem('activationEmail');
+      
+      this.toastr.message(
+        'Your email address has been successfully verified.',
+        'Success',
+        {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        }
+      );
+      
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        this.router.navigate(['/login']);
+      }, 3000);
+    } else {
       // Reset form
       this.resetForm();
       
-      // Rate limit error or code invalidated
-      if (error && error.status === 429) {
-        this.attemptsExceeded = true;
-        
-        // Check if a new code is required
-        if (error.error && error.error.requiresNewCode === true) {
-          this.toastr.message(
-            'Your activation code has been invalidated. You are being redirected to request a new activation code.',
-            'Information',
-            {
-              toastrMessageType: ToastrMessageType.Info,
-              position: ToastrPosition.TopRight
-            }
-          );
-          
-          // Clear session information
-          sessionStorage.removeItem('activationToken');
-          sessionStorage.removeItem('activationUserId');
-          sessionStorage.removeItem('activationEmail');
-          
-          // Preserve email address
-          const email = this.email;
-          
-          // Start new code request process after a short delay
-          setTimeout(async () => {
-            try {
-              if (email) {
-                // API call to send new code
-                const result = await this.userAuthService.resendActivationCode(email);
-                
-                if (result && result.success) {
-                  this.toastr.message(
-                    'A new activation code has been sent to your email address.',
-                    'Success',
-                    {
-                      toastrMessageType: ToastrMessageType.Success,
-                      position: ToastrPosition.TopRight
-                    }
-                  );
-
-                  // Define new attempt rights
-                  this.attemptsExceeded = false;
-                  this.remainingAttempts = result.remainingAttempts || 5;
-                } else {
-                  // Redirect user to login page
-                  this.router.navigate(['/login']);
-                }
-              } else {
-                // If no email information, redirect to login page
-                this.router.navigate(['/login']);
-              }
-            } catch (err) {
-              console.error('Error sending new code:', err);
-              this.router.navigate(['/login']);
-            }
-          }, 2000);
-        } else {
-          // Normal rate limit error
-          this.toastr.message(
-            error.error?.message || 'Too many failed attempts. Please request a new activation code.',
-            'Warning',
-            {
-              toastrMessageType: ToastrMessageType.Warning,
-              position: ToastrPosition.TopRight
-            }
-          );
-        }
+      // Explicitly log remainingAttempts
+      console.log('Remaining attempts:', response.remainingAttempts);
+      
+      // Always set remainingAttempts value, even if it's undefined
+      if (response.remainingAttempts !== undefined) {
+        this.remainingAttempts = response.remainingAttempts;
       } else {
+        // If undefined, decrement from current value but not below 0
+        this.remainingAttempts = Math.max(0, this.remainingAttempts - 1);
+      }
+      
+      // Handle exceeded attempts or requires new code
+      if (this.remainingAttempts <= 0 || response.exceeded === true || response.requiresNewCode === true) {
+        this.attemptsExceeded = true;
+        this.showTooManyAttemptsError = true;
+        
         this.toastr.message(
-          'An error occurred during verification. Please try again.',
+          response.message || 'Too many failed attempts. Please request a new activation code.',
+          'Warning',
+          {
+            toastrMessageType: ToastrMessageType.Warning,
+            position: ToastrPosition.TopRight
+          }
+        );
+      } else {
+        // Regular error case
+        const errorMessage = response?.message || `Invalid activation code. You have ${this.remainingAttempts} attempts remaining.`;
+        
+        this.toastr.message(
+          errorMessage,
           'Error',
           {
             toastrMessageType: ToastrMessageType.Error,
@@ -501,7 +431,43 @@ export class ActivationCodeComponent implements OnInit, AfterViewInit {
         );
       }
     }
+  } catch (error) {
+    console.error('Verification error:', error);
+    this.isSubmitting = false;
+    
+    // Reset form
+    this.resetForm();
+    
+    // Special handling for 429 error
+    if (error && error.status === 429) {
+      console.log('429 error caught in component:', error);
+      this.attemptsExceeded = true;
+      this.showTooManyAttemptsError = true;
+      
+      this.toastr.message(
+        error.error?.message || 'Too many failed attempts. Your activation code has been invalidated. Please request a new activation code.',
+        'Warning',
+        {
+          toastrMessageType: ToastrMessageType.Warning,
+          position: ToastrPosition.TopRight
+        }
+      );
+    } else {
+      // Generic error
+      this.toastr.message(
+        'An error occurred during verification. Please try again.',
+        'Error',
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
+      
+      // Decrement attempts
+      this.remainingAttempts = Math.max(0, this.remainingAttempts - 1);
+    }
   }
+}
 
   // Resend activation code
   async resendCode(): Promise<void> {
@@ -510,19 +476,20 @@ export class ActivationCodeComponent implements OnInit, AfterViewInit {
     this.isResending = true;
     try {
       const result = await this.userAuthService.resendActivationCode(this.email);
+      console.log('Resend code response:', result);
       
       this.isResending = false;
       
       // Backend başarılı yanıt verdi mi kontrol et
       if (result && result.success === true) {
-        // New code request successful, reset parameters
+        // Reset attempts state
         this.attemptsExceeded = false;
-        this.remainingAttempts = result.remainingAttempts || 5; 
+        this.showTooManyAttemptsError = false;
+        this.remainingAttempts = 5;
         
         // Reset form
         this.resetForm();
         
-        // Backend tarafından gelen mesajı kullan, yoksa varsayılan mesaj göster
         this.toastr.message(
           result.message || 'A new activation code has been sent to your email address.',
           'Success',
@@ -544,6 +511,7 @@ export class ActivationCodeComponent implements OnInit, AfterViewInit {
       }
     } catch (error) {
       this.isResending = false;
+      console.error('Resend code error:', error);
       
       // Rate limit check
       if (error.status === 429) {
@@ -575,6 +543,7 @@ export class ActivationCodeComponent implements OnInit, AfterViewInit {
     this.isResending = true;
     try {
       const result = await this.userAuthService.resendActivationCode(this.resendEmail);
+      console.log('Resend code for email response:', result);
       
       if (result.success) {
         this.toastr.message(
@@ -586,14 +555,18 @@ export class ActivationCodeComponent implements OnInit, AfterViewInit {
           }
         );
         
-        // If the email address matches a user with an activation code
-        // update the email variable (we can't get userId in this case)
+        // Update parameters
         this.email = this.resendEmail;
         sessionStorage.setItem('activationEmail', this.resendEmail);
         
+        // Reset statuses
+        this.showResendOption = false;
+        this.attemptsExceeded = false;
+        this.showTooManyAttemptsError = false;
+        this.remainingAttempts = 5;
+        
         // Reset form
         this.resetForm();
-        this.showResendOption = false;
       } else {
         this.toastr.message(
           result.message || 'Failed to send activation code.',
@@ -605,6 +578,7 @@ export class ActivationCodeComponent implements OnInit, AfterViewInit {
         );
       }
     } catch (error) {
+      console.error('Resend for email error:', error);
       this.toastr.message(
         'An error occurred while sending the activation code.',
         'Error',

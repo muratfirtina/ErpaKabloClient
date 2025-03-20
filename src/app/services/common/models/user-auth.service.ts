@@ -3,7 +3,7 @@ import { Observable, firstValueFrom } from 'rxjs';
 import { HttpClientService } from '../http-client.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../../ui/custom-toastr.service';
 import { AuthService } from '../auth.service';
-import { TokenResponse } from 'src/app/contracts/token/tokenResponse';
+import { TokenService } from '../token.service';
 import { VerifyActivationCodeResponse } from 'src/app/contracts/auth/verifyActivationCodeResponse';
 import { ResendActivationCodeResponse } from 'src/app/contracts/auth/resendActivationCodeResponse';
 
@@ -18,7 +18,8 @@ export class UserAuthService {
   constructor(
     private httpClientService: HttpClientService,
     private toastrService: CustomToastrService,
-    private authService: AuthService
+    private authService: AuthService,
+    private tokenService: TokenService
   ) {
     this.loadRateLimitData();
   }
@@ -34,7 +35,7 @@ export class UserAuthService {
       
       const observable: Observable<any> = this.httpClientService.post(
         {
-          controller: 'auth', // 'token' yerine 'auth' olarak güncellendi
+          controller: 'token', // Changed to token controller
           action: 'refresh'
         },
         { refreshToken: token,
@@ -75,11 +76,12 @@ export class UserAuthService {
   async updateForgotPassword(password: string, passwordConfirm: string, userId: string, resetToken: string): Promise<boolean> {
     return await this.authService.updatePassword(userId, resetToken, password, passwordConfirm);
   }
+  
 
   // E-posta doğrulama
-  async confirmEmail(userId: string, token: string): Promise<{ isSuccess: boolean; message?: string }> {
+  /* async confirmEmail(userId: string, token: string): Promise<{ isSuccess: boolean; message?: string }> {
     const observable: Observable<any> = this.httpClientService.get({
-      controller: "auth",
+      controller: "token", // Changed to token controller
       action: "confirm-email",
       queryString: `userId=${userId}&token=${token}`
     });
@@ -114,7 +116,7 @@ export class UserAuthService {
     
     const observable: Observable<any> = this.httpClientService.post(
       {
-        controller: "auth",
+        controller: "token", // Changed to token controller
         action: "resend-confirmation-email"
       }, 
       { email }
@@ -155,7 +157,7 @@ export class UserAuthService {
       );
       throw error;
     }
-  }
+  } */
   
   // Local Storage'dan hız sınırlama verilerini yükle
   private loadRateLimitData(): void {
@@ -208,22 +210,54 @@ export class UserAuthService {
       this.saveRateLimitData();
     }
   }
-  async verifyActivationCode(userId: string, code: string): Promise<VerifyActivationCodeResponse> {
-    try {
-      const response = await this.authService.verifyActivationCode(userId, code);
-      return response;
-    } catch (error) {
-      // Hata yanıtını dön
+  
+  // Aktivasyon kodu doğrulama - Now using TokenService directly
+  // user-auth.service.ts
+async verifyActivationCode(userId: string, code: string): Promise<VerifyActivationCodeResponse> {
+  try {
+    console.log('UserAuthService: verifying code:', code, 'for user:', userId);
+    const response = await this.tokenService.verifyActivationCode(userId, code);
+    console.log('UserAuthService: verification response:', response);
+    
+    // Kalan deneme sayısını doğru şekilde işleme
+    if (response && response.remainingAttempts !== undefined) {
+      console.log('Remaining attempts from response:', response.remainingAttempts);
+    }
+    
+    return response;
+  } catch (error) {
+    console.error('UserAuthService: verification error:', error);
+    
+    // Hata objesi HTTP response mi?
+    if (error && error.status) {
+      // 429 - Too Many Requests
+      if (error.status === 429) {
+        console.log('Rate limit exceeded - 429 error');
+        return {
+          verified: false,
+          message: error.error?.message || 'Too many failed attempts',
+          remainingAttempts: 0,
+          exceeded: true,
+          requiresNewCode: error.error?.requiresNewCode || true
+        };
+      }
+      
+      // Diğer HTTP hataları
       return {
         verified: false,
-        message: error.message || 'Verification failed',
-        remainingAttempts: error.remainingAttempts || 0,
-        exceeded: error.exceeded || false
+        message: error.error?.message || 'Verification failed',
+        remainingAttempts: error.error?.remainingAttempts || 0
       };
     }
+    
+    // Diğer hata tipleri
+    return {
+      verified: false,
+      message: error.message || 'Verification failed'
+    };
   }
-  
-  // Aktivasyon kodu yeniden gönder
+}
+
   async resendActivationCode(email: string): Promise<ResendActivationCodeResponse> {
     try {
       // E-posta için hız sınırlaması kontrol ediliyor
@@ -243,7 +277,7 @@ export class UserAuthService {
         );
       }
       
-      const response = await this.authService.resendActivationCode(email);
+      const response = await this.tokenService.resendActivationCode(email);
       
       if (response.success) {
         // Başarılı olursa e-posta gönderim zamanını güncelle
@@ -268,9 +302,10 @@ export class UserAuthService {
     }
   }
 
+  // Aktivasyon tokeni doğrulama - Now using TokenService directly
   async verifyActivationToken(token: string): Promise<{ success: boolean; userId?: string; email?: string; message?: string }> {
     try {
-      return await this.authService.verifyActivationToken(token);
+      return await this.tokenService.verifyActivationToken(token);
     } catch (error) {
       return {
         success: false,
@@ -279,3 +314,4 @@ export class UserAuthService {
     }
   }
 }
+
