@@ -25,6 +25,7 @@ import { SafeHtmlPipe } from './pipes/safe-html.pipe';
 import { FileSizePipe } from './pipes/file-size.pipe';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { TokenValidatorInterceptor } from './interceptors/tokenValidator.interceptor';
+import { environment } from 'src/environments/environment.prod';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -51,8 +52,8 @@ export const appConfig: ApplicationConfig = {
       JwtModule.forRoot({
         config: {
           tokenGetter: () => localStorage.getItem("accessToken"),
-          allowedDomains: ["localhost:5001","www.tumdex.com", "tumdex.com"],
-          disallowedRoutes: ["localhost:5001/api/auth/login","www.tumdex.com/api/auth/login", "tumdex.com/api/auth/login"]
+          allowedDomains: ["localhost:5000", "www.tumdex.com", "tumdex.com"],
+          disallowedRoutes: ["localhost:5000/api/auth/login", "www.tumdex.com/api/auth/login", "tumdex.com/api/auth/login"]
         }
       })
     ),
@@ -75,7 +76,7 @@ export const appConfig: ApplicationConfig = {
     ),
     { 
       provide: "baseUrl", 
-      useValue: "https://www.tumdex.com/api", 
+      useValue: `${environment.baseUrl}/api`, 
       multi: true 
     }, 
     provideAnimationsAsync(),
