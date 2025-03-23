@@ -187,8 +187,8 @@
   <!-- Dashboard Header with Time Frame Selector -->
   <div class="dashboard-header mb-4">
     <div class="d-flex justify-content-between align-items-center">
-      <h2 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
-      <div class="dashboard-controls d-flex align-items-center">
+      <h2 class="mb-0" style="display: flex;"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+      <div class="dashboard-controls d-flex align-items-center" style="margin-left: 30px;">
         <!-- Zaman Aralığı Seçici -->
         <div class="time-frame-selector me-3">
           <select class="form-select" [(ngModel)]="selectedTimeFrame" (change)="onTimeFrameChange()">
@@ -442,7 +442,7 @@
               <i class="bi bi-folder-plus me-2"></i>
               Son Eklenen Kategoriler
             </h5>
-            <a [routerLink]="['/admin/categories']" class="btn btn-sm btn-outline-primary">
+            <a [routerLink]="['/admin/categories/category-list']" class="btn btn-sm btn-outline-primary">
               Tümünü Gör
             </a>
           </div>
@@ -468,11 +468,11 @@
                     </td>
                     <td>{{formatDate(category.createdDate)}}</td>
                     <td>
-                      <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/categories', category.id]">
-                        <i class="bi bi-eye"></i>
+                      <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/categories/category-update', category.id]">
+                        <i class="bi bi-pencil"></i>
                       </button>
                       <button class="btn btn-sm btn-outline-secondary" (click)="navigateToCategory(category.id)">
-                        <i class="bi bi-pencil"></i>
+                        <i class="bi bi-eye"></i>
                       </button>
                     </td>
                   </tr>
@@ -494,7 +494,7 @@
               <i class="bi bi-bookmark-plus me-2"></i>
               Son Eklenen Markalar
             </h5>
-            <a [routerLink]="['/admin/brands']" class="btn btn-sm btn-outline-primary">
+            <a [routerLink]="['/admin/brands/brand-list']" class="btn btn-sm btn-outline-primary">
               Tümünü Gör
             </a>
           </div>
@@ -520,11 +520,11 @@
                     </td>
                     <td>{{formatDate(brand.createdDate)}}</td>
                     <td>
-                      <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/brands', brand.id]">
-                        <i class="bi bi-eye"></i>
+                      <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/brands/brand-update', brand.id]">
+                        <i class="bi bi-pencil"></i>
                       </button>
                       <button class="btn btn-sm btn-outline-secondary" (click)="navigateToBrand(brand.id)">
-                        <i class="bi bi-pencil"></i>
+                        <i class="bi bi-eye"></i>
                       </button>
                     </td>
                   </tr>

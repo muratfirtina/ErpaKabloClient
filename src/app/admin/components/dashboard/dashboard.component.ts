@@ -15,6 +15,7 @@ import { RecentItem } from "src/app/contracts/dashboard/recentItem";
 import { TopLocation } from "src/app/contracts/dashboard/topLocation";
 import { TopProduct } from "src/app/contracts/dashboard/topProduct";
 import { DashboardService } from "src/app/services/common/models/dashboard.service";
+import { environment } from "src/environments/environment.prod";
 
 
 @Component({
@@ -260,18 +261,18 @@ export class DashboardComponent extends BaseComponent implements OnInit, OnDestr
   }
 
   navigateToProduct(productId: string): void {
-    // Ürün detay sayfasına yönlendirme işlemleri
-    console.log(`Navigating to product: ${productId}`);
+    const url = `${environment.baseUrl}/${productId}`;
+    window.open(url, '_blank'); // Yeni sekmede açar, istersen "_self" yapabilirsin
   }
 
   navigateToCategory(categoryId: string): void {
-    // Kategori detay sayfasına yönlendirme işlemleri
-    console.log(`Navigating to category: ${categoryId}`);
+    const url = `${environment.baseUrl}/${categoryId}`;
+    window.open(url, '_blank');
   }
 
   navigateToBrand(brandId: string): void {
-    // Marka detay sayfasına yönlendirme işlemleri
-    console.log(`Navigating to brand: ${brandId}`);
+    const url = `${environment.baseUrl}/${brandId}`;
+    window.open(url, '_blank');
   }
 
   getEmptyStateMessage(dataType: string): string {
