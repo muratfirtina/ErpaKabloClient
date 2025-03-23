@@ -1,139 +1,558 @@
-<div class="min-h-screen bg-gray-50">
-    <!-- Header -->
-    <header class="bg-white shadow">
-      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center">
-          <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <div class="flex items-center space-x-4">
-            <!-- Notification Badge -->
-            <div class="relative notification-icon">
-                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                  {{getTotalUnreadNotifications()}}
-                </span>
-                <svg class="notification-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
-              </div>
-          </div>
-        </div>
+<div class="dashboard-container">
+  <!-- Notification Panel -->
+  <div class="notification-panel" *ngIf="hasNotifications() || !notificationsCollapsed">
+    <div class="notification-header">
+      <h5>
+        <i class="bi bi-bell"></i> Bildirimler
+        <span class="badge bg-danger rounded-pill">{{getTotalUnreadNotifications()}}</span>
+      </h5>
+      <div>
+        <button class="btn btn-sm btn-outline-secondary me-2" (click)="clearAllNotifications()" *ngIf="hasNotifications()">
+          <i class="bi bi-trash"></i> Tümünü Temizle
+        </button>
+        <button class="btn btn-sm btn-outline-primary" (click)="toggleNotificationsCollapsed()">
+          <i class="bi" [ngClass]="notificationsCollapsed ? 'bi-chevron-down' : 'bi-chevron-up'"></i>
+        </button>
       </div>
-    </header>
-  
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-      <div class="px-4 py-6 sm:px-0">
-        <div class="grid grid-cols-1 gap-6">
-  
-          <!-- Yeni Siparişler -->
-          <div class="bg-white shadow rounded-lg p-6" *ngIf="orderNotifications.length">
-            <h2 class="text-lg font-medium text-gray-900 mb-4">Yeni Siparişler</h2>
+    </div>
+    
+    <div class="notification-body" [ngClass]="{'show': !notificationsCollapsed}">
+      <!-- Boş durum -->
+      <div class="empty-state" *ngIf="!hasNotifications()">
+        <i class="bi bi-bell-slash"></i>
+        <p>Henüz bildiriminiz bulunmuyor.</p>
+      </div>
+      
+      <!-- Yeni Siparişler Bölümü -->
+      <div class="notification-list" *ngIf="orderNotifications.length > 0">
+        <div class="notification-group-title">
+          <i class="bi bi-cart text-primary"></i> Yeni Siparişler
+        </div>
+        
+        <div class="notification-item" *ngFor="let notification of orderNotifications; let i = index">
+          <div class="notification-content">
+            <div class="notification-header">
+              <h6 class="order-id">Sipariş #{{notification.orderNumber}}</h6>
+              <span class="notification-time">{{getTimeAgo(notification.timestamp)}}</span>
+            </div>
             
-            <div class="space-y-4">
-              <div *ngFor="let notification of orderNotifications" 
-                   class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded-r-lg">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <p class="font-medium">Sipariş No: #{{notification.orderNumber}}</p>
-                    <p class="text-sm text-gray-600">{{notification.customerName || 'Belirtilmemiş'}}</p>
-                  </div>
-                  <span class="text-sm text-gray-500">
-                    {{getTimeAgo(notification.timestamp)}}
-                  </span>
-                </div>
-  
-                <!-- Sipariş Detayları -->
-                <div class="mt-3">
-                  <div class="mt-2 space-y-2">
-                    <div *ngFor="let item of notification.items" 
-                         class="flex justify-between items-center text-sm">
-                      <span>{{item.productName}} 
-                        <span *ngIf="item.brandName">({{item.brandName}})</span>
-                      </span>
-                      <div class="flex space-x-4">
-                        <span>{{item.quantity}} adet</span>
-                        <span class="font-medium">
-                          {{item.price | currency:'USD':'symbol-narrow':'1.2-2'}}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mt-3 flex justify-end">
-                    <span class="font-bold">
-                      Toplam: {{notification.totalAmount | currency:'USD':'symbol-narrow':'1.2-2'}}
-                    </span>
+            <div class="customer-info">
+              <span class="customer-name">{{notification.customerName || 'İsimsiz Müşteri'}}</span>
+            </div>
+            
+            <div class="order-summary">
+              <div class="product-list">
+                <div class="product-item" *ngFor="let item of notification.items">
+                  <span>{{item.productName}} <span *ngIf="item.brandName">({{item.brandName}})</span></span>
+                  <div class="product-details">
+                    <span class="product-quantity">x{{item.quantity}}</span>
+                    <span class="product-price">{{item.price | currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
                   </div>
                 </div>
+              </div>
+              
+              <div class="order-total">
+                <span>Toplam:</span>
+                <span class="total-price">{{notification.totalAmount | currency:'TRY':'symbol-narrow':'1.2-2'}}</span>
               </div>
             </div>
           </div>
-  
-          <!-- Sipariş Güncellemeleri -->
-          <div class="bg-white shadow rounded-lg p-6" *ngIf="orderUpdates.length">
-            <h2 class="text-lg font-medium text-gray-900 mb-4">Sipariş Güncellemeleri</h2>
+          
+          <div class="notification-actions">
+            <button class="btn btn-sm btn-primary" [routerLink]="['/orders', notification.orderNumber]">
+              <i class="bi bi-eye"></i> Görüntüle
+            </button>
+            <button class="btn btn-sm btn-success" (click)="processOrder(notification.orderNumber)">
+              <i class="bi bi-check2"></i> İşleme Al
+            </button>
+            <button class="btn btn-sm btn-light" (click)="dismissNotification('order', i)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sipariş Güncellemeleri Bölümü -->
+      <div class="notification-list" *ngIf="orderUpdates.length > 0">
+        <div class="notification-group-title">
+          <i class="bi bi-arrow-repeat text-warning"></i> Sipariş Güncellemeleri
+        </div>
+        
+        <div class="notification-item" *ngFor="let update of orderUpdates; let i = index">
+          <div class="notification-content">
+            <div class="notification-header">
+              <h6 class="order-id">Sipariş #{{update.orderNumber}}</h6>
+              <span class="notification-time">{{getTimeAgo(update.timestamp)}}</span>
+            </div>
             
-            <div class="space-y-4">
-              <div *ngFor="let update of orderUpdates" 
-                   class="border-l-4 border-yellow-500 bg-yellow-50 p-4 rounded-r-lg">
-                <div class="flex justify-between items-start">
-                  <div>
-                    <p class="font-medium">Sipariş No: #{{update.orderNumber}}</p>
-                    <p class="text-sm text-gray-600">{{update.customerName || 'Belirtilmemiş'}}</p>
-                  </div>
-                  <span class="text-sm text-gray-500">
-                    {{getTimeAgo(update.timestamp)}}
+            <div class="customer-info">
+              <span class="customer-name">{{update.customerName || 'İsimsiz Müşteri'}}</span>
+            </div>
+            
+            <!-- Değişiklik Bilgileri -->
+            <div class="update-details">
+              <!-- Durum Değişikliği -->
+              <div class="update-item" *ngIf="update.status?.changed">
+                <div class="update-label">Durum Değişikliği:</div>
+                <div class="change-details">
+                  <span class="old-value">{{update.status.previous}}</span>
+                  <i class="bi bi-arrow-right"></i>
+                  <span class="new-value">{{update.status.current}}</span>
+                </div>
+              </div>
+              
+              <!-- Tutar Değişikliği -->
+              <div class="update-item" *ngIf="update.totalAmount?.changed">
+                <div class="update-label">Tutar Değişikliği:</div>
+                <div class="change-details">
+                  <span class="old-value">
+                    {{update.totalAmount.previous | currency:'TRY':'symbol-narrow':'1.2-2'}}
+                  </span>
+                  <i class="bi bi-arrow-right"></i>
+                  <span class="new-value">
+                    {{update.totalAmount.current | currency:'TRY':'symbol-narrow':'1.2-2'}}
                   </span>
                 </div>
-  
-                <!-- Durum Değişikliği -->
-                <div *ngIf="update.status?.changed" class="mt-3">
-                  <p class="text-sm font-medium">Durum Değişikliği:</p>
-                  <div class="flex items-center space-x-2 mt-1">
-                    <span class="text-gray-600">{{update.status.previous}}</span>
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span class="font-medium">{{update.status.current}}</span>
-                  </div>
-                </div>
-  
-                <!-- Tutar Değişikliği -->
-                <div *ngIf="update.totalAmount?.changed" class="mt-3">
-                  <p class="text-sm font-medium">Tutar Değişikliği:</p>
-                  <div class="flex items-center space-x-2 mt-1">
-                    <span class="text-gray-600">
-                      {{update.totalAmount.previous | currency:'USD':'symbol-narrow':'1.2-2'}}
-                    </span>
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span class="font-medium">
-                      {{update.totalAmount.current | currency:'USD':'symbol-narrow':'1.2-2'}}
-                    </span>
-                  </div>
-                </div>
-  
-                <!-- Admin Notu -->
-                <div *ngIf="update.adminNote?.changed" class="mt-3">
-                  <p class="text-sm font-medium">Admin Notu:</p>
-                  <p class="text-sm text-gray-600 mt-1">{{update.adminNote.current}}</p>
-                </div>
-  
-                <!-- Güncelleyen Bilgisi -->
-                <div class="mt-3 text-sm text-gray-500">
-                  Güncelleyen: {{update.updatedBy}}
+              </div>
+              
+              <!-- Admin Notu -->
+              <div class="update-item" *ngIf="update.adminNote?.changed">
+                <div class="update-label">Admin Notu:</div>
+                <div class="admin-note">
+                  {{update.adminNote.current}}
                 </div>
               </div>
             </div>
+            
+            <div class="update-footer" *ngIf="update.updatedBy">
+              <span class="updated-by">Güncelleyen: {{update.updatedBy}}</span>
+            </div>
           </div>
-  
+          
+          <div class="notification-actions">
+            <button class="btn btn-sm btn-primary" [routerLink]="['/orders', update.orderNumber]">
+              <i class="bi bi-eye"></i> Görüntüle
+            </button>
+            <button class="btn btn-sm btn-light" (click)="dismissNotification('update', i)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
         </div>
       </div>
-    </main>
-     <!-- Performans İzleme (Sadece Admin) -->
-     <app-performance-monitoring *ngIf="isAdmin"></app-performance-monitoring>
-  
-     <!-- Site Haritası İzleme -->
-     <app-sitemap-monitoring></app-sitemap-monitoring>
+      
+      <!-- Sipariş Durum Güncellemeleri Bölümü -->
+      <div class="notification-list" *ngIf="statusUpdates.length > 0">
+        <div class="notification-group-title">
+          <i class="bi bi-tag-fill text-info"></i> Durum Güncellemeleri
+        </div>
+        
+        <div class="notification-item" *ngFor="let statusUpdate of statusUpdates; let i = index">
+          <div class="notification-content">
+            <div class="notification-header">
+              <h6 class="order-id">Sipariş #{{statusUpdate.orderNumber}}</h6>
+              <span class="notification-time">{{getTimeAgo(statusUpdate.timestamp)}}</span>
+            </div>
+            
+            <div class="status-update-details">
+              <div class="status-badge" [ngClass]="
+                statusUpdate.status.current === 'Shipped' ? 'status-badge-success' : 
+                statusUpdate.status.current === 'Processing' ? 'status-badge-warning' : 
+                statusUpdate.status.current === 'Cancelled' ? 'status-badge-error' : 'status-badge-info'">
+                {{statusUpdate.status.current}}
+              </div>
+              <div class="status-change">
+                <span class="old-status">{{statusUpdate.status.previous}}</span>
+                <i class="bi bi-arrow-right"></i>
+                <span class="new-status">{{statusUpdate.status.current}}</span>
+              </div>
+              <div class="status-message" *ngIf="statusUpdate.message">
+                {{statusUpdate.message}}
+              </div>
+            </div>
+          </div>
+          
+          <div class="notification-actions">
+            <button class="btn btn-sm btn-primary" [routerLink]="['/orders', statusUpdate.orderNumber]">
+              <i class="bi bi-eye"></i> Görüntüle
+            </button>
+            <button class="btn btn-sm btn-light" (click)="dismissNotification('status', i)">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  
+  <!-- Dashboard Header with Time Frame Selector -->
+  <div class="dashboard-header mb-4">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h2>
+      <div class="dashboard-controls d-flex align-items-center">
+        <!-- Zaman Aralığı Seçici -->
+        <div class="time-frame-selector me-3">
+          <select class="form-select" [(ngModel)]="selectedTimeFrame" (change)="onTimeFrameChange()">
+            <option *ngFor="let option of timeFrameOptions" [value]="option.value">{{option.label}}</option>
+          </select>
+        </div>
+        <!-- Yenileme Butonu -->
+        <button class="btn btn-outline-primary" (click)="refreshDashboard()">
+          <i class="bi bi-arrow-clockwise"></i> Yenile
+        </button>
+      </div>
+    </div>
+    <p class="text-muted mb-0">Mağaza performansını ve istatistiklerini görüntüleyin.</p>
+  </div>
+
+  <!-- Hata mesajı -->
+  <div *ngIf="error" class="alert alert-danger mb-4">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i> {{error}}
+  </div>
+
+  <!-- Yükleniyor göstergesi -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Yükleniyor...</span>
+    </div>
+    <p class="mt-2">Veriler yükleniyor...</p>
+  </div>
+
+  <!-- Dashboard İçeriği -->
+  <div *ngIf="!loading && !error">
+    <!-- İstatistik Kartları -->
+    <div class="row g-4 mb-4">
+      <!-- Kullanıcı Sayısı -->
+      <div class="col-md-4 col-lg-2">
+        <div class="stats-card">
+          <div class="stats-icon blue">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="stats-content">
+            <h3>{{formatNumber(statistics?.userCount || 0)}}</h3>
+            <p>Toplam Kullanıcı</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Ürün Sayısı -->
+      <div class="col-md-4 col-lg-2">
+        <div class="stats-card">
+          <div class="stats-icon orange">
+            <i class="bi bi-box-seam"></i>
+          </div>
+          <div class="stats-content">
+            <h3>{{formatNumber(statistics?.productCount || 0)}}</h3>
+            <p>Toplam Ürün</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sipariş Sayısı -->
+      <div class="col-md-4 col-lg-2">
+        <div class="stats-card">
+          <div class="stats-icon green">
+            <i class="bi bi-cart-check"></i>
+          </div>
+          <div class="stats-content">
+            <h3>{{formatNumber(statistics?.orderCount || 0)}}</h3>
+            <p>Toplam Sipariş</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Toplam Gelir -->
+      <div class="col-md-4 col-lg-2">
+        <div class="stats-card">
+          <div class="stats-icon red">
+            <i class="bi bi-currency-lira"></i>
+          </div>
+          <div class="stats-content">
+            <h3>{{formatCurrency(statistics?.totalRevenue || 0)}}</h3>
+            <p>Toplam Gelir</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Kategori Sayısı -->
+      <div class="col-md-4 col-lg-2">
+        <div class="stats-card">
+          <div class="stats-icon purple">
+            <i class="bi bi-tags"></i>
+          </div>
+          <div class="stats-content">
+            <h3>{{formatNumber(statistics?.categoryCount || 0)}}</h3>
+            <p>Toplam Kategori</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Marka Sayısı -->
+      <div class="col-md-4 col-lg-2">
+        <div class="stats-card">
+          <div class="stats-icon teal">
+            <i class="bi bi-award"></i>
+          </div>
+          <div class="stats-content">
+            <h3>{{formatNumber(statistics?.brandCount || 0)}}</h3>
+            <p>Toplam Marka</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- İki Sütunlu Bölüm: Ürünler ve Lokasyonlar -->
+    <div class="row mb-4">
+      <div class="col-lg-8">
+        <!-- En Çok Satan ve Sepete Eklenen Ürünler -->
+        <div class="row">
+          <!-- En Çok Satan Ürünler -->
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                  <i class="bi bi-graph-up-arrow me-2"></i>
+                  En Çok Satan 10 Ürün
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Ürün</th>
+                        <th scope="col">Satış</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let product of topSellingProducts; let i = index" (click)="navigateToProduct(product.id)" style="cursor: pointer;">
+                        <th scope="row">{{i + 1}}</th>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="product-img-small me-2" *ngIf="product.image">
+                              <img [src]="product.image" [alt]="product.name" class="img-thumbnail">
+                            </div>
+                            <span>{{product.name}}</span>
+                          </div>
+                        </td>
+                        <td>{{formatNumber(product.count)}}</td>
+                      </tr>
+                      <tr *ngIf="topSellingProducts.length === 0">
+                        <td colspan="3" class="text-center">{{getEmptyStateMessage('topSellingProducts')}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sepete En Çok Eklenen Ürünler -->
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                  <i class="bi bi-cart-plus me-2"></i>
+                  Sepete En Çok Eklenen 10 Ürün
+                </h5>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-striped table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Ürün</th>
+                        <th scope="col">Sepete Eklenme</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let product of topCartProducts; let i = index" (click)="navigateToProduct(product.id)" style="cursor: pointer;">
+                        <th scope="row">{{i + 1}}</th>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="product-img-small me-2" *ngIf="product.image">
+                              <img [src]="product.image" [alt]="product.name" class="img-thumbnail">
+                            </div>
+                            <span>{{product.name}}</span>
+                          </div>
+                        </td>
+                        <td>{{formatNumber(product.count)}}</td>
+                      </tr>
+                      <tr *ngIf="topCartProducts.length === 0">
+                        <td colspan="3" class="text-center">{{getEmptyStateMessage('topCartProducts')}}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sipariş Lokasyonları -->
+      <div class="col-lg-4">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-geo-alt me-2"></i>
+              Sipariş Lokasyonları
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Lokasyon</th>
+                    <th scope="col">Sipariş</th>
+                    <th scope="col">Oran</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let location of topOrderLocations">
+                    <td>{{location.cityName}}, {{location.countryName}}</td>
+                    <td>{{formatNumber(location.count)}}</td>
+                    <td>
+                      <div class="progress" role="progressbar" style="height: 5px;">
+                        <div class="progress-bar" [style.width]="location.percentage + '%'"></div>
+                      </div>
+                      <span class="small">{{formatPercentage(location.percentage)}}</span>
+                    </td>
+                  </tr>
+                  <tr *ngIf="topOrderLocations.length === 0">
+                    <td colspan="3" class="text-center">{{getEmptyStateMessage('topOrderLocations')}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Son Eklenen Kategoriler ve Markalar -->
+    <div class="row mb-4">
+      <!-- Son Eklenen Kategoriler -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-folder-plus me-2"></i>
+              Son Eklenen Kategoriler
+            </h5>
+            <a [routerLink]="['/admin/categories']" class="btn btn-sm btn-outline-primary">
+              Tümünü Gör
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Kategori</th>
+                    <th scope="col">Eklenme Tarihi</th>
+                    <th scope="col">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let category of recentCategories">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="category-img-small me-2" *ngIf="category.image">
+                          <img [src]="category.image" [alt]="category.name" class="img-thumbnail">
+                        </div>
+                        <span>{{category.name}}</span>
+                      </div>
+                    </td>
+                    <td>{{formatDate(category.createdDate)}}</td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/categories', category.id]">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary" (click)="navigateToCategory(category.id)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="recentCategories.length === 0">
+                    <td colspan="3" class="text-center">{{getEmptyStateMessage('recentCategories')}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Son Eklenen Markalar -->
+      <div class="col-md-6">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-bookmark-plus me-2"></i>
+              Son Eklenen Markalar
+            </h5>
+            <a [routerLink]="['/admin/brands']" class="btn btn-sm btn-outline-primary">
+              Tümünü Gör
+            </a>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">Marka</th>
+                    <th scope="col">Eklenme Tarihi</th>
+                    <th scope="col">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let brand of recentBrands">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <div class="brand-img-small me-2" *ngIf="brand.image">
+                          <img [src]="brand.image" [alt]="brand.name" class="img-thumbnail">
+                        </div>
+                        <span>{{brand.name}}</span>
+                      </div>
+                    </td>
+                    <td>{{formatDate(brand.createdDate)}}</td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-primary me-1" [routerLink]="['/admin/brands', brand.id]">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary" (click)="navigateToBrand(brand.id)">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="recentBrands.length === 0">
+                    <td colspan="3" class="text-center">{{getEmptyStateMessage('recentBrands')}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Performans Modülüne Hızlı Erişim (Admin) -->
+    <div class="card" *ngIf="isAdmin">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-speedometer2 me-2"></i>
+          Sistem Performansı
+        </h5>
+        <button class="btn btn-primary btn-sm" routerLink="/admin/monitoring">
+          <i class="bi bi-arrow-right-circle me-1"></i> Performans Paneline Git
+        </button>
+      </div>
+      <div class="card-body">
+        <p class="mb-0">Sistem performansını izlemek, endpoint yanıt sürelerini kontrol etmek ve potansiyel darboğazları tespit etmek için performans izleme panelini kullanabilirsiniz.</p>
+      </div>
+    </div>
+  </div>
+</div>

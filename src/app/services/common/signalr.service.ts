@@ -1,21 +1,19 @@
 import { Injectable } from "@angular/core";
 import { HubConnection, HubConnectionState, HubConnectionBuilder, LogLevel, HttpTransportType } from "@microsoft/signalr";
-import { BehaviorSubject } from "rxjs";
+import { Observable } from "rxjs";
 import { HubUrls } from "src/app/constants/hub-urls";
 import { ReceiveFunctions } from "src/app/constants/receive-functions";
-import { OrderCreateNotification, OrderNotification, OrderStatusNotification, OrderUpdateNotification } from "src/app/contracts/order/orderNotification";
+import { OrderCreateNotification, OrderStatusNotification, OrderUpdateNotification } from "src/app/contracts/order/orderNotification";
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from "../ui/custom-toastr.service";
 import { AuthService } from "./auth.service";
 import { UserService } from "./models/user.service";
+import { NotificationService } from "./notification.service";
 
 @Injectable({
   providedIn: 'root'
 })
 export class SignalrService {
   private hubConnection: HubConnection;
-  private orderNotifications = new BehaviorSubject<OrderCreateNotification[]>([]);
-  private orderStatusUpdates = new BehaviorSubject<OrderStatusNotification[]>([]);
-  private orderUpdates = new BehaviorSubject<OrderUpdateNotification[]>([]);
   private connecting = false;
   private isInitialized = false;
   private connectionRetryCount = 0;
@@ -24,7 +22,8 @@ export class SignalrService {
   constructor(
     private authService: AuthService,
     private userService: UserService,
-    private toastrService: CustomToastrService
+    private toastrService: CustomToastrService,
+    private notificationService: NotificationService
   ) {}
 
   public async initialize() {
@@ -167,8 +166,6 @@ export class SignalrService {
     try {
       if (this.isConnected()) {
         await this.hubConnection.stop();
-        this.orderNotifications.next([]);
-        this.orderStatusUpdates.next([]);
         console.log('SignalR connection closed successfully');
       }
     } catch (error) {
@@ -256,7 +253,8 @@ export class SignalrService {
         totalAmount: notification.TotalAmount
       };
 
-      this.orderNotifications.next([formattedNotification, ...this.orderNotifications.value]);
+      // NotificationService'e bildirimi ekle
+      this.notificationService.addOrderNotification(formattedNotification);
           
       this.toastrService.message(
           `Yeni sipariş: #${notification.OrderNumber}`,
@@ -315,7 +313,8 @@ export class SignalrService {
           }))
         };
   
-        this.orderUpdates.next([formattedNotification, ...this.orderUpdates.value]);
+        // NotificationService'e bildirimi ekle
+        this.notificationService.addOrderUpdate(formattedNotification);
             
         this.toastrService.message(
             notification.Message,
@@ -328,28 +327,16 @@ export class SignalrService {
     });
   }
 
-  getOrderNotifications() {
-    return this.orderNotifications.asObservable();
+  // Sipariş bildirimleri (artık notificationService'den alınacak)
+  getOrderNotifications(): Observable<OrderCreateNotification[]> {
+    return this.notificationService.getOrderNotifications();
   }
 
-  getOrderStatusUpdates() {
-    return this.orderStatusUpdates.asObservable();
+  getOrderStatusUpdates(): Observable<OrderStatusNotification[]> {
+    return this.notificationService.getOrderStatusUpdates();
   }
 
-  getOrderUpdates() {
-    return this.orderUpdates.asObservable();
-  }
-
-  // Temizleme metodları
-  clearOrderNotifications() {
-    this.orderNotifications.next([]);
-  }
-
-  clearOrderStatusUpdates() {
-    this.orderStatusUpdates.next([]);
-  }
-
-  clearOrderUpdates() {
-    this.orderUpdates.next([]);
+  getOrderUpdates(): Observable<OrderUpdateNotification[]> {
+    return this.notificationService.getOrderUpdates();
   }
 }

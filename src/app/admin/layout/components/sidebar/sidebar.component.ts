@@ -1,12 +1,10 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatListModule } from '@angular/material/list';
-import { MatIconModule } from '@angular/material/icon';
-import { Router, RouterModule } from '@angular/router';
-import {MatExpansionModule} from '@angular/material/expansion';
+import { RouterModule } from '@angular/router';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 import { AuthService } from 'src/app/services/common/auth.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { Router } from '@angular/router';
 
 interface SidebarItem {
   title: string;
@@ -18,33 +16,53 @@ interface SidebarItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, MatListModule, RouterModule, MatIconModule, MatExpansionModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
   animations: [
     trigger('slideInOut', [
       state('closed', style({
-        width: '72px'
+        width: '70px'
       })),
       state('open', style({
         width: '260px'
       })),
-      transition('closed <=> open', animate('400ms ease-in-out'))
+      transition('closed <=> open', animate('300ms ease-in-out'))
     ])
   ]
 })
-export class SidebarComponent implements OnInit{
+export class SidebarComponent implements OnInit {
+  constructor(
+    private authService: AuthService, 
+    private router: Router, 
+    private toastrService: CustomToastrService
+  ) { }
 
-  constructor(private authService: AuthService, private router:Router, private toastrService:CustomToastrService) { }
+  @Output() sidebarToggled = new EventEmitter<boolean>();
 
   logoUrl = 'assets/icons/TUMdex.png';
+  isMobile = false;
+  
+  // Bootstrap Icon Mapping
+  private iconMapping: {[key: string]: string} = {
+    'admin_panel_settings': 'shield-lock',
+    'dashboard': 'speedometer2',
+    'branding_watermark': 'tags',
+    'shopping_cart': 'cart',
+    'category': 'folder',
+    'settings': 'gear',
+    'person': 'person',
+    'logout': 'box-arrow-right',
+    'list': 'list-ul',
+    'add': 'plus-circle',
+    'update': 'arrow-repeat'
+  };
+
+  getIconClass(materialIcon: string): string {
+    return this.iconMapping[materialIcon] || materialIcon;
+  }
 
   sidebarItems: SidebarItem[] = [
-    {
-      title: 'Home Page',
-      icon: 'home',
-      path: ''
-    },
     {
       title: 'Dashboard',
       icon: 'admin_panel_settings',
@@ -104,7 +122,6 @@ export class SidebarComponent implements OnInit{
       title: 'User',
       icon: 'person',
       children: [
-        
         { title: 'List', icon: 'list', path: 'users/user-list' },
       ]
     },
@@ -141,19 +158,29 @@ export class SidebarComponent implements OnInit{
       icon: 'logout',
     }
   ];
+
   ngOnInit(): void {
-      
+    // Check screen size on init and set sidebar state
+    this.checkScreenSize();
   }
 
   isExpanded = true;
   activeItems: Set<SidebarItem> = new Set();
-  hoveredItem: SidebarItem | null = null;
 
   toggleSidebar() {
     this.isExpanded = !this.isExpanded;
+    this.sidebarToggled.emit(this.isExpanded);
     if (!this.isExpanded) {
       this.activeItems.clear();
-      this.hoveredItem = null;
+    }
+    
+    // Auto close sidebar after selection on mobile
+    if (this.isMobile && !this.isExpanded) {
+      // Add small delay to allow the navigation to happen first
+      setTimeout(() => {
+        this.isExpanded = false;
+        this.sidebarToggled.emit(this.isExpanded);
+      }, 300);
     }
   }
 
@@ -165,8 +192,9 @@ export class SidebarComponent implements OnInit{
       } else {
         this.activeItems.add(item);
       }
-    } else {
+    } else if (item.children) {
       this.isExpanded = true;
+      this.sidebarToggled.emit(this.isExpanded);
       this.activeItems.add(item);
     }
   }
@@ -176,12 +204,22 @@ export class SidebarComponent implements OnInit{
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
-    this.isExpanded = event.target.innerWidth > 768;
-    if (!this.isExpanded) {
-      this.activeItems.clear();
-      this.hoveredItem = null;
+  onResize() {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize() {
+    const width = window.innerWidth;
+    this.isMobile = width <= 768;
+    
+    // On mobile, sidebar should be collapsed by default
+    if (this.isMobile) {
+      this.isExpanded = false;
+    } else {
+      this.isExpanded = true;
     }
+    
+    this.sidebarToggled.emit(this.isExpanded);
   }
 
   logout() {
@@ -197,15 +235,19 @@ export class SidebarComponent implements OnInit{
       });
     }, 1000);
   }
-  
 
   handleItemClick(item: SidebarItem, event: MouseEvent) {
     if (item.title === 'Log Out') {
       event.preventDefault();
       this.logout();
-    } else {
+    } else if (item.children) {
       this.toggleSubmenu(item, event);
+    } else if (this.isMobile) {
+      // Auto close sidebar after navigation on mobile
+      setTimeout(() => {
+        this.isExpanded = false;
+        this.sidebarToggled.emit(this.isExpanded);
+      }, 300);
     }
   }
-  
 }

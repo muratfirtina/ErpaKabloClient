@@ -1,9 +1,69 @@
-.app-container {
+.layout-container {
   display: flex;
+  height: 100vh;
+  overflow: hidden;
 }
 
-.content {
-  margin-left: 266px; // Sidebar genişliği kadar sol boşluk bırakır
+.main-content {
   flex-grow: 1;
-  padding: 16px;
+  padding: 20px;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  background-color: #f8f9fa;
+  margin-left: 260px; // Width of expanded sidebar
+}
+
+.content-expanded {
+  margin-left: 70px; // Width of collapsed sidebar
+}
+
+.content-collapsed {
+  margin-left: 260px; // Width of expanded sidebar
+}
+
+// Mobile overlay for when sidebar is open
+.mobile-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  display: none;
+}
+
+// Mobile menu toggle button
+.mobile-toggle-btn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 1100;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+    padding-top: 60px; // Add space for the mobile toggle button
+  }
+  
+  .content-expanded, .content-collapsed {
+    margin-left: 0;
+  }
+  
+  .mobile-overlay {
+    display: block;
+  }
 }

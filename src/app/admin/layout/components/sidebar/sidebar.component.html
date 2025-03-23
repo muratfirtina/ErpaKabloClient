@@ -1,30 +1,46 @@
-<aside class="sidebar" [@slideInOut]="isExpanded ? 'open' : 'closed'">
-  <header>
-    <button type="button" class="sidebar-burger" (click)="toggleSidebar()">
-      <mat-icon>menu</mat-icon>
-    </button>
-    <img [src]="logoUrl" *ngIf="isExpanded" />
-  </header>
-  <ul>
-    <li *ngFor="let item of sidebarItems">
-      <button type="button" [routerLink]="!item.children && item.title !== 'Log Out' ? item.path : null"
-        routerLinkActive="active" [class.active]="isActive(item)" (click)="handleItemClick(item, $event)">
-        <mat-icon>{{item.icon}}</mat-icon>
-        <p *ngIf="isExpanded">{{item.title}}</p>
-        <mat-icon *ngIf="item.children && isExpanded">
-          {{isActive(item) ? 'expand_less' : 'expand_more'}}
-        </mat-icon>
+<div class="sidebar" [ngClass]="{'sidebar-expanded': isExpanded, 'sidebar-collapsed': !isExpanded}">
+  <!-- Mobile Menu Button - Only shows on mobile -->
+  <button *ngIf="isMobile" type="button" class="mobile-toggle-btn" (click)="toggleSidebar()">
+    <i class="bi" [ngClass]="isExpanded ? 'bi-x-lg' : 'bi-list'"></i>
+  </button>
+
+  <div class="sidebar-header">
+    <div class="logo-container">
+      <img [src]="logoUrl" alt="Logo" *ngIf="isExpanded" class="logo" routerLink="/" style="cursor: pointer;">
+      <button type="button" class="toggle-btn" (click)="toggleSidebar()">
+        <i class="bi" [ngClass]="isExpanded ? 'bi-chevron-left' : 'bi-chevron-right'"></i>
       </button>
-      <div class="sub-menu" *ngIf="item.children" [class.expanded]="isActive(item)">
-        <ul>
-          <li *ngFor="let child of item.children">
-            <a [routerLink]="child.path" routerLinkActive="active">
-              <mat-icon>{{child.icon}}</mat-icon>
-              <p>{{child.title}}</p>
-            </a>
-          </li>
-        </ul>
-      </div>
-    </li>
-  </ul>
-</aside>
+    </div>
+  </div>
+
+  <div class="sidebar-content">
+    <ul class="nav flex-column">
+      <li *ngFor="let item of sidebarItems" class="nav-item">
+        <a [routerLink]="!item.children && item.title !== 'Log Out' ? item.path : null"
+           class="nav-link" 
+           [ngClass]="{'active': isActive(item), 'has-submenu': item.children}"
+           (click)="handleItemClick(item, $event)"
+           [attr.data-title]="item.title">
+          <i class="bi bi-{{getIconClass(item.icon)}}"></i>
+          <span class="menu-text" *ngIf="isExpanded">{{item.title}}</span>
+          <i *ngIf="item.children && isExpanded" class="bi submenu-icon"
+             [ngClass]="isActive(item) ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+        </a>
+        
+        <div class="submenu" *ngIf="item.children" [ngClass]="{'submenu-expanded': isActive(item)}">
+          <ul class="nav flex-column">
+            <li *ngFor="let child of item.children" class="nav-item">
+              <a [routerLink]="child.path" routerLinkActive="active" class="nav-link submenu-link" (click)="handleItemClick(item, $event)">
+                <i class="bi bi-{{getIconClass(child.icon)}}"></i>
+                <span class="menu-text">{{child.title}}</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!-- Mobile overlay for better UX -->
+<div *ngIf="isMobile && isExpanded" class="mobile-overlay" (click)="toggleSidebar()"></div>

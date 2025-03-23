@@ -5,149 +5,211 @@
 
 .sidebar {
   position: fixed;
-  top: 24px;
-  left: 24px;
-  bottom: 24px;
+  top: 0;
+  left: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  width: 260px;
-  border-radius: 16px;
-  padding: 0 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(20px);
-  transition: width 0.4s;
+  background: linear-gradient(180deg, #1e3a8a 0%, #3b82f6 100%);
+  color: #fff;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  z-index: 999;
+  overflow-x: hidden;
 
-  header {
-    display: flex;
-    align-items: center;
-    height: 72px;
-    padding: 0 1.25rem 0 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-
-    button {
-      
-      background: transparent;
-      border: 0;
-      padding: 12px;
-      cursor: pointer;
-      
-      color:white ;
-    }
-
-    img {
-      height: 24px;
-    }
+  &-expanded {
+    width: 260px;
   }
 
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  &-collapsed {
+    width: 70px;
+  }
 
-    li {
-      position: relative;
+  .sidebar-header {
+    padding: 20px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
-      button {
-        display: flex;
-        align-items: center;
-        width: 100%;
-        padding: 12px;
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .logo {
+        height: 34px;
+        max-width: 100%;
+      }
+
+      .toggle-btn {
         background: transparent;
         border: none;
         color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         cursor: pointer;
-        transition: background-color 0.3s;
+        transition: background-color 0.2s;
 
-        &:hover, &.active {
+        &:hover {
           background-color: rgba(255, 255, 255, 0.1);
         }
 
-        mat-icon {
-          margin-right: 12px;
-          display: contents;
-        }
-
-        p {
-          flex: 1;
-          margin: 0;
+        i {
+          font-size: 18px;
         }
       }
+    }
+  }
 
-      .sub-menu {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-out;
+  .sidebar-content {
+    flex: 1;
+    padding: 15px 0;
 
-        &.expanded {
-          max-height: 500px; // Adjust this value based on your needs
-        }
+    .nav-item {
+      margin: 2px 0;
+    }
 
-        ul {
-          padding-left: 20px;
-        }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 12px 15px;
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      border-radius: 4px;
+      margin: 0 8px;
+      transition: all 0.2s;
+      position: relative;
+      white-space: nowrap;
 
-        a {
-          display: flex;
-          align-items: center;
-          padding: 8px 12px;
-          color: white;
-          text-decoration: none;
-          transition: background-color 0.3s;
-
-          &:hover, &.active {
-            background-color: rgba(255, 255, 255, 0.1);
-          }
-
-          mat-icon {
-            margin-right: 12px;
-          }
-        }
+      &:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
       }
 
-      .popup-menu {
-        position: fixed; // Changed from absolute to fixed
-        left: 96px; // Adjusted for collapsed sidebar width (72px) + left padding (24px)
-        top: auto; // Will be set dynamically in JavaScript
-        min-width: 200px;
-        background: rgba(0, 0, 0, 0.9); // Slightly more opaque
-        border-radius: 8px;
-        padding: 8px 0;
-        z-index: 9999; // Increased z-index to ensure it's always on top
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      &.active {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-weight: 500;
+      }
+
+      i {
+        font-size: 18px;
+        min-width: 25px;
+        text-align: center;
+      }
+
+      .menu-text {
+        transition: opacity 0.2s;
+        opacity: 1;
+        margin-left: 12px;
+        flex: 1;
+      }
+
+      .submenu-icon {
+        font-size: 12px;
+        transition: transform 0.3s;
+      }
+
+      &.has-submenu {
+        position: relative;
+      }
+    }
+
+    .submenu {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      padding-left: 15px;
+
+      &-expanded {
+        max-height: 1000px; // Large enough value for most submenus
+      }
+
+      .submenu-link {
+        padding: 8px 15px 8px 35px;
+        font-size: 0.95rem;
         
-        .popup-title {
-          padding: 8px 16px;
-          font-weight: bold;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        ul {
-          padding: 0;
-
-          li {
-            a {
-              display: flex;
-              align-items: center;
-              padding: 8px 16px;
-              color: white;
-              text-decoration: none;
-              transition: background-color 0.3s;
-
-              &:hover, &.active {
-                background-color: rgba(255, 255, 255, 0.1);
-              }
-
-              mat-icon {
-                margin-right: 12px;
-              }
-            }
-          }
+        i {
+          font-size: 14px;
         }
       }
+    }
+  }
+}
+
+// Hover effect for collapsed sidebar
+.sidebar-collapsed {
+  .menu-text, .submenu-icon {
+    opacity: 0;
+    width: 0;
+    display: none;
+  }
+
+  // Hide submenus when collapsed
+  .submenu {
+    display: none;
+  }
+
+  // Handle hover effect for tooltip style
+  &:hover {
+    .menu-text, .submenu-icon {
+      opacity: 0; // Keep hidden
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      
+      &::after {
+        content: attr(data-title);
+        position: absolute;
+        left: 100%;
+        top: 0;
+        margin-left: 5px;
+        padding: 8px 12px;
+        background: #3b82f6;
+        color: white;
+        border-radius: 4px;
+        white-space: nowrap;
+        z-index: 1001;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+    }
+  }
+}
+
+// Fixed media query for responsive behavior
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%); // Initially hidden on mobile
+    
+    &-expanded {
+      transform: translateX(0); // Show when expanded
+      width: 260px;
+    }
+    
+    &-collapsed {
+      transform: translateX(-100%); // Hide when collapsed
+    }
+    
+    // Add a hamburger menu button that appears on mobile
+    .toggle-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1100;
+      background-color: #3b82f6;
+      color: white;
+      border-radius: 4px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
   }
 }

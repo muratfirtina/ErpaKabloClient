@@ -1,160 +1,180 @@
-<!-- performance-monitoring.component.html -->
-<div class="min-h-screen p-6 bg-gray-50 space-y-6">
-    <!-- Header -->
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold text-gray-900">Performans İzleme Paneli</h2>
-      <p class="mt-1 text-sm text-gray-500">
-        Sistem performans metrikleri ve endpoint istatistikleri
-      </p>
+<div class="performance-container">
+  <!-- Header -->
+  <div class="header-section">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h2 class="section-title">Performans İzleme Paneli</h2>
+        <p class="section-subtitle">Sistem performans metrikleri ve endpoint istatistikleri</p>
+      </div>
+      <button class="btn btn-outline-secondary" (click)="clearMetrics()">
+        <i class="bi bi-arrow-clockwise me-1"></i> Metrikleri Sıfırla
+      </button>
     </div>
-  
-    <!-- Metrics Cards -->
-    <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-      <!-- Response Time Card -->
-      <div class="dashboard-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="card-title">Ortalama Yanıt Süresi</h3>
-            <div class="card-value text-blue-600">{{averageResponseTime.toFixed(2)}} ms</div>
-            <div class="card-subtitle">Son 5 dakikadaki ortalama</div>
-          </div>
-          <div class="p-3 bg-blue-50 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-  
-      <!-- High Latency Card -->
-      <div class="dashboard-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="card-title">Yüksek Gecikme Sayısı</h3>
-            <div class="card-value" [ngClass]="{'text-red-600': highLatencyCount > 10, 'text-gray-900': highLatencyCount <= 10}">
-              {{highLatencyCount}}
-            </div>
-            <div class="card-subtitle">Kritik eşik üstü istekler</div>
-          </div>
-          <div class="p-3 bg-red-50 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-  
-      <!-- Endpoints Card -->
-      <div class="dashboard-card">
-        <div class="flex items-center justify-between">
-          <div>
-            <h3 class="card-title">İzlenen Endpoint Sayısı</h3>
-            <div class="card-value text-green-600">{{endpointCount}}</div>
-            <div class="card-subtitle">Aktif izlenen endpoint'ler</div>
-          </div>
-          <div class="p-3 bg-green-50 rounded-lg">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Chart Section -->
-    <div class="dashboard-card">
-      <div class="flex items-center justify-between mb-6">
+  </div>
+
+  <!-- Metrics Cards -->
+  <div class="metrics-grid">
+    <!-- Response Time Card -->
+    <div class="metric-card">
+      <div class="metric-card-content">
         <div>
-          <h3 class="card-title">Yanıt Süreleri Grafiği</h3>
-          <div class="card-subtitle">Son 20 ölçümün gerçek zamanlı grafiği</div>
+          <h3 class="metric-title">Ortalama Yanıt Süresi</h3>
+          <div class="metric-value text-primary">{{averageResponseTime.toFixed(2)}} ms</div>
+          <div class="metric-subtitle">Son 5 dakikadaki ortalama</div>
         </div>
-        <!-- Time Range Selector -->
-        <div class="flex gap-2">
-          <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-            Son 5dk
-          </button>
-          <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-            Son 15dk
-          </button>
-          <button class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
-            Son 1sa
-          </button>
+        <div class="metric-icon bg-primary-light">
+          <i class="bi bi-clock"></i>
         </div>
-      </div>
-      <div class="chart-container h-96">
-        <canvas id="performanceChart"></canvas>
       </div>
     </div>
-  
-    <!-- Endpoints Table Section -->
-    <div class="dashboard-card">
-      <div class="mb-6 flex items-center justify-between">
+
+    <!-- High Latency Card -->
+    <div class="metric-card">
+      <div class="metric-card-content">
         <div>
-          <h3 class="card-title">Endpoint Performans Detayları</h3>
-          <div class="card-subtitle">Tüm endpoint'lerin performans metrikleri</div>
+          <h3 class="metric-title">Yüksek Gecikme Sayısı</h3>
+          <div class="metric-value" [ngClass]="{'text-danger': highLatencyCount > 10, 'text-dark': highLatencyCount <= 10}">
+            {{highLatencyCount}}
+          </div>
+          <div class="metric-subtitle">Kritik eşik üstü istekler</div>
         </div>
-        <!-- Search Box -->
-        <div class="relative w-72">
-          <input type="text" 
-                 class="search-input"
-                 placeholder="Endpoint ara...">
-          <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+        <div class="metric-icon bg-danger-light">
+          <i class="bi bi-exclamation-triangle"></i>
         </div>
       </div>
-  
-      <div class="overflow-x-auto">
-        <table class="performance-table">
-          <thead>
-            <tr>
-              <th>Endpoint</th>
-              <th>Ort. Yanıt Süresi</th>
-              <th>Son İstek</th>
-              <th>Durum</th>
-              <th>Trend</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let metric of endpointMetrics">
-              <td class="max-w-md truncate">
-                {{metric.endpoint}}
-              </td>
-              <td class="whitespace-nowrap">
-                {{metric.avgResponseTime.toFixed(2)}} ms
-              </td>
-              <td class="whitespace-nowrap">
-                {{metric.lastRequest | date:'medium'}}
-              </td>
-              <td>
-                <span [class]="getStatusClass(metric.avgResponseTime)">
-                  {{getStatusText(metric.avgResponseTime)}}
-                </span>
-              </td>
-              <td>
-                <div class="flex items-center">
-                  <svg *ngIf="metric.avgResponseTime < 100" class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
-                  </svg>
-                  <svg *ngIf="metric.avgResponseTime >= 100" class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                  </svg>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-  
-      <!-- Empty State -->
-      <div *ngIf="endpointMetrics.length === 0" class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">Veri Bulunamadı</h3>
-        <p class="mt-1 text-sm text-gray-500">
-          Henüz hiçbir endpoint verisi toplanmadı.
-        </p>
+    </div>
+
+    <!-- Endpoints Card -->
+    <div class="metric-card">
+      <div class="metric-card-content">
+        <div>
+          <h3 class="metric-title">İzlenen Endpoint Sayısı</h3>
+          <div class="metric-value text-success">{{endpointCount}}</div>
+          <div class="metric-subtitle">Aktif izlenen endpoint'ler</div>
+        </div>
+        <div class="metric-icon bg-success-light">
+          <i class="bi bi-graph-up"></i>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Recent Alerts Section -->
+  <div class="alerts-card" *ngIf="recentAlerts.length > 0">
+    <h3 class="alerts-title">
+      <i class="bi bi-exclamation-triangle-fill me-2"></i> Son Uyarılar
+    </h3>
+    <div class="alerts-container">
+      <div *ngFor="let alert of recentAlerts" 
+           [ngClass]="['alert', getAlertClass(alert.type)]">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <strong>{{alert.type === 'critical' ? 'Kritik' : 'Uyarı'}}:</strong> 
+            {{alert.endpoint}}
+          </div>
+          <div class="ms-3 text-nowrap small">
+            {{alert.timestamp | date:'medium'}}
+          </div>
+        </div>
+        <div>Yanıt süresi: <strong>{{alert.duration}} ms</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chart Section -->
+  <div class="chart-card">
+    <div class="chart-header">
+      <div>
+        <h3 class="chart-title">Yanıt Süreleri Grafiği</h3>
+        <div class="chart-subtitle">Son 20 ölçümün gerçek zamanlı grafiği</div>
+      </div>
+      <!-- Time Range Selector -->
+      <div class="time-range-selector">
+        <div class="btn-group" role="group">
+          <button class="btn btn-sm" [ngClass]="selectedTimeRange === '5min' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('5min')">Son 5dk</button>
+          <button class="btn btn-sm" [ngClass]="selectedTimeRange === '15min' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('15min')">Son 15dk</button>
+          <button class="btn btn-sm" [ngClass]="selectedTimeRange === '1h' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('1h')">Son 1sa</button>
+        </div>
+      </div>
+    </div>
+    <div class="chart-container">
+      <canvas id="performanceChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Endpoints Table Section -->
+  <div class="table-card">
+    <div class="table-header">
+      <div>
+        <h3 class="table-title">Endpoint Performans Detayları</h3>
+        <div class="table-subtitle">Tüm endpoint'lerin performans metrikleri</div>
+      </div>
+      <!-- Search Box -->
+      <div class="search-container">
+        <i class="bi bi-search search-icon"></i>
+        <input type="text" 
+               class="search-input"
+               placeholder="Endpoint ara..."
+               (input)="onSearch($event)">
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="performance-table">
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Ort. Yanıt Süresi</th>
+            <th>Son İstek</th>
+            <th>Durum</th>
+            <th>Trend</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let metric of filteredMetrics">
+            <td class="endpoint-cell">
+              {{metric.endpoint}}
+            </td>
+            <td>
+              {{metric.avgResponseTime.toFixed(2)}} ms
+            </td>
+            <td>
+              {{metric.lastRequest | date:'medium'}}
+            </td>
+            <td>
+              <span [class]="getStatusClass(metric.avgResponseTime)">
+                {{getStatusText(metric.avgResponseTime)}}
+              </span>
+            </td>
+            <td>
+              <div class="trend-icon">
+                <i *ngIf="metric.avgResponseTime < 100" class="bi bi-arrow-up-circle-fill text-success"></i>
+                <i *ngIf="metric.avgResponseTime >= 100" class="bi bi-arrow-down-circle-fill text-danger"></i>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredMetrics.length === 0" class="empty-state">
+        <i class="bi bi-clipboard-data"></i>
+        <h3>Veri Bulunamadı</h3>
+        <p *ngIf="searchTerm && endpointMetrics.length > 0">Arama kriterlerine uygun endpoint bulunamadı. Lütfen farklı bir arama terimi deneyin.</p>
+        <p *ngIf="endpointMetrics.length === 0">Henüz hiçbir endpoint verisi toplanmadı.</p>
+      </div>
+    </div>
+  </div>
+  <!-- Sitemap Monitoring -->
+  <div class="card mt-4">
+    <div class="card-header">
+      <h5 class="card-title">
+        <i class="bi bi-diagram-3 me-2"></i>
+        Site Haritası İzleme
+      </h5>
+    </div>
+    <div class="card-body">
+      <app-sitemap-monitoring></app-sitemap-monitoring>
+    </div>
+  </div>
+</div>

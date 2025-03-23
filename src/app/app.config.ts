@@ -26,7 +26,7 @@ import { FileSizePipe } from './pipes/file-size.pipe';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { TokenValidatorInterceptor } from './interceptors/tokenValidator.interceptor';
 import { environment } from 'src/environments/environment.prod';
-import { LocationStrategy, HashLocationStrategy, PathLocationStrategy } from '@angular/common';
+import { LocationStrategy, PathLocationStrategy } from '@angular/common';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -80,7 +80,7 @@ export const appConfig: ApplicationConfig = {
       useValue: `${environment.baseUrl}/api`, 
       multi: true 
     },
-{ provide: LocationStrategy, useClass: PathLocationStrategy }, 
+    { provide: LocationStrategy, useClass: PathLocationStrategy }, 
     provideAnimationsAsync(),
   ]
 };
