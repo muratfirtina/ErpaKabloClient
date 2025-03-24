@@ -20,7 +20,7 @@
   <div class="product-image-gallery">
     <div class="main-image" (click)="toggleImageZoom()">
       <img [src]="product.productImageFiles && product.productImageFiles.length > 0 && currentImageIndex >= 0 ? 
-                  product.productImageFiles[currentImageIndex].url : defaultProductImage" [alt]="product.name"
+                  product.productImageFiles[currentImageIndex].url : defaultProductImageUrl" [alt]="product.name"
         [class.zoomed]="isImageZoomed">
       <div class="image-navigation" *ngIf="product.productImageFiles && product.productImageFiles.length > 1">
         <button class="nav-button" (click)="prevImage($event)" [disabled]="currentImageIndex === 0">❮</button>

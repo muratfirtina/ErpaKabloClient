@@ -25,6 +25,7 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
 export class BrandComponent extends BaseComponent implements OnInit {
   brands: Brand[] = [];
   totalBrandCount: number = 0;
+  defaultBrandImageUrl: string = 'assets/icons/brand/ecommerce-default-brand.png';
 
   constructor(
     private breadcrumbService: BreadcrumbService,

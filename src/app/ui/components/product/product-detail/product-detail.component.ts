@@ -52,7 +52,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
   randomProductsForBrands: GetListResponse<Product>;
   user: User;
   currentImageIndex = 0;
-  defaultProductImage = 'assets/icons/product/ecommerce-default-product.png';
+  defaultProductImageUrl = 'assets/icons/product/ecommerce-default-product.png';
   selectedFeatures: { [key: string]: string } = {};
   sortedAvailableFeatures: { [key: string]: string[] } = {};
   visualFeatures: string[] = [];
@@ -292,7 +292,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
     // Diğer durumlar için featureImages'dan al
     const featureImages = this.getFeatureImages(featureName);
     const matchingImage = featureImages.find(img => img.value === featureValue);
-    return matchingImage ? matchingImage.imageUrl : this.defaultProductImage;
+    return matchingImage ? matchingImage.imageUrl : this.defaultProductImageUrl;
   }
 
   private getFeatureImages(featureName: string): { value: string, imageUrl: string }[] {
@@ -316,7 +316,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
           value: currentFeatureValue,
           imageUrl: this.product.showcaseImage?.url || 
                    this.product.productImageFiles?.[0]?.url || 
-                   this.defaultProductImage
+                   this.defaultProductImageUrl
         }];
       }
       return [];
@@ -339,11 +339,11 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
         selectedSize
       );
   
-      let imageUrl = this.defaultProductImage;
+      let imageUrl = this.defaultProductImageUrl;
       if (productForFeature) {
         imageUrl = productForFeature.showcaseImage?.url || 
                   productForFeature.productImageFiles?.[0]?.url || 
-                  this.defaultProductImage;
+                  this.defaultProductImageUrl;
       }
   
       return {
@@ -507,7 +507,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
     if (product.showcaseImage) {
       return product.showcaseImage.url;
     }
-    return this.defaultProductImage;
+    return this.defaultProductImageUrl;
   }
 
   scrollLeft() {

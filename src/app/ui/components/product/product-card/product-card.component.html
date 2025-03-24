@@ -1,6 +1,6 @@
 <div class="product-card" [class.grid-view]="gridView" (click)="onCardClick()">
   <div class="product-image">
-    <img [src]="product.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name">
+    <img [src]="product.showcaseImage?.url || defaultProductImageUrl" [alt]="product.name">
     <button class="heart-icon" [class.liked]="product.isLiked" (click)="onLikeClick($event)">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#c6c6c6" class="bi bi-suit-heart-fill"
         viewBox="0 0 16 16">

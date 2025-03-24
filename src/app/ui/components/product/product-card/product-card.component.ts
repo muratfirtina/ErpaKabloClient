@@ -15,6 +15,7 @@ export class ProductCardComponent {
   @Input() product!: Product;
   @Input() listView: boolean = false;
   @Input() gridView: boolean = false;
+  defaultProductImageUrl: string = 'assets/icons/product/ecommerce-default-brand.png';
 
   constructor(private productOperations: ProductOperationsService,private router: Router) {}
 

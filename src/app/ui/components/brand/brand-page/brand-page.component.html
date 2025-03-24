@@ -15,7 +15,7 @@
       <div class="row mb-4" *ngIf="brand?.brandImage">
         <div class="col-12">
           <div class="brand-banner">
-            <img [src]="brand.brandImage?.url" 
+            <img [src]="brand.brandImage?.url || defaultBrandImageUrl" 
                  [alt]="brand?.name"
                  class="img-fluid brand-banner-img">
           </div>
