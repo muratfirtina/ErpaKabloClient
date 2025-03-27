@@ -86,18 +86,16 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   async loadAvailableFilters() {
     this.isFiltersLoading = true;
     try {
-      const filters = await this.productService.getAvailableFilters(
-        this.searchTerm, // Arama terimi
-        null, // categoryIds yok
-        null  // brandIds yok
-      );
-      this.availableFilters = filters;
+        // searchTerm zaten var, değişiklik gerekmiyor
+        const filters = await this.productService.getAvailableFilters(this.searchTerm);
+        this.availableFilters = filters;
     } catch (error) {
-      console.error('Error loading filters:', error);
+        console.error('Error loading filters:', error);
     } finally {
-      this.isFiltersLoading = false;
+        this.isFiltersLoading = false;
     }
-  }
+}
+
   async searchProducts() {
     this.isProductsLoading = true;
     try {

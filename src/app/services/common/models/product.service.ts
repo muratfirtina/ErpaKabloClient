@@ -142,19 +142,16 @@ export class ProductService {
   async getAvailableFilters(searchTerm?: string, categoryIds?: string[], brandIds?: string[]): Promise<FilterGroup[]> {
     let queryParams: string[] = [];
     
-    if (searchTerm) {
-        queryParams.push(`searchTerm=${searchTerm}`);
-    }
+    // searchTerm MUTLAKA ekle (boş string olsa bile)
+    queryParams.push(`searchTerm=${searchTerm || ''}`);  // Değişiklik burada
     
     if (categoryIds && categoryIds.length > 0) {
-        // Her bir kategori ID'sini ayrı parametre olarak ekle
         categoryIds.forEach(id => {
             queryParams.push(`categoryIds=${id}`);
         });
     }
     
     if (brandIds && brandIds.length > 0) {
-        // Her bir marka ID'sini ayrı parametre olarak ekle
         brandIds.forEach(id => {
             queryParams.push(`brandIds=${id}`);
         });
