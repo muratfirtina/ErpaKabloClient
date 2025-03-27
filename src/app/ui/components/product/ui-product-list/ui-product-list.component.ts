@@ -18,12 +18,31 @@ export class UiProductListComponent extends BaseComponent implements OnChanges {
   @Input() products: Product[] = [];
   @Input() listView: boolean = false;
   @Input() loading: boolean = false;
-
+  
+  // Daha önce ürün yüklenip yüklenmediğini takip etmek için
+  private hasHadProducts = false;
+  
   constructor(spinner: SpinnerService) {
     super(spinner);
+    console.log("UiProductListComponent constructed");
   }
-
+  
+  ngOnInit() {
+    console.log("UiProductListComponent initialized with products:", this.products?.length);
+  }
+  
   ngOnChanges(changes: SimpleChanges) {
+    console.log("UiProductListComponent changes:", 
+                "products:", this.products?.length, 
+                "loading:", this.loading);
+    
+    // Ürünlerimiz varsa, hasHadProducts'ı güncelle
+    if (changes['products'] && this.products && this.products.length > 0) {
+      this.hasHadProducts = true;
+      console.log("Products received:", this.products.length);
+    }
+    
+    // Yükleme durumu değişikliklerini ele al
     if (changes['loading']) {
       if (this.loading) {
         this.showSpinner(SpinnerType.SquareLoader);
@@ -31,5 +50,13 @@ export class UiProductListComponent extends BaseComponent implements OnChanges {
         this.hideSpinner(SpinnerType.SquareLoader);
       }
     }
+  }
+  
+  /**
+   * Boş durumun gösterilip gösterilmeyeceğini kontrol et
+   * Sadece yüklemiyorsak VE hiç ürün olmadıysa göster
+   */
+  get shouldShowEmptyState(): boolean {
+    return !this.loading && this.products.length === 0 && !this.hasHadProducts;
   }
 }

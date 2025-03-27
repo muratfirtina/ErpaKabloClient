@@ -139,18 +139,37 @@ export class ProductService {
     return await firstValueFrom(observable);
   }
 
-  async getAvailableFilters(searchTerm?: string): Promise<FilterGroup[]> {
-    let queryString = '';
+  async getAvailableFilters(searchTerm?: string, categoryIds?: string[], brandIds?: string[]): Promise<FilterGroup[]> {
+    let queryParams: string[] = [];
+    
     if (searchTerm) {
-        queryString = `searchTerm=${searchTerm}`;
+        queryParams.push(`searchTerm=${searchTerm}`);
     }
+    
+    if (categoryIds && categoryIds.length > 0) {
+        // Her bir kategori ID'sini ayrı parametre olarak ekle
+        categoryIds.forEach(id => {
+            queryParams.push(`categoryIds=${id}`);
+        });
+    }
+    
+    if (brandIds && brandIds.length > 0) {
+        // Her bir marka ID'sini ayrı parametre olarak ekle
+        brandIds.forEach(id => {
+            queryParams.push(`brandIds=${id}`);
+        });
+    }
+    
+    const queryString = queryParams.join('&');
+    
     const observable = this.httpClientService.get<FilterGroup[]>({
         controller: 'products',
         action: 'filters',
         queryString: queryString
     });
+    
     return await firstValueFrom(observable);
-} 
+}
 
 async searchProducts(searchTerm: string, pageRequest: PageRequest): Promise<{
   products: GetListResponse<Product>;

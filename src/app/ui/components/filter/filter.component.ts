@@ -76,41 +76,71 @@ export class FilterComponent implements OnChanges {
     });
   }
 
-  buildCategoryTree() {
-    const categoryFilter = this.availableFilters.find(filter => filter.key === 'Category');
-    if (categoryFilter) {
-      this.categoryTree = this.buildTree(categoryFilter.options);
-      this.updateCategorySelectState(this.categoryTree);
-    }
+  // FilterComponent içinde güncellenen buildCategoryTree metodu
+buildCategoryTree() {
+  const categoryFilter = this.availableFilters.find(filter => filter.key === 'Category');
+  if (categoryFilter) {
+    // Önce tüm kategorileri düzenli hale getir
+    const categories = [...categoryFilter.options].sort((a, b) => {
+      // Tip güvenliği için parentId kontrolü
+      const aParentId = (a as any).parentId;
+      const bParentId = (b as any).parentId;
+      
+      // Önce üst kategorileri göster
+      if (!aParentId && bParentId) return -1;
+      if (aParentId && !bParentId) return 1;
+      
+      // Sonra aynı seviyedeki kategorileri alfabetik olarak sırala
+      return a.displayValue.localeCompare(b.displayValue);
+    });
+    
+    this.categoryTree = this.buildTree(categories);
+    this.updateCategorySelectState(this.categoryTree);
   }
+}
 
-  buildTree(categories: any[]): CategoryNode[] {
-    const map = new Map<string, CategoryNode>();
-    const roots: CategoryNode[] = [];
+// Filter Component içinde buildTree metoduna ekleme
+buildTree(categories: any[]): CategoryNode[] {
+  const map = new Map<string, CategoryNode>();
+  const roots: CategoryNode[] = [];
 
-    categories.forEach(category => {
-      const node: CategoryNode = {
-        id: category.value,
-        name: category.displayValue.split(' > ').pop(),
-        parentId: category.parentId,
-        children: [],
-        expanded: false,
-        selected: this.isSelected('Category', category.value)
-      };
-      map.set(category.value, node);
+  // Önce tüm kategori düğümlerini oluştur
+  categories.forEach(category => {
+    const node: CategoryNode = {
+      id: category.value,
+      name: category.displayValue.includes(' > ') 
+        ? category.displayValue.split(' > ').pop() 
+        : category.displayValue,
+      parentId: (category as any).parentId, // Tip güvenli erişim
+      children: [],
+      expanded: false,
+      selected: this.isSelected('Category', category.value)
+    };
+    map.set(category.value, node);
+  });
 
-      if (category.parentId) {
-        const parent = map.get(category.parentId);
-        if (parent) {
-          parent.children.push(node);
+  // Şimdi parent-child ilişkilerini kur
+  categories.forEach(category => {
+    const node = map.get(category.value);
+    if (node) {
+      // Tip güvenli parentId erişimi
+      const parentId = (category as any).parentId;
+      
+      if (parentId && map.has(parentId)) {
+        const parent = map.get(parentId);
+        parent?.children.push(node);
+        // Çocuk seçiliyse, ebeveyni genişlet
+        if (node.selected) {
+          parent!.expanded = true;
         }
       } else {
         roots.push(node);
       }
-    });
+    }
+  });
 
-    return roots;
-  }
+  return roots;
+}
 
   updateCategorySelectState(nodes: CategoryNode[]) {
     nodes.forEach(node => {

@@ -61,6 +61,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
   quantity: number = 1;
   isFiltersLoading: boolean = false;
   isProductsLoading: boolean = false;
+  allCategoryIds: string[] = []; // Store all category IDs including subcategories
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
@@ -87,30 +88,43 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
 
   ngOnChanges(changes: SimpleChanges) {
     if ((changes['categoryId'] || changes['key']) && this.categoryId) {
-      // Reset sayfanın state'ini sıfırla
+      console.log("Category component changes detected, new categoryId:", this.categoryId);
+      
+      // Sayfa durumunu sıfırla
       this.products = [];
       this.subCategories = [];
       this.selectedFilters = {};
       this.pageRequest.pageIndex = 0;
+      this.allCategoryIds = [this.categoryId]; // Kategori ID'lerini sıfırla
       
-      // Yeni veriyi yükle
+      // Yeni veri yükle
       this.loadCategory();
-      this.loadAvailableFilters();
-      this.loadProducts();
-      this.loadSubCategories();
       
-      // Sayfa başına scroll
+      // Önce alt kategorileri ve filtreleri yükle, sonra ürünleri yükle (sıralı işlem)
+      this.loadSubCategories().then(() => {
+        console.log("Subcategories loaded in ngOnChanges, allCategoryIds:", this.allCategoryIds);
+        this.loadAvailableFilters();
+      });
+      
+      // Sayfanın başına kaydır
       window.scrollTo(0, 0);
     }
   }
 
   ngOnInit() {
-    // Remove the route.params subscription since we're using Input now
     if (this.categoryId) {
+      console.log("Category component initialized with ID:", this.categoryId);
+      this.allCategoryIds = [this.categoryId]; // İlk durum olarak mevcut kategoriyi başlat
+      
+      // Ana kategoriyi yükle
       this.loadCategory();
-      this.loadAvailableFilters();
-      this.loadProducts();
-      this.loadSubCategories();
+      
+      // Önce alt kategorileri yükle, sonra ürünleri ve filtreleri yükle
+      this.loadSubCategories().then(() => {
+        console.log("Subcategories loaded, allCategoryIds:", this.allCategoryIds);
+        this.loadAvailableFilters();
+      });
+      
       this.checkScreenSize();
     }
   }
@@ -135,20 +149,96 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
   }
 
   async loadSubCategories() {
-    await this.categoryService.getSubCategories(this.categoryId).then(
-      (response: GetListResponse<Category>) => {
-        this.subCategories = response.items;
-      },
-      error => {
-        console.error('Error loading subcategories:', error);
-      }
-    );
+    this.isFiltersLoading = true;
+    try {
+      // Ana kategorinin alt kategorilerini yükle
+      const response = await this.categoryService.getSubCategories(this.categoryId);
+      this.subCategories = response.items;
+      
+      // Tüm alt kategorileri toplayacak rekursif bir fonksiyon
+      const collectAllSubcategoryIds = async (categoryId: string): Promise<string[]> => {
+        try {
+          // Bu kategorinin alt kategorilerini al
+          const response = await this.categoryService.getSubCategories(categoryId);
+          const subcategories = response.items;
+          
+          if (!subcategories || subcategories.length === 0) {
+            return []; // Alt kategori yoksa boş dizi döndür
+          }
+          
+          // Tüm doğrudan alt kategori ID'lerini topla
+          const directSubcategoryIds = subcategories.map(c => c.id);
+          
+          // Her bir alt kategori için, onun alt kategorilerini rekursif olarak topla
+          const allNestedIds: string[] = [];
+          
+          // Alt kategorilerin her biri için rekursif olarak alt kategorileri getir
+          const nestedPromises = directSubcategoryIds.map(async (subCatId) => {
+            const nestedIds = await collectAllSubcategoryIds(subCatId);
+            return nestedIds;
+          });
+          
+          // Tüm alt kategorilerin işlemlerini tamamla ve sonuçları birleştir
+          const nestedResults = await Promise.all(nestedPromises);
+          nestedResults.forEach(nestedIds => {
+            allNestedIds.push(...nestedIds);
+          });
+          
+          // Doğrudan alt kategoriler + onların alt kategorileri
+          return [...directSubcategoryIds, ...allNestedIds];
+        } catch (error) {
+          console.error(`Error collecting subcategories for ${categoryId}:`, error);
+          return [];
+        }
+      };
+      
+      // Ana kategorinin tüm alt kategorilerini topla
+      const allSubcategoryIds = await collectAllSubcategoryIds(this.categoryId);
+      
+      // Benzersiz kategori ID'lerini ekle (mükerrer olmaması için)
+      this.allCategoryIds = [this.categoryId, ...new Set(allSubcategoryIds)];
+      
+      console.log(`Toplamda ${this.allCategoryIds.length} kategori bulundu (ana kategori + alt kategoriler)`);
+      
+      // Şimdi tüm kategorilerin ürünlerini yükle
+      this.loadProducts();
+    } catch (error) {
+      console.error('Error loading subcategories:', error);
+      this.loadProducts(); // Sadece ana kategori ürünlerini yüklemeyi dene
+    } finally {
+      this.isFiltersLoading = false;
+    }
+    
+    return this.subCategories;
   }
-
+  
   async loadAvailableFilters() {
     this.isFiltersLoading = true;
     try {
-      const filters = await this.productService.getAvailableFilters(this.categoryId);
+      // Önce alt kategorilerin yüklenmesini bekle
+      if (this.allCategoryIds.length <= 1) {
+        await this.loadSubCategories();
+      }
+      
+      console.log(`${this.allCategoryIds.length} kategori için filtreler yükleniyor`);
+      
+      // Geliştirilmiş metodu kullanarak tüm kategoriler için filtreleri getir
+      const filters = await this.productService.getAvailableFilters(
+        null, // searchTerm yok
+        this.allCategoryIds, // Tüm kategori ID'leri (ana + alt kategoriler)
+        null // brandIds yok
+      );
+      
+      // Category filtresi için özel işlem
+      const categoryFilter = filters.find(f => f.key === 'Category');
+      if (categoryFilter) {
+        // Ana kategori ve alt kategorileri vurgula
+        categoryFilter.options.forEach(option => {
+          (option as any).selected = this.allCategoryIds.includes(option.value);
+        });
+      }
+      
+      console.log(`${filters.length} filtre grubu yüklendi`);
       this.availableFilters = filters;
     } catch (error) {
       console.error('Error loading filters:', error);
@@ -156,49 +246,86 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
       this.isFiltersLoading = false;
     }
   }
-
-async loadProducts() {
-  if (!this.categoryId?.includes('-c-')) return;
-  this.isProductsLoading = true;
-  try {
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    this.selectedFilters['Category'] = [this.categoryId];
-    const response = await this.productService.filterProducts(
-      '', 
-      this.selectedFilters, 
-      this.pageRequest, 
-      this.sortOrder
-    );
+  
+  async loadProducts() {
+    if (!this.categoryId) return;
     
-    this.products = response.items;
-    this.totalItems = response.count;
-    this.noResults = this.products.length === 0;
-
-    if (this.authService.isAuthenticated) {
-      const productIds = this.products.map(p => p.id);
-      const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
-      this.products.forEach(product => {
-        product.isLiked = likedProductIds.includes(product.id);
-      });
+    this.isProductsLoading = true;
+    this.products = []; // Mevcut ürünleri temizle
+    
+    try {
+      // Tüm kategori ID'lerini kullan (ana + alt kategoriler)
+      if (!this.selectedFilters['Category'] || this.selectedFilters['Category'].length === 0) {
+        // Eğer Category filtresi yoksa veya boşsa, tüm kategori ID'lerini ekle
+        this.selectedFilters['Category'] = [...this.allCategoryIds];
+      }
+      
+      console.log(`Yüklenen ürünler için filtreler:`, JSON.stringify(this.selectedFilters));
+      
+      const response = await this.productService.filterProducts(
+        '', 
+        this.selectedFilters, 
+        this.pageRequest, 
+        this.sortOrder
+      );
+      
+      this.products = response.items;
+      this.totalItems = response.count;
+      this.noResults = this.products.length === 0;
+  
+      if (this.authService.isAuthenticated) {
+        const productIds = this.products.map(p => p.id);
+        if (productIds.length > 0) {
+          const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
+          this.products.forEach(product => {
+            product.isLiked = likedProductIds?.includes(product.id) || false;
+          });
+        }
+      }
+      
+      console.log(`${this.products.length} ürün yüklendi`);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      this.noResults = true;
+    } finally {
+      this.isProductsLoading = false;
     }
-  } catch (error) {
-    
-    this.noResults = true;
-  } finally {
-    this.isProductsLoading = false;
   }
-}
 
   onFilterChange(filters: { [key: string]: string[] }) {
-    // Check if the category has changed
-    const newCategoryId = filters['Category'] ? filters['Category'][0] : this.categoryId;
+    console.log("Filtre değişikliği:", JSON.stringify(filters));
     
-    if (newCategoryId !== this.categoryId) {
-      // Category has changed, update the route
-      this.router.navigate(['/category', newCategoryId]);
+    // Kategori seçiminin değişip değişmediğini kontrol et
+    let hasChangedCategory = false;
+    
+    if (filters['Category'] && filters['Category'].length === 1) {
+      const selectedCategoryId = filters['Category'][0];
+      // Eğer seçilen kategori mevcut kategori değilse ve alt kategorilerden biri değilse
+      hasChangedCategory = selectedCategoryId !== this.categoryId && 
+                          !this.allCategoryIds.slice(1).includes(selectedCategoryId);
+    }
+    
+    if (hasChangedCategory && filters['Category'] && filters['Category'].length === 1) {
+      // Kategori tamamen değişti, yeni kategori sayfasına yönlendir
+      this.router.navigate(['/category', filters['Category'][0]]);
     } else {
-      // Category hasn't changed, just update filters and reload products
-      this.selectedFilters = filters;
+      // Mevcut kategori içindeki filtre değişikliklerini uygula
+      
+      // Kategori filtrelemesi
+      if (!filters['Category'] || filters['Category'].length === 0) {
+        // Kategori filtresi yoksa, tüm kategorileri kullan
+        filters['Category'] = [...this.allCategoryIds];
+      } else if (filters['Category'].length === 1 && this.allCategoryIds.includes(filters['Category'][0])) {
+        // Tek bir kategori seçiliyse ve bu bizim kategorilerimizden biriyse
+        
+        // Eğer ana kategori seçildiyse, tüm alt kategorileri dahil et
+        if (filters['Category'][0] === this.categoryId) {
+          filters['Category'] = [...this.allCategoryIds];
+        }
+        // Alt kategori seçildiyse, sadece onu kullan (kodda değişiklik yok)
+      }
+      
+      this.selectedFilters = { ...filters };
       this.pageRequest.pageIndex = 0;
       this.loadProducts();
     }
@@ -220,7 +347,7 @@ async loadProducts() {
       const categoryHierarchy = await this.getCategoryHierarchy(this.category);
       const breadcrumbs: Breadcrumb[] = categoryHierarchy.map(cat => ({
         label: cat.name,
-        url: `/category/${cat.id}`
+        url: `/${cat.id}` // '/category/' öneki olmadan, doğrudan /:id formatında
       }));
       this.breadcrumbService.setBreadcrumbs(breadcrumbs);
     }

@@ -12,10 +12,10 @@
       </div>
   
       <!-- Brand Header Banner -->
-      <div class="row mb-4" *ngIf="brand?.brandImage">
+      <<div class="row mb-4" *ngIf="brand?.brandImage">
         <div class="col-12">
           <div class="brand-banner">
-            <img [src]="brand.brandImage?.url || defaultBrandImageUrl" 
+            <img [src]="brand?.brandImage?.url || defaultBrandImageUrl" 
                  [alt]="brand?.name"
                  class="img-fluid brand-banner-img">
           </div>
@@ -23,10 +23,10 @@
       </div>
   
       <!-- Categories Section -->
-      <section class="categories" *ngIf="subCategories.length > 0">
+      <section class="categories" *ngIf="subCategories && subCategories.length > 0">
         <div class="category-header">
           <p>All Categories For</p>
-          <a class="brand-name" [routerLink]="['/brand', brand.id]">{{brand.name}}</a>
+          <a class="brand-name" [routerLink]="['/', brand?.id]">{{brand.name}}</a>
         </div>
         <div class="container">
           <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile && subCategories.length > 6">
@@ -37,13 +37,13 @@
           </button>
   
           <div class="category-grid" #categoryGrid>
-            <div class="category-card" *ngFor="let category of subCategories" [routerLink]="['/category', category.id]">
+            <div class="category-card" *ngFor="let category of subCategories" [routerLink]="['/', category?.id]">
               <div class="category-image">
                 <img [src]="category.categoryImage?.url" [alt]="category.name">
               </div>
               <div class="category-content">
                 <h3 class="category-title">{{ category.name }}</h3>
-                <a class="btn-category" [routerLink]="['/category', category.id]" *ngIf="isMobile">İncele</a>
+                <a class="btn-category" [routerLink]="['/', category?.id]" *ngIf="isMobile">Look at</a>
               </div>
             </div>
           </div>

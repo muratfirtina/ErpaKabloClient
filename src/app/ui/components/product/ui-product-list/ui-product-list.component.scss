@@ -1,41 +1,70 @@
 .product-list {
-    &.list-view {
-      .row > div {
-        width: 100%;
-       max-width: 100%;
-        flex: 0 0 100%;
-      }
+  position: relative;
+  min-height: 400px; // Minimum height for spinner
+  
+  &.list-view {
+    .row > div {
+      width: 100%;
+      max-width: 100%;
+      flex: 0 0 100%;
     }
   }
   
-  @media (max-width: 768px) {
-    .product-list {
-      .row > div {
-        width: 50%;
-        max-width: 50%;
-        flex: 0 0 50%;
-      }
-    }
-  }
-  
-  @media (max-width: 576px) {
-    .product-list {
-      .row > div {
-        width: 100%;
-        max-width: 50%;
-        flex: 0 0 100%;
-      }
-    }
-  }
-  .position-relative {
-    position: relative;
-    min-height: 400px; // spinner'ın görünmesi için minimum yükseklik
-  }
-  
-  .product-list {
-    width: 100%;
-    min-height: 200px;
-  }
+  // Loading state styling
   .opacity-25 {
     opacity: 0.25;
+    transition: opacity 0.3s ease;
+    pointer-events: none; // Prevent interactions while loading
   }
+  
+  // No results message
+  .no-results-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    
+    .alert {
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .product-list {
+    .row > div {
+      width: 50%;
+      max-width: 50%;
+      flex: 0 0 50%;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .product-list {
+    .row > div {
+      width: 100%;
+      max-width: 100%;
+      flex: 0 0 100%;
+    }
+    
+    min-height: 200px; // Smaller minimum height on mobile
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .product-list {
+    .no-results-container .alert {
+      background-color: #333;
+      color: #fff;
+      border-color: #444;
+    }
+  }
+}

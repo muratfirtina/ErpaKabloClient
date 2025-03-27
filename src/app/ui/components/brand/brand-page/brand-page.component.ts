@@ -144,7 +144,11 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
   async loadAvailableFilters() {
     this.isFiltersLoading = true;
     try {
-      const filters = await this.productService.getAvailableFilters(this.brandId);
+      const filters = await this.productService.getAvailableFilters(
+        null, // searchTerm yok
+        null, // categoryIds yok
+        [this.brandId] // Tek bir marka ID'si
+      );
       this.availableFilters = filters;
     } catch (error) {
       console.error('Error loading filters:', error);
@@ -216,8 +220,8 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
   updateBreadcrumbs() {
     if (this.brand) {
       const breadcrumbs: Breadcrumb[] = [
-        { label: 'Brands', url: '/brand' },
-        { label: this.brand.name, url: `/brand/${this.brand.id}` }
+        { label: 'Brands', url: '/brand' }, // Bu düz sayfa olarak kalabilir
+        { label: this.brand.name, url: `/${this.brand.id}` } // '/brand/' öneki olmadan
       ];
       this.breadcrumbService.setBreadcrumbs(breadcrumbs);
     }
