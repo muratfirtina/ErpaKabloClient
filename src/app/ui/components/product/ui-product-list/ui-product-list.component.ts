@@ -24,22 +24,15 @@ export class UiProductListComponent extends BaseComponent implements OnChanges {
   
   constructor(spinner: SpinnerService) {
     super(spinner);
-    console.log("UiProductListComponent constructed");
   }
   
   ngOnInit() {
-    console.log("UiProductListComponent initialized with products:", this.products?.length);
   }
   
   ngOnChanges(changes: SimpleChanges) {
-    console.log("UiProductListComponent changes:", 
-                "products:", this.products?.length, 
-                "loading:", this.loading);
-    
     // Ürünlerimiz varsa, hasHadProducts'ı güncelle
     if (changes['products'] && this.products && this.products.length > 0) {
       this.hasHadProducts = true;
-      console.log("Products received:", this.products.length);
     }
     
     // Yükleme durumu değişikliklerini ele al

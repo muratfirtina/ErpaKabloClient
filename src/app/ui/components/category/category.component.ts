@@ -87,9 +87,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if ((changes['categoryId'] || changes['key']) && this.categoryId) {
-      console.log("Category component changes detected, new categoryId:", this.categoryId);
-      
+    if ((changes['categoryId'] || changes['key']) && this.categoryId) {      
       // Sayfa durumunu sıfırla
       this.products = [];
       this.subCategories = [];
@@ -102,7 +100,6 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
       
       // Önce alt kategorileri ve filtreleri yükle, sonra ürünleri yükle (sıralı işlem)
       this.loadSubCategories().then(() => {
-        console.log("Subcategories loaded in ngOnChanges, allCategoryIds:", this.allCategoryIds);
         this.loadAvailableFilters();
       });
       
@@ -113,7 +110,6 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
 
   ngOnInit() {
     if (this.categoryId) {
-      console.log("Category component initialized with ID:", this.categoryId);
       this.allCategoryIds = [this.categoryId]; // İlk durum olarak mevcut kategoriyi başlat
       
       // Ana kategoriyi yükle
@@ -121,7 +117,6 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
       
       // Önce alt kategorileri yükle, sonra ürünleri ve filtreleri yükle
       this.loadSubCategories().then(() => {
-        console.log("Subcategories loaded, allCategoryIds:", this.allCategoryIds);
         this.loadAvailableFilters();
       });
       
@@ -198,7 +193,6 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
       // Benzersiz kategori ID'lerini ekle (mükerrer olmaması için)
       this.allCategoryIds = [this.categoryId, ...new Set(allSubcategoryIds)];
       
-      console.log(`Toplamda ${this.allCategoryIds.length} kategori bulundu (ana kategori + alt kategoriler)`);
       
       // Şimdi tüm kategorilerin ürünlerini yükle
       this.loadProducts();
@@ -220,7 +214,6 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
             await this.loadSubCategories();
         }
       
-        console.log(`${this.allCategoryIds.length} kategori için filtreler yükleniyor`);
       
         // Boş string olarak searchTerm gönderme
         const filters = await this.productService.getAvailableFilters(
@@ -237,7 +230,6 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
             });
         }
       
-        console.log(`${filters.length} filtre grubu yüklendi`);
         this.availableFilters = filters;
     } catch (error) {
         console.error('Error loading filters:', error);
@@ -257,10 +249,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
       if (!this.selectedFilters['Category'] || this.selectedFilters['Category'].length === 0) {
         // Eğer Category filtresi yoksa veya boşsa, tüm kategori ID'lerini ekle
         this.selectedFilters['Category'] = [...this.allCategoryIds];
-      }
-      
-      console.log(`Yüklenen ürünler için filtreler:`, JSON.stringify(this.selectedFilters));
-      
+      }      
       const response = await this.productService.filterProducts(
         '', 
         this.selectedFilters, 
@@ -281,9 +270,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
           });
         }
       }
-      
-      console.log(`${this.products.length} ürün yüklendi`);
-    } catch (error) {
+     } catch (error) {
       console.error('Error loading products:', error);
       this.noResults = true;
     } finally {
@@ -291,9 +278,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
     }
   }
 
-  onFilterChange(filters: { [key: string]: string[] }) {
-    console.log("Filtre değişikliği:", JSON.stringify(filters));
-    
+  onFilterChange(filters: { [key: string]: string[] }) {    
     // Kategori seçiminin değişip değişmediğini kontrol et
     let hasChangedCategory = false;
     

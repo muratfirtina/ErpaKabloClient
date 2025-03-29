@@ -398,18 +398,14 @@ export class UserComponent extends BaseComponent implements OnInit {
 
   async setDefaultPhone(id: string) {
     try {
-      console.log('Setting default phone:', id);
       await this.phoneService.setDefaultPhone(id);
-      console.log('Default phone set successfully');
       
       this.toastr.message('Default phone number updated successfully', 'Success', {
         toastrMessageType: ToastrMessageType.Success,
         position: ToastrPosition.TopRight
       });
       
-      console.log('Reloading phone numbers');
       await this.loadPhoneNumbers();
-      console.log('Phone numbers reloaded');
     } catch (error) {
       console.error('Error setting default phone:', error);
       this.toastr.message('Failed to update default phone number', 'Error', {

@@ -1,4 +1,3 @@
-// product-detail.component.ts
 import { Component, ElementRef, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -41,9 +40,9 @@ import { AnalyticsService } from 'src/app/services/common/analytics.services';
     DownbarComponent,
     ProductGridComponent,
     FooterComponent
-]
+  ]
 })
-export class ProductDetailComponent extends BaseComponent implements OnInit,OnChanges {
+export class ProductDetailComponent extends BaseComponent implements OnInit, OnChanges {
   @Input() productId: string;
   @Input() key: number; // Yeni key input'u ekle
 
@@ -95,7 +94,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
     this.determineVisualFeatures();
     this.isAuthenticated = this.authService.isAuthenticated;
   }
- ngOnChanges(changes: SimpleChanges) {
+
+  ngOnChanges(changes: SimpleChanges) {
     if ((changes['productId'] || changes['key']) && this.productId) {
       this.loadProduct(this.productId);
       this.loadLikeCount(this.productId);
@@ -128,7 +128,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
 
   // Tıklanabilir kartlar için
   onCardClick(productId: string) {
-    this.router.navigate(['/'+productId]);
+    this.router.navigate(['/' + productId]);
   }
   
   async loadProduct(productId: string) {
@@ -139,30 +139,33 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
         throw new Error('Invalid product ID format');
       }
   
+      // Clear previous data
       this.clearFeatures();
-      this.product = await this.productService.getById(productId,()=>{},()=>{});
-      this.analyticsService.trackViewItem(this.product)
       
+      // Load the product and its variants
+      this.product = await this.productService.getById(productId, () => {}, () => {});
+              
       if (!this.product) {
         throw new Error('Product not found');
       }
-  
-      // Başarılı yükleme durumunda diğer işlemleri yap
+    
+      // Ensure relatedProducts is an array
       this.product.relatedProducts = Array.isArray(this.product.relatedProducts) 
         ? this.product.relatedProducts 
         : [];
-      
+                
+      // Initialize product features
       this.initializeSelectedFeatures();
       this.initializeAllFeatures();
       this.sortAvailableFeatures();
       this.resetCurrentImageIndex();
       this.updateBreadcrumbs();
-      
+        
       if (this.isAuthenticated) {
         const isLiked = await this.productLikeService.isProductLiked(productId);
         this.product.isLiked = isLiked;
       }
-  
+    
     } catch (error) {
       console.error('Error loading product:', error);
       this.customToastrService.message(
@@ -176,6 +179,131 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
       this.router.navigate(['/']);
     } finally {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
+    }
+  }
+
+  initializeAllFeatures() {    
+    if (!this.product) {
+      console.warn("Product not found, features couldn't be loaded");
+      return;
+    }
+    
+    // Ensure this.allFeatures is initialized
+    this.allFeatures = {};
+    
+    // First add the main product's features
+    if (this.product.productFeatureValues && this.product.productFeatureValues.length > 0) {
+      this.product.productFeatureValues.forEach(feature => {
+        if (!this.allFeatures[feature.featureName]) {
+          this.allFeatures[feature.featureName] = [];
+        }
+        if (!this.allFeatures[feature.featureName].includes(feature.featureValueName)) {
+          this.allFeatures[feature.featureName].push(feature.featureValueName);
+        }
+      });
+    }
+    
+    // Then add features from related products (variants)
+    if (this.product.relatedProducts && this.product.relatedProducts.length > 0) {
+      
+      this.product.relatedProducts.forEach((relatedProduct, index) => {
+        if (relatedProduct.productFeatureValues && relatedProduct.productFeatureValues.length > 0) {          
+          relatedProduct.productFeatureValues.forEach(feature => {
+            if (!this.allFeatures[feature.featureName]) {
+              this.allFeatures[feature.featureName] = [];
+            }
+            if (!this.allFeatures[feature.featureName].includes(feature.featureValueName)) {
+              this.allFeatures[feature.featureName].push(feature.featureValueName);
+            }
+          });
+        } else {
+          console.warn(`Variant ${index + 1} has no features`);
+        }
+      });
+    } else {
+      console.log("No related products (variants) found");
+    }
+    
+    // Sort each feature's values
+    Object.keys(this.allFeatures).forEach(featureName => {
+      this.allFeatures[featureName] = this.sortFeatureValues(featureName, this.allFeatures[featureName]);
+    });
+      }
+
+  findMatchingProduct(): Product | null {
+    if (!this.product) {
+      console.warn("Cannot find matching product - product doesn't exist");
+      return null;
+    }
+        
+    // Gather all products (main + variants)
+    const allProducts = [this.product, ...(this.product.relatedProducts || [])];
+    
+    // Look for a product that matches all selected features
+    const matchingProduct = allProducts.find(product => {
+      if (!product || !Array.isArray(product.productFeatureValues)) {
+        return false;
+      }
+      
+      // Get all feature names that need to be matched
+      const featureNames = Object.keys(this.selectedFeatures);
+      
+      // Check if all selected features match this product's features
+      const isMatch = featureNames.every(featureName => {
+        // Try to find the matching feature in the product
+        const productFeature = product.productFeatureValues.find(
+          feature => feature.featureName === featureName
+        );
+        
+        // Check if the feature was found and has the correct value
+        const featureMatches = productFeature && 
+                              productFeature.featureValueName === this.selectedFeatures[featureName];
+        
+        if (!featureMatches) {
+          console.log(`Product ${product.id} doesn't match - ${featureName}: ` + 
+                    `${productFeature?.featureValueName || 'not found'} != ${this.selectedFeatures[featureName]}`);
+        }
+        
+        return featureMatches;
+      });
+      
+      if (isMatch) {
+        console.log("Found matching product:", product.id);
+      }
+      
+      return isMatch;
+    });
+    
+    return matchingProduct || null;
+  }
+
+  onFeatureSelect(featureName: string, featureValue: string) {
+    
+    // Check if this feature is already selected (no need to do anything)
+    if (this.isFeatureValueSelected(featureName, featureValue)) {
+      return;
+    }
+    
+    // Update the selected feature
+    this.selectedFeatures[featureName] = featureValue;
+    
+    // Find a product matching all selected features
+    const matchingProduct = this.findMatchingProduct();
+    
+    if (matchingProduct) {
+      
+      // Navigate to the matching product
+      this.router.navigate([`/${matchingProduct.id}`]);
+    } else {
+      console.warn("No product found matching the selected features");
+      this.customToastrService.message(
+        "No products found matching the selected features",
+        "Information",
+        {
+          toastrMessageType: ToastrMessageType.Info,
+          position: ToastrPosition.TopRight
+        }
+      );
     }
   }
 
@@ -225,22 +353,6 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
   }
 
   // Ürün özelliklerini yönetme metodları
-  initializeAllFeatures() {
-    if (this.product && this.product.relatedProducts) {
-      const allProducts = [this.product, ...this.product.relatedProducts];
-      allProducts.forEach(product => {
-        product.productFeatureValues.forEach(feature => {
-          if (!this.allFeatures[feature.featureName]) {
-            this.allFeatures[feature.featureName] = [];
-          }
-          if (!this.allFeatures[feature.featureName].includes(feature.featureValueName)) {
-            this.allFeatures[feature.featureName].push(feature.featureValueName);
-          }
-        });
-      });
-    }
-  }
-
   private determineVisualFeatures() {
     this.visualFeatures = Object.entries(FEATURE_CONFIGS)
       .filter(([_, config]) => config.isVisual)
@@ -248,7 +360,11 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
   }
 
   initializeSelectedFeatures() {
-    if (this.product) {
+    if (this.product && Array.isArray(this.product.productFeatureValues)) {
+      // Clear previous selections
+      this.selectedFeatures = {};
+      
+      // Set initial selections based on current product features
       for (let feature of this.product.productFeatureValues) {
         this.selectedFeatures[feature.featureName] = feature.featureValueName;
       }
@@ -256,11 +372,22 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
   }
 
   sortAvailableFeatures() {
-    if (this.product && this.product.availableFeatures) {
+    this.sortedAvailableFeatures = {};
+    
+    // If we have availableFeatures from the API response, use those
+    if (this.product && this.product.availableFeatures) {      
       for (const [featureName, values] of Object.entries(this.product.availableFeatures)) {
         this.sortedAvailableFeatures[featureName] = this.sortFeatureValues(featureName, values);
       }
+    } 
+    // Otherwise, use the features we've built from the product + variants
+    else if (this.allFeatures) {
+      
+      for (const [featureName, values] of Object.entries(this.allFeatures)) {
+        this.sortedAvailableFeatures[featureName] = this.sortFeatureValues(featureName, values);
+      }
     }
+    
   }
 
   private sortFeatureValues(featureName: string, values: string[]): string[] {
@@ -289,7 +416,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
       }
     }
   
-    // Diğer durumlar için featureImages'dan al
+    // Diğer durumlar için ilgili varyantın resmini bul
     const featureImages = this.getFeatureImages(featureName);
     const matchingImage = featureImages.find(img => img.value === featureValue);
     return matchingImage ? matchingImage.imageUrl : this.defaultProductImageUrl;
@@ -375,32 +502,12 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
       return hasMatchingFeature && hasSizeMatch;
     }) || null;
   }
+
   isProductAvailable(product: Product): boolean {
     return product.stock === -1 || product.stock > 0;
   }
 
   // Özellik seçimi ve kontrolü
-  onFeatureSelect(featureName: string, featureValue: string) {
-    if (this.isFeatureValueSelected(featureName, featureValue)) return;
-    
-    this.selectedFeatures[featureName] = featureValue;
-    const matchingProduct = this.findMatchingProduct();
-    if (matchingProduct) {
-      // Yeni ürün yüklenirken özellikleri temizle
-      this.clearFeatures(); 
-      this.loadProduct(matchingProduct.id);
-    } else {
-      this.customToastrService.message(
-        "No products found matching the selected features",
-        "Information",
-        {
-          toastrMessageType: ToastrMessageType.Info,
-          position: ToastrPosition.TopRight
-        }
-      );
-    }
-  }
-  
   private clearFeatures() {
     this.allFeatures = {};
     this.selectedFeatures = {};
@@ -409,17 +516,6 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
 
   isFeatureValueSelected(featureName: string, featureValue: string): boolean {
     return this.selectedFeatures[featureName] === featureValue;
-  }
-
-  findMatchingProduct(): Product | null {
-    if (!this.product) return null;
-    
-    const allProducts = [this.product, ...this.product.relatedProducts];
-    return allProducts.find(product => 
-      product.productFeatureValues.every(feature => 
-        this.selectedFeatures[feature.featureName] === feature.featureValueName
-      )
-    ) || null;
   }
 
   // Resim yönetimi metodları
@@ -503,6 +599,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit,OnCh
       this.quantity--;
     }
   }
+
   getProductImage(product: Product): string {
     if (product.showcaseImage) {
       return product.showcaseImage.url;

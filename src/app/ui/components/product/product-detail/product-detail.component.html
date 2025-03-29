@@ -46,7 +46,6 @@
       <button class="Btn" [class.liked]="product?.isLiked" (click)="toggleLike($event, product)">
         <span class="leftContainer">
           <svg fill="white" viewBox="0 0 512 512" height="1em" xmlns="http://www.w3.org/2000/svg"><path d="M47.6 300.4L228.3 469.1c7.5 7 17.4 10.9 27.7 10.9s20.2-3.9 27.7-10.9L464.4 300.4c30.4-28.3 47.6-68 47.6-109.5v-5.8c0-69.9-50.5-129.5-119.4-141C347 36.5 300.6 51.4 268 84L256 96 244 84c-32.6-32.6-79-47.5-124.6-39.9C50.5 55.6 0 115.2 0 185.1v5.8c0 41.5 17.2 81.2 47.6 109.5z"></path></svg>
-          <!-- <span class="like">{{ product?.isLiked ? 'Liked' : 'Like' }}</span> -->
         </span>
         <span class="likeCount">
           {{ likeCount | number }}
@@ -54,34 +53,39 @@
       </button>
     </div>
     <p class="product-price">{{formatCurrency(product.price)}}</p>
-
-    
-
-    <!-- <p class="product-stock" [class.in-stock]="product.stock > 0">
-      {{product.stock > 0 ? 'In Stock' : 'Out of stock'}}
-    </p> -->
     <p class="product-sku">SKU: {{product.sku}}</p>
 
-    <div *ngFor="let featureName of allFeatures | keyvalue" class="product-feature-selector">
-      <h3>{{featureName.key}}</h3>
+    <div *ngFor="let featurePair of allFeatures | keyvalue" class="product-feature-selector">
+      <!-- Özellik Adı -->
+      <h3>{{featurePair.key}}</h3>
+      
+      <!-- Özellik Değerleri -->
       <div class="feature-options">
-        <ng-container *ngIf="visualFeatures.includes(featureName.key.toLowerCase()); else regularFeature">
-          <button *ngFor="let featureValue of featureName.value" class="feature-button visual-feature-button"
-            [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
-            (click)="onFeatureSelect(featureName.key, featureValue)">
-            <img [src]="getFeatureImage(featureName.key, featureValue)" [alt]="featureValue" class="feature-image">
+        <!-- Görsel Özellikler için (Renk gibi) -->
+        <ng-container *ngIf="visualFeatures.includes(featurePair.key.toLowerCase()); else regularFeature">
+          <button *ngFor="let featureValue of featurePair.value" 
+                  class="feature-button visual-feature-button"
+                  [class.selected]="isFeatureValueSelected(featurePair.key, featureValue)"
+                  (click)="onFeatureSelect(featurePair.key, featureValue)">
+            <img [src]="getFeatureImage(featurePair.key, featureValue)" 
+                 [alt]="featureValue" 
+                 class="feature-image">
             <span>{{featureValue}}</span>
           </button>
         </ng-container>
+        
+        <!-- Normal Özellikler için (Örn: Boyut, ozellik1, ozellik2) -->
         <ng-template #regularFeature>
-          <button *ngFor="let featureValue of featureName.value" class="feature-button"
-            [class.selected]="isFeatureValueSelected(featureName.key, featureValue)"
-            (click)="onFeatureSelect(featureName.key, featureValue)">
+          <button *ngFor="let featureValue of featurePair.value" 
+                  class="feature-button"
+                  [class.selected]="isFeatureValueSelected(featurePair.key, featureValue)"
+                  (click)="onFeatureSelect(featurePair.key, featureValue)">
             {{featureValue}}
           </button>
         </ng-template>
       </div>
     </div>
+    
     <div class="add-to-cart-section">
       <div class="quantity-selector">
         <button (click)="decreaseQuantity()">-</button>
@@ -108,51 +112,16 @@
     <li class="tab-header" [class.active]="activeTab === 'description'" (click)="setActiveTab('description')">
       Descriptions
     </li>
-<!--     <li class="tab-header" [class.active]="activeTab === 'reviews'" (click)="setActiveTab('reviews')">
-      Değerlendirmeler <span class="badge">1899</span>
-    </li>
-    <li class="tab-header" [class.active]="activeTab === 'questions'" (click)="setActiveTab('questions')">
-      Soru & Cevap <span class="badge">22</span>
-    </li>
-    <li class="tab-header" [class.active]="activeTab === 'installment'" (click)="setActiveTab('installment')">
-      Taksit Seçenekleri
-    </li>
-    <li class="tab-header" [class.active]="activeTab === 'credit'" (click)="setActiveTab('credit')">
-      Alışveriş Kredisi
-    </li>
-    <li class="tab-header" [class.active]="activeTab === 'return'" (click)="setActiveTab('return')">
-      İptal ve İade Koşulları
-    </li> -->
   </ul>
 
   <div class="tab-content" [ngSwitch]="activeTab">
-    <div *ngSwitchCase="'description'">
-      <p *ngIf="product?.description" [innerHTML]="product.description | safeHtml"></p>
+    <div *ngSwitchCase="'description'" class="description-wrapper">
+      <div class="description-content">
+        <p *ngIf="product?.description" [innerHTML]="product.description | safeHtml"></p>
+      </div>
     </div>
-    <!-- <div *ngSwitchCase="'reviews'">
-      <h2>Değerlendirmeler</h2>
-      
-    </div>
-    
-    <div *ngSwitchCase="'questions'">
-      <h2>Soru & Cevap</h2>
-     
-    </div>
-    <div *ngSwitchCase="'installment'">
-      <h2>Taksit Seçenekleri</h2>
-     
-    </div>
-    <div *ngSwitchCase="'credit'">
-      <h2>Alışveriş Kredisi</h2>
-      
-    </div>
-    <div *ngSwitchCase="'return'">
-      <h2>İptal ve İade Koşulları</h2>
-      
-    </div> -->
   </div>
 </div>
-
 
 <section class="products">
   <app-product-grid 
@@ -166,10 +135,9 @@
     *ngIf="randomProductsForBrands"
     [products]="randomProductsForBrands.items"
     [loading]="randomProductsForBrandLoading"
-    [title]="' Other Products of ' + product?.brandName ">
+    [title]="' Other Products of ' + product?.brandName">
   </app-product-grid>
 </section>
-
 
 <app-footer></app-footer>
 <app-downbar></app-downbar>

@@ -115,12 +115,9 @@ export class DesktopUserSidebarComponent implements OnInit, AfterViewInit {
       });
       
       // Perform logout operation
-      console.log("Initiating logout from all devices...");
       const success = await this.authService.logoutFromAllDevices();
       
-      if (success) {
-        console.log("Logout from all devices successful, redirecting to login page...");
-        
+      if (success) {        
         // Hide the modal
         if (this.logoutAllDevicesModal) {
           this.logoutAllDevicesModal.hide();

@@ -41,19 +41,11 @@
             <input matInput formControlName="varyantGroupID" placeholder="Varyant Grup ID girin">
         </mat-form-field>
 
-        <!-- <mat-form-field appearance="outline">
-            <mat-label>Vergi Oranı</mat-label>
-            <input matInput type="number" formControlName="tax" placeholder="Vergi oranı girin">
-            <mat-error *ngIf="productForm.get('tax').hasError('required') || productForm.get('tax').hasError('min')">
-                Geçerli bir vergi oranı girin
-            </mat-error>
-        </mat-form-field> -->
-
         <mat-form-field appearance="outline">
             <mat-label>Stok</mat-label>
             <input matInput type="number" formControlName="stock" placeholder="Stok miktarı girin">
             <mat-error
-                *ngIf="productForm.get('stock').hasError('required') || productForm.get('stock').hasError('min')">
+                *ngIf="productForm.get('stock').hasError('required')">
                 Geçerli bir stok miktarı girin
             </mat-error>
         </mat-form-field>
@@ -62,7 +54,7 @@
             <mat-label>Fiyat</mat-label>
             <input matInput type="number" formControlName="price" placeholder="Fiyat girin">
             <mat-error
-                *ngIf="productForm.get('price').hasError('required') || productForm.get('price').hasError('min')">
+                *ngIf="productForm.get('price').hasError('required')">
                 Geçerli bir fiyat girin
             </mat-error>
         </mat-form-field>
@@ -86,10 +78,10 @@
         <div class="full-width">
             <label>Açıklama</label>
             <angular-editor 
-        formControlName="description"
-        [config]="editorConfig"
-        placeholder="Ürün açıklamasını girin">
-    </angular-editor>
+                formControlName="description"
+                [config]="editorConfig"
+                placeholder="Ürün açıklamasını girin">
+            </angular-editor>
         </div>
 
         <div formArrayName="productFeatureValues" class="features-section">
@@ -107,7 +99,7 @@
                 <mat-form-field appearance="outline">
                     <mat-label>Özellik Değeri</mat-label>
                     <mat-select formControlName="featureValueId" (selectionChange)="onFeatureValueChange(i)">
-                        <mat-option *ngFor="let value of featureValues[feature.get('featureId').value]"
+                        <mat-option *ngFor="let value of getFeatureValues(feature.get('featureId').value)"
                             [value]="value.id">
                             {{value.name}}
                         </mat-option>
@@ -145,68 +137,68 @@
             </button>
         </div>
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="!productForm.valid">
+        <!-- Güncelleme butonu - disabled özelliği kaldırıldı -->
+        <button mat-raised-button color="primary" type="submit">
             Ürünü Güncelle
         </button>
     </form>
 
-
     <h3>İlişkili Ürünler</h3>
-<table mat-table [dataSource]="relatedProducts" class="mat-elevation-z8">
-    <ng-container matColumnDef="photo">
-        <th mat-header-cell *matHeaderCellDef> Fotoğraf </th>
-        <td mat-cell *matCellDef="let product">
-            <img [src]="getProductImage(product)" [alt]="product.name"
-                style="width: 50px; height: 50px; object-fit: cover;">
-        </td>
-    </ng-container>
+    <table mat-table [dataSource]="relatedProducts" class="mat-elevation-z8">
+        <ng-container matColumnDef="photo">
+            <th mat-header-cell *matHeaderCellDef> Fotoğraf </th>
+            <td mat-cell *matCellDef="let product">
+                <img [src]="getProductImage(product)" [alt]="product.name"
+                    style="width: 50px; height: 50px; object-fit: cover;">
+            </td>
+        </ng-container>
 
-    <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Ürün Adı </th>
-        <td mat-cell *matCellDef="let product"> {{product.name}} </td>
-    </ng-container>
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> Ürün Adı </th>
+            <td mat-cell *matCellDef="let product"> {{product.name}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="price">
-        <th mat-header-cell *matHeaderCellDef> Fiyat </th>
-        <td mat-cell *matCellDef="let product"> {{product.price | currency:'TRY':'symbol':'1.2-2'}} </td>
-    </ng-container>
+        <ng-container matColumnDef="price">
+            <th mat-header-cell *matHeaderCellDef> Fiyat </th>
+            <td mat-cell *matCellDef="let product"> {{product.price | currency:'TRY':'symbol':'1.2-2'}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="stock">
-        <th mat-header-cell *matHeaderCellDef> Stok </th>
-        <td mat-cell *matCellDef="let product"> {{product.stock}} </td>
-    </ng-container>
+        <ng-container matColumnDef="stock">
+            <th mat-header-cell *matHeaderCellDef> Stok </th>
+            <td mat-cell *matCellDef="let product"> {{product.stock}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="sku">
-        <th mat-header-cell *matHeaderCellDef> SKU </th>
-        <td mat-cell *matCellDef="let product"> {{product.sku}} </td>
-    </ng-container>
+        <ng-container matColumnDef="sku">
+            <th mat-header-cell *matHeaderCellDef> SKU </th>
+            <td mat-cell *matCellDef="let product"> {{product.sku}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="categoryName">
-        <th mat-header-cell *matHeaderCellDef> Kategori </th>
-        <td mat-cell *matCellDef="let product"> {{product.categoryName}} </td>
-    </ng-container>
+        <ng-container matColumnDef="categoryName">
+            <th mat-header-cell *matHeaderCellDef> Kategori </th>
+            <td mat-cell *matCellDef="let product"> {{product.categoryName}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="brandName">
-        <th mat-header-cell *matHeaderCellDef> Marka </th>
-        <td mat-cell *matCellDef="let product"> {{product.brandName}} </td>
-    </ng-container>
+        <ng-container matColumnDef="brandName">
+            <th mat-header-cell *matHeaderCellDef> Marka </th>
+            <td mat-cell *matCellDef="let product"> {{product.brandName}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="title">
-        <th mat-header-cell *matHeaderCellDef> Başlık </th>
-        <td mat-cell *matCellDef="let product"> {{product.title}} </td>
-      </ng-container>
+        <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef> Başlık </th>
+            <td mat-cell *matCellDef="let product"> {{product.title}} </td>
+        </ng-container>
 
-    <ng-container matColumnDef="features">
-        <th mat-header-cell *matHeaderCellDef> Özellikler </th>
-        <td mat-cell *matCellDef="let product">
-            <span *ngFor="let feature of product.productFeatureValues; let last = last">
-                {{feature.featureName}}: {{feature.featureValueName}}{{last ? '' : ', '}}
-            </span>
-        </td>
-    </ng-container>
+        <ng-container matColumnDef="features">
+            <th mat-header-cell *matHeaderCellDef> Özellikler </th>
+            <td mat-cell *matCellDef="let product">
+                <span *ngFor="let feature of product.productFeatureValues; let last = last">
+                    {{feature.featureName}}: {{feature.featureValueName}}{{last ? '' : ', '}}
+                </span>
+            </td>
+        </ng-container>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="navigateToProduct(row.id)" style="cursor: pointer;"></tr>
-</table>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="navigateToProduct(row.id)" style="cursor: pointer;"></tr>
+    </table>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">

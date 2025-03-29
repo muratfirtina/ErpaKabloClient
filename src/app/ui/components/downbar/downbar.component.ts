@@ -32,6 +32,7 @@ export class DownbarComponent implements OnInit {
   isCategoriesSidebarOpen: boolean = false;
 
   selectedButton: 'home' | 'categories' | 'account' | 'cart' = null;
+  lastSelectedButton: 'home' | 'categories' | 'account' | 'cart' = null;
 
   ngOnInit() {
     if (this.authService.isAuthenticated) {
@@ -51,20 +52,32 @@ export class DownbarComponent implements OnInit {
 
   navigateToHome() {
     this.closeAllSidebars();
-    this.selectedButton = 'home';
+    this.toggleButton('home');
     this.router.navigate(['/']);
   }
 
   navigateToCategories() {
+    if (this.lastSelectedButton === 'categories' && this.isCategoriesSidebarOpen) {
+      // Aynı butona ikinci kez tıklandı, menüyü kapat
+      this.closeAllSidebars();
+      return;
+    }
+    
     this.closeAllSidebars();
-    this.selectedButton = 'categories';
+    this.toggleButton('categories');
     this.toggleCategoriesSidebar();
   }
 
   handleUserAction() {
+    if (this.lastSelectedButton === 'account' && this.isSidebarOpen) {
+      // Aynı butona ikinci kez tıklandı, menüyü kapat
+      this.closeAllSidebars();
+      return;
+    }
+    
     this.closeAllSidebars();
     if (this.authService.isAuthenticated) {
-      this.selectedButton = 'account';
+      this.toggleButton('account');
       this.toggleSidebar();
     } else {
       this.router.navigate(['/login']);
@@ -72,18 +85,20 @@ export class DownbarComponent implements OnInit {
   }
 
   toggleCart() {
+    if (this.lastSelectedButton === 'cart' && this.isCartOpen) {
+      // Aynı butona ikinci kez tıklandı, menüyü kapat
+      this.closeAllSidebars();
+      return;
+    }
+    
     this.closeAllSidebars();
     if (!this.authService.isAuthenticated) {
       this.router.navigate(['/login']);
       return;
     }
-    this.selectedButton = 'cart';
-    this.isCartOpen = !this.isCartOpen;
-    if (this.isCartOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
+    this.toggleButton('cart');
+    this.isCartOpen = true;
+    document.body.style.overflow = 'hidden';
   }
 
   toggleSidebar() {
@@ -99,16 +114,22 @@ export class DownbarComponent implements OnInit {
     this.isCategoriesSidebarOpen = !this.isCategoriesSidebarOpen;
   }
 
-  
+  // Yeni metod: Buton durumunu değiştir ve son seçili butonu kaydet
+  toggleButton(button: 'home' | 'categories' | 'account' | 'cart') {
+    this.lastSelectedButton = this.selectedButton;
+    this.selectedButton = button;
+  }
 
   private closeAllSidebars() {
     this.isCartOpen = false;
     this.isSidebarOpen = false;
     this.isCategoriesSidebarOpen = false;
     document.body.style.overflow = '';
+    document.body.classList.remove('sidebar-open');
   }
 
   ngOnDestroy() {
     document.body.style.overflow = '';
+    document.body.classList.remove('sidebar-open');
   }
 }

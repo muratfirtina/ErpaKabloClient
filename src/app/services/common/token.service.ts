@@ -144,7 +144,6 @@ export class TokenService {
   // Kullanıcının tüm cihazlardaki token'larını iptal et
   async revokeAllTokens(): Promise<boolean> {
     try {
-      console.log("Tüm cihazlardan çıkış yapılıyor...");
       
       // API isteği gönderirken authentication token'ı otomatik olarak eklenecek
       const observable: Observable<any> = this.httpClientService.post(
@@ -156,13 +155,10 @@ export class TokenService {
       );
   
       const response = await firstValueFrom(observable);
-      console.log("Tüm cihazlardan çıkış yapıldı:", response);
       
       // İşlem başarılı
       return true;
     } catch (error) {
-      // Hata detaylarını logla - bu önemli bir hata ayıklama adımı
-      console.error('Tüm cihazlardan çıkış hatası:', error);
       
       // Hata tipini kontrol et
       if (error.status === 401) {
@@ -219,9 +215,7 @@ export class TokenService {
   // token.service.ts
 // token.service.ts
 async verifyActivationCode(userId: string, code: string): Promise<VerifyActivationCodeResponse> {
-  try {
-    console.log('Sending verification request to server:', { userId, code });
-    
+  try {    
     const observable = this.httpClientService.post<VerifyActivationCodeResponse>(
       {
         controller: 'token',
@@ -242,7 +236,6 @@ async verifyActivationCode(userId: string, code: string): Promise<VerifyActivati
       )
     );
     
-    console.log('Server response:', response);
     return response;
   } catch (error) {
     console.error('Activation code verification error:', error);

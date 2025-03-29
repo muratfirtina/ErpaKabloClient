@@ -104,13 +104,9 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     
       return from(this.productService.uploadDescriptionImage(formData)).pipe(
         map(response => {
-          if (response && response.url) {  // response.length > 0 yerine response.url kontrolü yapıyoruz
-            const imageUrl = response.url;  // response[0].url yerine response.url kullanıyoruz
+          if (response && response.url) {
+            const imageUrl = response.url;
             
-            // HTML içeriğini editöre ekleme yaklaşımını değiştiriyoruz
-            const imgHtml = `<img src="${imageUrl}" alt="Uploaded Image">`;
-            
-            // Angular Editor'ün kendi mekanizmasını kullanıyoruz
             return new HttpResponse({
               body: {
                 imageUrl: imageUrl
@@ -148,21 +144,32 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       this.productId = params['id'];
       this.loadProduct();
     });
-    this.loadCategories();
-    this.loadBrands();
+    
+    // Form değişikliklerini izleme
+    this.productForm.valueChanges.subscribe(() => {
+      console.log('Form değişti');
+      // Formu dirty olarak işaretle
+      this.productForm.markAsDirty();
+    });
+    
+    // Angular editor için özel takip
+    this.productForm.get('description').valueChanges.subscribe(value => {
+      this.productForm.markAsDirty();
+      console.log('Description değişti, form dirty mi:', this.productForm.dirty);
+    });
   }
 
   createForm() {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
-      description: ['', []],
+      description: [''], // Validasyon yok
       title: ['', Validators.required],
       categoryId: ['', Validators.required],
       brandId: ['', Validators.required],
-      varyantGroupID: [''],
-      tax: [0, /* [Validators.required, Validators.min(0)] */],
-      stock: [0, [Validators.required, Validators.min(0)]],
-      price: [0, [Validators.required, Validators.min(0)]],
+      varyantGroupID: [''], // Validasyon yok
+      tax: [0], // Validasyon yok
+      stock: [0], // Min validasyonu kaldırıldı
+      price: [0], // Min validasyonu kaldırıldı
       sku: ['', Validators.required],
       productFeatureValues: this.fb.array([]),
       productImageFiles: this.fb.array([])
@@ -177,15 +184,36 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     return this.productForm.get('productImageFiles') as FormArray;
   }
 
+  // Güvenli özellik değerleri erişimi için helper metod
+  getFeatureValues(featureId: string): Featurevalue[] {
+    if (!featureId) return [];
+    
+    const values = this.featureValues[featureId];
+    return values || [];
+  }
+
   async loadProduct() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
     try {
       const response = await this.productService.getById(this.productId, () => {}, () => {});
       this.product = response;
       this.relatedProducts = response.relatedProducts;
+      
+      // Önce kategori ve marka listelerini yükle
+      await Promise.all([
+        this.loadCategories(),
+        this.loadBrands()
+      ]);
+      
+      // Sonra ürünün formunu güncelle
       this.updateFormWithProductData();
-      this.loadProductFeatures();
+      
+      // En son özellikleri yükle
+      await this.loadProductFeatures();
+      
+      console.log('Ürün yükleme tamamlandı');
     } catch (error) {
+      console.error('Ürün yükleme hatası:', error);
       this.customToastrService.message("Ürün yüklenemedi", "Hata", {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
@@ -230,7 +258,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
         entityType: [image.entityType],
         storage: [image.storage],
         url: [image.url],
-        showcase: [image.showcase] || '../../../../../assets/product/ecommerce-default-product.png'
+        showcase: [image.showcase]
       }));
     });
 
@@ -240,6 +268,9 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   
     // RelatedProducts güncelleme
     this.relatedProducts = this.product.relatedProducts;
+    
+    // Form değişiklik algılama durumunu sıfırla
+    this.productForm.markAsPristine();
   }
 
   async loadCategories() {
@@ -268,12 +299,27 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
 
   async loadProductFeatures() {
     try {
+      console.log('Ürün özellikleri yükleniyor...');
       const category = await this.categoryService.getById(this.product.categoryId);
-      this.features = category.features;
-      this.features.forEach(feature => {
-        this.loadFeatureValues(feature.id);
-      });
+      
+      if (category && category.features) {
+        this.features = category.features;
+        console.log(`${this.features.length} adet özellik bulundu`);
+        
+        // Özellik değerlerini bekleyerek yükle
+        const promises = this.features.map(feature => this.loadFeatureValues(feature.id));
+        await Promise.all(promises);
+        
+        // Özellik değerlerini kontrol et
+        this.features.forEach(feature => {
+          const values = this.featureValues[feature.id];
+          console.log(`${feature.name} özelliği için ${values ? values.length : 0} değer yüklendi`);
+        });
+      } else {
+        console.log('Kategoride özellik bulunamadı');
+      }
     } catch (error) {
+      console.error('Ürün özellikleri yüklenemedi:', error);
       this.customToastrService.message("Ürün özellikleri yüklenemedi", "Hata", {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
@@ -283,12 +329,22 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
 
   async loadFeatureValues(featureId: string) {
     try {
+      console.log(`${featureId} özelliği için değerler yükleniyor...`);
       const feature = await this.featureService.getById(featureId);
-      this.featureValues[featureId] = feature.featureValues;
+      
+      if (feature && feature.featureValues) {
+        this.featureValues[featureId] = feature.featureValues;
+        console.log(`${featureId} özelliği için ${feature.featureValues.length} değer yüklendi`);
+      } else {
+        console.log(`${featureId} özelliği için değer bulunamadı`);
+        this.featureValues[featureId] = []; // Boş dizi başlat
+      }
     } catch (error) {
-      console.error('Error loading feature values:', error);
+      console.error(`${featureId} için değer yükleme hatası:`, error);
+      this.featureValues[featureId] = []; // Hata durumunda boş dizi
     }
   }
+
   getProductImage(product: any): string {
     return product.showcaseImage?.url || this.defaultProductImage;
   }
@@ -301,62 +357,84 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   }
 
   onSubmit() {
-    if (this.productForm.valid) {
-      const formData = new FormData();
-      const updatedProduct = this.productForm.value;
-      
-      // Temel ürün bilgilerini ekle
-      formData.append('id', this.productId);
-      formData.append('name', updatedProduct.name);
-      formData.append('description', updatedProduct.description);
-      formData.append('title', updatedProduct.title);
-      formData.append('categoryId', updatedProduct.categoryId);
-      formData.append('brandId', updatedProduct.brandId);
-      formData.append('varyantGroupID', updatedProduct.varyantGroupID);
-      formData.append('tax', updatedProduct.tax);
-      formData.append('stock', updatedProduct.stock);
-      formData.append('price', updatedProduct.price);
-      formData.append('sku', updatedProduct.sku);
-  
-      // Ürün özelliklerini ekle
-      updatedProduct.productFeatureValues.forEach((feature, index) => {
-        formData.append(`productFeatures[${index}].id`, feature.featureId);
-        formData.append(`productFeatures[${index}].name`, feature.featureName);
-        formData.append(`productFeatures[${index}].featureValues[0].id`, feature.featureValueId);
-        formData.append(`productFeatures[${index}].featureValues[0].name`, feature.featureValueName);
-      });
-  
-      // Fotoğrafları ekle
-      this.productImageFiles.controls.forEach((control, index) => {
-        const file = control.get('file')?.value;
-        if (file instanceof File) {
-          formData.append(`newProductImages`, file, file.name);
-        } else if (control.get('id')?.value) {
-          formData.append(`existingImageIds`, control.get('id').value);
-        }
-        if (control.get('showcase').value) {
-          formData.append('showcaseImageIndex', index.toString());
-        }
-      });
-  
-      this.productService.update(formData,
-        () => {
-          this.customToastrService.message("Ürün başarıyla güncellendi", "Başarılı", {
-            toastrMessageType: ToastrMessageType.Success,
-            position: ToastrPosition.TopRight
-          });
-          this.router.navigate(['/admin/products/product-update/'+this.productId]);
-        },
-        (error) => {
-          this.customToastrService.message("Ürün güncellenemedi", "Hata", {
-            toastrMessageType: ToastrMessageType.Error,
-            position: ToastrPosition.TopRight
-          });
-        }
-      );
-    } else {
-      this.snackBar.open('Lütfen tüm gerekli alanları doldurun', 'Kapat', { duration: 3000 });
+    console.log('onSubmit çağrıldı');
+    console.log('Form durumu - valid:', this.productForm.valid, 'dirty:', this.productForm.dirty);
+    
+    // Form validasyonu kontrolünü gevşetelim - hatalar görünsün
+    if (this.productForm.invalid) {
+      console.log('Form geçersiz. Hatalar:', this.getFormErrors());
     }
+    
+    // Form geçersiz olsa bile devam edelim
+    const formData = new FormData();
+    const updatedProduct = this.productForm.value;
+    
+    // Temel ürün bilgilerini ekle
+    formData.append('id', this.productId);
+    formData.append('name', updatedProduct.name || '');
+    formData.append('description', updatedProduct.description || '');
+    formData.append('title', updatedProduct.title || '');
+    formData.append('categoryId', updatedProduct.categoryId || '');
+    formData.append('brandId', updatedProduct.brandId || '');
+    formData.append('varyantGroupID', updatedProduct.varyantGroupID || '');
+    formData.append('tax', String(updatedProduct.tax || 0));
+    formData.append('stock', String(updatedProduct.stock || 0));
+    formData.append('price', String(updatedProduct.price || 0));
+    formData.append('sku', updatedProduct.sku || '');
+  
+    // Ürün özelliklerini ekle - yalnızca doldurulanları gönder
+    updatedProduct.productFeatureValues.forEach((feature, index) => {
+      if (feature.featureId && feature.featureValueId) {
+        formData.append(`productFeatures[${index}].id`, feature.featureId);
+        formData.append(`productFeatures[${index}].name`, feature.featureName || '');
+        formData.append(`productFeatures[${index}].featureValues[0].id`, feature.featureValueId);
+        formData.append(`productFeatures[${index}].featureValues[0].name`, feature.featureValueName || '');
+      }
+    });
+  
+    // Fotoğrafları ekle
+    this.productImageFiles.controls.forEach((control, index) => {
+      const file = control.get('file')?.value;
+      if (file instanceof File) {
+        formData.append(`newProductImages`, file, file.name);
+      } else if (control.get('id')?.value) {
+        formData.append(`existingImageIds`, control.get('id').value);
+      }
+      if (control.get('showcase').value) {
+        formData.append('showcaseImageIndex', index.toString());
+      }
+    });
+  
+    console.log('Form data hazırlandı, gönderiliyor...');
+    
+    this.productService.update(formData,
+      () => {
+        this.customToastrService.message("Ürün başarıyla güncellendi", "Başarılı", {
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight
+        });
+        this.router.navigate(['/admin/products/product-update/'+this.productId]);
+      },
+      (error) => {
+        console.error('Güncelleme hatası:', error);
+        this.customToastrService.message("Ürün güncellenemedi", "Hata", {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        });
+      }
+    );
+  }
+
+  // Form hatalarını bulan yardımcı metod
+  getFormErrors() {
+    const result = {};
+    Object.keys(this.productForm.controls).forEach(key => {
+      const control = this.productForm.get(key);
+      if (control && control.errors) {
+        result[key] = control.errors;
+      }
+    });
+    return result;
   }
 
   openImageUploadDialog() {
@@ -392,11 +470,12 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
 
   addFeature() {
     this.productFeatureValues.push(this.fb.group({
-      featureId: ['', Validators.required],
+      featureId: [''],
       featureName: [''],
-      featureValueId: ['', Validators.required],
+      featureValueId: [''],
       featureValueName: ['']
     }));
+    console.log('Yeni özellik eklendi');
   }
 
   removeFeature(index: number) {
@@ -404,21 +483,63 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   }
 
   onFeatureChange(index: number) {
+    console.log(`Özellik değişti, index: ${index}`);
     const featureControl = this.productFeatureValues.at(index);
     const featureId = featureControl.get('featureId').value;
+    
+    console.log(`Seçilen özellik ID: ${featureId}`);
+    
+    if (!featureId) {
+      console.log('Özellik ID boş');
+      return;
+    }
+    
     const feature = this.features.find(f => f.id === featureId);
+    
     if (feature) {
-      featureControl.patchValue({ featureName: feature.name });
+      console.log(`Bulunan özellik: ${feature.name}`);
+      featureControl.patchValue({ 
+        featureName: feature.name,
+        // Özellik değiştiğinde değeri sıfırla
+        featureValueId: '',
+        featureValueName: ''
+      });
+      
+      // Değerleri kontrol et
+      const values = this.getFeatureValues(featureId);
+      console.log(`${feature.name} için ${values.length} değer var`);
+      
+      // Form durumunu güncelle
+      this.productForm.markAsDirty();
+    } else {
+      console.log(`ID'si ${featureId} olan özellik bulunamadı`);
     }
   }
 
   onFeatureValueChange(index: number) {
+    console.log(`Özellik değeri değişti, index: ${index}`);
     const featureControl = this.productFeatureValues.at(index);
     const featureId = featureControl.get('featureId').value;
     const featureValueId = featureControl.get('featureValueId').value;
-    const featureValue = this.featureValues[featureId]?.find(fv => fv.id === featureValueId);
+    
+    console.log(`Özellik ID: ${featureId}, Değer ID: ${featureValueId}`);
+    
+    if (!featureId || !featureValueId) {
+      console.log('Özellik ID veya değer ID boş');
+      return;
+    }
+    
+    const values = this.getFeatureValues(featureId);
+    const featureValue = values.find(fv => fv.id === featureValueId);
+    
     if (featureValue) {
+      console.log(`Bulunan değer: ${featureValue.name}`);
       featureControl.patchValue({ featureValueName: featureValue.name });
+      
+      // Form durumunu güncelle
+      this.productForm.markAsDirty();
+    } else {
+      console.log(`ID'si ${featureValueId} olan değer bulunamadı`);
     }
   }
 

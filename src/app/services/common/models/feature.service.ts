@@ -79,4 +79,14 @@ export class FeatureService {
       .catch(errorCallback);
     return await promiseData;
   }
+
+  async getAllFeatures(): Promise<Feature[]> {
+    const response = await this.httpClientService.get<GetListResponse<Feature>>({
+      controller: "features",
+      queryString: "pageIndex=-1&pageSize=-1" // Sayfalama olmadan tüm özellikleri getir
+    });
+    
+    console.warn('Özellik listesi getirilemedi');
+    return [];
+  }
 }

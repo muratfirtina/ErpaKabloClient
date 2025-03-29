@@ -27,7 +27,6 @@ export class TokenValidatorInterceptor implements HttpInterceptor {
         if (error.status === 401 || error.status === 403) {
           // Özel token revoked mesajı kontrolü
           if (error.error?.error === "Token has been revoked") {
-            console.log('Token iptal edilmiş, oturum kapatılıyor');
             
             // Kullanıcıya bildir
             this.toastrService.message(

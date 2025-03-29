@@ -4,22 +4,23 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Subject, Subscription, finalize, takeUntil } from 'rxjs';
-import { SitemapMonitoringReport } from 'src/app/contracts/sitemap/sitemap.model';
+import { Subject, Subscription, finalize, takeUntil, map } from 'rxjs';
 import { FileSizePipe } from 'src/app/pipes/file-size.pipe';
-import {SitemapMonitoringService } from 'src/app/services/admin/sitemap-monitoring.service';
+import { SitemapMonitoringService } from 'src/app/services/admin/sitemap-monitoring.service';
 import { SitemapService } from 'src/app/services/common/seo/sitemap.service';
-
+import { SitemapMonitoringReport } from 'src/app/services/admin/sitemap-monitoring.service';
 
 @Component({
   selector: 'app-sitemap-monitoring',
   standalone: true,
-  imports: [CommonModule,
+  imports: [
+    CommonModule,
     MatCardModule,
     MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    FileSizePipe],
+    FileSizePipe
+  ],
   templateUrl: './sitemap-monitoring.component.html',
   styleUrls: ['./sitemap-monitoring.component.scss']
 })
@@ -47,7 +48,7 @@ export class SitemapMonitoringComponent implements OnInit, OnDestroy {
     this.monitoringService.monitorAllSitemaps()
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: report => this.report = report,
+        next: report => this.report = report,  // Artık doğru tipte
         error: error => console.error('Error checking sitemaps:', error)
       });
   }
@@ -56,7 +57,7 @@ export class SitemapMonitoringComponent implements OnInit, OnDestroy {
     this.monitoringService.startPeriodicMonitoring(60)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: report => this.report = report,
+        next: report => this.report = report,  // Artık doğru tipte
         error: error => console.error('Error in periodic monitoring:', error)
       });
   }
@@ -86,6 +87,7 @@ export class SitemapMonitoringComponent implements OnInit, OnDestroy {
     if (this.report.healthScore > 60) return 'warning';
     return 'critical';
   }
+  
   getHealthScoreIcon(): string {
     if (!this.report) return 'help_outline';
     if (this.report.healthScore > 80) return 'check_circle';

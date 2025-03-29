@@ -350,9 +350,7 @@ async onSubmit(): Promise<void> {
   const code = this.codeForm.get('code')?.value;
 
   try {
-    console.log('Sending verification code:', code, 'for userId:', this.userId);
     const response = await this.userAuthService.verifyActivationCode(this.userId, code);
-    console.log('Verification response:', response);
     
     this.isSubmitting = false;
     
@@ -392,9 +390,6 @@ async onSubmit(): Promise<void> {
     } else {
       // Reset form
       this.resetForm();
-      
-      // Explicitly log remainingAttempts
-      console.log('Remaining attempts:', response.remainingAttempts);
       
       // Always set remainingAttempts value, even if it's undefined
       if (response.remainingAttempts !== undefined) {
@@ -476,7 +471,6 @@ async onSubmit(): Promise<void> {
     this.isResending = true;
     try {
       const result = await this.userAuthService.resendActivationCode(this.email);
-      console.log('Resend code response:', result);
       
       this.isResending = false;
       
@@ -543,7 +537,6 @@ async onSubmit(): Promise<void> {
     this.isResending = true;
     try {
       const result = await this.userAuthService.resendActivationCode(this.resendEmail);
-      console.log('Resend code for email response:', result);
       
       if (result.success) {
         this.toastr.message(

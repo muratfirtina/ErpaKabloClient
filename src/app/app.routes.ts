@@ -5,6 +5,7 @@ import { HomeComponent } from './ui/components/home/home.component';
 import { authGuard } from './guards/auth.guard';
 import { Roles } from './constants/roles';
 import { routeTypeResolver } from './services/common/route-resolver.service';
+import { offlineGuard } from './guards/offline.guard';
 
 export const routes: Routes = [
     {
@@ -52,25 +53,25 @@ export const routes: Routes = [
         ]
 
       },
-      { path: "", component: HomeComponent },
-      { path: "home", component: HomeComponent },
-      { path: "404", loadComponent: () => import('./ui/components/not-found/not-found.component').then(m => m.NotFoundComponent)},
-      { path: "login", loadComponent: () => import('./ui/components/login/login.component').then(m => m.LoginComponent) },
-      { path: "register", loadComponent: () => import('./ui/components/register/register.component').then(m => m.RegisterComponent) },
-      { path: "search", loadComponent: () => import('./ui/components/search-results/search-results.component').then(m => m.SearchResultsComponent) },
-      { path: 'about-us',loadComponent: () => import('./ui/components/about-us/about-us.component').then(m => m.AboutUsComponent)},
-      { path: 'contact',loadComponent: () => import('./ui/components/contact/contact.component').then(m => m.ContactComponent)},
-      { path: 'brand',loadComponent: () => import('./ui/components/brand/brand.component').then(m => m.BrandComponent)},
-      { path: "categories-page",loadComponent: () => import('./ui/components/category/categories-page/categories-page.component').then(m => m.CategoriesPageComponent) },
-      { path: "unauthorized", loadComponent: () => import('./ui/components/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent) },
-      { path: "order", loadComponent: () => import('./ui/components/order/order.component').then(m => m.OrderComponent), canActivate: [authGuard] },
-      { path: "order-summary/:orderId", loadComponent: () => import('./ui/components/order/order-summary/order-summary.component').then(m => m.OrderSummaryComponent), canActivate: [authGuard] },
-      { path: "cart-page", loadComponent: () => import('./ui/components/cart/cart-page/cart-page.component').then(m => m.CartPageComponent), canActivate: [authGuard] },
-      { path: "user", loadComponent: () => import('./ui/components/user/user.component').then(m => m.UserComponent), canActivate: [authGuard] },
-      { path: "my-favorites", loadComponent: () => import('./ui/components/user/my-favorites/my-favorites.component').then(m => m.MyFavoritesComponent), canActivate: [authGuard] },
+      { path: "", component: HomeComponent, canActivate: [offlineGuard] },
+      { path: "home", component: HomeComponent, canActivate: [offlineGuard]},
+      { path: "offline", loadComponent: () => import('./ui/components/error-pages/offline/offline.component').then(m => m.OfflineComponent) },
+      { path: "login", loadComponent: () => import('./ui/components/login/login.component').then(m => m.LoginComponent), canActivate: [offlineGuard] },
+      { path: "register", loadComponent: () => import('./ui/components/register/register.component').then(m => m.RegisterComponent), canActivate: [offlineGuard] },
+      { path: "search", loadComponent: () => import('./ui/components/search-results/search-results.component').then(m => m.SearchResultsComponent), canActivate: [offlineGuard]  },
+      { path: 'about-us',loadComponent: () => import('./ui/components/about-us/about-us.component').then(m => m.AboutUsComponent), canActivate: [offlineGuard] },
+      { path: 'contact',loadComponent: () => import('./ui/components/contact/contact.component').then(m => m.ContactComponent), canActivate: [offlineGuard] },
+      { path: 'brand',loadComponent: () => import('./ui/components/brand/brand.component').then(m => m.BrandComponent), canActivate: [offlineGuard] },
+      { path: "categories-page",loadComponent: () => import('./ui/components/category/categories-page/categories-page.component').then(m => m.CategoriesPageComponent), canActivate: [offlineGuard]  },
+      { path: "unauthorized", loadComponent: () => import('./ui/components/unauthorized/unauthorized.component').then(m => m.UnauthorizedComponent), canActivate: [offlineGuard]  },
+      { path: "order", loadComponent: () => import('./ui/components/order/order.component').then(m => m.OrderComponent), canActivate: [authGuard,offlineGuard] },
+      { path: "order-summary/:orderId", loadComponent: () => import('./ui/components/order/order-summary/order-summary.component').then(m => m.OrderSummaryComponent), canActivate: [authGuard,offlineGuard] },
+      { path: "cart-page", loadComponent: () => import('./ui/components/cart/cart-page/cart-page.component').then(m => m.CartPageComponent), canActivate: [authGuard,offlineGuard] },
+      { path: "user", loadComponent: () => import('./ui/components/user/user.component').then(m => m.UserComponent), canActivate: [authGuard,offlineGuard] },
+      { path: "my-favorites", loadComponent: () => import('./ui/components/user/my-favorites/my-favorites.component').then(m => m.MyFavoritesComponent), canActivate: [authGuard,offlineGuard] },
       { path: "cookie-policy", loadComponent: () => import('./ui/components/cookie/cookie-policy/cookie-policy.component').then(m => m.CookiePolicyComponent) },
-      { path: "password-reset", loadComponent: () => import('./ui/components/password-reset/password-reset.component').then(m => m.PasswordResetComponent) },
-      { path: "update-password/:userId/:resetToken", loadComponent: () => import('./ui/components/update-password/update-password.component').then(m => m.UpdatePasswordComponent) },
+      { path: "password-reset", loadComponent: () => import('./ui/components/password-reset/password-reset.component').then(m => m.PasswordResetComponent), canActivate: [offlineGuard]  },
+      { path: "update-password/:userId/:resetToken", loadComponent: () => import('./ui/components/update-password/update-password.component').then(m => m.UpdatePasswordComponent), canActivate: [offlineGuard] },
       { path: "newsletter/unsubscribe", loadComponent: () => import('./ui/components/newsletter-unsubscribe/newsletter-unsubscribe.component').then(m => m.NewsletterUnsubscribeComponent) },
       { path: "activation-code", loadComponent: () => import('./ui/components/activation/activation-code/activation-code.component').then(m => m.ActivationCodeComponent) },      
       
@@ -81,6 +82,7 @@ export const routes: Routes = [
         resolve: {
           routeType: routeTypeResolver
         },
-        loadComponent: () => import('./common/dynamic-router/dynamic-router.component').then(m => m.DynamicRouterComponent)
-      }
+        loadComponent: () => import('./common/dynamic-router/dynamic-router.component').then(m => m.DynamicRouterComponent), canActivate: [offlineGuard]
+      },
+      { path: "**", loadComponent: () => import('./ui/components/error-pages/not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

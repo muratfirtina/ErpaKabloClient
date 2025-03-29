@@ -12,19 +12,20 @@
     <!-- Category Header -->
     <div class="card mb-4 border-0" style="background-color:#333333;">
       <div class="row g-0">
-        <div class="col-md-7 d-flex align-items-center text-white">
-          <div class="p-4">
+        <!-- Text content on the left -->
+        <div class="col-7 d-flex align-items-center text-white">
+          <div class="p-3 p-md-4">
             <h1 class="category-name display-6 border-bottom border-3 pb-2 mb-3"
-              style="border-color: #e53935 !important; width: fit-content; font-size: 2.5rem;">
+              style="border-color: #e53935 !important; width: fit-content; font-size: calc(1.5rem + 0.5vw);">
               {{ category?.name }}
             </h1>
-            <p class="lead" style="font-size: 0.9rem; font-weight: 400;">{{ category?.title }}</p>
+            <p class="lead mb-0" style="font-size: 0.9rem; font-weight: 400;">{{ category?.title }}</p>
           </div>
         </div>
-        <div class="col-md-5">
-          <div class="category-image-wrapper" style="height: 300px; overflow: hidden;">
-            <img [src]="category?.categoryImage?.url" [alt]="category?.name" class="img-fluid h-100 w-100"
-              style="object-fit: cover; mask-image: linear-gradient(to right, transparent 0%, white 30%, white 60%, transparent 100%);">
+        <!-- Image container with no padding/margin -->
+        <div class="col-5 p-0">
+          <div class="category-image-wrapper">
+            <img [src]="category?.categoryImage?.url" [alt]="category?.name">
           </div>
         </div>
       </div>

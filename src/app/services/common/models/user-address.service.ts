@@ -19,7 +19,6 @@
     }
 
     async addAddress(address: UserAddress) {
-      console.log("Servise gönderilen adres verisi:", address);
       const observable: Observable<UserAddress> = this.httpClientService.post({
         controller: 'useraddresses'
       }, address);

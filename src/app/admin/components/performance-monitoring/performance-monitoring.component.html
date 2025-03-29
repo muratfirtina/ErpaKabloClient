@@ -1,3 +1,4 @@
+<!-- performance-monitoring.component.html -->
 <div class="performance-container">
   <!-- Header -->
   <div class="header-section">
@@ -20,7 +21,7 @@
         <div>
           <h3 class="metric-title">Ortalama Yanıt Süresi</h3>
           <div class="metric-value text-primary">{{averageResponseTime.toFixed(2)}} ms</div>
-          <div class="metric-subtitle">Son 5 dakikadaki ortalama</div>
+          <div class="metric-subtitle">Tüm endpoint'ler ortalaması</div>
         </div>
         <div class="metric-icon bg-primary-light">
           <i class="bi bi-clock"></i>
@@ -57,6 +58,22 @@
         </div>
       </div>
     </div>
+    
+    <!-- Error Rate Card -->
+    <div class="metric-card">
+      <div class="metric-card-content">
+        <div>
+          <h3 class="metric-title">Hata Oranı</h3>
+          <div class="metric-value" [ngClass]="{'text-danger': errorRate > 5, 'text-warning': errorRate > 1 && errorRate <= 5, 'text-success': errorRate <= 1}">
+            {{errorRate.toFixed(2)}}%
+          </div>
+          <div class="metric-subtitle">Başarısız isteklerin oranı</div>
+        </div>
+        <div class="metric-icon" [ngClass]="{'bg-danger-light': errorRate > 5, 'bg-warning-light': errorRate > 1 && errorRate <= 5, 'bg-success-light': errorRate <= 1}">
+          <i class="bi bi-bug"></i>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Recent Alerts Section -->
@@ -81,24 +98,70 @@
     </div>
   </div>
 
-  <!-- Chart Section -->
-  <div class="chart-card">
-    <div class="chart-header">
-      <div>
-        <h3 class="chart-title">Yanıt Süreleri Grafiği</h3>
-        <div class="chart-subtitle">Son 20 ölçümün gerçek zamanlı grafiği</div>
-      </div>
-      <!-- Time Range Selector -->
-      <div class="time-range-selector">
-        <div class="btn-group" role="group">
-          <button class="btn btn-sm" [ngClass]="selectedTimeRange === '5min' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('5min')">Son 5dk</button>
-          <button class="btn btn-sm" [ngClass]="selectedTimeRange === '15min' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('15min')">Son 15dk</button>
-          <button class="btn btn-sm" [ngClass]="selectedTimeRange === '1h' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('1h')">Son 1sa</button>
+  <!-- Charts Grid -->
+  <div class="charts-grid">
+    <!-- Response Time Chart -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h3 class="chart-title">Yanıt Süreleri Grafiği</h3>
+          <div class="chart-subtitle">Son 20 ölçümün gerçek zamanlı grafiği</div>
+        </div>
+        <!-- Time Range Selector -->
+        <div class="time-range-selector">
+          <div class="btn-group" role="group">
+            <button class="btn btn-sm" [ngClass]="selectedTimeRange === '5min' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('5min')">Son 5dk</button>
+            <button class="btn btn-sm" [ngClass]="selectedTimeRange === '15min' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('15min')">Son 15dk</button>
+            <button class="btn btn-sm" [ngClass]="selectedTimeRange === '1h' ? 'btn-primary' : 'btn-outline-primary'" (click)="changeTimeRange('1h')">Son 1sa</button>
+          </div>
         </div>
       </div>
+      <div class="chart-container">
+        <canvas id="performanceChart"></canvas>
+      </div>
     </div>
-    <div class="chart-container">
-      <canvas id="performanceChart"></canvas>
+    
+    <!-- Web Vitals Chart -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <div>
+          <h3 class="chart-title">Web Vitals Metrikleri</h3>
+          <div class="chart-subtitle">Core Web Vitals performansı</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="webVitalsChart"></canvas>
+      </div>
+      
+      <!-- Web Vitals Metrics Table -->
+      <div class="web-vitals-table-container mt-3">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Metrik</th>
+              <th>Değer</th>
+              <th>Değerlendirme</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let vital of webVitals">
+              <td>
+                <strong>{{ vital.name }}</strong><br>
+                <small class="text-muted">{{ getWebVitalName(vital.name) }}</small>
+              </td>
+              <td>
+                {{ vital.name === 'CLS' ? vital.value.toFixed(3) : vital.value.toFixed(0) + ' ms' }}
+              </td>
+              <td>
+                <span [class]="getWebVitalStatus(vital.name, vital.value)">
+                  {{ vital.rating === 'good' ? 'İyi' : 
+                     vital.rating === 'needs-improvement' ? 'Geliştirilmeli' : 'Kötü' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -109,13 +172,26 @@
         <h3 class="table-title">Endpoint Performans Detayları</h3>
         <div class="table-subtitle">Tüm endpoint'lerin performans metrikleri</div>
       </div>
-      <!-- Search Box -->
-      <div class="search-container">
-        <i class="bi bi-search search-icon"></i>
-        <input type="text" 
-               class="search-input"
-               placeholder="Endpoint ara..."
-               (input)="onSearch($event)">
+      
+      <!-- Filters Row -->
+      <div class="filters-row">
+        <!-- Search Box -->
+        <div class="search-container">
+          <i class="bi bi-search search-icon"></i>
+          <input type="text" 
+                 class="search-input"
+                 placeholder="Endpoint ara..."
+                 (input)="onSearch($event)">
+        </div>
+        
+        <!-- Problematic Only Filter -->
+        <div class="form-check ms-3">
+          <input class="form-check-input" type="checkbox" id="showProblematicOnly" 
+                 (change)="toggleProblematicOnly($event)">
+          <label class="form-check-label" for="showProblematicOnly">
+            Sadece sorunlu endpoint'leri göster
+          </label>
+        </div>
       </div>
     </div>
 
@@ -123,9 +199,22 @@
       <table class="performance-table">
         <thead>
           <tr>
-            <th>Endpoint</th>
-            <th>Ort. Yanıt Süresi</th>
-            <th>Son İstek</th>
+            <th class="sortable" (click)="sortMetrics('endpoint')">
+              Endpoint
+              <i class="bi" [ngClass]="getSortIcon('endpoint')"></i>
+            </th>
+            <th class="sortable" (click)="sortMetrics('responseTime')">
+              Ort. Yanıt Süresi
+              <i class="bi" [ngClass]="getSortIcon('responseTime')"></i>
+            </th>
+            <th class="sortable" (click)="sortMetrics('requests')">
+              İstek Sayısı
+              <i class="bi" [ngClass]="getSortIcon('requests')"></i>
+            </th>
+            <th class="sortable" (click)="sortMetrics('lastRequest')">
+              Son İstek
+              <i class="bi" [ngClass]="getSortIcon('lastRequest')"></i>
+            </th>
             <th>Durum</th>
             <th>Trend</th>
           </tr>
@@ -137,6 +226,16 @@
             </td>
             <td>
               {{metric.avgResponseTime.toFixed(2)}} ms
+              <div class="small text-muted">
+                Min: {{metric.minResponseTime}}ms, Max: {{metric.maxResponseTime}}ms
+              </div>
+            </td>
+            <td>
+              {{metric.totalRequests}}
+              <div class="small text-muted" *ngIf="metric.failedRequests > 0">
+                Başarısız: {{metric.failedRequests}} 
+                ({{(metric.failedRequests / metric.totalRequests * 100).toFixed(1)}}%)
+              </div>
             </td>
             <td>
               {{metric.lastRequest | date:'medium'}}
@@ -148,8 +247,9 @@
             </td>
             <td>
               <div class="trend-icon">
-                <i *ngIf="metric.avgResponseTime < 100" class="bi bi-arrow-up-circle-fill text-success"></i>
-                <i *ngIf="metric.avgResponseTime >= 100" class="bi bi-arrow-down-circle-fill text-danger"></i>
+                <i *ngIf="metric.avgResponseTime < (metric.maxResponseTime * 0.8)" class="bi bi-arrow-up-circle-fill text-success"></i>
+                <i *ngIf="metric.avgResponseTime >= (metric.maxResponseTime * 0.8) && metric.avgResponseTime < (metric.maxResponseTime * 0.9)" class="bi bi-dash-circle-fill text-warning"></i>
+                <i *ngIf="metric.avgResponseTime >= (metric.maxResponseTime * 0.9)" class="bi bi-arrow-down-circle-fill text-danger"></i>
               </div>
             </td>
           </tr>
@@ -161,10 +261,12 @@
         <i class="bi bi-clipboard-data"></i>
         <h3>Veri Bulunamadı</h3>
         <p *ngIf="searchTerm && endpointMetrics.length > 0">Arama kriterlerine uygun endpoint bulunamadı. Lütfen farklı bir arama terimi deneyin.</p>
+        <p *ngIf="showOnlyProblematic && endpointMetrics.length > 0">Şu anda sorunlu endpoint bulunmamaktadır.</p>
         <p *ngIf="endpointMetrics.length === 0">Henüz hiçbir endpoint verisi toplanmadı.</p>
       </div>
     </div>
   </div>
+  
   <!-- Sitemap Monitoring -->
   <div class="card mt-4">
     <div class="card-header">

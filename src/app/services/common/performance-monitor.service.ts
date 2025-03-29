@@ -1,164 +1,560 @@
+// performance-monitor.service.ts
 import { Injectable } from '@angular/core';
-import { SecurityConfig, DEFAULT_SECURITY_CONFIG } from '../../config/security.config';
-import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../ui/custom-toastr.service';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { AuthService } from './auth.service';
-import { JwtHelperService } from '@auth0/angular-jwt';
-
-export interface PerformanceAlert {
-  endpoint: string;
-  duration: number;
-  timestamp: Date;
-  type: 'warning' | 'critical';
-}
+import { HttpClient, HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpResponse } from '@angular/common/http';
+import { BehaviorSubject, Observable, of, timer } from 'rxjs';
+import { catchError, finalize, tap, switchMap } from 'rxjs/operators';
+import { AnalyticsService } from '../common/analytics.services';
+import { HttpClientService, RequestParameters } from './http-client.service';
+import { environment } from 'src/environments/environment.prod';
 
 export interface EndpointMetric {
   endpoint: string;
   avgResponseTime: number;
+  minResponseTime: number;
+  maxResponseTime: number;
+  lastResponseTime: number;
+  totalRequests: number;
+  successRequests: number;
+  failedRequests: number;
   lastRequest: Date;
-  responseHistory: number[];
+  responseHistory: {
+    timestamp: Date;
+    duration: number;
+    success: boolean;
+  }[];
+}
+
+export interface PerformanceAlert {
+  timestamp: Date;
+  endpoint: string;
+  duration: number;
+  threshold: number;
+  type: 'warning' | 'critical';
+  message: string;
+}
+
+export interface WebVitalMetric {
+  name: string;
+  value: number;
+  rating: 'good' | 'needs-improvement' | 'poor';
+  source?: string;
+}
+
+export interface SystemMetrics {
+  cpuUsage?: number;
+  memoryUsage?: number;
+  responseTimeAvg: number;
+  errorRate: number;
+  activeUsers?: number;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class PerformanceMonitorService {
-  private readonly config: SecurityConfig;
-  private metrics: Map<string, number[]> = new Map();
-  private alertsSubject = new BehaviorSubject<PerformanceAlert[]>([]);
+  private metrics: Map<string, EndpointMetric> = new Map();
   private metricsSubject = new BehaviorSubject<EndpointMetric[]>([]);
+  private alertsSubject = new BehaviorSubject<PerformanceAlert[]>([]);
+  private systemMetricsSubject = new BehaviorSubject<SystemMetrics>({
+    responseTimeAvg: 0,
+    errorRate: 0
+  });
+  private webVitalsSubject = new BehaviorSubject<WebVitalMetric[]>([]);
   private alerts: PerformanceAlert[] = [];
+  private config = {
+    monitoring: {
+      enabled: true,
+      performance: {
+        highLatencyThresholdMs: 500,
+        criticalLatencyThresholdMs: 1000,
+        endpointExclusions: ['/api/metrics', '/api/health'],
+        sampleRate: 1.0, // 1.0 = monitor all requests, 0.5 = monitor 50% of requests
+        historyLimit: 100, // Maximum number of history entries per endpoint
+        alertsLimit: 50 // Maximum number of stored alerts
+      }
+    }
+  };
 
   constructor(
-    private toastrService: CustomToastrService,
-    private jwtHelper: JwtHelperService // JwtHelperService ekleyin
+    private httpClientService: HttpClientService,
+    private analyticsService: AnalyticsService
   ) {
-    this.config = DEFAULT_SECURITY_CONFIG;
+    // Start periodic background metrics collection
+    this.startPeriodicMetricsCollection();
   }
 
-  startMeasurement(endpoint: string): number {
-    return Date.now();
-  }
-
-  endMeasurement(endpoint: string, startTime: number): void {
-    const duration = Date.now() - startTime;
-    this.recordMetric(endpoint, duration);
-
-    if (duration > this.config.monitoring.performance.criticalLatencyThresholdMs) {
-      this.createAlert(endpoint, duration, 'critical');
-    } else if (duration > this.config.monitoring.performance.highLatencyThresholdMs) {
-      this.createAlert(endpoint, duration, 'warning');
+  /**
+   * Records performance data for an endpoint
+   */
+  recordEndpointPerformance(endpoint: string, duration: number, success: boolean): void {
+    if (!this.config.monitoring.enabled) return;
+    
+    // Check for endpoint exclusions
+    if (this.config.monitoring.performance.endpointExclusions.some(pattern => 
+        endpoint.includes(pattern))) {
+      return;
     }
-
-    this.updateMetrics();
-  }
-
-  private createAlert(endpoint: string, duration: number, type: 'warning' | 'critical') {
-    const alert: PerformanceAlert = {
-      endpoint,
-      duration,
-      timestamp: new Date(),
-      type
-    };
-
-    this.alerts.unshift(alert);
-    if (this.alerts.length > 100) {
-      this.alerts.pop();
+    
+    // Apply sampling rate
+    if (Math.random() > this.config.monitoring.performance.sampleRate) {
+      return;
     }
-    this.alertsSubject.next(this.alerts);
-
-    // Admin kontrolünü doğrudan JWT token'ı ile yapın
-    if (this.isUserAdmin()) {
-      this.toastrService.message(
-        `Yüksek gecikme tespit edildi: ${duration}ms - ${endpoint}`,
-        "Performans Uyarısı",
-        {
-          toastrMessageType: ToastrMessageType.Warning,
-          position: ToastrPosition.TopRight
-        }
+    
+    // Get or create metric object for this endpoint
+    let metric = this.metrics.get(endpoint);
+    const now = new Date();
+    
+    if (!metric) {
+      metric = {
+        endpoint,
+        avgResponseTime: duration,
+        minResponseTime: duration,
+        maxResponseTime: duration,
+        lastResponseTime: duration,
+        totalRequests: 1,
+        successRequests: success ? 1 : 0,
+        failedRequests: success ? 0 : 1,
+        lastRequest: now,
+        responseHistory: [{
+          timestamp: now,
+          duration,
+          success
+        }]
+      };
+    } else {
+      // Update existing metric
+      const newTotalRequests = metric.totalRequests + 1;
+      const newAvgResponseTime = ((metric.avgResponseTime * metric.totalRequests) + duration) / newTotalRequests;
+      
+      metric = {
+        ...metric,
+        avgResponseTime: newAvgResponseTime,
+        minResponseTime: Math.min(metric.minResponseTime, duration),
+        maxResponseTime: Math.max(metric.maxResponseTime, duration),
+        lastResponseTime: duration,
+        totalRequests: newTotalRequests,
+        successRequests: metric.successRequests + (success ? 1 : 0),
+        failedRequests: metric.failedRequests + (success ? 0 : 1),
+        lastRequest: now
+      };
+      
+      // Add to history with limit
+      metric.responseHistory.push({
+        timestamp: now,
+        duration,
+        success
+      });
+      
+      // Limit history size
+      if (metric.responseHistory.length > this.config.monitoring.performance.historyLimit) {
+        metric.responseHistory = metric.responseHistory.slice(-this.config.monitoring.performance.historyLimit);
+      }
+    }
+    
+    // Check for alerts
+    this.checkForPerformanceAlert(endpoint, duration);
+    
+    // Store updated metric
+    this.metrics.set(endpoint, metric);
+    
+    // Publish updated metrics list
+    this.publishMetrics();
+    
+    // Update system-wide metrics
+    this.updateSystemMetrics();
+  }
+  
+  /**
+   * Checks whether performance warrants an alert
+   */
+  private checkForPerformanceAlert(endpoint: string, duration: number): void {
+    const config = this.config.monitoring.performance;
+    let alertType: 'warning' | 'critical' | null = null;
+    let threshold = 0;
+    
+    if (duration > config.criticalLatencyThresholdMs) {
+      alertType = 'critical';
+      threshold = config.criticalLatencyThresholdMs;
+    } else if (duration > config.highLatencyThresholdMs) {
+      alertType = 'warning';
+      threshold = config.highLatencyThresholdMs;
+    }
+    
+    if (alertType) {
+      const alert: PerformanceAlert = {
+        timestamp: new Date(),
+        endpoint,
+        duration,
+        threshold,
+        type: alertType,
+        message: `Endpoint "${endpoint}" response time (${duration}ms) exceeded ${threshold}ms threshold`
+      };
+      
+      // Add alert to list
+      this.alerts.unshift(alert);
+      
+      // Limit alerts size
+      if (this.alerts.length > this.config.monitoring.performance.alertsLimit) {
+        this.alerts = this.alerts.slice(0, this.config.monitoring.performance.alertsLimit);
+      }
+      
+      // Publish alerts
+      this.alertsSubject.next([...this.alerts]);
+      
+      // Report to analytics if critical
+      if (alertType === 'critical') {
+        this.analyticsService.trackEvent(
+          'performance_alert',
+          'Performance',
+          'Critical Alert',
+          endpoint,
+          duration
+        );
+      }
+    }
+  }
+  
+  /**
+   * Updates overall system metrics
+   */
+  private updateSystemMetrics(): void {
+    const metricsList = Array.from(this.metrics.values());
+    
+    if (metricsList.length === 0) return;
+    
+    // Calculate average response time across all endpoints
+    const totalRequests = metricsList.reduce((sum, metric) => sum + metric.totalRequests, 0);
+    const weightedResponseTime = metricsList.reduce(
+      (sum, metric) => sum + (metric.avgResponseTime * metric.totalRequests), 
+      0
+    );
+    const avgResponseTime = totalRequests > 0 ? weightedResponseTime / totalRequests : 0;
+    
+    // Calculate error rate
+    const totalFailedRequests = metricsList.reduce((sum, metric) => sum + metric.failedRequests, 0);
+    const errorRate = totalRequests > 0 ? (totalFailedRequests / totalRequests) * 100 : 0;
+    
+    // Update system metrics
+    this.systemMetricsSubject.next({
+      responseTimeAvg: avgResponseTime,
+      errorRate
+    });
+  }
+  
+  /**
+   * Records Web Vitals metrics
+   */
+  recordWebVital(metric: WebVitalMetric): void {
+    if (!this.config.monitoring.enabled) return;
+    
+    // Get current metrics
+    const currentMetrics = this.webVitalsSubject.value;
+    
+    // Add new metric
+    currentMetrics.push(metric);
+    
+    // Limit size if needed
+    if (currentMetrics.length > 100) {
+      currentMetrics.shift();
+    }
+    
+    // Publish updated metrics
+    this.webVitalsSubject.next([...currentMetrics]);
+    
+    // Report to analytics if poor
+    if (metric.rating === 'poor') {
+      this.analyticsService.trackEvent(
+        'web_vital_poor',
+        'Performance',
+        'Poor Web Vital',
+        metric.name,
+        metric.value
       );
     }
   }
-
-  // Token'da admin rolünü kontrol eden yardımcı metot
-  private isUserAdmin(): boolean {
-    const token = localStorage.getItem('accessToken');
-    if (!token) return false;
-
-    try {
-      const decodedToken = this.jwtHelper.decodeToken(token);
-      const roles = decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-      
-      if (typeof roles === 'string') {
-        return roles === 'Admin';
-      } else if (Array.isArray(roles)) {
-        return roles.includes('Admin');
-      }
-      
-      return false;
-    } catch {
-      return false;
-    }
-  }
-
-  private updateMetrics() {
-    const currentMetrics: EndpointMetric[] = [];
-    
-    this.metrics.forEach((durations, endpoint) => {
-      currentMetrics.push({
-        endpoint,
-        avgResponseTime: this.calculateAverage(durations),
-        lastRequest: new Date(),
-        responseHistory: [...durations]
-      });
+  
+  /**
+   * Clears all metrics
+   */
+  clearMetrics(): void {
+    this.metrics.clear();
+    this.alerts = [];
+    this.publishMetrics();
+    this.alertsSubject.next([]);
+    this.systemMetricsSubject.next({
+      responseTimeAvg: 0,
+      errorRate: 0
     });
-
-    this.metricsSubject.next(currentMetrics);
+    this.webVitalsSubject.next([]);
   }
-
-  private calculateAverage(numbers: number[]): number {
-    if (!numbers.length) return 0;
-    return numbers.reduce((sum, num) => sum + num, 0) / numbers.length;
-  }
-
-  getAlerts(): Observable<PerformanceAlert[]> {
-    return this.alertsSubject.asObservable();
-  }
-
-  getMetrics(): Observable<EndpointMetric[]> {
-    return this.metricsSubject.asObservable();
-  }
-
+  
+  /**
+   * Gets the count of high latency endpoints
+   */
   getHighLatencyCount(): number {
     let count = 0;
-    this.metrics.forEach(durations => {
-      const avg = this.calculateAverage(durations);
-      if (avg > this.config.monitoring.performance.criticalLatencyThresholdMs) {
+    this.metrics.forEach(metric => {
+      if (metric.avgResponseTime > this.config.monitoring.performance.highLatencyThresholdMs) {
         count++;
       }
     });
     return count;
   }
-
-  private recordMetric(endpoint: string, duration: number): void {
-    const metrics = this.metrics.get(endpoint) || [];
-    metrics.push(duration);
-    
-    if (metrics.length > 100) {
-      metrics.shift();
-    }
-    
-    this.metrics.set(endpoint, metrics);
+  
+  /**
+   * Gets all metrics
+   */
+  getMetrics(): Observable<EndpointMetric[]> {
+    return this.metricsSubject.asObservable();
   }
-
-  getConfig(): SecurityConfig {
+  
+  /**
+   * Gets all alerts
+   */
+  getAlerts(): Observable<PerformanceAlert[]> {
+    return this.alertsSubject.asObservable();
+  }
+  
+  /**
+   * Gets system metrics
+   */
+  getSystemMetrics(): Observable<SystemMetrics> {
+    return this.systemMetricsSubject.asObservable();
+  }
+  
+  /**
+   * Gets Web Vitals metrics
+   */
+  getWebVitals(): Observable<WebVitalMetric[]> {
+    return this.webVitalsSubject.asObservable();
+  }
+  
+  /**
+   * Gets configuration
+   */
+  getConfig(): any {
     return this.config;
   }
+  
+  /**
+   * Starts collecting metrics periodically from the server
+   */
+   private startPeriodicMetricsCollection(): void {
+    // Poll metrics from server every 30 seconds
+    timer(0, 30000).pipe(
+      switchMap(() => this.fetchServerMetrics())
+    ).subscribe({
+      next: (serverMetrics) => {
+        if (serverMetrics) {
+          this.mergeServerMetrics(serverMetrics);
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching server metrics:', err);
+      }
+    });
+  }
+  
+  /**
+   * Fetches metrics from server
+   */
+  private fetchServerMetrics(): Observable<any> {
+    // If we're in development or don't have a server endpoint, use mock data
+    if (!this.config.monitoring.enabled || environment.production === false) {
+      return of(this.generateMockServerMetrics());
+    }
+    
+    const requestParams: Partial<RequestParameters> = {
+      controller: "metrics"
+    };
+    
+    return this.httpClientService.get<any>(requestParams).pipe(
+      catchError((err) => {
+        console.error('Error fetching server metrics:', err);
+        return of(this.generateMockServerMetrics());
+      })
+    );
+  }
+  
+  /**
+   * Merges server metrics with client-side metrics
+   */
+  private mergeServerMetrics(serverMetrics: any): void {
+    // Server might return CPU, memory usage, active users, etc.
+    if (serverMetrics.systemMetrics) {
+      const currentMetrics = this.systemMetricsSubject.value;
+      this.systemMetricsSubject.next({
+        ...currentMetrics,
+        cpuUsage: serverMetrics.systemMetrics.cpuUsage,
+        memoryUsage: serverMetrics.systemMetrics.memoryUsage,
+        activeUsers: serverMetrics.systemMetrics.activeUsers
+      });
+    }
+    
+    // Server might also return endpoint metrics
+    if (serverMetrics.endpoints && Array.isArray(serverMetrics.endpoints)) {
+      serverMetrics.endpoints.forEach((endpoint: any) => {
+        if (endpoint.path && endpoint.avgResponseTime) {
+          const existingMetric = this.metrics.get(endpoint.path);
+          
+          // If we have client-side data, merge it; otherwise just use server data
+          if (existingMetric) {
+            // Weighted average for response times
+            const totalReqs = existingMetric.totalRequests + endpoint.totalRequests;
+            const avgTime = totalReqs > 0 ? 
+              ((existingMetric.avgResponseTime * existingMetric.totalRequests) + 
+              (endpoint.avgResponseTime * endpoint.totalRequests)) / totalReqs : 0;
+            
+            this.metrics.set(endpoint.path, {
+              ...existingMetric,
+              avgResponseTime: avgTime,
+              totalRequests: totalReqs,
+              successRequests: existingMetric.successRequests + endpoint.successRequests,
+              failedRequests: existingMetric.failedRequests + endpoint.failedRequests
+            });
+          } else {
+            // Create new metric from server data
+            this.metrics.set(endpoint.path, {
+              endpoint: endpoint.path,
+              avgResponseTime: endpoint.avgResponseTime,
+              minResponseTime: endpoint.minResponseTime || endpoint.avgResponseTime,
+              maxResponseTime: endpoint.maxResponseTime || endpoint.avgResponseTime,
+              lastResponseTime: endpoint.lastResponseTime || endpoint.avgResponseTime,
+              totalRequests: endpoint.totalRequests || 1,
+              successRequests: endpoint.successRequests || (endpoint.errorRate ? Math.floor((1 - endpoint.errorRate) * endpoint.totalRequests) : 1),
+              failedRequests: endpoint.failedRequests || (endpoint.errorRate ? Math.ceil(endpoint.errorRate * endpoint.totalRequests) : 0),
+              lastRequest: new Date(endpoint.lastRequest || Date.now()),
+              responseHistory: endpoint.responseHistory || [{
+                timestamp: new Date(),
+                duration: endpoint.avgResponseTime,
+                success: true
+              }]
+            });
+          }
+        }
+      });
+      
+      // Publish updated metrics
+      this.publishMetrics();
+    }
+  }
+  
+  /**
+   * Generates mock metrics for testing
+   */
+  private generateMockServerMetrics(): any {
+    return {
+      systemMetrics: {
+        cpuUsage: Math.random() * 100,
+        memoryUsage: Math.random() * 100,
+        activeUsers: Math.floor(Math.random() * 100)
+      },
+      endpoints: [
+        {
+          path: '/api/products',
+          avgResponseTime: 120 + Math.random() * 100,
+          minResponseTime: 80,
+          maxResponseTime: 250,
+          totalRequests: 120,
+          errorRate: 0.01,
+          lastRequest: new Date().toISOString()
+        },
+        {
+          path: '/api/categories',
+          avgResponseTime: 80 + Math.random() * 50,
+          minResponseTime: 50,
+          maxResponseTime: 150,
+          totalRequests: 85,
+          errorRate: 0.005,
+          lastRequest: new Date().toISOString()
+        },
+        {
+          path: '/api/brands',
+          avgResponseTime: 95 + Math.random() * 70,
+          minResponseTime: 60,
+          maxResponseTime: 180,
+          totalRequests: 65,
+          errorRate: 0.01,
+          lastRequest: new Date().toISOString()
+        },
+        {
+          path: '/api/orders',
+          avgResponseTime: 200 + Math.random() * 150,
+          minResponseTime: 150,
+          maxResponseTime: 450,
+          totalRequests: 45,
+          errorRate: 0.02,
+          lastRequest: new Date().toISOString()
+        },
+        {
+          path: '/api/users',
+          avgResponseTime: 110 + Math.random() * 90,
+          minResponseTime: 70,
+          maxResponseTime: 220,
+          totalRequests: 35,
+          errorRate: 0.02,
+          lastRequest: new Date().toISOString()
+        }
+      ]
+    };
+  }
+  
+  /**
+   * Publishes metrics to subscribers
+   */
+  private publishMetrics(): void {
+    const metricsList = Array.from(this.metrics.values()).sort((a, b) => {
+      // Sort by response time descending
+      return b.avgResponseTime - a.avgResponseTime;
+    });
+    
+    this.metricsSubject.next(metricsList);
+  }
+}
 
-  clearMetrics(): void {
-    this.metrics.clear();
-    this.alerts = [];
-    this.alertsSubject.next([]);
-    this.metricsSubject.next([]);
+/**
+ * Performance monitoring HTTP interceptor
+ */
+@Injectable()
+export class PerformanceInterceptor implements HttpInterceptor {
+  constructor(private performanceMonitor: PerformanceMonitorService) {}
+
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Skip monitoring for certain URLs
+    const config = this.performanceMonitor.getConfig().monitoring.performance;
+    if (config.endpointExclusions.some(pattern => req.url.includes(pattern))) {
+      return next.handle(req);
+    }
+    
+    const startTime = performance.now();
+    
+    return next.handle(req).pipe(
+      tap((event) => {
+        if (event instanceof HttpResponse) {
+          const endTime = performance.now();
+          const duration = Math.round(endTime - startTime);
+          
+          // Record successful endpoint performance
+          this.performanceMonitor.recordEndpointPerformance(
+            req.url,
+            duration,
+            true
+          );
+        }
+      }),
+      catchError(error => {
+        const endTime = performance.now();
+        const duration = Math.round(endTime - startTime);
+        
+        // Record failed endpoint performance
+        this.performanceMonitor.recordEndpointPerformance(
+          req.url,
+          duration,
+          false
+        );
+        
+        throw error;
+      })
+    );
   }
 }

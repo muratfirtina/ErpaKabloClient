@@ -1,4 +1,4 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, isDevMode } from '@angular/core';
 import { RouterModule, provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
@@ -27,6 +27,8 @@ import { authInterceptor } from './interceptors/auth.interceptor';
 import { TokenValidatorInterceptor } from './interceptors/tokenValidator.interceptor';
 import { environment } from 'src/environments/environment.prod';
 import { LocationStrategy, PathLocationStrategy } from '@angular/common';
+import { PerformanceInterceptor } from './services/common/performance-monitor.service';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -72,6 +74,11 @@ export const appConfig: ApplicationConfig = {
       useClass: TokenValidatorInterceptor,
       multi: true
     },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: PerformanceInterceptor,
+      multi: true
+    },
     provideHttpClient(
       withInterceptors([authInterceptor])
     ),
@@ -81,6 +88,10 @@ export const appConfig: ApplicationConfig = {
       multi: true 
     },
     { provide: LocationStrategy, useClass: PathLocationStrategy }, 
-    provideAnimationsAsync(),
+    provideAnimationsAsync(), 
+    provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          })
   ]
 };

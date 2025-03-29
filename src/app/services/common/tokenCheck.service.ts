@@ -20,12 +20,9 @@ export class TokenCheckService implements OnDestroy {
   ) {}
 
   // Periyodik token kontrolünü başlat
-  startPeriodicCheck(intervalSeconds: number = 300): void {
+  startPeriodicCheck(intervalSeconds: number = 1000): void {
     // Önceki interval'ı temizle
-    this.stopPeriodicCheck();
-    
-    console.log(`Periyodik token kontrolü başlatıldı (${intervalSeconds} saniyede bir)`);
-    
+    this.stopPeriodicCheck();    
     // Her X saniyede bir token geçerliliğini kontrol et
     this.intervalId = setInterval(async () => {
       if (this.authService.isAuthenticated) {
@@ -48,7 +45,6 @@ export class TokenCheckService implements OnDestroy {
       const response = await firstValueFrom(observable);
       return response?.isValid ?? false;
     } catch (error) {
-      console.log('Token validasyon hatası:', error);
       
       if (error.status === 401 || error.status === 403) {
         this.handleInvalidToken(error);
@@ -59,9 +55,7 @@ export class TokenCheckService implements OnDestroy {
   }
   
   // Geçersiz token durumunda yapılacak işlemler
-  private handleInvalidToken(error: any): void {
-    console.log('Token geçersiz, oturum kapatılıyor');
-    
+  private handleInvalidToken(error: any): void {    
     // Özel token revoked mesajı kontrolü
     if (error.error?.error === "Token has been revoked") {
       // Kullanıcıya bildir
@@ -95,7 +89,6 @@ export class TokenCheckService implements OnDestroy {
     if (this.intervalId) {
       clearInterval(this.intervalId);
       this.intervalId = null;
-      console.log('Periyodik token kontrolü durduruldu');
     }
   }
 

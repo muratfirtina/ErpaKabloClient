@@ -486,7 +486,6 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     if (this.router.url !== url) {
       this.router.navigateByUrl(url).then(
         (success) => {
-          console.log('Navigation result:', success);
           if (success) {
             // Navigasyon başarılı olduktan sonra sayfayı yenile
             window.location.reload();

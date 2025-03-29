@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnChanges, Input, Output, EventEmitter, SimpleChanges, PipeTransform, Pipe } from "@angular/core";
+import { Component, OnChanges, Input, Output, EventEmitter, SimpleChanges, PipeTransform, Pipe, AfterViewInit } from "@angular/core";
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Offcanvas } from 'bootstrap';
+
 import { FilterGroup, FilterType } from "src/app/contracts/product/filter/filters";
 
 @Pipe({
@@ -27,14 +28,14 @@ interface CategoryNode {
 @Component({
   selector: 'app-filter',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule,FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './filter.component.html',
   styleUrls: ['./filter.component.scss']
 })
-export class FilterComponent implements OnChanges {
+export class FilterComponent implements OnChanges, AfterViewInit {
   @Input() availableFilters: FilterGroup[] = [];
   @Input() selectedFilters: { [key: string]: string[] } = {};
-  @Input() isLoading: boolean = true; // isLoading input'u ekleyelim
+  @Input() isLoading: boolean = true;
   @Output() filterChange = new EventEmitter<{ [key: string]: string[] }>();
 
   FilterType = FilterType;
@@ -42,9 +43,37 @@ export class FilterComponent implements OnChanges {
   categoryTree: CategoryNode[] = [];
   customPriceRange: { min: string, max: string } = { min: '', max: '' };
   collapsedState: { [key: string]: boolean } = {};
+  private offcanvasInstance: Offcanvas | null = null;
 
   constructor(private fb: FormBuilder) {
     this.filterForm = this.fb.group({});
+  }
+
+  ngAfterViewInit() {
+    // Initialize the offcanvas instance after view init
+    this.initializeOffcanvas();
+  }
+
+  initializeOffcanvas() {
+    const offcanvasElement = document.getElementById('filterOffcanvas');
+    if (offcanvasElement) {
+      this.offcanvasInstance = new Offcanvas(offcanvasElement, {
+        backdrop: true,
+        keyboard: true,
+        scroll: false
+      });
+
+      // Listen for the offcanvas hidden event to ensure body classes are removed
+      offcanvasElement.addEventListener('hidden.bs.offcanvas', () => {
+        document.body.classList.remove('modal-open');
+        const backdrops = document.getElementsByClassName('offcanvas-backdrop');
+        if (backdrops.length > 0) {
+          for (let i = 0; i < backdrops.length; i++) {
+            backdrops[i].remove();
+          }
+        }
+      });
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -76,71 +105,69 @@ export class FilterComponent implements OnChanges {
     });
   }
 
-  // FilterComponent içinde güncellenen buildCategoryTree metodu
-buildCategoryTree() {
-  const categoryFilter = this.availableFilters.find(filter => filter.key === 'Category');
-  if (categoryFilter) {
-    // Önce tüm kategorileri düzenli hale getir
-    const categories = [...categoryFilter.options].sort((a, b) => {
-      // Tip güvenliği için parentId kontrolü
-      const aParentId = (a as any).parentId;
-      const bParentId = (b as any).parentId;
+  buildCategoryTree() {
+    const categoryFilter = this.availableFilters.find(filter => filter.key === 'Category');
+    if (categoryFilter) {
+      // Önce tüm kategorileri düzenli hale getir
+      const categories = [...categoryFilter.options].sort((a, b) => {
+        // Tip güvenliği için parentId kontrolü
+        const aParentId = (a as any).parentId;
+        const bParentId = (b as any).parentId;
+        
+        // Önce üst kategorileri göster
+        if (!aParentId && bParentId) return -1;
+        if (aParentId && !bParentId) return 1;
+        
+        // Sonra aynı seviyedeki kategorileri alfabetik olarak sırala
+        return a.displayValue.localeCompare(b.displayValue);
+      });
       
-      // Önce üst kategorileri göster
-      if (!aParentId && bParentId) return -1;
-      if (aParentId && !bParentId) return 1;
-      
-      // Sonra aynı seviyedeki kategorileri alfabetik olarak sırala
-      return a.displayValue.localeCompare(b.displayValue);
-    });
-    
-    this.categoryTree = this.buildTree(categories);
-    this.updateCategorySelectState(this.categoryTree);
-  }
-}
-
-// Filter Component içinde buildTree metoduna ekleme
-buildTree(categories: any[]): CategoryNode[] {
-  const map = new Map<string, CategoryNode>();
-  const roots: CategoryNode[] = [];
-
-  // Önce tüm kategori düğümlerini oluştur
-  categories.forEach(category => {
-    const node: CategoryNode = {
-      id: category.value,
-      name: category.displayValue.includes(' > ') 
-        ? category.displayValue.split(' > ').pop() 
-        : category.displayValue,
-      parentId: (category as any).parentId, // Tip güvenli erişim
-      children: [],
-      expanded: false,
-      selected: this.isSelected('Category', category.value)
-    };
-    map.set(category.value, node);
-  });
-
-  // Şimdi parent-child ilişkilerini kur
-  categories.forEach(category => {
-    const node = map.get(category.value);
-    if (node) {
-      // Tip güvenli parentId erişimi
-      const parentId = (category as any).parentId;
-      
-      if (parentId && map.has(parentId)) {
-        const parent = map.get(parentId);
-        parent?.children.push(node);
-        // Çocuk seçiliyse, ebeveyni genişlet
-        if (node.selected) {
-          parent!.expanded = true;
-        }
-      } else {
-        roots.push(node);
-      }
+      this.categoryTree = this.buildTree(categories);
+      this.updateCategorySelectState(this.categoryTree);
     }
-  });
+  }
 
-  return roots;
-}
+  buildTree(categories: any[]): CategoryNode[] {
+    const map = new Map<string, CategoryNode>();
+    const roots: CategoryNode[] = [];
+
+    // Önce tüm kategori düğümlerini oluştur
+    categories.forEach(category => {
+      const node: CategoryNode = {
+        id: category.value,
+        name: category.displayValue.includes(' > ') 
+          ? category.displayValue.split(' > ').pop() 
+          : category.displayValue,
+        parentId: (category as any).parentId, // Tip güvenli erişim
+        children: [],
+        expanded: false,
+        selected: this.isSelected('Category', category.value)
+      };
+      map.set(category.value, node);
+    });
+
+    // Şimdi parent-child ilişkilerini kur
+    categories.forEach(category => {
+      const node = map.get(category.value);
+      if (node) {
+        // Tip güvenli parentId erişimi
+        const parentId = (category as any).parentId;
+        
+        if (parentId && map.has(parentId)) {
+          const parent = map.get(parentId);
+          parent?.children.push(node);
+          // Çocuk seçiliyse, ebeveyni genişlet
+          if (node.selected) {
+            parent!.expanded = true;
+          }
+        } else {
+          roots.push(node);
+        }
+      }
+    });
+
+    return roots;
+  }
 
   updateCategorySelectState(nodes: CategoryNode[]) {
     nodes.forEach(node => {
@@ -241,8 +268,6 @@ buildTree(categories: any[]): CategoryNode[] {
     this.updateSelectedFilters();
   }
 
-  
-
   applyCustomPriceRange() {
     const priceFilter = this.availableFilters.find(f => f.key === 'Price');
     if (priceFilter) {
@@ -261,12 +286,50 @@ buildTree(categories: any[]): CategoryNode[] {
   }
 
   closeOffcanvas() {
-    const offcanvas = document.getElementById('filterOffcanvas');
-    if (offcanvas) {
-      const bsOffcanvas = Offcanvas.getInstance(offcanvas);
-      if (bsOffcanvas) {
-        bsOffcanvas.hide();
+    // First try to close via Bootstrap's API
+    if (this.offcanvasInstance) {
+      this.offcanvasInstance.hide();
+    } else {
+      const offcanvasElement = document.getElementById('filterOffcanvas');
+      if (offcanvasElement) {
+        const bsInstance = Offcanvas.getInstance(offcanvasElement);
+        if (bsInstance) {
+          bsInstance.hide();
+        }
       }
+    }
+    
+    // Force cleanup of all backdrop elements and modal classes
+    this.forceCleanBackdrops();
+  }
+  
+  forceCleanBackdrops() {
+    // Set multiple timeouts to ensure cleanup happens
+    setTimeout(() => this.cleanupDomElements(), 100);
+    setTimeout(() => this.cleanupDomElements(), 300);
+    setTimeout(() => this.cleanupDomElements(), 500);
+  }
+  
+  cleanupDomElements() {
+    // Remove modal-open class from body
+    document.body.classList.remove('modal-open');
+    
+    // Remove all backdrop elements
+    const backdrops = document.querySelectorAll('.offcanvas-backdrop, .modal-backdrop');
+    backdrops.forEach(backdrop => backdrop.remove());
+    
+    // Remove inline styles added by Bootstrap
+    document.body.style.removeProperty('overflow');
+    document.body.style.removeProperty('padding-right');
+    
+    // Make the offcanvas itself invisible if it's still visible
+    const offcanvasElement = document.getElementById('filterOffcanvas');
+    if (offcanvasElement) {
+      offcanvasElement.classList.remove('show');
+      offcanvasElement.style.visibility = 'hidden';
+      setTimeout(() => {
+        offcanvasElement.style.removeProperty('visibility');
+      }, 500);
     }
   }
 
@@ -275,6 +338,16 @@ buildTree(categories: any[]): CategoryNode[] {
     this.filterChange.emit(this.selectedFilters);
     if (window.innerWidth < 768) { // md breakpoint
       this.closeOffcanvas();
+      
+      // Extra safety: force document body to normal state
+      document.documentElement.classList.remove('overflow-hidden');
+      document.body.classList.remove('overflow-hidden');
+      document.body.style.overflow = 'auto';
+      
+      // Force backdrop cleanup again after a slight delay
+      setTimeout(() => {
+        this.forceCleanBackdrops();
+      }, 100);
     }
   }
 

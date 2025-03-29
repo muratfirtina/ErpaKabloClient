@@ -215,13 +215,10 @@ export class UserAuthService {
   // user-auth.service.ts
 async verifyActivationCode(userId: string, code: string): Promise<VerifyActivationCodeResponse> {
   try {
-    console.log('UserAuthService: verifying code:', code, 'for user:', userId);
     const response = await this.tokenService.verifyActivationCode(userId, code);
-    console.log('UserAuthService: verification response:', response);
     
     // Kalan deneme sayısını doğru şekilde işleme
     if (response && response.remainingAttempts !== undefined) {
-      console.log('Remaining attempts from response:', response.remainingAttempts);
     }
     
     return response;

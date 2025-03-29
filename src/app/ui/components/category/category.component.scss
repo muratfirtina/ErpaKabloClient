@@ -21,9 +21,56 @@ $link-color: #0000ee;
   color: $text-color;
 }
 
-.category-image-wrapper{
+.card.mb-4 {
+  background-color: #333333;
+  position: relative;
+  overflow: hidden;
+  
+  .row {
+    flex-wrap: nowrap !important;
+  }
+  
+  .col-5 {
+    padding: 0;
+    position: static; /* Static position so image can be positioned relative to card */
+  }
+  
+  .category-image-wrapper {
+    /* Mutlak olarak karta göre konumlandır, sütuna göre değil */
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 41.666667%; /* col-5 genişliği */
+    height: 100%; /* Tam yükseklik */
+    overflow: hidden;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+      margin: 0;
+      padding: 0;
+      mask-image: linear-gradient(to right, transparent 0%, white 30%, white 60%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, white 30%, white 100%, transparent 100%);
+    }
+  }
+}
+
+/* Kategori header'ının alt kenarını düzeltme */
+.category-name {
+  position: relative;
+  
   @media (max-width: 768px) {
-    display: none;
+    font-size: 1.4rem !important;
+    margin-bottom: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+  }
+  
+  @media (max-width: 576px) {
+    font-size: 1.2rem !important;
   }
 }
 

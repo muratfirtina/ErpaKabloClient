@@ -166,9 +166,7 @@ async logoutFromAllDevices(callBackFunction?: () => void): Promise<boolean> {
     // Use TokenService to revoke all tokens
     const success = await this.tokenService.revokeAllTokens();
     
-    if (success) {
-      console.log("AuthService: Exit from all devices is successful");
-      
+    if (success) {      
       // Clear tokens and user data
       this.tokenService.clearTokens();
       

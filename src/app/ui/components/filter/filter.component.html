@@ -47,7 +47,8 @@
         </div>
       </div>
     </div>
-    <!-- Skeleton Loading -->
+    
+    <!-- Actual Filter Content -->
     <form [formGroup]="filterForm" (ngSubmit)="onFilterChange()" *ngIf="!isLoading">
       <div class="filter-groups-container">
         <div *ngFor="let filter of availableFilters" class="filter-group">

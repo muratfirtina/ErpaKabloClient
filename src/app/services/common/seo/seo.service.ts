@@ -408,10 +408,10 @@ export class SeoService {
   }
 
   private processWebVitalMetric(metric: WebVitalsMetric): void {
-    /* console.log(`Web Vital Metric - ${metric.name}:`, {
+      console.log(`Web Vital Metric - ${metric.name}:`, {
       value: metric.value,
       rating: metric.rating
-    }); */
+    }); 
   }
 
   private truncateDescription(text: string, maxLength: number = 160): string {
