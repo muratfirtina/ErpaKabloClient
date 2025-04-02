@@ -7,9 +7,6 @@ import { UserService } from './models/user.service';
 import { StoreService } from './store.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../ui/custom-toastr.service';
 import { AnalyticsService } from './analytics.services';
-import { VerifyActivationCodeResponse } from 'src/app/contracts/auth/verifyActivationCodeResponse';
-import { ResendActivationCodeResponse } from 'src/app/contracts/auth/resendActivationCodeResponse';
-import { VerifyActivationTokenResponse } from 'src/app/contracts/token/verifyActivationTokenResponse';
 
 // API yanıt tipleri
 interface VerifyResetTokenResponse {
@@ -256,7 +253,7 @@ async logoutFromAllDevices(callBackFunction?: () => void): Promise<boolean> {
     try {
       const observable = this.httpClientService.post<VerifyResetTokenResponse>(
         {
-          controller: 'tokens', // Changed to tokens controller
+          controller: 'token', // Changed to tokens controller
           action: 'verify-reset-password'
         },
         { userId, resetToken }
