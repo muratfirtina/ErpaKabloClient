@@ -23,7 +23,7 @@ export class AnalyticsService {
   }
 
   // Initialize all analytics platforms based on consent
-  initializeAnalytics(consentSettings: {analytics: boolean}) {
+  initializeAnalytics(consentSettings: {analytics: boolean, marketing?: boolean}) {
     if (consentSettings.analytics) {
       this.initGoogleAnalytics(environment.analytics.googleAnalyticsId);
       this.initYandexMetrika(environment.analytics.yandexMetrikaId);
@@ -45,7 +45,11 @@ export class AnalyticsService {
         gtag('config', '${trackingId}', { 
           'send_page_view': false,
           'anonymize_ip': true,
-          'cookie_flags': 'SameSite=None;Secure'
+          'cookie_flags': 'SameSite=None;Secure',
+          'cookie_expires': 63072000 // 2 years in seconds
+        });
+        gtag('consent', 'default', {
+          'analytics_storage': 'granted'
         });
       `;
       
@@ -70,11 +74,13 @@ export class AnalyticsService {
         (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
         ym(${counterId}, "init", {
-          clickmap:true,
-          trackLinks:true,
-          accurateTrackBounce:true,
-          webvisor:true,
-          ecommerce:"dataLayer"
+          clickmap: true,
+          trackLinks: true,
+          accurateTrackBounce: true,
+          webvisor: true,
+          ecommerce: "dataLayer",
+          ut: "noindex", // IP anonimization for Yandex
+          exp: 31536000 // 1 year cookie expiration in seconds
         });
       `;
       
@@ -120,6 +126,13 @@ export class AnalyticsService {
   
   private disableYandexMetrika() {
     if (typeof window !== 'undefined' && typeof ym === 'function') {
+      // Disable Yandex tracking if possible
+      try {
+        ym(environment.analytics.yandexMetrikaId, 'disable');
+      } catch (e) {
+        console.error('Error disabling Yandex Metrika:', e);
+      }
+      
       // Remove Yandex Metrika cookies
       this.removeCookies(['_ym_uid', '_ym_d', '_ym_isad', '_ym_visorc']);
       this.yandexInitialized = false;
