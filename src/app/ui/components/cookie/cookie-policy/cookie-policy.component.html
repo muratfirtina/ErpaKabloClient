@@ -1,73 +1,325 @@
 <div class="policy-container">
-    <div class="header-actions">
-        <button class="back-home" routerLink="/">
-          <span *ngIf="currentLang === 'en'">← Back to Home</span>
-          <span *ngIf="currentLang === 'tr'">← Ana Sayfaya Dön</span>
-          <span *ngIf="currentLang === 'ru'">← Вернуться на главную</span>
+  <div class="header-actions">
+    <button class="back-home" routerLink="/">
+      <span *ngIf="currentLang === Language.EN">← Back to Home</span>
+      <span *ngIf="currentLang === Language.TR">← Ana Sayfaya Dön</span>
+      <span *ngIf="currentLang === Language.RU">← Вернуться на главную</span>
+    </button>
+  </div>
+  
+  <!-- Language Selector -->
+  <div class="language-selector">
+    <button 
+      *ngFor="let lang of [Language.EN, Language.TR, Language.RU]"
+      (click)="changeLanguage(lang)"
+      [class.active]="currentLang === lang"
+      class="lang-btn">
+      {{ lang.toUpperCase() }}
+    </button>
+  </div>
+
+  <!-- Policy Content -->
+  <div class="policy-content">
+    <h1>{{ translations[currentLang].title }}</h1>
+    <p class="last-updated">
+      {{ translations[currentLang].lastUpdated }}: {{ lastUpdatedDate | date }}
+    </p>
+
+    <!-- Current Consent Status -->
+    <div *ngIf="currentConsent" class="consent-status">
+      <div class="status-header">
+        <h3>{{ currentLang === Language.EN ? 'Your Current Cookie Preferences' : 
+               currentLang === Language.TR ? 'Mevcut Çerez Tercihleriniz' : 
+               'Ваши текущие предпочтения cookie' }}</h3>
+        <button class="reset-consent" (click)="resetConsent()">
+          {{ currentLang === Language.EN ? 'Reset Preferences' : 
+             currentLang === Language.TR ? 'Tercihleri Sıfırla' : 
+             'Сбросить настройки' }}
         </button>
       </div>
-    <!-- Language Selector -->
-    <div class="language-selector">
-      <button 
-        *ngFor="let lang of [Language.EN, Language.TR, Language.RU]"
-        (click)="changeLanguage(lang)"
-        [class.active]="currentLang === lang"
-        class="lang-btn">
-        {{ lang.toUpperCase() }}
+      <div class="status-content">
+        <div class="cookie-status">
+          <span class="category">{{ currentLang === Language.EN ? 'Necessary Cookies:' : 
+                                   currentLang === Language.TR ? 'Gerekli Çerezler:' : 
+                                   'Необходимые файлы cookie:' }}</span>
+          <span class="enabled">{{ currentLang === Language.EN ? 'Enabled' : 
+                                 currentLang === Language.TR ? 'Etkin' : 
+                                 'Включено' }}</span>
+        </div>
+        <div class="cookie-status">
+          <span class="category">{{ currentLang === Language.EN ? 'Functional Cookies:' : 
+                                  currentLang === Language.TR ? 'İşlevsel Çerezler:' : 
+                                  'Функциональные файлы cookie:' }}</span>
+          <span [class]="currentConsent.functional ? 'enabled' : 'disabled'">
+            {{ currentConsent.functional ? 
+               (currentLang === Language.EN ? 'Enabled' : currentLang === Language.TR ? 'Etkin' : 'Включено') : 
+               (currentLang === Language.EN ? 'Disabled' : currentLang === Language.TR ? 'Devre Dışı' : 'Отключено') }}
+          </span>
+        </div>
+        <div class="cookie-status">
+          <span class="category">{{ currentLang === Language.EN ? 'Analytics Cookies:' : 
+                                 currentLang === Language.TR ? 'Analitik Çerezler:' : 
+                                 'Аналитические файлы cookie:' }}</span>
+          <span [class]="currentConsent.analytics ? 'enabled' : 'disabled'">
+            {{ currentConsent.analytics ? 
+               (currentLang === Language.EN ? 'Enabled' : currentLang === Language.TR ? 'Etkin' : 'Включено') : 
+               (currentLang === Language.EN ? 'Disabled' : currentLang === Language.TR ? 'Devre Dışı' : 'Отключено') }}
+          </span>
+        </div>
+        <div class="cookie-status">
+          <span class="category">{{ currentLang === Language.EN ? 'Marketing Cookies:' : 
+                                 currentLang === Language.TR ? 'Pazarlama Çerezleri:' : 
+                                 'Маркетинговые файлы cookie:' }}</span>
+          <span [class]="currentConsent.marketing ? 'enabled' : 'disabled'">
+            {{ currentConsent.marketing ? 
+               (currentLang === Language.EN ? 'Enabled' : currentLang === Language.TR ? 'Etkin' : 'Включено') : 
+               (currentLang === Language.EN ? 'Disabled' : currentLang === Language.TR ? 'Devre Dışı' : 'Отключено') }}
+          </span>
+        </div>
+        <div class="consent-date">
+          {{ currentLang === Language.EN ? 'Last updated on:' : 
+             currentLang === Language.TR ? 'Son güncelleme tarihi:' : 
+             'Последнее обновление:' }} {{ currentConsent.timestamp | date }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Introduction -->
+    <section>
+      <h2>{{ translations[currentLang].sections.introduction.title }}</h2>
+      <p>{{ translations[currentLang].sections.introduction.content }}</p>
+    </section>
+    
+    <!-- What Are Cookies -->
+    <section>
+      <h2>{{ translations[currentLang].sections.whatAreCookies.title }}</h2>
+      <p>{{ translations[currentLang].sections.whatAreCookies.content }}</p>
+    </section>
+
+    <!-- How We Use Cookies -->
+    <section>
+      <h2>{{ translations[currentLang].sections.howWeUseCookies.title }}</h2>
+      <p>{{ translations[currentLang].sections.howWeUseCookies.content }}</p>
+    </section>
+    
+    <!-- Types of Cookies -->
+    <section>
+      <h2>{{ translations[currentLang].sections.typesOfCookies.title }}</h2>
+      
+      <div class="cookie-type">
+        <h3>{{ translations[currentLang].sections.typesOfCookies.necessaryTitle }}</h3>
+        <p>{{ translations[currentLang].sections.typesOfCookies.necessaryContent }}</p>
+      </div>
+
+      <div class="cookie-type">
+        <h3>{{ translations[currentLang].sections.typesOfCookies.functionalTitle }}</h3>
+        <p>{{ translations[currentLang].sections.typesOfCookies.functionalContent }}</p>
+      </div>
+
+      <div class="cookie-type">
+        <h3>{{ translations[currentLang].sections.typesOfCookies.analyticsTitle }}</h3>
+        <p>{{ translations[currentLang].sections.typesOfCookies.analyticsContent }}</p>
+      </div>
+
+      <div class="cookie-type">
+        <h3>{{ translations[currentLang].sections.typesOfCookies.marketingTitle }}</h3>
+        <p>{{ translations[currentLang].sections.typesOfCookies.marketingContent }}</p>
+      </div>
+    </section>
+
+    <!-- Specific Cookies -->
+    <section>
+      <h2>{{ translations[currentLang].sections.cookieList.title }}</h2>
+      
+      <div class="cookie-tables">
+        <!-- Necessary Cookies Table -->
+        <div class="cookie-category">
+          <h3>{{ translations[currentLang].sections.typesOfCookies.necessaryTitle }}</h3>
+          <div class="table-wrapper">
+            <table class="cookie-table">
+              <thead>
+                <tr>
+                  <th>{{ translations[currentLang].sections.cookieList.name }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.provider }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.purpose }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.expiry }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cookie of cookieDetails.necessary">
+                  <td>{{ cookie.name }}</td>
+                  <td>{{ cookie.provider }}</td>
+                  <td>{{ cookie.purpose }}</td>
+                  <td>{{ cookie.expiry }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Functional Cookies Table -->
+        <div class="cookie-category">
+          <h3>{{ translations[currentLang].sections.typesOfCookies.functionalTitle }}</h3>
+          <div class="table-wrapper">
+            <table class="cookie-table">
+              <thead>
+                <tr>
+                  <th>{{ translations[currentLang].sections.cookieList.name }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.provider }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.purpose }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.expiry }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cookie of cookieDetails.functional">
+                  <td>{{ cookie.name }}</td>
+                  <td>{{ cookie.provider }}</td>
+                  <td>{{ cookie.purpose }}</td>
+                  <td>{{ cookie.expiry }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Analytics Cookies Table -->
+        <div class="cookie-category">
+          <h3>{{ translations[currentLang].sections.typesOfCookies.analyticsTitle }}</h3>
+          <div class="table-wrapper">
+            <table class="cookie-table">
+              <thead>
+                <tr>
+                  <th>{{ translations[currentLang].sections.cookieList.name }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.provider }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.purpose }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.expiry }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cookie of cookieDetails.analytics">
+                  <td>{{ cookie.name }}</td>
+                  <td>{{ cookie.provider }}</td>
+                  <td>{{ cookie.purpose }}</td>
+                  <td>{{ cookie.expiry }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Marketing Cookies Table -->
+        <div class="cookie-category">
+          <h3>{{ translations[currentLang].sections.typesOfCookies.marketingTitle }}</h3>
+          <div class="table-wrapper">
+            <table class="cookie-table">
+              <thead>
+                <tr>
+                  <th>{{ translations[currentLang].sections.cookieList.name }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.provider }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.purpose }}</th>
+                  <th>{{ translations[currentLang].sections.cookieList.expiry }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cookie of cookieDetails.marketing">
+                  <td>{{ cookie.name }}</td>
+                  <td>{{ cookie.provider }}</td>
+                  <td>{{ cookie.purpose }}</td>
+                  <td>{{ cookie.expiry }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Data Retention and Cookie Lifespans -->
+    <section>
+      <h2>{{ translations[currentLang].sections.dataRetention.title }}</h2>
+      <p>{{ translations[currentLang].sections.dataRetention.content }}</p>
+      <ul>
+        <li>{{ translations[currentLang].sections.dataRetention.necessary }}</li>
+        <li>{{ translations[currentLang].sections.dataRetention.functional }}</li>
+        <li>{{ translations[currentLang].sections.dataRetention.analytics }}</li>
+        <li>{{ translations[currentLang].sections.dataRetention.marketing }}</li>
+      </ul>
+      <p>{{ translations[currentLang].sections.dataRetention.dataRetention }}</p>
+    </section>
+
+    <!-- Legal Basis for Processing -->
+    <section>
+      <h2>{{ translations[currentLang].sections.legalBasis.title }}</h2>
+      <p>{{ translations[currentLang].sections.legalBasis.content }}</p>
+      <ul>
+        <li>{{ translations[currentLang].sections.legalBasis.necessary }}</li>
+        <li>{{ translations[currentLang].sections.legalBasis.other }}</li>
+      </ul>
+    </section>
+
+    <!-- How to Manage Cookies -->
+    <section>
+      <h2>{{ translations[currentLang].sections.howToManage.title }}</h2>
+      <p>{{ translations[currentLang].sections.howToManage.content }}</p>
+      <p>{{ translations[currentLang].sections.howToManage.browserInstructions }}</p>
+      <ul>
+        <li>{{ translations[currentLang].sections.howToManage.chrome }}</li>
+        <li>{{ translations[currentLang].sections.howToManage.firefox }}</li>
+        <li>{{ translations[currentLang].sections.howToManage.safari }}</li>
+        <li>{{ translations[currentLang].sections.howToManage.edge }}</li>
+      </ul>
+      <p><em>{{ translations[currentLang].sections.howToManage.note }}</em></p>
+    </section>
+
+    <!-- GDPR and KVKK Compliance -->
+    <section>
+      <h2>{{ translations[currentLang].sections.gdprCompliance.title }}</h2>
+      <p>{{ translations[currentLang].sections.gdprCompliance.content }}</p>
+      <p>{{ translations[currentLang].sections.gdprCompliance.rights }}</p>
+      <ul>
+        <li *ngFor="let right of translations[currentLang].sections.gdprCompliance.rightsList">{{ right }}</li>
+      </ul>
+      <p>{{ translations[currentLang].sections.gdprCompliance.exerciseRights }}</p>
+    </section>
+
+    <!-- Cross-Border Data Transfers -->
+    <section>
+      <h2>{{ translations[currentLang].sections.crossBorderData.title }}</h2>
+      <p>{{ translations[currentLang].sections.crossBorderData.content }}</p>
+    </section>
+
+    <!-- Children's Privacy -->
+    <section>
+      <h2>{{ translations[currentLang].sections.children.title }}</h2>
+      <p>{{ translations[currentLang].sections.children.content }}</p>
+    </section>
+
+    <!-- Changes to This Cookie Policy -->
+    <section>
+      <h2>{{ translations[currentLang].sections.changes.title }}</h2>
+      <p>{{ translations[currentLang].sections.changes.content }}</p>
+    </section>
+
+    <!-- Contact Us -->
+    <section class="contact-section">
+      <h2>{{ translations[currentLang].sections.contactUs.title }}</h2>
+      <p>{{ translations[currentLang].sections.contactUs.content }}</p>
+      <div class="controller-details">
+        <h3>{{ translations[currentLang].sections.contactUs.dataController }}</h3>
+        <p><strong>{{ translations[currentLang].sections.contactUs.company }}</strong> {{ dataController.company }}</p>
+        <p><strong>{{ translations[currentLang].sections.contactUs.address }}</strong> {{ dataController.address }}</p>
+        <p><strong>{{ translations[currentLang].sections.contactUs.representative }}</strong> {{ dataController.representative }}</p>
+        <p><strong>{{ translations[currentLang].sections.contactUs.email }}</strong> {{ dataController.email }}</p>
+        <p><strong>{{ translations[currentLang].sections.contactUs.phone }}</strong> {{ dataController.phone }}</p>
+        <p *ngIf="currentLang === Language.TR"><strong>VERBİS Kayıt No:</strong> {{ dataController.kvkkReg }}</p>
+      </div>
+    </section>
+
+    <!-- Cookie Management Button -->
+    <div class="cookie-management">
+      <button class="manage-cookies-btn" (click)="openCookieModal()">
+        {{ translations[currentLang].manageCookies }}
       </button>
     </div>
-  
-    <!-- Policy Content -->
-    <div class="policy-content">
-      <h1>{{ translations[currentLang].title }}</h1>
-      <p class="last-updated">
-        {{ translations[currentLang].lastUpdated }}: {{ '2024-11-27' | date }}
-      </p>
-  
-      <!-- What Are Cookies -->
-      <section>
-        <h2>{{ translations[currentLang].sections.whatAreCookies.title }}</h2>
-        <p>{{ translations[currentLang].sections.whatAreCookies.content }}</p>
-      </section>
-  
-      <!-- Types of Cookies -->
-      <section>
-        <h2>{{ translations[currentLang].sections.typesOfCookies.title }}</h2>
-        
-        <div class="cookie-type">
-          <h3>{{ translations[currentLang].sections.typesOfCookies.necessary.title }}</h3>
-          <p>{{ translations[currentLang].sections.typesOfCookies.necessary.content }}</p>
-        </div>
-  
-        <div class="cookie-type">
-          <h3>{{ translations[currentLang].sections.typesOfCookies.analytics.title }}</h3>
-          <p>{{ translations[currentLang].sections.typesOfCookies.analytics.content }}</p>
-        </div>
-  
-        <div class="cookie-type">
-          <h3>{{ translations[currentLang].sections.typesOfCookies.marketing.title }}</h3>
-          <p>{{ translations[currentLang].sections.typesOfCookies.marketing.content }}</p>
-        </div>
-      </section>
-  
-      <!-- How to Manage -->
-      <section>
-        <h2>{{ translations[currentLang].sections.howToManage.title }}</h2>
-        <p>{{ translations[currentLang].sections.howToManage.content }}</p>
-      </section>
-      <!-- GDPR Compliance -->
-      <section>
-        <h2>{{ translations[currentLang].sections.gdprCompliance.title }}</h2>
-        <p>{{ translations[currentLang].sections.gdprCompliance.content }}</p>
-      </section>
-      <!-- Contact Us -->
-      <section>
-        <h2>{{ translations[currentLang].sections.contactUs.title }}</h2>
-        <p>{{ translations[currentLang].sections.contactUs.content }}</p>
-        <ul>
-          <li>{{ translations[currentLang].sections.contactUs.email }}</li>
-          <li>{{ translations[currentLang].sections.contactUs.phone }}</li>
-        </ul>
-      </section>
-    </div>
   </div>
+</div>

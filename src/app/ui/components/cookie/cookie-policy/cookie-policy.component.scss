@@ -1,126 +1,326 @@
+// cookie-policy.component.scss
+
 .policy-container {
-    max-width: 800px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-  }
-  .header-actions {
-    margin-bottom: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 30px 20px 60px;
+  color: #333;
+  font-family: 'Source Sans 3', sans-serif;
   
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    
     .back-home {
-      display: inline-flex;
-      align-items: center;
-      padding: 0.5rem 1rem;
-      background-color: #f3f4f6;
-      border: none;
-      border-radius: 0.25rem;
-      color: #374151;
-      font-size: 0.875rem;
+      background-color: transparent;
+      border: 1px solid #ccc;
+      color: #555;
+      padding: 8px 15px;
+      border-radius: 4px;
+      font-size: 14px;
       cursor: pointer;
       transition: all 0.2s ease;
-  
+      
       &:hover {
-        background-color: #e5e7eb;
-        color: #1f2937;
-      }
-  
-      &:active {
-        transform: translateY(1px);
+        background-color: #f0f0f0;
+        border-color: #999;
       }
     }
   }
   
   .language-selector {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-  
+    justify-content: flex-end;
+    margin-bottom: 30px;
+    
     .lang-btn {
-      padding: 0.5rem 1rem;
-      border: 1px solid #e5e7eb;
       background: transparent;
-      border-radius: 0.25rem;
+      border: 1px solid #ddd;
+      color: #555;
+      padding: 6px 12px;
+      margin: 0 5px;
+      border-radius: 3px;
+      font-size: 13px;
       cursor: pointer;
-      transition: all 0.2s;
-  
+      transition: all 0.2s ease;
+      
       &:hover {
-        background: #f3f4f6;
+        background-color: #f5f5f5;
       }
-  
+      
       &.active {
-        background: #2563eb;
+        background-color: #3a86ff;
         color: white;
-        border-color: #2563eb;
+        border-color: #3a86ff;
       }
     }
   }
   
   .policy-content {
-    padding-bottom: 200px;
+    line-height: 1.6;
+    
     h1 {
-      color: #1f2937;
-      font-size: 2rem;
-      margin-bottom: 1rem;
+      font-size: 2.2rem;
+      color: #1a2b47;
+      margin-bottom: 5px;
+      font-weight: 600;
     }
-  
+    
     .last-updated {
-      color: #6b7280;
+      color: #777;
+      font-size: 0.9rem;
+      margin-bottom: 30px;
       font-style: italic;
-      margin-bottom: 2rem;
     }
-  
-    section {
-      margin-bottom: 2.5rem;
-  
-      h2 {
-        color: #2563eb;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
-      }
-  
-      .cookie-type {
-        margin-bottom: 1.5rem;
-  
+    
+    // Current Consent Status
+    .consent-status {
+      background-color: #f8f9fa;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 30px;
+      
+      .status-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        
         h3 {
-          color: #1f2937;
-          font-size: 1.25rem;
-          margin-bottom: 0.5rem;
+          margin: 0;
+          font-size: 1.1rem;
+          color: #2c3e50;
+        }
+        
+        .reset-consent {
+          background-color: #e1e4e8;
+          border: none;
+          color: #2c3e50;
+          padding: 6px 12px;
+          border-radius: 4px;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            background-color: #d1d5da;
+          }
         }
       }
-  
-      p {
-        color: #4b5563;
-        line-height: 1.6;
-        margin-bottom: 1rem;
+      
+      .status-content {
+        .cookie-status {
+          display: flex;
+          justify-content: space-between;
+          padding: 8px 0;
+          border-bottom: 1px solid #e1e4e8;
+          
+          &:last-child {
+            border-bottom: none;
+          }
+          
+          .category {
+            font-weight: 500;
+            color: #2c3e50;
+          }
+          
+          .enabled {
+            color: #2ecc71;
+            font-weight: 500;
+          }
+          
+          .disabled {
+            color: #e74c3c;
+            font-weight: 500;
+          }
+        }
+        
+        .consent-date {
+          margin-top: 10px;
+          font-size: 0.8rem;
+          color: #7f8c8d;
+          text-align: right;
+        }
       }
-  
-      ul {
-        list-style-type: disc;
-        margin-left: 1.5rem;
-        color: #4b5563;
-  
+    }
+    
+    section {
+      margin-bottom: 40px;
+      
+      h2 {
+        font-size: 1.5rem;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+        font-weight: 600;
+      }
+      
+      p {
+        margin-bottom: 15px;
+      }
+      
+      ul, ol {
+        margin: 15px 0;
+        padding-left: 25px;
+        
         li {
-          margin-bottom: 0.5rem;
+          margin-bottom: 10px;
+        }
+      }
+    }
+    
+    .cookie-type {
+      margin-bottom: 20px;
+      
+      h3 {
+        font-size: 1.2rem;
+        color: #34495e;
+        margin-bottom: 10px;
+        font-weight: 500;
+      }
+      
+      p {
+        color: #555;
+      }
+    }
+    
+    // Cookie Tables
+    .cookie-tables {
+      .cookie-category {
+        margin-bottom: 30px;
+        
+        h3 {
+          font-size: 1.2rem;
+          color: #34495e;
+          margin-bottom: 15px;
+          font-weight: 500;
+        }
+        
+        .table-wrapper {
+          overflow-x: auto;
+          margin-bottom: 15px;
+          
+          .cookie-table {
+            width: 100%;
+            border-collapse: collapse;
+            
+            th, td {
+              padding: 12px;
+              text-align: left;
+              border: 1px solid #ddd;
+            }
+            
+            th {
+              background-color: #f8f9fa;
+              font-weight: 600;
+              color: #2c3e50;
+            }
+            
+            tr:nth-child(even) {
+              background-color: #f9f9f9;
+            }
+            
+            tr:hover {
+              background-color: #f5f5f5;
+            }
+          }
+        }
+      }
+    }
+    
+    // Contact Section
+    .contact-section {
+      background-color: #f8f9fa;
+      border-radius: 6px;
+      padding: 20px;
+      
+      .controller-details {
+        background-color: white;
+        border: 1px solid #e1e4e8;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 15px;
+        
+        h3 {
+          margin-top: 0;
+          margin-bottom: 15px;
+          color: #2c3e50;
+          font-size: 1.1rem;
+        }
+        
+        p {
+          margin: 8px 0;
+          
+          strong {
+            display: inline-block;
+            min-width: 180px;
+            color: #34495e;
+          }
+        }
+      }
+    }
+    
+    // Cookie Management Button
+    .cookie-management {
+      text-align: center;
+      margin-top: 40px;
+      
+      .manage-cookies-btn {
+        background-color: #3a86ff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background-color: #2170e8;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
       }
     }
   }
   
+  // Responsive Design
   @media (max-width: 768px) {
     .policy-container {
-      margin: 1rem auto;
-    }
-  
-    .policy-content {
-      h1 {
-        font-size: 1.75rem;
-      }
-  
-      h2 {
-        font-size: 1.25rem;
-      }
-  
-      h3 {
-        font-size: 1.1rem;
+      padding: 20px 15px 40px;
+      
+      .policy-content {
+        h1 {
+          font-size: 1.8rem;
+        }
+        
+        section {
+          h2 {
+            font-size: 1.3rem;
+          }
+        }
+        
+        .consent-status {
+          .status-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+          }
+        }
+        
+        .contact-section {
+          .controller-details {
+            p {
+              strong {
+                min-width: 140px;
+              }
+            }
+          }
+        }
       }
     }
   }
+}

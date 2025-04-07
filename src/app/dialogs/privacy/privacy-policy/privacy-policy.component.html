@@ -1,69 +1,268 @@
-<span class="policy-link" (click)="openModal()">Privacy Policy</span>
+<!-- Modal Trigger -->
+<span class="policy-link" (click)="openModal()">{{ translations[currentLang].buttonText }}</span>
 
-<app-policy-modal [title]="'Privacy Policy'" [isOpen]="isOpen" (close)="closeModal()">
-  <div class="policy-content">
-    <p><strong>Last Updated:</strong> March 2, 2025</p>
+<!-- Privacy Policy Modal -->
+<app-policy-modal [title]="translations[currentLang].title" [isOpen]="isOpen" (close)="closeModal()">
+  <div class="policy-container">
+    <!-- Language Selector -->
+    <div class="language-selector">
+      <button 
+        *ngFor="let lang of [Language.EN, Language.TR, Language.RU]"
+        (click)="changeLanguage(lang)"
+        [class.active]="currentLang === lang"
+        class="lang-btn">
+        {{ lang.toUpperCase() }}
+      </button>
+    </div>
 
-    <h3>1. Introduction</h3>
-    <p>At TUMDEX.com ("TUMDEX", "we", "us", or "our"), owned and operated by Tum Trading, we respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how we collect, use, and safeguard your information when you use our platform.</p>
+    <div class="policy-content">
+      <!-- Header Information -->
+      <p class="last-updated">
+        <strong>{{ translations[currentLang].lastUpdated }}:</strong> {{ lastUpdatedDate | date }}
+      </p>
 
-    <h3>2. Information We Collect</h3>
-    <p>We collect the following types of information:</p>
-    <ul>
-      <li><strong>Personal Information:</strong> Full name, email address, username, and password.</li>
-      <li><strong>Profile Information:</strong> Company details, professional title, and industry preferences.</li>
-      <li><strong>Technical Data:</strong> IP address, browser type, device information, and cookies.</li>
-      <li><strong>Usage Data:</strong> Information about how you interact with our platform, including pages visited and features used.</li>
-    </ul>
+      <!-- Introduction -->
+      <section>
+        <h3>{{ translations[currentLang].sections.introduction.title }}</h3>
+        <p>{{ translations[currentLang].sections.introduction.content }}</p>
+      </section>
 
-    <h3>3. How We Use Your Information</h3>
-    <p>We use your information for the following purposes:</p>
-    <ul>
-      <li>To create and manage your account</li>
-      <li>To provide and improve our services</li>
-      <li>To communicate with you about our platform and services</li>
-      <li>To personalize your experience</li>
-      <li>To analyze usage patterns and improve our platform</li>
-      <li>To prevent fraud and enhance security</li>
-      <li>To comply with legal obligations</li>
-    </ul>
+      <!-- Definitions -->
+      <section>
+        <h3>{{ translations[currentLang].sections.definitions.title }}</h3>
+        <p>{{ translations[currentLang].sections.definitions.content }}</p>
+        <div class="definitions-list">
+          <dl>
+            <ng-container *ngFor="let item of translations[currentLang].sections.definitions.terms">
+              <dt>{{ item.term }}</dt>
+              <dd>{{ item.definition }}</dd>
+            </ng-container>
+          </dl>
+        </div>
+      </section>
 
-    <h3>4. Data Sharing and Disclosure</h3>
-    <p>We may share your information with:</p>
-    <ul>
-      <li><strong>Service Providers:</strong> Third-party vendors who assist us in providing our services.</li>
-      <li><strong>Business Partners:</strong> Companies with whom we collaborate to offer integrated services.</li>
-      <li><strong>Legal Requirements:</strong> When required by law, court order, or governmental authority.</li>
-      <li><strong>Business Transfers:</strong> In connection with a merger, acquisition, or sale of all or a portion of our assets.</li>
-    </ul>
+      <!-- Data Controller -->
+      <section>
+        <h3>{{ translations[currentLang].sections.dataController.title }}</h3>
+        <p>{{ translations[currentLang].sections.dataController.content }}</p>
+        <div class="controller-info">
+          <p><strong>{{ dataController.company }}</strong><br>
+          {{ dataController.address }}<br>
+          {{ translations[currentLang].sections.contactUs.email }} {{ dataController.email }}<br>
+          {{ translations[currentLang].sections.contactUs.phone }} {{ dataController.phone }}</p>
+        </div>
+      </section>
 
-    <h3>5. Data Security</h3>
-    <p>We implement appropriate technical and organizational measures to protect your personal information from unauthorized access, disclosure, alteration, or destruction. However, no method of transmission over the Internet or electronic storage is 100% secure, and we cannot guarantee absolute security.</p>
+      <!-- Information We Collect -->
+      <section>
+        <h3>{{ translations[currentLang].sections.collectInfo.title }}</h3>
+        <p>{{ translations[currentLang].sections.collectInfo.content }}</p>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.collectInfo.categories.personal.title }}</h4>
+          <ul>
+            <li *ngFor="let item of translations[currentLang].sections.collectInfo.categories.personal.items">{{ item }}</li>
+          </ul>
+        </div>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.collectInfo.categories.usage.title }}</h4>
+          <ul>
+            <li *ngFor="let item of translations[currentLang].sections.collectInfo.categories.usage.items">{{ item }}</li>
+          </ul>
+        </div>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.collectInfo.categories.marketing.title }}</h4>
+          <ul>
+            <li *ngFor="let item of translations[currentLang].sections.collectInfo.categories.marketing.items">{{ item }}</li>
+          </ul>
+        </div>
+      </section>
 
-    <h3>6. Your Data Rights</h3>
-    <p>Depending on your location, you may have the following rights:</p>
-    <ul>
-      <li>Access to your personal information</li>
-      <li>Correction of inaccurate or incomplete data</li>
-      <li>Deletion of your personal information</li>
-      <li>Restriction or objection to processing</li>
-      <li>Data portability</li>
-      <li>Withdrawal of consent</li>
-    </ul>
+      <!-- Sources -->
+      <section>
+        <h3>{{ translations[currentLang].sections.sources.title }}</h3>
+        <p>{{ translations[currentLang].sections.sources.content }}</p>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.sources.direct.title }}</h4>
+          <ul>
+            <li *ngFor="let item of translations[currentLang].sections.sources.direct.items">{{ item }}</li>
+          </ul>
+        </div>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.sources.automated.title }}</h4>
+          <ul>
+            <li *ngFor="let item of translations[currentLang].sections.sources.automated.items">{{ item }}</li>
+          </ul>
+        </div>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.sources.thirdParty.title }}</h4>
+          <ul>
+            <li *ngFor="let item of translations[currentLang].sections.sources.thirdParty.items">{{ item }}</li>
+          </ul>
+        </div>
+      </section>
 
-    <h3>7. Cookies and Tracking Technologies</h3>
-    <p>We use cookies and similar tracking technologies to collect information about your browsing activities. You can manage your cookie preferences through your browser settings, but please note that disabling certain cookies may impact the functionality of our platform.</p>
+      <!-- Purposes -->
+      <section>
+        <h3>{{ translations[currentLang].sections.purposes.title }}</h3>
+        <p>{{ translations[currentLang].sections.purposes.content }}</p>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.purposes.essential.title }}</h4>
+          <p class="legal-basis">{{ translations[currentLang].sections.purposes.essential.legalBasis }}</p>
+          <ul>
+            <li *ngFor="let purpose of processingPurposes.essential">{{ purpose }}</li>
+          </ul>
+        </div>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.purposes.analytical.title }}</h4>
+          <p class="legal-basis">{{ translations[currentLang].sections.purposes.analytical.legalBasis }}</p>
+          <ul>
+            <li *ngFor="let purpose of processingPurposes.analytical">{{ purpose }}</li>
+          </ul>
+        </div>
+        
+        <div class="info-category">
+          <h4>{{ translations[currentLang].sections.purposes.marketing.title }}</h4>
+          <p class="legal-basis">{{ translations[currentLang].sections.purposes.marketing.legalBasis }}</p>
+          <ul>
+            <li *ngFor="let purpose of processingPurposes.marketing">{{ purpose }}</li>
+          </ul>
+        </div>
+      </section>
 
-    <h3>8. Children's Privacy</h3>
-    <p>Our platform is not intended for children under the age of 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.</p>
+      <!-- Legal Basis -->
+      <section>
+        <h3>{{ translations[currentLang].sections.lawfulBasis.title }}</h3>
+        <p>{{ translations[currentLang].sections.lawfulBasis.content }}</p>
+        <div class="legal-basis-list">
+          <div *ngFor="let basis of translations[currentLang].sections.lawfulBasis.basis" class="legal-basis-item">
+            <h4>{{ basis.name }}</h4>
+            <p>{{ basis.explanation }}</p>
+          </div>
+        </div>
+      </section>
 
-    <h3>9. International Data Transfers</h3>
-    <p>Your information may be transferred to and processed in countries other than your country of residence. We ensure appropriate safeguards are in place to protect your information in compliance with applicable data protection laws.</p>
+      <!-- Data Sharing -->
+      <section>
+        <h3>{{ translations[currentLang].sections.disclosure.title }}</h3>
+        <p>{{ translations[currentLang].sections.disclosure.content }}</p>
+        <div class="disclosure-categories">
+          <div *ngFor="let category of translations[currentLang].sections.disclosure.categories" class="disclosure-category">
+            <h4>{{ category.title }}</h4>
+            <p>{{ category.description }}</p>
+          </div>
+        </div>
+        <p>{{ translations[currentLang].sections.disclosure.thirdParties }}</p>
+      </section>
 
-    <h3>10. Changes to This Privacy Policy</h3>
-    <p>We may update this Privacy Policy from time to time. We will notify you of any significant changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.</p>
+      <!-- Data Retention -->
+      <section>
+        <h3>{{ translations[currentLang].sections.retention.title }}</h3>
+        <p>{{ translations[currentLang].sections.retention.content }}</p>
+        <div class="retention-periods">
+          <h4>{{ currentLang === Language.EN ? 'Retention Periods' : 
+                 currentLang === Language.TR ? 'Saklama Süreleri' : 
+                 'Сроки хранения' }}</h4>
+          <ul>
+            <li><strong>{{ currentLang === Language.EN ? 'Account Data:' : 
+                         currentLang === Language.TR ? 'Hesap Verileri:' : 
+                         'Данные учетной записи:' }}</strong> {{ retentionPeriods.accountData }}</li>
+            <li><strong>{{ currentLang === Language.EN ? 'Order Data:' : 
+                         currentLang === Language.TR ? 'Sipariş Verileri:' : 
+                         'Данные заказов:' }}</strong> {{ retentionPeriods.orderData }}</li>
+            <li><strong>{{ currentLang === Language.EN ? 'Marketing Data:' : 
+                         currentLang === Language.TR ? 'Pazarlama Verileri:' : 
+                         'Маркетинговые данные:' }}</strong> {{ retentionPeriods.marketingData }}</li>
+            <li><strong>{{ currentLang === Language.EN ? 'Cookie Data:' : 
+                         currentLang === Language.TR ? 'Çerez Verileri:' : 
+                         'Данные cookie:' }}</strong> {{ retentionPeriods.cookieData }}</li>
+            <li><strong>{{ currentLang === Language.EN ? 'Anonymized Data:' : 
+                         currentLang === Language.TR ? 'Anonimleştirilmiş Veriler:' : 
+                         'Анонимизированные данные:' }}</strong> {{ retentionPeriods.anonymizedData }}</li>
+          </ul>
+        </div>
+      </section>
 
-    <h3>11. Contact Us</h3>
-    <p>If you have any questions about this Privacy Policy or our data practices, please contact us at <span>privacy</span>&#64;<span>TUMDEX.com</span>.</p>
+      <!-- International Transfers -->
+      <section>
+        <h3>{{ translations[currentLang].sections.international.title }}</h3>
+        <p>{{ translations[currentLang].sections.international.content }}</p>
+        <ul>
+          <li *ngFor="let safeguard of translations[currentLang].sections.international.safeguards">{{ safeguard }}</li>
+        </ul>
+      </section>
+
+      <!-- Security -->
+      <section>
+        <h3>{{ translations[currentLang].sections.security.title }}</h3>
+        <p>{{ translations[currentLang].sections.security.content }}</p>
+        <ul>
+          <li *ngFor="let measure of translations[currentLang].sections.security.measures">{{ measure }}</li>
+        </ul>
+      </section>
+
+      <!-- Your Rights -->
+      <section>
+        <h3>{{ translations[currentLang].sections.rights.title }}</h3>
+        <p>{{ translations[currentLang].sections.rights.content }}</p>
+        <div class="rights-list">
+          <div *ngFor="let right of translations[currentLang].sections.rights.rightsList" class="right-item">
+            <h4>{{ right.name }}</h4>
+            <p>{{ right.description }}</p>
+          </div>
+        </div>
+        <p class="exercising-rights">{{ translations[currentLang].sections.rights.exercising }}</p>
+      </section>
+
+      <!-- Children's Privacy -->
+      <section>
+        <h3>{{ translations[currentLang].sections.children.title }}</h3>
+        <p>{{ translations[currentLang].sections.children.content }}</p>
+      </section>
+
+      <!-- Cookies -->
+      <section>
+        <h3>{{ translations[currentLang].sections.cookies.title }}</h3>
+        <p>{{ translations[currentLang].sections.cookies.content }}</p>
+      </section>
+
+      <!-- Changes -->
+      <section>
+        <h3>{{ translations[currentLang].sections.changes.title }}</h3>
+        <p>{{ translations[currentLang].sections.changes.content }}</p>
+      </section>
+
+      <!-- Complaints -->
+      <section>
+        <h3>{{ translations[currentLang].sections.complaints.title }}</h3>
+        <p>{{ translations[currentLang].sections.complaints.content }}</p>
+        <ul>
+          <li>{{ translations[currentLang].sections.complaints.euAuthority }}</li>
+          <li>{{ translations[currentLang].sections.complaints.turkishAuthority }}</li>
+        </ul>
+      </section>
+
+      <!-- Contact Us -->
+      <section>
+        <h3>{{ translations[currentLang].sections.contactUs.title }}</h3>
+        <p>{{ translations[currentLang].sections.contactUs.content }}</p>
+        <div class="controller-details">
+          <h4>{{ translations[currentLang].sections.contactUs.dataController }}</h4>
+          <p><strong>{{ translations[currentLang].sections.contactUs.company }}</strong> {{ dataController.company }}</p>
+          <p><strong>{{ translations[currentLang].sections.contactUs.address }}</strong> {{ dataController.address }}</p>
+          <p><strong>{{ translations[currentLang].sections.contactUs.representative }}</strong> {{ dataController.representative }}</p>
+          <p><strong>{{ translations[currentLang].sections.contactUs.email }}</strong> {{ dataController.email }}</p>
+          <p><strong>{{ translations[currentLang].sections.contactUs.phone }}</strong> {{ dataController.phone }}</p>
+          <p *ngIf="currentLang === Language.TR"><strong>VERBİS Kayıt No:</strong> {{ dataController.kvkkReg }}</p>
+        </div>
+      </section>
+    </div>
   </div>
 </app-policy-modal>

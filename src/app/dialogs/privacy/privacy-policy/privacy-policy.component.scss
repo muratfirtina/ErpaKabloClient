@@ -1,3 +1,253 @@
-.policy-link{
-    text-decoration-line: underline;
-}
+// privacy-policy.component.scss
+.policy-link {
+    color: #4dabf7;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  
+  .policy-container {
+    font-family: 'Source Sans 3', sans-serif;
+    color: #333;
+    
+    .language-selector {
+      display: flex;
+      justify-content: flex-end;
+      margin: 0 0 20px;
+      
+      .lang-btn {
+        background: transparent;
+        border: 1px solid #ddd;
+        color: #555;
+        padding: 6px 12px;
+        margin: 0 5px;
+        border-radius: 3px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover {
+          background-color: #f5f5f5;
+        }
+        
+        &.active {
+          background-color: #3a86ff;
+          color: white;
+          border-color: #3a86ff;
+        }
+      }
+    }
+    
+    .policy-content {
+      max-height: 70vh;
+      overflow-y: auto;
+      padding-right: 15px;
+      
+      &::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+      }
+      
+      &::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+      }
+      
+      &::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+      }
+      
+      .last-updated {
+        color: #777;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+        font-style: italic;
+      }
+      
+      section {
+        margin-bottom: 25px;
+        
+        h3 {
+          font-size: 1.3rem;
+          color: #2c3e50;
+          margin-bottom: 15px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #eee;
+          font-weight: 600;
+        }
+        
+        h4 {
+          font-size: 1.1rem;
+          color: #34495e;
+          margin: 15px 0 10px;
+          font-weight: 500;
+        }
+        
+        p {
+          margin-bottom: 10px;
+          line-height: 1.6;
+        }
+        
+        ul, ol {
+          margin: 10px 0;
+          padding-left: 20px;
+          
+          li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+          }
+        }
+      }
+      
+      // Definitions
+      .definitions-list {
+        dl {
+          dt {
+            font-weight: 600;
+            margin-top: 12px;
+            color: #2c3e50;
+          }
+          
+          dd {
+            margin-left: 20px;
+            margin-bottom: 8px;
+            line-height: 1.5;
+          }
+        }
+      }
+      
+      // Controller Info
+      .controller-info, .controller-details {
+        background-color: #f8f9fa;
+        border: 1px solid #e1e4e8;
+        border-radius: 4px;
+        padding: 15px;
+        margin-top: 10px;
+        
+        p {
+          margin: 5px 0;
+          
+          strong {
+            display: inline-block;
+            color: #34495e;
+          }
+        }
+      }
+      
+      // Information Categories
+      .info-category {
+        margin-bottom: 15px;
+        
+        h4 {
+          color: #2c3e50;
+          margin-bottom: 8px;
+        }
+        
+        .legal-basis {
+          font-style: italic;
+          color: #666;
+          margin-bottom: 8px;
+        }
+      }
+      
+      // Legal Basis List
+      .legal-basis-list {
+        .legal-basis-item {
+          margin-bottom: 15px;
+          
+          h4 {
+            margin-bottom: 5px;
+          }
+          
+          p {
+            margin-left: 15px;
+          }
+        }
+      }
+      
+      // Disclosure Categories
+      .disclosure-categories {
+        .disclosure-category {
+          margin-bottom: 15px;
+          
+          h4 {
+            margin-bottom: 5px;
+          }
+          
+          p {
+            margin-left: 15px;
+          }
+        }
+      }
+      
+      // Retention Periods
+      .retention-periods {
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        padding: 15px;
+        margin-top: 10px;
+        
+        h4 {
+          margin-top: 0;
+          margin-bottom: 10px;
+        }
+        
+        ul {
+          margin-top: 0;
+        }
+      }
+      
+      // Rights List
+      .rights-list {
+        .right-item {
+          margin-bottom: 15px;
+          
+          h4 {
+            margin-bottom: 5px;
+          }
+          
+          p {
+            margin-left: 15px;
+          }
+        }
+      }
+      
+      .exercising-rights {
+        margin-top: 15px;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  // Responsive styles
+  @media (max-width: 768px) {
+    .policy-container {
+      .policy-content {
+        section {
+          h3 {
+            font-size: 1.2rem;
+          }
+          
+          h4 {
+            font-size: 1rem;
+          }
+        }
+        
+        .legal-basis-list, .disclosure-categories, .rights-list {
+          .legal-basis-item, .disclosure-category, .right-item {
+            p {
+              margin-left: 5px;
+            }
+          }
+        }
+      }
+    }
+  }

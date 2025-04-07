@@ -1,3 +1,10 @@
-.policy-link{
-    text-decoration-line: underline;
-}
+.policy-link {
+    color: #4dabf7;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }

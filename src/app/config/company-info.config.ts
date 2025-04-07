@@ -7,5 +7,8 @@ export const COMPANY_INFO = {
     SocialMedia: {
       LinkedIn: 'https://linkedin.com/company/tumdex',
       Whatsapp: 'https://wa.me/905338037714'
-    }
+    },
+    kvkkReg:'İhtiyaç duyulmamaktadır.',
+    representative: 'TUMDEX.com (Tüm Trading Dış Ticaret Ltd. Şti.)',
+    dpo: 'privacy@tumdex.com'
   } as const;

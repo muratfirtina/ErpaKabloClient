@@ -12,10 +12,19 @@
     <!-- Main Content -->
     <div class="consent-content">
       <div class="cookie-text">
-        <p>{{ translations[currentLang].description }}</p>
-        <a routerLink="/cookie-policy" class="policy-link">
-          {{ translations[currentLang].cookiePolicy }}
-        </a>
+        <p [ngClass]="{'alert': consentExpired}">
+          <span *ngIf="consentExpired">{{ translations[currentLang].cookieExpired }}</span>
+          <span *ngIf="!consentExpired">{{ translations[currentLang].description }}</span>
+        </p>
+        <div class="policy-links">
+          <a routerLink="/cookie-policy" class="policy-link">
+            {{ translations[currentLang].cookiePolicy }}
+          </a>
+          <span class="separator">|</span>
+          <a routerLink="/privacy-policy" class="policy-link">
+            {{ translations[currentLang].privacyPolicy }}
+          </a>
+        </div>
       </div>
 
       <div class="cookie-buttons">
@@ -30,51 +39,179 @@
   </div>
 </div>
 
+<!-- Floating consent manager button (only visible when showFloatingButton is true) -->
+<div *ngIf="isConsented && showFloatingButton && !showConsentManager" class="consent-manager-trigger">
+  <button (click)="toggleConsentManager()" class="consent-manager-btn">
+    <i class="fas fa-cookie-bite"></i> 
+    {{ translations[currentLang].manageConsent }}
+  </button>
+</div>
+
 <!-- Settings Modal -->
-<div *ngIf="showSettings" class="cookie-modal">
-  <div class="modal-overlay" (click)="showSettings = false"></div>
+<div *ngIf="showSettings || showConsentManager" class="cookie-modal">
+  <div class="modal-overlay" (click)="showSettings = false; showConsentManager = false"></div>
   <div class="modal-content">
     <h2>{{ translations[currentLang].settings.title }}</h2>
     
     <div class="cookie-options">
       <!-- Necessary Cookies -->
       <div class="cookie-option">
-        <div class="option-info">
-          <label class="option-label">
-            <input type="checkbox" [checked]="true" disabled>
-            <span>{{ translations[currentLang].settings.necessary }}</span>
-          </label>
-          <span class="option-required">{{ translations[currentLang].settings.required }}</span>
+        <div class="option-header">
+          <div class="option-info">
+            <label class="option-label">
+              <input type="checkbox" [checked]="true" disabled>
+              <span>{{ translations[currentLang].settings.necessary }}</span>
+            </label>
+            <span class="option-required">{{ translations[currentLang].settings.required }}</span>
+          </div>
+          <button class="toggle-details" type="button" (click)="toggleExpand($event, 'necessary')">
+            <i class="fas fa-chevron-down"></i>
+          </button>
         </div>
-        <p class="option-description">{{ translations[currentLang].settings.descriptions.necessary }}</p>
+        <div class="option-details">
+          <p class="option-description">{{ translations[currentLang].settings.descriptions.necessary }}</p>
+          <div class="option-metadata">
+            <p><strong>{{ translations[currentLang].settings.lifespan }}</strong> {{ cookieLifespans.necessary }}</p>
+            <p><strong>{{ translations[currentLang].settings.retention }}</strong> {{ dataRetentionPeriods.necessary }}</p>
+            <p><strong>{{ translations[currentLang].settings.legalBasis }}</strong> {{ legalBasis.necessary }}</p>
+            <p><strong>{{ translations[currentLang].settings.purposes }}</strong> {{ getPurposeForCategory('necessary') }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Functional Cookies -->
+      <div class="cookie-option">
+        <div class="option-header">
+          <div class="option-info">
+            <label class="option-label">
+              <input type="checkbox" [(ngModel)]="cookieSettings.functional" [disabled]="!cookieSettings.personalData">
+              <span>{{ translations[currentLang].settings.functional }}</span>
+            </label>
+          </div>
+          <button class="toggle-details" type="button" (click)="toggleExpand($event, 'functional')">
+            <i class="fas fa-chevron-down"></i>
+          </button>
+        </div>
+        <div class="option-details">
+          <p class="option-description">{{ translations[currentLang].settings.descriptions.functional }}</p>
+          <div class="option-metadata">
+            <p><strong>{{ translations[currentLang].settings.lifespan }}</strong> {{ cookieLifespans.functional }}</p>
+            <p><strong>{{ translations[currentLang].settings.retention }}</strong> {{ dataRetentionPeriods.functional }}</p>
+            <p><strong>{{ translations[currentLang].settings.legalBasis }}</strong> {{ legalBasis.functional }}</p>
+            <p><strong>{{ translations[currentLang].settings.purposes }}</strong> {{ getPurposeForCategory('functional') }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- Analytics Cookies -->
       <div class="cookie-option">
-        <div class="option-info">
-          <label class="option-label">
-            <input type="checkbox" [(ngModel)]="cookieSettings.analytics">
-            <span>{{ translations[currentLang].settings.analytics }}</span>
-          </label>
+        <div class="option-header">
+          <div class="option-info">
+            <label class="option-label">
+              <input type="checkbox" [(ngModel)]="cookieSettings.analytics" [disabled]="!cookieSettings.personalData">
+              <span>{{ translations[currentLang].settings.analytics }}</span>
+            </label>
+          </div>
+          <button class="toggle-details" type="button" (click)="toggleExpand($event, 'analytics')">
+            <i class="fas fa-chevron-down"></i>
+          </button>
         </div>
-        <p class="option-description">{{ translations[currentLang].settings.descriptions.analytics }}</p>
+        <div class="option-details">
+          <p class="option-description">{{ translations[currentLang].settings.descriptions.analytics }}</p>
+          <div class="option-metadata">
+            <p><strong>{{ translations[currentLang].settings.lifespan }}</strong> {{ cookieLifespans.analytics }}</p>
+            <p><strong>{{ translations[currentLang].settings.retention }}</strong> {{ dataRetentionPeriods.analytics }}</p>
+            <p><strong>{{ translations[currentLang].settings.legalBasis }}</strong> {{ legalBasis.analytics }}</p>
+            <p><strong>{{ translations[currentLang].settings.purposes }}</strong> {{ getPurposeForCategory('analytics') }}</p>
+          </div>
+        </div>
       </div>
 
       <!-- Marketing Cookies -->
       <div class="cookie-option">
-        <div class="option-info">
-          <label class="option-label">
-            <input type="checkbox" [(ngModel)]="cookieSettings.marketing">
-            <span>{{ translations[currentLang].settings.marketing }}</span>
-          </label>
+        <div class="option-header">
+          <div class="option-info">
+            <label class="option-label">
+              <input type="checkbox" [(ngModel)]="cookieSettings.marketing" [disabled]="!cookieSettings.personalData">
+              <span>{{ translations[currentLang].settings.marketing }}</span>
+            </label>
+          </div>
+          <button class="toggle-details" type="button" (click)="toggleExpand($event, 'marketing')">
+            <i class="fas fa-chevron-down"></i>
+          </button>
         </div>
-        <p class="option-description">{{ translations[currentLang].settings.descriptions.marketing }}</p>
+        <div class="option-details">
+          <p class="option-description">{{ translations[currentLang].settings.descriptions.marketing }}</p>
+          <div class="option-metadata">
+            <p><strong>{{ translations[currentLang].settings.lifespan }}</strong> {{ cookieLifespans.marketing }}</p>
+            <p><strong>{{ translations[currentLang].settings.retention }}</strong> {{ dataRetentionPeriods.marketing }}</p>
+            <p><strong>{{ translations[currentLang].settings.legalBasis }}</strong> {{ legalBasis.marketing }}</p>
+            <p><strong>{{ translations[currentLang].settings.purposes }}</strong> {{ getPurposeForCategory('marketing') }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Explicit Consent Checkbox -->
+      <div class="personal-data-consent">
+        <label class="consent-label">
+          <input type="checkbox" [(ngModel)]="cookieSettings.personalData">
+          <span>{{ translations[currentLang].dataProcessingConsent }}</span>
+        </label>
+        <p *ngIf="!cookieSettings.personalData" class="consent-required-warning">
+          {{ translations[currentLang].consentRequired }}
+        </p>
+      </div>
+
+      <!-- User Rights Information -->
+    <div class="user-rights-section">
+      <div class="section-header" (click)="toggleSectionExpand($event, 'user-rights')">
+        <h3>{{ translations[currentLang].userRights.title }}</h3>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="section-content">
+        <ul class="rights-list">
+          <li>{{ translations[currentLang].userRights.access }}</li>
+          <li>{{ translations[currentLang].userRights.rectification }}</li>
+          <li>{{ translations[currentLang].userRights.erasure }}</li>
+          <li>{{ translations[currentLang].userRights.restriction }}</li>
+          <li>{{ translations[currentLang].userRights.portability }}</li>
+          <li>{{ translations[currentLang].userRights.objection }}</li>
+          <li>{{ translations[currentLang].userRights.withdraw }}</li>
+        </ul>
+        <p>{{ translations[currentLang].userRights.howTo }}</p>
+        <p class="controller-info">
+          <strong>{{ companyInfo.Name }}</strong><br>
+          {{ companyInfo.Address }}<br>
+          {{ companyInfo.Email }}<br>
+          {{ companyInfo.Phone }}
+        </p>
       </div>
     </div>
 
+    <!-- Browser Cookie Management -->
+    <div class="browser-settings-section">
+      <div class="section-header" (click)="toggleSectionExpand($event, 'browser-settings')">
+        <h3>{{ translations[currentLang].browserSettings.title }}</h3>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+      <div class="section-content">
+        <p>{{ translations[currentLang].browserSettings.description }}</p>
+        <ul class="browser-list">
+          <li>{{ translations[currentLang].browserSettings.chrome }}</li>
+          <li>{{ translations[currentLang].browserSettings.firefox }}</li>
+          <li>{{ translations[currentLang].browserSettings.safari }}</li>
+          <li>{{ translations[currentLang].browserSettings.edge }}</li>
+        </ul>
+        <p class="browser-note">{{ translations[currentLang].browserSettings.note }}</p>
+      </div>
+    </div>
+    </div>
+
+    
+
     <!-- Modal Buttons -->
     <div class="modal-buttons">
-      <button class="btn-cancel" (click)="showSettings = false">
+      <button class="btn-cancel" (click)="showSettings = false; showConsentManager = false">
         {{ translations[currentLang].settings.cancel }}
       </button>
       <button class="btn-save" (click)="saveSettings()">
