@@ -167,23 +167,6 @@ export class SidebarComponent implements OnInit {
   isExpanded = true;
   activeItems: Set<SidebarItem> = new Set();
 
-  toggleSidebar() {
-    this.isExpanded = !this.isExpanded;
-    this.sidebarToggled.emit(this.isExpanded);
-    if (!this.isExpanded) {
-      this.activeItems.clear();
-    }
-    
-    // Auto close sidebar after selection on mobile
-    if (this.isMobile && !this.isExpanded) {
-      // Add small delay to allow the navigation to happen first
-      setTimeout(() => {
-        this.isExpanded = false;
-        this.sidebarToggled.emit(this.isExpanded);
-      }, 300);
-    }
-  }
-
   toggleSubmenu(item: SidebarItem, event: MouseEvent) {
     event.stopPropagation();
     if (this.isExpanded) {
@@ -208,20 +191,6 @@ export class SidebarComponent implements OnInit {
     this.checkScreenSize();
   }
 
-  private checkScreenSize() {
-    const width = window.innerWidth;
-    this.isMobile = width <= 768;
-    
-    // On mobile, sidebar should be collapsed by default
-    if (this.isMobile) {
-      this.isExpanded = false;
-    } else {
-      this.isExpanded = true;
-    }
-    
-    this.sidebarToggled.emit(this.isExpanded);
-  }
-
   logout() {
     localStorage.removeItem("accessToken");
     this.authService.identityCheck();
@@ -236,18 +205,34 @@ export class SidebarComponent implements OnInit {
     }, 1000);
   }
 
+  private checkScreenSize() {
+    const width = window.innerWidth;
+    this.isMobile = width <= 768;
+    
+    // Mobil cihazlarda sidebar durumunu değiştirmiyoruz
+    // İlk başta açık kalabilir, kullanıcı isterse kapatır
+    this.sidebarToggled.emit(this.isExpanded);
+  }
+  
+  toggleSidebar() {
+    this.isExpanded = !this.isExpanded;
+    this.sidebarToggled.emit(this.isExpanded);
+    
+    // Sidebar kapandığında aktif öğeleri temizleme
+    if (!this.isExpanded) {
+      this.activeItems.clear();
+    }
+  }
+  
+  // ÖNEMLI: handleItemClick metodunu değiştirerek menü öğesine tıklandığında
+  // sidebar'ın otomatik kapanmasını engelliyoruz
   handleItemClick(item: SidebarItem, event: MouseEvent) {
     if (item.title === 'Log Out') {
       event.preventDefault();
       this.logout();
     } else if (item.children) {
       this.toggleSubmenu(item, event);
-    } else if (this.isMobile) {
-      // Auto close sidebar after navigation on mobile
-      setTimeout(() => {
-        this.isExpanded = false;
-        this.sidebarToggled.emit(this.isExpanded);
-      }, 300);
     }
+    // Mobil cihazlarda bile otomatik kapatma davranışını kaldırdık
   }
 }

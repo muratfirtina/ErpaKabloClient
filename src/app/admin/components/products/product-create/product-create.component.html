@@ -73,10 +73,10 @@
               </mat-tree-node>
 
               <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-                <button mat-icon-button [attr.aria-label]="'Toggle ' + node.name"
-                  (click)="$event.stopPropagation(); treeControl.toggle(node)">
+                <button type="button" mat-icon-button [attr.aria-label]="'Toggle ' + node.name"
+                  (click)="$event.preventDefault(); $event.stopPropagation(); treeControl.toggle(node)">
                   <mat-icon class="mat-icon-rtl-mirror">
-                    {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                     {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
                   </mat-icon>
                 </button>
                 <span class="category-name" (click)="onCategorySelected(node)">{{node.name}}</span>

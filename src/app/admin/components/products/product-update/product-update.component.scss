@@ -1,4 +1,96 @@
-@media (max-width: 600px) {
+// Bootstrap tabanlı ürün güncelleme sayfası stilleri
+
+.product-update-container {
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  margin-bottom: 2rem;
+}
+
+// Form elemanları
+.form-control, .form-select {
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+  }
+}
+
+// Marka arama sonuçları
+.brand-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 0 0 0.375rem 0.375rem;
+  z-index: 1050;
+
+  .list-group-item {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+
+    &:hover {
+      background-color: #f8f9fa;
+    }
+  }
+}
+
+// Kategori ağacı
+.category-tree {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 0 0 0.375rem 0.375rem;
+  z-index: 1050;
+  padding: 0.5rem 0;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+  .category-name {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.25rem 0;
+    font-size: 14px;
+    
+    &:hover {
+      color: #0d6efd;
+    }
+  }
+
+  .mat-tree-node {
+    min-height: 30px;
+    font-size: 14px;
+  }
+}
+
+// Ürün görselleri için stil
+.product-image {
+  height: 200px;
+  object-fit: cover;
+  border-bottom: 1px solid #dee2e6;
+}
+
+// Tablo hücreleri için düzenleme
+.table {
+  th, td {
+    vertical-align: middle;
+  }
+}
+
+// Mobil için görsel kartları düzenleme
+@media (max-width: 576px) {
+  .product-update-container {
+    padding: 1rem;
+  }
+  
   .image-card {
     width: calc(50% - 8px); // 2 sütun
   }
@@ -10,246 +102,312 @@
   }
 }
 
+// Angular Editor'ün yüksekliği için stil
+::ng-deep .angular-editor-wrapper {
+  .angular-editor-textarea {
+    min-height: 250px !important;
+  }
+}
+
+// Fotoğraf kartları için hover efekti
+.card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Form elemanları arasındaki boşluklar
+.mb-3 {
+  margin-bottom: 1.5rem !important;
+}
+
+// İlişkili ürünler tablosu için hover efekti
+.table-hover tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.075);
+}
+
+// Butonlar için stil düzenlemeleri
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  
+  &:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+  }
+}
+
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+  
+  &:hover {
+    background-color: #157347;
+    border-color: #146c43;
+  }
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  
+  &:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+  }
+}
+
+// Kart başlıkları için stil
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  padding: 0.75rem 1.25rem;
+}
+
+// Özel scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a8a8;
+}
+
+// Bootstrap tabanlı ürün güncelleme sayfası stilleri
+
 .product-update-container {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 2rem;
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  margin-bottom: 2rem;
+}
 
-  h2 {
-    color: mat-color();
-    margin-bottom: 2rem;
-    font-weight: 500;
+// Form elemanları
+.form-control, .form-select {
+  &:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
   }
+}
 
-  form {
-    display: grid;
-    gap: 1.5rem;
+// Marka arama sonuçları
+.brand-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 0 0 0.375rem 0.375rem;
+  z-index: 1050;
 
-    @media (min-width: 768px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  .list-group-item {
+    cursor: pointer;
+    padding: 0.5rem 1rem;
 
-    .full-width {
-      grid-column: 1 / -1;
-    }
-  }
-
-  mat-form-field {
-    width: 100%;
-  }
-
-  .features-section {
-    grid-column: 1 / -1;
-    background-color: white;
-    padding: 1.5rem;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    margin-bottom: 20px;
-
-    h3 {
-      color: mat-color();
-      margin-bottom: 1rem;
-    }
-
-    .feature-row {
-      margin-top: 1rem;
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      mat-form-field {
-        flex: 1;
-      }
+    &:hover {
+      background-color: #f8f9fa;
     }
   }
+}
 
-  .variants-table {
-    grid-column: 1 / -1;
-    margin-top: 2rem;
-    overflow-x: auto;
+// Kategori ağacı
+.category-tree {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 0 0 0.375rem 0.375rem;
+  z-index: 1050;
+  padding: 0;
 
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
+  @media (max-width: 768px) {
+    max-height: 250px;
+  }
 
-      th,
-      td {
-        text-align: center;
-        vertical-align: middle;
-      }
-
-      th {
-        font-weight: 500;
-        padding: 0.5rem;
-        font-size: 0.9rem;
-      }
-
-      td {
-        background-color: white;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.9rem;
-      }
-
-      tr {
-        height: 60px; // Tüm satırlar için sabit bir yükseklik
-      }
-
-      tr:nth-child(even) td {
-        background-color: #f9f9f9;
-      }
+  .category-name {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0.25rem 0;
+    font-size: 14px;
+    
+    &:hover {
+      color: #0d6efd;
     }
-  }
-
-  button[type="submit"] {
-    grid-column: 1 / -1;
-    justify-self: center;
-    margin-top: 2rem;
-    padding: 0.75rem 2rem;
-    font-size: 1.1rem;
-  }
-
-  .mat-select-search-inner {
-    height: auto;
-    width: 100%;
-  }
-
-  .mat-tree {
-    padding: 8px;
   }
 
   .mat-tree-node {
-    min-height: 36px;
+    min-height: 32px;
+    font-size: 14px;
   }
 }
 
-::ng-deep {
-  .mat-select-panel {
-    max-height: none !important;
-  }
-}
-
-/* ::ng-deep .mat-mdc-button-persistent-ripple::before {
-    background-color: #ba1a1a !important;
-  } */
-
-.image-carousel {
-  width: 150px;
-  margin: 5px 0;
-}
-
-.carousel-card {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-}
-
-.carousel-container {
-  position: relative;
-  height: 100px;
-  overflow: hidden;
-}
-
-.carousel-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.carousel-controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 5px;
-}
-
-.image-counter {
-  color: white;
-  font-size: 12px;
-}
-
-.no-images {
-  height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  color: #999;
-  background: #f5f5f5;
-}
-
-mat-card-actions {
-  display: flex;
-  justify-content: space-between;
-}
-
-.mat-mdc-card-content {
-  padding: 6px !important;
-}
-
-.compact-icon-button {
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-
-  .mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-  }
-}
-
-.image-gallery {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.image-card {
-  width: 150px;
-  margin-bottom: 16px;
-}
-
+// Ürün görselleri için stil
 .product-image {
-  width: 100%;
-  height: 150px;
+  height: 200px;
   object-fit: cover;
+  border-bottom: 1px solid #dee2e6;
 }
 
-.mat-mdc-row:hover {
-  background-color: #f5f5f5;
+// Tablo hücreleri için düzenleme
+.table {
+  th, td {
+    vertical-align: middle;
+  }
 }
 
-.mat-column-photo {
-  width: 60px;
-  padding-right: 8px;
+// Mobil için görsel kartları düzenleme
+@media (max-width: 576px) {
+  .product-update-container {
+    padding: 1rem;
+  }
+  
+  .image-card {
+    width: calc(50% - 8px); // 2 sütun
+  }
 }
 
-.mat-column-name,
-.mat-column-sku,
-.mat-column-categoryName,
-.mat-column-brandName,
-.mat-column-title {
-  min-width: 100px;
+@media (min-width: 601px) and (max-width: 1024px) {
+  .image-card {
+    width: calc(33.333% - 11px); // 3 sütun
+  }
 }
 
-.mat-column-price,
-.mat-column-stock {
-  min-width: 80px;
+// Angular Editor'ün yüksekliği için stil
+::ng-deep .angular-editor-wrapper {
+  .angular-editor-textarea {
+    min-height: 250px !important;
+  }
 }
 
-.mat-column-features {
-  min-width: 200px;
+// Fotoğraf kartları için hover efekti
+.card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
 }
 
-.mat-mdc-table {
-  width: 100%;
-  overflow-x: auto;
+// Form elemanları arasındaki boşluklar
+.mb-3 {
+  margin-bottom: 1.5rem !important;
+}
+
+// İlişkili ürünler tablosu için hover efekti
+.table-hover tbody tr:hover {
+  background-color: rgba(13, 110, 253, 0.075);
+}
+
+// Butonlar için stil düzenlemeleri
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  
+  &:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+  }
+}
+
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+  
+  &:hover {
+    background-color: #157347;
+    border-color: #146c43;
+  }
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  
+  &:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+  }
+}
+
+// Kart başlıkları için stil
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+  padding: 0.75rem 1.25rem;
+}
+
+// Özel scrollbar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a8a8;
+}
+
+// Material Tree için özel stiller
+::ng-deep {
+  button.mat-icon-button {
+    height: 24px !important;
+    width: 24px !important;
+    line-height: 24px !important;
+    padding: 0 !important;
+    margin-right: 4px !important;
+  }
+  
+  .mat-icon-button .mat-icon {
+    font-size: 20px !important;
+    line-height: 20px !important;
+    height: 20px !important;
+    width: 20px !important;
+  }
+  
+  .mat-tree-node {
+    min-height: 32px !important;
+  }
+  
+  .toggle-button {
+    outline: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  .chevron-icon {
+    transform: translateY(0px) !important;
+  }
 }

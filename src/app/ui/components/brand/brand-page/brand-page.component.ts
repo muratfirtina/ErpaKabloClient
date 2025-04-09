@@ -24,6 +24,7 @@ import { NavbarComponent } from '../../navbar/navbar.component';
 import { DownbarComponent } from '../../downbar/downbar.component';
 import { FooterComponent } from '../../footer/footer.component';
 import { UiProductListComponent } from '../../product/ui-product-list/ui-product-list.component';
+import { DefaultImages } from 'src/app/contracts/defaultImages';
 
 @Component({
   selector: 'app-brand-page',
@@ -46,7 +47,7 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
   @Input() key: number;
 
   brand: Brand;
-  defaultBrandImageUrl: string = 'assets/icons/brand/ecommerce-default-brand.png';
+  defaultBrandImageUrl: string = DefaultImages.defaultBrandImage;
   subCategories: Category[] = [];
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];

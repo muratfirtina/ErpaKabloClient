@@ -15,10 +15,10 @@ export class LayoutComponent implements OnInit {
   isMobile = false;
 
   ngOnInit(): void {
-    // Check initial screen size and set sidebar state
+    // Ekran boyutunu kontrol et
     this.checkScreenSize();
-    
-    // Subscribe to window resize events
+
+    // Pencere boyutu değişikliklerini izle
     window.addEventListener('resize', () => {
       this.checkScreenSize();
     });
@@ -26,7 +26,8 @@ export class LayoutComponent implements OnInit {
 
   private checkScreenSize(): void {
     this.isMobile = window.innerWidth <= 768;
-    this.sidebarExpanded = !this.isMobile;
+    // Mobil cihazlarda bile sidebar durumunu otomatik değiştirmiyoruz
+    // Varsayılan olarak açık kalabilir, kullanıcı isterse kapatır
   }
 
   onSidebarToggled(expanded: boolean): void {

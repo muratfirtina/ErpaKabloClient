@@ -10,11 +10,11 @@
   overflow-y: auto;
   transition: all 0.3s ease;
   background-color: #f8f9fa;
-  margin-left: 260px; // Width of expanded sidebar
+  margin-left: 260px; // Genişletilmiş sidebar genişliği
 }
 
 .content-expanded {
-  margin-left: 70px; // Width of collapsed sidebar
+  margin-left: 70px; // Daraltılmış sidebar genişliği
 }
 
 .content-collapsed {
@@ -54,16 +54,11 @@
 
 @media (max-width: 768px) {
   .main-content {
-    margin-left: 0;
-    padding: 15px;
-    padding-top: 60px; // Add space for the mobile toggle button
+    margin-left: 0 !important; // Sidebar dışarıda olduğunda margin sıfır
+    padding-top: 60px !important; // Mobil menü butonu için yer
   }
   
   .content-expanded, .content-collapsed {
-    margin-left: 0;
-  }
-  
-  .mobile-overlay {
-    display: block;
+    margin-left: 0 !important;
   }
 }

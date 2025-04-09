@@ -11,6 +11,7 @@ import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { DownbarComponent } from '../downbar/downbar.component';
 import { FooterComponent } from '../footer/footer.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { DefaultImages } from 'src/app/contracts/defaultImages';
 
 
 @Component({
@@ -25,7 +26,7 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
 export class BrandComponent extends BaseComponent implements OnInit {
   brands: Brand[] = [];
   totalBrandCount: number = 0;
-  defaultBrandImageUrl: string = 'assets/icons/brand/ecommerce-default-brand.png';
+  defaultBrandImageUrl: string = DefaultImages.defaultBrandImage;
 
   constructor(
     private breadcrumbService: BreadcrumbService,

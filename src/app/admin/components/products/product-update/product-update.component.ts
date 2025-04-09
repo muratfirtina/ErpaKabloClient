@@ -1,21 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatTreeModule } from '@angular/material/tree';
-import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AngularEditorConfig, AngularEditorModule, UploadResponse } from '@kolkov/angular-editor';
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { FlatTreeControl } from '@angular/cdk/tree';
+import { MatTreeFlatDataSource, MatTreeFlattener, MatTreeModule } from '@angular/material/tree';
+import { MatIconModule } from '@angular/material/icon';
+import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+
 import { BrandService } from 'src/app/services/common/models/brand.service';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
@@ -29,10 +22,18 @@ import { Feature } from 'src/app/contracts/feature/feature';
 import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
 import { Product } from 'src/app/contracts/product/product';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
-import { MatRadioModule } from '@angular/material/radio';
 import { HttpEvent, HttpResponse } from '@angular/common/http';
 import { Observable, from, map } from 'rxjs';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { MatButtonModule } from '@angular/material/button';
+
+interface FlatNode {
+  expandable: boolean;
+  name: string;
+  level: number;
+  id: string;
+  parentCategoryId: string;
+}
 
 @Component({
   selector: 'app-product-update',
@@ -40,20 +41,11 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatSelectModule,
-    MatInputModule,
-    MatButtonModule,
-    MatFormFieldModule,
-    MatIconModule,
-    MatCardModule,
-    MatTableModule,
-    MatCheckboxModule,
-    MatAutocompleteModule,
-    MatTreeModule,
-    MatRadioModule,
-    NgxMatSelectSearchModule,
     AngularEditorModule,
-    NgxFileDropModule
+    NgxFileDropModule,
+    MatTreeModule,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './product-update.component.html',
   styleUrls: ['./product-update.component.scss']
@@ -69,6 +61,17 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   relatedProducts: any[] = [];
   displayedColumns: string[] = ['photo', 'name', 'price', 'stock', 'sku','title','categoryName', 'brandName', 'features'];
   defaultProductImage = 'assets/product/ecommerce-default-product.png';
+  
+  // Marka ve kategori arama için değişkenler
+  filteredBrands: Brand[] = [];
+  showBrandResults: boolean = false;
+  showCategoryTree: boolean = false;
+  private brandSearchSubject = new Subject<string>();
+  
+  // Kategori ağacı için değişkenler
+  public treeControl: FlatTreeControl<FlatNode>;
+  private treeFlattener: MatTreeFlattener<Category, FlatNode>;
+  public categorydataSource: MatTreeFlatDataSource<Category, FlatNode>;
   
   editorConfig: AngularEditorConfig = {
     editable: true,
@@ -119,7 +122,7 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
         })
       );
     }
-  }
+  };
   
 
   constructor(
@@ -130,13 +133,29 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     private categoryService: CategoryService,
     private brandService: BrandService,
     private featureService: FeatureService,
-    private snackBar: MatSnackBar,
     private dialogService: DialogService,
     private customToastrService: CustomToastrService,
+    private changeDetectorRef: ChangeDetectorRef,
     spinner: SpinnerService
   ) {
     super(spinner);
     this.createForm();
+    this.setupBrandSearch();
+    
+    // Kategori ağacı için tanımlamalar
+    this.treeControl = new FlatTreeControl<FlatNode>(
+      node => node.level,
+      node => node.expandable
+    );
+
+    this.treeFlattener = new MatTreeFlattener(
+      this._transformer,
+      node => node.level,
+      node => node.expandable,
+      node => node.subCategories
+    );
+
+    this.categorydataSource = new MatTreeFlatDataSource(this.treeControl, this.treeFlattener);
   }
 
   ngOnInit() {
@@ -159,13 +178,45 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     });
   }
 
+  public hasChild = (_: number, node: FlatNode): boolean => node.expandable;
+  
+  private _transformer = (node: Category, level: number): FlatNode => {
+    return {
+      expandable: !!node.subCategories && node.subCategories.length > 0,
+      name: node.name,
+      level: level,
+      id: node.id,
+      parentCategoryId: node.parentCategoryId
+    };
+  };
+  
+  public onCategorySelected(node: FlatNode): void {
+    this.productForm.patchValue({
+      categoryId: node.id,
+      categorySearch: node.name
+    });
+    this.loadCategoryFeatures(node.id);
+    this.showCategoryTree = false; // Seçim yapıldıktan sonra dropdown'ı kapat
+  }
+  
+  private setupBrandSearch() {
+    this.brandSearchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(searchTerm => {
+      this.searchBrands(searchTerm);
+    });
+  }
+
   createForm() {
     this.productForm = this.fb.group({
       name: ['', Validators.required],
       description: [''], // Validasyon yok
       title: ['', Validators.required],
       categoryId: ['', Validators.required],
+      categorySearch: [''],
       brandId: ['', Validators.required],
+      brandSearch: [''],
       varyantGroupID: [''], // Validasyon yok
       tax: [0], // Validasyon yok
       stock: [0], // Min validasyonu kaldırıldı
@@ -224,12 +275,17 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   }
 
   updateFormWithProductData() {
+    const brandName = this.brands.find(b => b.id === this.product.brandId)?.name || '';
+    const categoryName = this.categories.find(c => c.id === this.product.categoryId)?.name || '';
+    
     this.productForm.patchValue({
       name: this.product.name,
       description: this.product.description,
       title: this.product.title,
       categoryId: this.product.categoryId,
+      categorySearch: categoryName,
       brandId: this.product.brandId,
+      brandSearch: brandName,
       varyantGroupID: this.product.varyantGroupID,
       tax: this.product.tax,
       stock: this.product.stock,
@@ -277,12 +333,125 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     try {
       const data = await this.categoryService.list({ pageIndex: -1, pageSize: -1 });
       this.categories = data.items;
+      const hierarchicalCategories = this.createHierarchy(this.categories);
+      this.categorydataSource.data = hierarchicalCategories;
+      
+      // Tüm kategorileri kapat
+      this.treeControl.collapseAll();
+      this.changeDetectorRef.detectChanges();
     } catch (error) {
+      console.error('Error loading categories:', error);
       this.customToastrService.message("Kategoriler yüklenemedi", "Hata", {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
     }
+  }
+  
+  private createHierarchy(categories: Category[]): Category[] {
+    const categoryMap = new Map<string, Category>();
+    const rootCategories: Category[] = [];
+
+    categories.forEach(category => {
+      categoryMap.set(category.id, { ...category, subCategories: [] });
+    });
+
+    categoryMap.forEach(category => {
+      if (category.parentCategoryId) {
+        const parent = categoryMap.get(category.parentCategoryId);
+        if (parent) {
+          parent.subCategories.push(category);
+        }
+      } else {
+        rootCategories.push(category);
+      }
+    });
+
+    return rootCategories;
+  }
+  
+  public filterCategories(event: Event): void {
+    const input = (event.target as HTMLInputElement).value;
+    if (!input) {
+      this.categorydataSource.data = this.createHierarchy(this.categories);
+      this.treeControl.expandAll();
+      return;
+    }
+    
+    const filterTree = (categories: Category[]): Category[] => {
+      return categories.reduce((acc, category) => {
+        const matchesSearch = category.name.toLowerCase().includes(input.toLowerCase());
+        const filteredChildren = filterTree(category.subCategories || []);
+        
+        if (matchesSearch || filteredChildren.length > 0) {
+          acc.push({
+            ...category,
+            subCategories: filteredChildren
+          });
+        }
+        
+        return acc;
+      }, [] as Category[]);
+    };
+  
+    const filteredCategories = filterTree([...this.categories]);
+    this.categorydataSource.data = this.createHierarchy(filteredCategories);
+    this.treeControl.expandAll();
+    this.changeDetectorRef.detectChanges();
+  }
+  
+  @HostListener('document:click', ['$event'])
+  handleClickOutside(event: Event) {
+    const categoryContainer = document.querySelector('.category-tree');
+    const categoryInput = document.querySelector('#categorySearch');
+    const brandContainer = document.querySelector('.brand-search-results');
+    const brandInput = document.querySelector('#brandSearch');
+    
+    if (categoryContainer && categoryInput) {
+      if (!categoryContainer.contains(event.target as Node) && 
+          !categoryInput.contains(event.target as Node)) {
+        this.showCategoryTree = false;
+      }
+    }
+    
+    if (brandContainer && brandInput) {
+      if (!brandContainer.contains(event.target as Node) && 
+          !brandInput.contains(event.target as Node)) {
+        this.showBrandResults = false;
+      }
+    }
+  }
+  
+  onBrandSearchInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    this.brandSearchSubject.next(input.value);
+  }
+
+  async searchBrands(searchTerm: string) {
+    if (searchTerm.length < 2) {
+      this.filteredBrands = [];
+      this.showBrandResults = false;
+      return;
+    }
+
+    try {
+      const response = await this.brandService.getBrandsByDynamicQuery(
+        { filter: { field: 'name', operator: 'contains', value: searchTerm } },
+        { pageIndex: -1, pageSize: -1 }
+      );
+      this.filteredBrands = response.items;
+      this.showBrandResults = this.filteredBrands.length > 0;
+    } catch (error) {
+      console.error('Marka araması başarısız:', error);
+    }
+  }
+
+  selectBrand(brand: Brand) {
+    this.productForm.patchValue({
+      brandId: brand.id,
+      brandSearch: brand.name
+    });
+    this.showBrandResults = false;
   }
 
   async loadBrands() {
@@ -299,8 +468,16 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
 
   async loadProductFeatures() {
     try {
+      await this.loadCategoryFeatures(this.product.categoryId);
+    } catch (error) {
+      console.error('Ürün özellikleri yüklenemedi:', error);
+    }
+  }
+  
+  async loadCategoryFeatures(categoryId: string) {
+    try {
       console.log('Ürün özellikleri yükleniyor...');
-      const category = await this.categoryService.getById(this.product.categoryId);
+      const category = await this.categoryService.getById(categoryId);
       
       if (category && category.features) {
         this.features = category.features;

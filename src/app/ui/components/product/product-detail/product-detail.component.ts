@@ -23,6 +23,7 @@ import { FEATURE_CONFIGS, FeatureType } from 'src/app/enums/featureType';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../../footer/footer.component';
 import { AnalyticsService } from 'src/app/services/common/analytics.services';
+import { DefaultImages } from 'src/app/contracts/defaultImages';
 
 @Component({
   selector: 'app-product-detail',
@@ -51,7 +52,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
   randomProductsForBrands: GetListResponse<Product>;
   user: User;
   currentImageIndex = 0;
-  defaultProductImageUrl = 'assets/icons/product/ecommerce-default-product.png';
+  defaultProductImageUrl = DefaultImages.defaultProductImage;
   selectedFeatures: { [key: string]: string } = {};
   sortedAvailableFeatures: { [key: string]: string[] } = {};
   visualFeatures: string[] = [];

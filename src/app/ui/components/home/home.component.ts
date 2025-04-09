@@ -22,6 +22,7 @@ import { DownbarComponent } from '../downbar/downbar.component';
 import { ProductGridComponent } from '../product/product-grid/product-grid.component';
 import { FooterComponent } from '../footer/footer.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { DefaultImages } from 'src/app/contracts/defaultImages';
 
 @Component({
   selector: 'app-home',
@@ -40,7 +41,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
   mostViewedProducts: GetListResponse<Product>;
   bestSellingProducts: GetListResponse<Product>;
   randomProducts: GetListResponse<Product>;
-  defaultProductImage = 'assets/icons/product/ecommerce-default-product.png';
+  defaultProductImage = DefaultImages.defaultProductImage;
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 

@@ -94,6 +94,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
       this.selectedFilters = {};
       this.pageRequest.pageIndex = 0;
       this.allCategoryIds = [this.categoryId]; // Kategori ID'lerini sıfırla
+      this.parsedCategories = []; // Ayrıştırılmış kategorileri sıfırla
       
       // Yeni veri yükle
       this.loadCategory();
@@ -126,7 +127,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
 
   async loadCategory() {
     if (!this.categoryId?.includes('-c-')) return;
-
+  
     this.showSpinner(SpinnerType.BallSpinClockwise);
     try {
       const category = await this.categoryService.getById(this.categoryId);
@@ -134,6 +135,7 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
         throw new Error('Category not found');
       }
       this.category = category;
+      this.parseCategory(); // Kategori bilgilerini ayrıştır
       this.updateBreadcrumbs();
     } catch (error) {
       console.error('Error loading category:', error);
@@ -383,4 +385,67 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
     const grid = this.categoryGrid.nativeElement;
     grid.scrollBy({ left: 250, behavior: 'smooth' });
   }
+  formatCategoryTitle(title: string): string {
+    if (!title) return '';
+    
+    // Eğer başlık zaten HTML formatında ise, doğrudan döndür
+    if (title.includes('</')) return title;
+    
+    // Veritabanındaki metni yapılandırılmış bir şekilde ayrıştır
+    // Örnek format: "Types: Standard, Low Pressure... | Materials: PP, PA... | Standards: TS EN ISO..."
+    const sections = title.split('|');
+    
+    let html = '<div class="category-columns">';
+    
+    sections.forEach(section => {
+      const parts = section.split(':');
+      if (parts.length < 2) return; // Atlama durumunu kontrol et
+      
+      const header = parts[0].trim();
+      const itemsText = parts.slice(1).join(':').trim();
+      const itemsList = itemsText.split(',');
+      
+      html += `
+        <div class="category-column">
+          <h2>${header}</h2>
+          <ul>
+            ${itemsList.map(item => `<li>${item.trim()}</li>`).join('')}
+          </ul>
+        </div>
+      `;
+    });
+    
+    html += '</div>';
+    return html;
+  }
+
+  // Component sınıfı içinde bir property ekleyin:
+parsedCategories: { title: string; items: string[] }[] = [];
+
+// ngOnInit veya loadCategory içinde, veri yüklendikten sonra çağrılacak bir fonksiyon ekleyin:
+parseCategory() {
+  // Category yüklü değilse, işlem yapma
+  if (!this.category?.title) {
+    this.parsedCategories = [];
+    return;
+  }
+  
+  const result: { title: string; items: string[] }[] = [];
+  
+  // '|' işaretiyle ayrılmış bölümleri ayır
+  const sections = this.category.title.split('|');
+  
+  for (const section of sections) {
+    const parts = section.split(':');
+    if (parts.length < 2) continue;
+    
+    const title = parts[0].trim();
+    const itemsText = parts.slice(1).join(':').trim();
+    const items = itemsText.split(',').map(item => item.trim());
+    
+    result.push({ title, items });
+  }
+  
+  this.parsedCategories = result;
+}
 }

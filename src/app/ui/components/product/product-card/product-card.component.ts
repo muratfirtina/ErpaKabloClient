@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
+import { DefaultImages } from 'src/app/contracts/defaultImages';
 import { Product } from 'src/app/contracts/product/product';
 import { ProductOperationsService } from 'src/app/services/ui/product/product-operations.service';
 
@@ -15,7 +16,7 @@ export class ProductCardComponent {
   @Input() product!: Product;
   @Input() listView: boolean = false;
   @Input() gridView: boolean = false;
-  defaultProductImageUrl: string = 'assets/icons/product/ecommerce-default-brand.png';
+  defaultProductImageUrl: string = DefaultImages.defaultProductImage;
 
   constructor(private productOperations: ProductOperationsService,private router: Router) {}
 

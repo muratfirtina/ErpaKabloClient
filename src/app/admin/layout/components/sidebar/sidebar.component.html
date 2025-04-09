@@ -1,9 +1,8 @@
-<div class="sidebar" [ngClass]="{'sidebar-expanded': isExpanded, 'sidebar-collapsed': !isExpanded}">
-  <!-- Mobile Menu Button - Only shows on mobile -->
-  <button *ngIf="isMobile" type="button" class="mobile-toggle-btn" (click)="toggleSidebar()">
-    <i class="bi" [ngClass]="isExpanded ? 'bi-x-lg' : 'bi-list'"></i>
-  </button>
+<button type="button" class="mobile-menu-btn" (click)="toggleSidebar()">
+  <i class="bi" [ngClass]="isExpanded ? 'bi-x-lg' : 'bi-list'"></i>
+</button>
 
+<div class="sidebar" [ngClass]="{'sidebar-expanded': isExpanded, 'sidebar-collapsed': !isExpanded}">
   <div class="sidebar-header">
     <div class="logo-container">
       <img [src]="logoUrl" alt="Logo" *ngIf="isExpanded" class="logo" routerLink="/" style="cursor: pointer;">
@@ -26,11 +25,11 @@
           <i *ngIf="item.children && isExpanded" class="bi submenu-icon"
              [ngClass]="isActive(item) ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
         </a>
-        
-        <div class="submenu" *ngIf="item.children" [ngClass]="{'submenu-expanded': isActive(item)}">
+
+        <div class="submenu" *ngIf="item.children && isExpanded" [ngClass]="{'submenu-expanded': isActive(item)}">
           <ul class="nav flex-column">
             <li *ngFor="let child of item.children" class="nav-item">
-              <a [routerLink]="child.path" routerLinkActive="active" class="nav-link submenu-link" (click)="handleItemClick(item, $event)">
+              <a [routerLink]="child.path" routerLinkActive="active" class="nav-link submenu-link">
                 <i class="bi bi-{{getIconClass(child.icon)}}"></i>
                 <span class="menu-text">{{child.title}}</span>
               </a>
@@ -42,5 +41,5 @@
   </div>
 </div>
 
-<!-- Mobile overlay for better UX -->
+<!-- Mobil görünümde arka planı karartma -->
 <div *ngIf="isMobile && isExpanded" class="mobile-overlay" (click)="toggleSidebar()"></div>

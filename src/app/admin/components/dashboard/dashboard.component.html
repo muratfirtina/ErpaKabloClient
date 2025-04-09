@@ -330,7 +330,7 @@
                         <td>
                           <div class="d-flex align-items-center">
                             <div class="product-img-small me-2" *ngIf="product.image">
-                              <img [src]="product.image" [alt]="product.name" class="img-thumbnail">
+                              <img [src]="product.image.url" [alt]="product.name" class="img-thumbnail">
                             </div>
                             <span>{{product.name}}</span>
                           </div>
@@ -372,7 +372,7 @@
                         <td>
                           <div class="d-flex align-items-center">
                             <div class="product-img-small me-2" *ngIf="product.image">
-                              <img [src]="product.image" [alt]="product.name" class="img-thumbnail">
+                              <img [src]="product.image.url" [alt]="product.name" class="img-thumbnail">
                             </div>
                             <span>{{product.name}}</span>
                           </div>
@@ -461,7 +461,7 @@
                     <td>
                       <div class="d-flex align-items-center">
                         <div class="category-img-small me-2" *ngIf="category.image">
-                          <img [src]="category.image" [alt]="category.name" class="img-thumbnail">
+                          <img [src]="category.image.url" [alt]="category.name" class="img-thumbnail">
                         </div>
                         <span>{{category.name}}</span>
                       </div>
@@ -513,7 +513,7 @@
                     <td>
                       <div class="d-flex align-items-center">
                         <div class="brand-img-small me-2" *ngIf="brand.image">
-                          <img [src]="brand.image" [alt]="brand.name" class="img-thumbnail">
+                          <img [src]="brand.image.url" [alt]="brand.name" class="img-thumbnail">
                         </div>
                         <span>{{brand.name}}</span>
                       </div>

@@ -1,204 +1,249 @@
-<div class="product-update-container">
-    <div>
-        <h2>Ürün Güncelleme</h2>
-        <button mat-raised-button color="primary" (click)="navigateToProductDetail(productId)" style="margin-bottom: 40px;">Ürün Detayına Git</button>
-    </div>
-    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
-        <mat-form-field appearance="outline">
-            <mat-label>Ürün Adı</mat-label>
-            <input matInput formControlName="name" placeholder="Ürün adını girin">
-            <mat-error *ngIf="productForm.get('name').hasError('required')">
-                Ürün adı zorunludur
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Kategori</mat-label>
-            <mat-select formControlName="categoryId">
-                <mat-option *ngFor="let category of categories" [value]="category.id">
-                    {{category.name}}
-                </mat-option>
-            </mat-select>
-            <mat-error *ngIf="productForm.get('categoryId').hasError('required')">
-                Kategori seçimi zorunludur
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Marka</mat-label>
-            <mat-select formControlName="brandId">
-                <mat-option *ngFor="let brand of brands" [value]="brand.id">
-                    {{brand.name}}
-                </mat-option>
-            </mat-select>
-            <mat-error *ngIf="productForm.get('brandId').hasError('required')">
-                Marka seçimi zorunludur
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Varyant Grup ID</mat-label>
-            <input matInput formControlName="varyantGroupID" placeholder="Varyant Grup ID girin">
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Stok</mat-label>
-            <input matInput type="number" formControlName="stock" placeholder="Stok miktarı girin">
-            <mat-error
-                *ngIf="productForm.get('stock').hasError('required')">
-                Geçerli bir stok miktarı girin
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Fiyat</mat-label>
-            <input matInput type="number" formControlName="price" placeholder="Fiyat girin">
-            <mat-error
-                *ngIf="productForm.get('price').hasError('required')">
-                Geçerli bir fiyat girin
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>SKU</mat-label>
-            <input matInput formControlName="sku" placeholder="SKU girin">
-            <mat-error *ngIf="productForm.get('sku').hasError('required')">
-                SKU zorunludur
-            </mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-            <mat-label>Başlık</mat-label>
-            <input matInput formControlName="title" placeholder="Bir başlık girin">
-            <mat-error *ngIf="productForm.get('title').hasError('required')">
-                Başlık zorunludur
-            </mat-error>
-        </mat-form-field>
-
-        <div class="full-width">
-            <label>Açıklama</label>
-            <angular-editor 
-                formControlName="description"
-                [config]="editorConfig"
-                placeholder="Ürün açıklamasını girin">
-            </angular-editor>
-        </div>
-
-        <div formArrayName="productFeatureValues" class="features-section">
-            <h3>Özellikler</h3>
-            <div *ngFor="let feature of productFeatureValues.controls; let i = index" [formGroupName]="i"
-                class="feature-row">
-                <mat-form-field appearance="outline">
-                    <mat-label>Özellik</mat-label>
-                    <mat-select formControlName="featureId" (selectionChange)="onFeatureChange(i)">
-                        <mat-option *ngFor="let feature of features" [value]="feature.id">
-                            {{feature.name}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <mat-form-field appearance="outline">
-                    <mat-label>Özellik Değeri</mat-label>
-                    <mat-select formControlName="featureValueId" (selectionChange)="onFeatureValueChange(i)">
-                        <mat-option *ngFor="let value of getFeatureValues(feature.get('featureId').value)"
-                            [value]="value.id">
-                            {{value.name}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <button mat-icon-button color="warn" type="button" (click)="removeFeature(i)">
-                    <mat-icon style="color:#ba1a1a;">delete</mat-icon>
-                </button>
-            </div>
-            <button mat-raised-button color="primary" type="button" (click)="addFeature()">
-                Özellik Ekle
-            </button>
-        </div>
-
-        <div formArrayName="productImageFiles" class="images-section">
-            <h3>Ürün Fotoğrafları</h3>
-            <div class="image-gallery">
-                <mat-card *ngFor="let image of productImageFiles.controls; let i = index" [formGroupName]="i"
-                    class="image-card">
-                    <mat-card-content>
-                        <img [src]="image.get('url').value" [alt]="image.get('fileName').value" class="product-image">
-                    </mat-card-content>
-                    <mat-card-actions>
-                        <mat-radio-button [value]="i" (change)="setShowcaseImage(i)" [checked]="image.get('showcase').value">
-                            Vitrin
-                        </mat-radio-button>
-                        <button mat-icon-button color="warn" (click)="removeImage(i)">
-                            <mat-icon style="margin-left: 0px !important; margin-right: 0px !important; color:#ba1a1a !important;">delete</mat-icon>
-                        </button>
-                    </mat-card-actions>
-                </mat-card>
-            </div>
-            <button mat-raised-button color="primary" type="button" (click)="openImageUploadDialog()">
-                Fotoğraf Ekle
-            </button>
-        </div>
-
-        <!-- Güncelleme butonu - disabled özelliği kaldırıldı -->
-        <button mat-raised-button color="primary" type="submit">
-            Ürünü Güncelle
+<div class="container-fluid product-update-container">
+    <div class="row mb-4">
+      <div class="col-12">
+        <h2 class="text-primary">Ürün Güncelleme</h2>
+        <button class="btn btn-primary mb-4" (click)="navigateToProductDetail(productId)">
+          Ürün Detayına Git
         </button>
+      </div>
+    </div>
+  
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+      <div class="row">
+        <!-- Left Column -->
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="productName" class="form-label">Ürün Adı</label>
+            <input type="text" class="form-control" id="productName" formControlName="name" placeholder="Ürün adını girin">
+            <div *ngIf="productForm.get('name').invalid && (productForm.get('name').dirty || productForm.get('name').touched)" class="text-danger">
+              <small *ngIf="productForm.get('name').errors?.['required']">Ürün adı zorunludur</small>
+            </div>
+          </div>
+  
+          <!-- Marka Seçimi -->
+          <div class="mb-3 position-relative">
+            <label for="brandSearch" class="form-label">Marka</label>
+            <input type="text" class="form-control" id="brandSearch" formControlName="brandSearch" placeholder="Marka ara"
+              (input)="onBrandSearchInput($event)">
+            <div *ngIf="productForm.get('brandId').invalid && (productForm.get('brandId').dirty || productForm.get('brandId').touched)" class="text-danger">
+              <small *ngIf="productForm.get('brandId').errors?.['required']">Marka seçimi zorunludur</small>
+            </div>
+  
+            <!-- Marka Arama Sonuçları -->
+            <div class="brand-search-results shadow-sm" *ngIf="showBrandResults && filteredBrands.length > 0">
+              <div class="list-group list-group-flush">
+                <button type="button" class="list-group-item list-group-item-action" *ngFor="let brand of filteredBrands"
+                  (click)="selectBrand(brand)">
+                  {{ brand.name }}
+                </button>
+              </div>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="productVaryantGroup" class="form-label">Varyant Grup ID</label>
+            <input type="text" class="form-control" id="productVaryantGroup" formControlName="varyantGroupID" placeholder="Varyant Grup ID girin">
+          </div>
+  
+          <div class="mb-3">
+            <label for="productStock" class="form-label">Stok</label>
+            <input type="number" class="form-control" id="productStock" formControlName="stock" placeholder="Stok miktarı girin">
+            <div *ngIf="productForm.get('stock').invalid && (productForm.get('stock').dirty || productForm.get('stock').touched)" class="text-danger">
+              <small *ngIf="productForm.get('stock').errors?.['required']">Geçerli bir stok miktarı girin</small>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Right Column -->
+        <div class="col-md-6">
+          <!-- Kategori Seçimi -->
+          <div class="mb-3 position-relative">
+            <label for="categorySearch" class="form-label">Kategori</label>
+            <input type="text" class="form-control" id="categorySearch" formControlName="categorySearch"
+              placeholder="Kategori ara" (focus)="showCategoryTree = true" (input)="filterCategories($event)">
+            <div *ngIf="productForm.get('categoryId').invalid && (productForm.get('categoryId').dirty || productForm.get('categoryId').touched)" class="text-danger">
+              <small *ngIf="productForm.get('categoryId').errors?.['required']">Kategori seçimi zorunludur</small>
+            </div>
+  
+            <!-- Kategori Ağacı -->
+            <div class="category-tree shadow-sm" *ngIf="showCategoryTree">
+              <mat-tree [dataSource]="categorydataSource" [treeControl]="treeControl">
+                <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+                  <button mat-icon-button disabled></button>
+                  <span class="category-name" (click)="onCategorySelected(node)">{{node.name}}</span>
+                </mat-tree-node>
+  
+                <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
+                  <button type="button" mat-icon-button [attr.aria-label]="'Toggle ' + node.name" 
+                    class="toggle-button"
+                    (click)="$event.preventDefault(); $event.stopPropagation(); treeControl.toggle(node)">
+                    <mat-icon class="mat-icon-rtl-mirror chevron-icon">
+                      {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+                    </mat-icon>
+                  </button>
+                  <span class="category-name" (click)="onCategorySelected(node)">{{node.name}}</span>
+                </mat-tree-node>
+              </mat-tree>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="productPrice" class="form-label">Fiyat</label>
+            <input type="number" class="form-control" id="productPrice" formControlName="price" placeholder="Fiyat girin">
+            <div *ngIf="productForm.get('price').invalid && (productForm.get('price').dirty || productForm.get('price').touched)" class="text-danger">
+              <small *ngIf="productForm.get('price').errors?.['required']">Geçerli bir fiyat girin</small>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="productSKU" class="form-label">SKU</label>
+            <input type="text" class="form-control" id="productSKU" formControlName="sku" placeholder="SKU girin">
+            <div *ngIf="productForm.get('sku').invalid && (productForm.get('sku').dirty || productForm.get('sku').touched)" class="text-danger">
+              <small *ngIf="productForm.get('sku').errors?.['required']">SKU zorunludur</small>
+            </div>
+          </div>
+  
+          <div class="mb-3">
+            <label for="productTitle" class="form-label">Başlık</label>
+            <input type="text" class="form-control" id="productTitle" formControlName="title" placeholder="Bir başlık girin">
+            <div *ngIf="productForm.get('title').invalid && (productForm.get('title').dirty || productForm.get('title').touched)" class="text-danger">
+              <small *ngIf="productForm.get('title').errors?.['required']">Başlık zorunludur</small>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Full Width Description Editor -->
+        <div class="col-12 mb-4">
+          <label class="form-label">Açıklama</label>
+          <angular-editor 
+            formControlName="description"
+            [config]="editorConfig"
+            placeholder="Ürün açıklamasını girin">
+          </angular-editor>
+        </div>
+  
+        <!-- Features Section -->
+        <div class="col-12 mb-4">
+          <div class="card">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Özellikler</h5>
+            </div>
+            <div class="card-body">
+              <div formArrayName="productFeatureValues">
+                <div *ngFor="let feature of productFeatureValues.controls; let i = index" [formGroupName]="i" class="row mb-3 align-items-end">
+                  <div class="col-md-5">
+                    <label class="form-label">Özellik</label>
+                    <select class="form-select" formControlName="featureId" (change)="onFeatureChange(i)">
+                      <option value="">Özellik seçin</option>
+                      <option *ngFor="let feature of features" [value]="feature.id">{{feature.name}}</option>
+                    </select>
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label">Özellik Değeri</label>
+                    <select class="form-select" formControlName="featureValueId" (change)="onFeatureValueChange(i)">
+                      <option value="">Değer seçin</option>
+                      <option *ngFor="let value of getFeatureValues(feature.get('featureId').value)" [value]="value.id">{{value.name}}</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="button" class="btn btn-danger" (click)="removeFeature(i)">
+                      <i class="fa fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-primary mt-2" (click)="addFeature()">
+                  <i class="fa fa-plus me-1"></i> Özellik Ekle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Product Images Section -->
+        <div class="col-12 mb-4">
+          <div class="card">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">Ürün Fotoğrafları</h5>
+            </div>
+            <div class="card-body">
+              <div formArrayName="productImageFiles">
+                <div class="row">
+                  <div *ngFor="let image of productImageFiles.controls; let i = index" [formGroupName]="i" class="col-md-3 col-sm-6 mb-3">
+                    <div class="card h-100">
+                      <img [src]="image.get('url').value" [alt]="image.get('fileName').value" class="card-img-top product-image">
+                      <div class="card-body">
+                        <div class="form-check">
+                          <input class="form-check-input" type="radio" [id]="'showcase'+i" [checked]="image.get('showcase').value" (change)="setShowcaseImage(i)" name="showcaseImage">
+                          <label class="form-check-label" [for]="'showcase'+i">
+                            Vitrin
+                          </label>
+                        </div>
+                      </div>
+                      <div class="card-footer bg-white">
+                        <button type="button" class="btn btn-sm btn-outline-danger w-100" (click)="removeImage(i)">
+                          <i class="fa fa-trash me-1"></i> Sil
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-primary mt-2" (click)="openImageUploadDialog()">
+                  <i class="fa fa-plus me-1"></i> Fotoğraf Ekle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Submit Button -->
+        <div class="col-12 text-center mb-4">
+          <button type="submit" class="btn btn-lg btn-success">
+            <i class="fa fa-save me-1"></i> Ürünü Güncelle
+          </button>
+        </div>
+      </div>
     </form>
-
-    <h3>İlişkili Ürünler</h3>
-    <table mat-table [dataSource]="relatedProducts" class="mat-elevation-z8">
-        <ng-container matColumnDef="photo">
-            <th mat-header-cell *matHeaderCellDef> Fotoğraf </th>
-            <td mat-cell *matCellDef="let product">
-                <img [src]="getProductImage(product)" [alt]="product.name"
-                    style="width: 50px; height: 50px; object-fit: cover;">
-            </td>
-        </ng-container>
-
-        <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef> Ürün Adı </th>
-            <td mat-cell *matCellDef="let product"> {{product.name}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="price">
-            <th mat-header-cell *matHeaderCellDef> Fiyat </th>
-            <td mat-cell *matCellDef="let product"> {{product.price | currency:'TRY':'symbol':'1.2-2'}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="stock">
-            <th mat-header-cell *matHeaderCellDef> Stok </th>
-            <td mat-cell *matCellDef="let product"> {{product.stock}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="sku">
-            <th mat-header-cell *matHeaderCellDef> SKU </th>
-            <td mat-cell *matCellDef="let product"> {{product.sku}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="categoryName">
-            <th mat-header-cell *matHeaderCellDef> Kategori </th>
-            <td mat-cell *matCellDef="let product"> {{product.categoryName}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="brandName">
-            <th mat-header-cell *matHeaderCellDef> Marka </th>
-            <td mat-cell *matCellDef="let product"> {{product.brandName}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="title">
-            <th mat-header-cell *matHeaderCellDef> Başlık </th>
-            <td mat-cell *matCellDef="let product"> {{product.title}} </td>
-        </ng-container>
-
-        <ng-container matColumnDef="features">
-            <th mat-header-cell *matHeaderCellDef> Özellikler </th>
-            <td mat-cell *matCellDef="let product">
-                <span *ngFor="let feature of product.productFeatureValues; let last = last">
+  
+    <!-- Related Products Section -->
+    <div class="row mt-4">
+      <div class="col-12">
+        <h3 class="mb-3">İlişkili Ürünler</h3>
+        <div class="table-responsive">
+          <table class="table table-hover table-striped">
+            <thead class="table-light">
+              <tr>
+                <th>Fotoğraf</th>
+                <th>Ürün Adı</th>
+                <th>Fiyat</th>
+                <th>Stok</th>
+                <th>SKU</th>
+                <th>Başlık</th>
+                <th>Kategori</th>
+                <th>Marka</th>
+                <th>Özellikler</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of relatedProducts" (click)="navigateToProduct(product.id)" style="cursor: pointer;">
+                <td>
+                  <img [src]="getProductImage(product)" [alt]="product.name" class="img-thumbnail" style="width: 50px; height: 50px; object-fit: cover;">
+                </td>
+                <td>{{product.name}}</td>
+                <td>{{product.price | currency:'TRY':'symbol':'1.2-2'}}</td>
+                <td>{{product.stock}}</td>
+                <td>{{product.sku}}</td>
+                <td>{{product.title}}</td>
+                <td>{{product.categoryName}}</td>
+                <td>{{product.brandName}}</td>
+                <td>
+                  <span *ngFor="let feature of product.productFeatureValues; let last = last">
                     {{feature.featureName}}: {{feature.featureValueName}}{{last ? '' : ', '}}
-                </span>
-            </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="navigateToProduct(row.id)" style="cursor: pointer;"></tr>
-    </table>
-</div>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
