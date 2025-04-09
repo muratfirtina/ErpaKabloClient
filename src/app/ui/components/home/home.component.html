@@ -2,7 +2,7 @@
 <app-navbar></app-navbar>
 
 <!-- Professional Carousel Section -->
-<section class="hero-carousel d-none d-md-block">
+
   <div class="carousel-container">
     <div *ngFor="let item of carousels; let i = index" 
          class="carousel-slide" 
@@ -29,32 +29,25 @@
   <div class="carousel-indicators">
     <span *ngFor="let item of carousels; let i = index" [class.active]="i === currentSlide" (click)="setCurrentSlide(i)"></span>
   </div>
-</section>
 
-<section class="categories">
-  <div class="category-header" *ngIf="!isMobile">MAIN CATEGORIES</div>
-  <div class="category-container"> <!-- container -> category-container -->
-    <button class="scroll-btn left" (click)="scrollCategories('left')">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    </button>
-    
-    <div class="category-grid" #categoryGrid>
-      <div class="category-card" *ngFor="let category of mainCategories" [routerLink]="['/'+category.id]">
-        <div class="category-image">
-          <img src="../../../../assets/icons/category/ecommerce-default-category.png" [alt]="category.name">
-        </div>
-        <div class="category-content">
-          <h3 class="category-title">{{ category.name }}</h3>
-          <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p>
+
+  <section class="categories">
+  
+    <div class="category-header"*ngIf="!isMobile">MAIN CATEGORIES</div>
+    <div class="container">
+      <div class="category-grid" #categoryGrid>
+        <div class="category-card" *ngFor="let category of mainCategories" [routerLink]="['/'+category.id]">
+          <div class="category-image">
+            <img [src]="category.categoryImage?.url" [alt]="category.name">
+          </div>
+          <div class="category-content">
+            <h3 class="category-title">{{ category.name }}</h3>
+            <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p>
+          </div>
         </div>
       </div>
     </div>
-    
-    <button class="scroll-btn right" (click)="scrollCategories('right')">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
-    </button>
-  </div>
-</section>
+  </section>
 
 
 <section class="products">
