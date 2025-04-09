@@ -19,16 +19,19 @@
               style="border-color: #e53935 !important; width: fit-content; font-size: calc(1.5rem + 2vw); font-variant: small-caps; font-weight: 600;">
               {{ category?.name }}
             </h1>
-            <div class="category-content-container">
-              <ng-container *ngIf="parsedCategories.length > 0">
-                <div class="category-column" *ngFor="let category of parsedCategories">
-                  <h2>{{ category.title }}</h2>
+            <div *ngIf="isFormattedContent; else regularContent">
+              <div class="category-content-container">
+                <div class="category-column" *ngFor="let section of parsedCategories">
+                  <h2>{{ section.title }}</h2>
                   <ul>
-                    <li *ngFor="let item of category.items">{{ item }}</li>
+                    <li *ngFor="let item of section.items">{{ item }}</li>
                   </ul>
                 </div>
-              </ng-container>
+              </div>
             </div>
+            <ng-template #regularContent>
+              <p class="lead mb-0" style="font-size: 0.9rem; font-weight: 400;">{{ category?.title }}</p>
+            </ng-template>
           </div>
         </div>
         <!-- Image container with no padding/margin -->

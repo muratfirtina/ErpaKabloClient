@@ -62,6 +62,9 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
   isFiltersLoading: boolean = false;
   isProductsLoading: boolean = false;
   allCategoryIds: string[] = []; // Store all category IDs including subcategories
+    // Component sınıfı içinde bir property ekleyin:
+  parsedCategories: { title: string; items: string[] }[] = [];
+  isFormattedContent: boolean = false;
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
@@ -419,33 +422,39 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
     return html;
   }
 
-  // Component sınıfı içinde bir property ekleyin:
-parsedCategories: { title: string; items: string[] }[] = [];
 
-// ngOnInit veya loadCategory içinde, veri yüklendikten sonra çağrılacak bir fonksiyon ekleyin:
-parseCategory() {
-  // Category yüklü değilse, işlem yapma
-  if (!this.category?.title) {
-    this.parsedCategories = [];
-    return;
-  }
-  
-  const result: { title: string; items: string[] }[] = [];
-  
-  // '|' işaretiyle ayrılmış bölümleri ayır
-  const sections = this.category.title.split('|');
-  
-  for (const section of sections) {
-    const parts = section.split(':');
-    if (parts.length < 2) continue;
+  parseCategory() {
+    // Category yüklü değilse, işlem yapma
+    if (!this.category?.title) {
+      this.parsedCategories = [];
+      this.isFormattedContent = false;
+      return;
+    }
     
-    const title = parts[0].trim();
-    const itemsText = parts.slice(1).join(':').trim();
-    const items = itemsText.split(',').map(item => item.trim());
+    // Eğer başlık '|' ve ':' karakterlerini içermiyorsa, format edilmiş içerik değil
+    if (!this.category.title.includes('|') || !this.category.title.includes(':')) {
+      this.isFormattedContent = false;
+      return;
+    }
     
-    result.push({ title, items });
+    const result: { title: string; items: string[] }[] = [];
+    
+    // '|' işaretiyle ayrılmış bölümleri ayır
+    const sections = this.category.title.split('|');
+    
+    for (const section of sections) {
+      const parts = section.split(':');
+      if (parts.length < 2) continue;
+      
+      const title = parts[0].trim();
+      const itemsText = parts.slice(1).join(':').trim();
+      const items = itemsText.split(',').map(item => item.trim());
+      
+      result.push({ title, items });
+    }
+    
+    // Eğer en az bir bölüm ayrıştırıldıysa, format edilmiş içerik
+    this.isFormattedContent = result.length > 0;
+    this.parsedCategories = result;
   }
-  
-  this.parsedCategories = result;
-}
 }
