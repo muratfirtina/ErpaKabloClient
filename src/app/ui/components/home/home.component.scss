@@ -32,6 +32,9 @@ $breakpoint-large: 1400px;
 body {
   background: #11131e;
   padding: 20px 0;
+  font-family: 'Source Sans Pro', sans-serif;
+  color: $home-text-color;
+  line-height: 1.6;
 }
 
 .row {
@@ -39,13 +42,13 @@ body {
   justify-content: center;
 }
 
+// Genel container stili
 .container {
   max-width: 1420px;
   margin: auto;
   display: flex;
   overflow-x: auto;
   gap: 20px;
-  //padding: 20px 0;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
@@ -62,17 +65,10 @@ body {
 
 .container::-webkit-scrollbar-thumb {
   background: #888;
-  //border-radius: 4px;
 }
 
 .container::-webkit-scrollbar-thumb:hover {
   background: #555;
-}
-
-body {
-  font-family: 'Source Sans Pro', sans-serif;
-  color: $home-text-color;
-  line-height: 1.6;
 }
 
 .hero-carousel {
@@ -262,8 +258,9 @@ body {
   }
 }
 
+// Categories bölümü
 .categories {
-  position: relative; // Ok butonlarının yerleşimini kolaylaştırır
+  position: relative;
   background-color: $light-text;
   margin: 2rem 0 1rem 0;
   padding: 1rem 0;
@@ -273,11 +270,12 @@ body {
     font-size: 2.5rem;
     color: $home-primary-color;
     font-weight: 500;
-    margin: 0 auto 0;
+    margin: 0 auto 20px;
     max-width: 1320px;
     position: relative;
     display: flex;
     justify-content: center;
+    text-transform: uppercase;
 
     @media (max-width: $breakpoint-tablet) {
       font-size: 1.1rem;
@@ -300,14 +298,16 @@ body {
     }
   }
 
-  .container {
+  .category-container { // container -> category-container
+    max-width: 1320px;
+    margin: 0 auto;
     display: flex;
     align-items: center;
-    overflow: hidden;
-    position: relative; // Scroll butonlarını konumlandırmak için
+    position: relative;
+    padding: 0 20px; // Yanlarda 20px padding bırakarak kartların kesilmesini önle
 
     @media (max-width: $breakpoint-mobile) {
-      padding: 10px;
+      padding: 0 10px;
     }
 
     .scroll-btn {
@@ -324,7 +324,7 @@ body {
       justify-content: center;
       align-items: center;
       cursor: pointer;
-      z-index: 1;
+      z-index: 10;
 
       svg {
         width: 20px;
@@ -332,102 +332,144 @@ body {
       }
 
       &.left {
-        left: 10px;
+        left: 0;
       }
 
       &.right {
-        right: 10px;
+        right: 0;
       }
     }
 
     .category-grid {
-      width: 1320px;
-      margin: 0 55px;
       display: flex;
+      width: 100%;
       gap: 1rem;
-      scroll-snap-type: x mandatory;
       overflow-x: auto;
-      padding: 20px 0 0 0;
+      padding: 20px 5px;
       scroll-behavior: smooth;
-
-      @media (max-width: $breakpoint-tablet) { // 480px ve altı için
-        .category-card {
-          min-width: 135px !important; // Sabit genişlik
-          max-height: 160px !important; // Sabit yükseklik
-          
-          .category-image {
-            height: 50px; // Resim boyutunu küçült
-            margin-top: 0px;
-            margin: 0 10px 0 10px;
-             // Üst boşluğu azalt
-            
-            img {
-              width: 100%;
-              height: 100%;
-              object-fit: contain;
-            }
-          }
-
-          .category-content {
-            padding: 5px; // İç boşluğu azalt
-            
-            .category-title {
-              font-size: 0.8rem; // Yazı boyutunu küçült
-              height: auto; // Yüksekliği otomatik ayarla
-              // Üst boşluğu azalt
-              padding: 0 0 5px; // Alt boşluğu azalt
-            }
-
-            
-          }
-        }
+      margin: 0;
+      /* Webkit scrollbar'ı gizle */
+      &::-webkit-scrollbar {
+        display: none;
+      }
+      /* Firefox scrollbar'ı gizle */
+      scrollbar-width: none;
+      
+      // İlk kartın düzgün gösterilmesi için
+      &::before {
+        content: '';
+        display: block;
+        min-width: 5px; // Küçük bir boşluk
+        height: 1px;
+      }
+      
+      @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-laptop) {
+        height: 200px;
       }
 
-      @media (max-width: $breakpoint-tablet) {
-        .category-card {
-          min-width: calc(50% - 10px);
-          min-height: 250px;
-        }
-      }
       @media (max-width: $breakpoint-laptop) {
         width: 100%;
-        margin: 0; // Tablet ve mobil için margin kaldırıldı
-        padding: 10px;
+        padding: 10px 5px;
       }
-
-      @media (max-width: $breakpoint-mobile) {
-        .category-card {
-          min-width: 100%;
-          min-height: 160px;
-        }
-      }
-      @media (min-width: $breakpoint-tablet){
-        .category-card {
-          min-width: calc(33.33% - 10px);
-        }
-      }
+      
 
       .category-card {
         cursor: pointer;
+        flex: 0 0 auto;
         width: 205px;
-        //min-height: 300px; // Kartların genişliği sabit olmalı
+        min-width: 205px; // Min-width ekleyerek boyutun sabit kalmasını sağla
+        max-width: 205px; // Max-width ekleyerek boyutun sabit kalmasını sağla
         background-color: $home-secondary-color;
-        //border-radius: 10px;
         overflow: hidden;
         transition: transform 0.3s, box-shadow 0.3s;
+        border: 1px solid #eee; // Kartların sınırlarını belirginleştir
+        
+        @media (min-width: $breakpoint-laptop) {
+          width: 205px !important;
+          min-width: 205px !important;
+          max-width: 205px !important;
+        }
 
         &:hover {
           transform: translateY(-5px);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
 
+        @media (max-width: $breakpoint-tablet) {
+          
+          width: 160px;
+          height: 160px;
+          
+          &.category-card {
+            min-width: 135px !important;
+            max-height: 160px !important;
+            
+            .category-image {
+              height: 50px;
+              margin: 0 10px;
+              
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+              }
+            }
+
+            .category-content {
+              padding: 5px;
+              
+              .category-title {
+                font-size: 0.8rem;
+                height: auto;
+                padding: 0 0 5px;
+              }
+            }
+          }
+        }
+
+        @media (max-width: $breakpoint-mobile) {
+          min-width: calc(50% - 10px);
+          max-width: calc(50% - 10px);
+          width: calc(50% - 10px);
+          height: 160px;
+          
+          &.category-card {
+            min-width: 135px !important;
+            height: 160px !important;
+            
+            .category-image {
+              height: 50px;
+              margin: 0 10px;
+              
+              img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+              }
+            }
+
+            .category-content {
+              padding: 5px;
+              
+              .category-title {
+                font-size: 0.8rem;
+                height: auto;
+                padding: 0 0 5px;
+              }
+            }
+          }
+        }
+
         .category-image {
           margin-top: 20px;
           height: 100px;
           overflow: hidden;
+          display: flex;
+          justify-content: center;
+          align-items: center;
 
           @media (max-width: $breakpoint-tablet) {
-            margin: 0 10px 0 10px; // Üst boşluğu azalt
+            margin: 0 10px;
           }
 
           img {
@@ -443,10 +485,11 @@ body {
           display: flex;
           align-items: center;
           flex-direction: column;
+          
           @media (max-width: $breakpoint-tablet) {
-            padding: 5px; // İç boşluğu azalt
+            padding: 5px;
+          }
         }
-      }
 
         .category-title {
           margin-top: 20px;
@@ -454,11 +497,15 @@ body {
           font-size: 0.9rem;
           font-weight: 500;
           color: $text-color;
-          margin: 0 auto 0;
-          max-width: 1320px;
+          margin: 0 auto;
           padding: 0 0 10px;
           position: relative;
           height: 40px;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+          width: 100%;
         }
 
         .category-description {
@@ -467,42 +514,26 @@ body {
           width: 150px;
           height: 50px;
           font-size: 0.75rem;
-          //margin-bottom: 15px;
           display: -webkit-box;
-            -webkit-box-orient: vertical;
-            -webkit-line-clamp: 3; // Maksimum 3 satır göster
-            overflow: hidden;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 3;
+          overflow: hidden;
         }
-
-        .btn-category {
-          display: inline-block;
-          padding: 8px 20px;
-          background-color: $home-primary-color;
-          color: $light-text;
-          text-decoration: none;
-          //border-radius: 5px;
-          transition: background-color 0.3s;
-
-          &:hover {
-            background-color: lighten($home-primary-color, 10%);
-          }
-        }
-
-        
       }
     }
   }
 }
 
-
+// Info Cards bölümü
 .info-cards {
   padding: 50px 0;
   background-color: #f8f9fa;
   font-family: 'Source Sans Pro', sans-serif;
 
-  .container {
+  .info-container { // container -> info-container
     width: 100%;
     max-width: 1320px;
+    margin: 0 auto;
     padding: 0;
   }
 
@@ -510,22 +541,20 @@ body {
     display: flex;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 30px;
+    
     @media (max-width: 768px) {
       margin: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
     }
-    
   }
 
   .info-card {
-    //width için container ın genişliğinden 90px çıkartıp kalanı 4 e bölmeliyiz
     width: calc((1320px - 90px) / 4);
     background-color: #ffffff;
     border: 1px solid $border-color;
-
     overflow: hidden;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
@@ -534,28 +563,20 @@ body {
       transform: translateY(-5px);
     }
 
-    .card-grid {
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-  
-      .info-card {
-        @media (max-width: $breakpoint-mobile) {
-          width: 100%;
-        }
-  
-        @media (min-width: $breakpoint-mobile) and (max-width: $breakpoint-tablet) {
-          width: calc(50% - 10px);
-        }
-  
-        @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-laptop) {
-          width: calc(50% - 10px);
-        }
-  
-        @media (min-width: $breakpoint-laptop) {
-          width: calc((100% - 60px) / 4);
-        }
-      }
+    @media (max-width: $breakpoint-mobile) {
+      width: 100%;
+    }
+
+    @media (min-width: $breakpoint-mobile) and (max-width: $breakpoint-tablet) {
+      width: calc(50% - 10px);
+    }
+
+    @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-laptop) {
+      width: calc(50% - 10px);
+    }
+
+    @media (min-width: $breakpoint-laptop) {
+      width: calc((100% - 60px) / 4);
     }
 
     .card-image {
@@ -571,25 +592,25 @@ body {
 
     .card-content {
       padding: 20px;
-      position: relative; // Eklendi
+      position: relative;
     }
 
     .card-title {
       font-family: 'Source Sans Pro', sans-serif;
       font-size: 1.25rem;
       font-weight: 600;
-      margin-bottom: 20px; // Margin'i arttırdık
+      margin-bottom: 20px;
       color: #333;
-      position: relative; // Eklendi
-      display: inline-block; // Eklendi
-      padding-bottom: 10px; // Eklendi
+      position: relative;
+      display: inline-block;
+      padding-bottom: 10px;
 
       &::after {
         content: "";
         position: absolute;
         bottom: 0;
         left: 0;
-        width: 50px; // Çizgi genişliğini ayarlayabilirsiniz
+        width: 50px;
         height: 4px;
         background-image: linear-gradient(
             to bottom,
@@ -606,145 +627,5 @@ body {
     font-size: 0.9rem;
     color: #666;
     line-height: 1.5;
-  }
-}
-
-// Dark mode için gerekli değişiklikler
-
-@media (prefers-color-scheme: dark) {
-  // Hero Carousel
-  .hero-carousel {
-    background-color: $home-primary-color;
-
-    .carousel-slide {
-      .slide-content {
-        .overlay {
-          background: rgba(0, 0, 0, 0.6); // Daha koyu overlay
-        }
-
-        .text-content {
-          .btn-cta {
-            background-color: $primary-color;
-            color: $light-text;
-
-            &:hover {
-              background-color: darken($primary-color, 10%);
-            }
-          }
-        }
-      }
-    }
-
-    .carousel-control {
-      background-color: rgba($light-text, 0.1);
-      
-      &:hover {
-        background-color: rgba($light-text, 0.2);
-      }
-
-      svg {
-        stroke: $light-text;
-      }
-    }
-
-    .carousel-indicators {
-      span {
-        background-color: rgba($light-text, 0.3);
-
-        &.active {
-          background-color: $primary-color;
-        }
-      }
-    }
-  }
-
-  // Categories Section
-  .categories {
-    background-color: $home-primary-color;
-
-    .category-header {
-      color: $light-text;
-      margin-top: 15px;
-
-      &::after {
-        background-image: linear-gradient(
-          to bottom,
-          rgba($primary-color, 0),
-          rgba($primary-color, 0.15) 37%
-        ),
-        linear-gradient(to bottom, $primary-color, $primary-color);
-      }
-    }
-
-    .category-grid {
-      .category-card {
-        background-color: lighten($home-primary-color, 5%);
-        border: 1px solid rgba($light-text, 0.1);
-
-        &:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .category-title {
-          color: $light-text;
-        }
-
-        .category-description {
-          color: rgba($home-primary-color, 0.7);
-        }
-
-        .btn-category {
-          background-color: $primary-color;
-          color: $light-text;
-
-          &:hover {
-            background-color: darken($primary-color, 10%);
-          }
-        }
-      }
-    }
-
-    .scroll-btn {
-      background-color: rgba($light-text, 0.1);
-      color: $light-text;
-
-      &:hover {
-        background-color: rgba($light-text, 0.2);
-      }
-    }
-  }
-
-  // Info Cards Section
-  .info-cards {
-    background-color: $home-primary-color;
-
-    .info-card {
-      background-color: lighten($home-primary-color, 5%);
-      border-color: rgba($light-text, 0.1);
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-
-      &:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-      }
-
-      .card-title {
-        color: $light-text;
-
-        &::after {
-          background-image: linear-gradient(
-            to bottom,
-            rgba($primary-color, 0),
-            rgba($primary-color, 0.15) 37%
-          ),
-          linear-gradient(to bottom, $primary-color, $primary-color);
-        }
-      }
-
-      .card-description {
-        color: rgba($light-text, 0.7);
-      }
-    }
   }
 }

@@ -26,16 +26,25 @@
         </ng-container>
 
         <ng-template #notAuthenticated>
-          <div class="auth-links" style="display: flex; align-items: center; gap: 1rem;">
+          <div class="auth-links" style="display: flex; align-items: center;">
             <!-- Login Trigger ve Popover -->
+           
             <div class="sign-in">
-              <a style="color:#e0e0e0; cursor: pointer;" 
-                 (click)="showLoginPopover($event)" 
-                 [attr.aria-label]="'Sign in'">Sign In</a>
+              <div class="sign-in-content" (click)="showLoginPopover($event)" [attr.aria-label]="'Sign in'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill=#e0e0e0 class="bi bi-person-circle" viewBox="0 0 16 16">
+                  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                  <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
+                </svg>
+                <span style="color:#e0e0e0;">Sign In</span>
+              </div>
               <app-login-popover></app-login-popover>
             </div>
             
-            <span style="color:#e0e0e0;">|</span>
+            <!-- <span style="color:#e0e0e0;">|</span> -->
+            <div class="divider" style="width: 2px;
+            height: 1rem;
+            background-color: #ededed;
+            margin: 0 ;"></div>
             
             <!-- Register Link -->
             <a class="register-link" (click)="toggleDrawer(DrawerType.UserMenu)" [attr.aria-label]="'Register'">

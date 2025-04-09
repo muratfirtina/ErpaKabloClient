@@ -88,7 +88,7 @@ $transition-speed: 0.3s;
     }
     
     & > .logo {
-      margin-right: auto;
+      //margin-right: auto;
     }
   }
 
@@ -127,18 +127,40 @@ $transition-speed: 0.3s;
   .user-actions {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 0.75rem;
     position: relative;
     z-index: 15; // Higher z-index to ensure it stays above the diagonal background
 
     .auth-links {
       display: flex;
       align-items: center;
-      gap: 1.5rem;
+      gap: 0.75rem;
       position: relative;
 
-      .sign-in{
-        width: 50px;
+      .sign-in {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        width: auto;
+        position: relative; // Popover için referans noktası
+        
+        .sign-in-content {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem; // Gap sadece svg ile metin arasında olacak
+          
+          svg {
+            vertical-align: middle;
+          }
+          span {
+            color: #e0e0e0;
+          }
+        }
+        
+        app-login-popover {
+          margin-left: 0; // Popover ile text arasında gap olmasın
+        }
       }
 
       a {
@@ -249,6 +271,11 @@ $transition-speed: 0.3s;
     }
   }
 }
+@media (min-width: 1024px) {
+  app-login-popover {
+    position: absolute;
+  }
+}
 
 @media (max-width: 768px) {
   .main-header {
@@ -266,25 +293,29 @@ $transition-speed: 0.3s;
       .logo-image {
         max-height: 45px;
       }
-      
-      .logo-text {
-        display:none;
-      }
     }
     
     .user-actions {
-      gap: 0.5rem;
+      gap: 1rem;
       
       .auth-links {
-        gap: 0.8rem;
+        .register-link {
+          display: none; // 768px altında Register butonunu gizle
+        }
         
-        a {
-          font-size: 0.8rem;
+        .sign-in span {
+          display: none; // 768px altında Sign In yazısını gizle, sadece ikonu göster
+        }
+        
+        .sign-in {
+          width: auto;
+          // Padding ekleme seçeneği:
+          // padding-right: 0.4rem;
         }
       }
       
       .btn-cart {
-        padding: 0.4rem 0.8rem;
+        padding: 0.4rem 0.8rem 0.5rem 0;
         
         .btn-text {
           display: none;
@@ -315,12 +346,15 @@ $transition-speed: 0.3s;
         max-height: 40px;
         //margin-right: 1rem;
       }
+      .logo-text {
+        display:none;
+      }
     }
     
     .user-actions {
       .auth-links {
         padding-left: 16px; 
-        gap: 0.5rem;
+        gap: 1rem;
         .separator {
           margin: 0 0.2rem;
         }

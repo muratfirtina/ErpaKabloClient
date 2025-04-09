@@ -43,7 +43,7 @@ $link-color: #0000ee;
     
     .product-list {
       display: flex; // Grid yerine flex kullanıyoruz
-      gap: 12px;
+      gap: 15px;
       scroll-snap-type: x mandatory;
       overflow-x: auto;
       padding: 20px 0;

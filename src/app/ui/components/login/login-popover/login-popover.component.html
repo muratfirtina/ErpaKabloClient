@@ -4,6 +4,10 @@
       <h5>Welcome Back</h5>
       <button type="button" class="btn-close" (click)="close()">×</button>
     </div>
+    <div class="tabs-container">
+      <div class="tab active">Sign In</div>
+      <div class="tab" (click)="navigateToRegister()">Register</div>
+    </div>
 
     <form #loginForm="ngForm" (ngSubmit)="login(txtUsernameOrEmail.value, txtPassword.value)">
       <!-- Error Message Display -->

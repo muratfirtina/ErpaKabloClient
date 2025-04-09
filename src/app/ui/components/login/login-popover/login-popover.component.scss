@@ -31,7 +31,7 @@ $link-color: #0000ee;
     visibility: visible;
   }
   
-  .login-popover, .register-popover {
+  .login-popover {
     font-family: $font-family-base;
     
     position: fixed;
@@ -49,8 +49,16 @@ $link-color: #0000ee;
     z-index: 9999;
     
     @media (max-width: 768px) {
+      top: 35%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       width: 90%;
       max-width: 320px;
+      
+      // Üçgen işaretçiyi kaldıralım
+      &::before, &::after {
+        display: none;
+      }
     }
   
     &.show {
@@ -90,7 +98,7 @@ $link-color: #0000ee;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
   
       h5 {
         margin: 0;
@@ -424,4 +432,59 @@ $link-color: #0000ee;
         color: #aaa;
       }
     }
+  }
+
+  .tabs-container {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+    position: relative;
+    
+    .tab {
+      padding: 12px 15px;
+      color: #a6a6a6;
+      cursor: pointer;
+      font-weight: 500;
+      position: relative;
+      
+      &.active {
+        color: #e53935;
+        
+        &::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background-color: #e53935;
+        }
+      }
+      
+      &:hover:not(.active) {
+        color: #ff6961;
+      }
+    }
+    
+    .btn-close {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #a6a6a6;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 0;
+      line-height: 1;
+    }
+  }
+
+  @media (min-width: 769px) {
+    .tabs-container {
+      display: none; // Büyük ekranlarda sekmeleri gizle
+    }
+    
   }

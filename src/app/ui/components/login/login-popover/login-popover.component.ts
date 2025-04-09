@@ -20,6 +20,7 @@ export class LoginPopoverComponent extends BaseComponent {
   @Output() closePopover = new EventEmitter<void>();
   isVisible = false;
   isDarkTheme = false;
+  isMobile = false;
   loading: boolean = false;
   rememberMe: boolean = false;
 
@@ -34,7 +35,6 @@ export class LoginPopoverComponent extends BaseComponent {
   lockoutTimerId: any = null;
 
   constructor(
-    private userAuthService: UserAuthService,
     spinner: SpinnerService,
     private authService: AuthService,
     private activatedRoute: ActivatedRoute,
@@ -46,6 +46,10 @@ export class LoginPopoverComponent extends BaseComponent {
     // Check system theme preference
     this.isDarkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
     this.checkRememberMe();
+    // Mobil kontrol
+    this.checkScreenSize();
+    // Ekran boyutu değişikliklerini dinle
+    window.addEventListener('resize', () => this.checkScreenSize());
 
     // Check if there's a previous lockout state in session storage
     this.checkLockoutState();
@@ -250,8 +254,22 @@ export class LoginPopoverComponent extends BaseComponent {
     );
   }
 
+  navigateToRegister() {
+    this.close();
+    this.router.navigate(['/register']);
+  }
+
   navigateToPasswordReset() {
     this.close();
     this.router.navigate(['/password-reset']);
+  }
+  private checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
+  }
+  
+  // Yıkım aşamasında event listener'ı temizleme
+  ngOnDestroy() {
+    window.removeEventListener('resize', () => this.checkScreenSize());
+    // Varsa, mevcut diğer ngOnDestroy kodları
   }
 }

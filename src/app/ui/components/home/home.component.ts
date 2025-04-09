@@ -190,4 +190,26 @@ async loadRandomProducts() {
     }
     return this.defaultProductImage;
   }
+  // Kategori grid'inin scroll işlemini yönetecek fonksiyon
+scrollCategories(direction: 'left' | 'right') {
+  if (this.categoryGrid && this.categoryGrid.nativeElement) {
+    const container = this.categoryGrid.nativeElement;
+    const scrollAmount = 205 + 16; // Kart genişliği + gap
+    
+    if (direction === 'left') {
+      container.scrollLeft -= scrollAmount;
+    } else {
+      container.scrollLeft += scrollAmount;
+    }
+  }
+}
+
+// ngAfterViewInit içinde başlangıç scroll pozisyonunu sıfırlayın
+ngAfterViewInit() {
+  setTimeout(() => {
+    if (this.categoryGrid && this.categoryGrid.nativeElement) {
+      this.categoryGrid.nativeElement.scrollLeft = 0;
+    }
+  }, 100);
+}
 }
