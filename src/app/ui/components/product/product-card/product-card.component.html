@@ -15,10 +15,28 @@
     <div class="product-name">{{product.name}}</div>
     <div class="product-title">{{product.title}}</div>
 
-    <div class="features-container">
-      <span class="feature-badge" *ngFor="let feature of product.productFeatureValues">
-        {{feature.featureValueName}}
-      </span>
+    <div class="features-section">
+      <div class="features-popup" *ngIf="showFeaturePopup">
+        <div class="popup-title">Other Features</div>
+        <div class="popup-features-container">
+          <ng-container *ngFor="let feature of product.productFeatureValues; let i = index">
+            <span class="feature-badge" *ngIf="i > 0">{{feature.featureValueName}}</span>
+          </ng-container>
+        </div>
+      </div>
+      
+      <div class="features-container">
+        <span class="feature-badge" *ngIf="product.productFeatureValues && product.productFeatureValues.length > 0">
+          {{product.productFeatureValues[0].featureValueName}}
+        </span>
+        <span class="more-features feature-badge" 
+              *ngIf="product.productFeatureValues && product.productFeatureValues.length > 1" 
+              (click)="toggleFeaturePopup($event)"
+              (mouseenter)="onMoreFeaturesMouseEnter($event)"
+              (mouseleave)="onMoreFeaturesMouseLeave()">
+          +{{product.productFeatureValues.length - 1}}
+        </span>
+      </div>
     </div>
 
     <div class="price-section">

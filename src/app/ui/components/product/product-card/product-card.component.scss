@@ -293,3 +293,122 @@ $link-color: #0000ee;
     }
   }
 }
+
+.more-features {
+  cursor: pointer;
+  background-color: rgba($primary-color, 0.1);
+  color: $primary-color;
+  font-weight: 600;
+  
+  &:hover {
+    background-color: rgba($primary-color, 0.2);
+  }
+}
+
+// product-card.component.scss
+
+.features-section {
+  position: relative;
+  
+  .features-popup {
+    position: absolute;
+    bottom: calc(100% + 5px); // features-container'ın üstünde 5px boşlukla
+    left: 0;
+    width: 100%;
+    max-height: 300px; // Maksimum yükseklik (çok özellik varsa taşması önlenir)
+    overflow-y: auto; // Çok özellik varsa scroll ekle
+    background-color: rgba(0, 0, 0, 0.85);
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    padding: 12px;
+    z-index: 100;
+    animation: fadeIn 0.2s ease;
+    
+    .popup-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: white;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 6px;
+    }
+    
+    .popup-features-container {
+      display: flex;
+      flex-direction: column;
+      gap: 10px; // Özellikler arasındaki boşluğu arttır
+      
+      .feature-badge {
+        padding: 10px 12px; // İç boşluğu arttır
+        background-color: rgba(255, 255, 255, 0.15);
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        color: white;
+        text-align: center;
+        word-break: break-word; // Uzun kelimelerde taşmayı önle
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.25);
+        }
+      }
+    }
+  }
+  
+  .features-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    
+    .feature-badge {
+      padding: 0.375rem 0.75rem;
+      margin-top: 0.5rem;
+      background-color: #f3f4f6;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      color: $text-color;
+    }
+    
+    .more-features {
+      cursor: pointer;
+      background-color: rgba($primary-color, 0.1);
+      color: $primary-color;
+      font-weight: 600;
+      
+      &:hover {
+        background-color: rgba($primary-color, 0.2);
+      }
+    }
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+// Dark mode için stiller
+@media (prefers-color-scheme: dark) {
+  .features-section {
+    .features-popup {
+      background-color: rgba(255, 255, 255, 0.85);
+      
+      .popup-title {
+        color: $home-primary-color;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      }
+      
+      .popup-features-container {
+        .feature-badge {
+          background-color: rgba(0, 0, 0, 0.1);
+          color: $home-primary-color;
+          
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.2);
+          }
+        }
+      }
+    }
+  }
+}
