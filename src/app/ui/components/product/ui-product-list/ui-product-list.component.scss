@@ -40,7 +40,7 @@
   .product-list {
     .row > div {
       width: 50%;
-      max-width: (100% / 3);
+      max-width: calc(100% / 3);
       flex: 0 0 100%;
     }
   }
