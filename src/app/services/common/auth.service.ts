@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, catchError, throwError, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 import { HttpClientService } from './http-client.service';
 import { TokenService } from './token.service';
@@ -7,13 +7,10 @@ import { UserService } from './models/user.service';
 import { StoreService } from './store.service';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../ui/custom-toastr.service';
 import { AnalyticsService } from './analytics.services';
+import { HttpErrorResponse } from '@angular/common/http';
+import { VerifyResetTokenResponse } from 'src/app/contracts/token/verifyResetTokenResponse';
 
-// API yanıt tipleri
-interface VerifyResetTokenResponse {
-  tokenValid: boolean;
-  userId: string;
-  email: string;
-}
+
 
 @Injectable({
   providedIn: 'root'
@@ -37,7 +34,7 @@ export class AuthService {
   private async checkAuthState() {
     const isAuthenticated = await this.identityCheck();
     this.authStateSubject.next(isAuthenticated);
-    
+
     if (isAuthenticated) {
       try {
         // Kullanıcı bilgilerini al ve store'a kaydet
@@ -48,7 +45,8 @@ export class AuthService {
         });
       } catch (error) {
         console.error('Error loading user data:', error);
-        this.logout();
+        // Kullanıcı bilgileri alınamazsa logout yap
+        await this.logout(); // await ekledik
       }
     }
   }
@@ -65,11 +63,11 @@ export class AuthService {
   }
 
   // Giriş işlemi
-  async login(userNameOrEmail: string, password: string, callBackFunction?: () => void): Promise<boolean> {
+  async login(userNameOrEmail: string, password: string, callBackFunction?: () => void): Promise<boolean | any> {
     try {
       const observable = this.httpClientService.post<any>(
         {
-          controller: 'auth', // This route is correct for the new structure
+          controller: 'auth',
           action: 'login'
         },
         {
@@ -77,9 +75,9 @@ export class AuthService {
           Password: password
         }
       );
-
+  
       const response = await firstValueFrom(observable);
-
+  
       if (response && response.token) {
         // Token'ları ve kullanıcı bilgilerini kaydet
         this.tokenService.storeTokens(
@@ -89,7 +87,7 @@ export class AuthService {
         );
         // Kimlik durumunu güncelle
         this.authStateSubject.next(true);
-
+  
         // Kullanıcı bilgilerini al ve store'a kaydet
         try {
           const user = await this.userService.getCurrentUser();
@@ -98,25 +96,38 @@ export class AuthService {
             data: user
           });
         } catch (error) {
-          console.error('Error loading user data after login:', error);
+          console.error('Giriş sonrası kullanıcı verisi yüklenirken hata:', error);
         }
-
-        this.toastrService.message('Login successful', 'Success', {
+  
+        this.toastrService.message('Giriş başarılı', 'Başarılı', {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight,
         });
-
+  
         if (callBackFunction) callBackFunction();
         this.analyticsService.trackLogin('email');
         return true;
       }
       
       return false;
-    } catch (error) {
-      console.error('Login error:', error);
-      return false;
+    } catch (error: any) {
+      console.error('Giriş hatası:', error);
+      
+      // Backend'den gelen hata yanıtını işleme
+      if (error?.error) {
+        // LoginErrorResponse formatında yanıt - kullanıcıya gösterilecek
+        return error.error;
+      }
+      
+      return {
+        message: 'Beklenmeyen bir hata oluştu. Lütfen daha sonra tekrar deneyin.',
+        failedAttempts: 0,
+        isLockedOut: false,
+        errorType: -1
+      };
     }
   }
+
 
   // Çıkış işlemi
   async logout(callbackFunction?: () => void): Promise<boolean> {
@@ -124,91 +135,88 @@ export class AuthService {
       // TokenService üzerinden token'ı iptal et
       await this.tokenService.revokeToken();
     } catch (error) {
-      console.error('Error during token revocation:', error);
+      console.error('Error during token revocation (if implemented):', error);
     } finally {
       // Token'ları ve kullanıcı verilerini temizle
       this.tokenService.clearTokens();
-      
+
       // Kimlik durumunu güncelle
       this.authStateSubject.next(false);
-      
+
       // Store'daki kullanıcı bilgilerini temizle
       this.store.update('user', {
         isAuthenticated: false,
         data: null
       });
-      
+
       // Callback fonksiyonu varsa çağır
       if (callbackFunction) callbackFunction();
-      
-      // Ana sayfaya yönlendir
-      await this.router.navigate(['/']);
-      
-      // Ana sayfadaysak sayfayı yenile
-      if (this.router.url === '/') {
-        window.location.reload();
-      }
+
+      // Giriş sayfasına veya ana sayfaya yönlendir
+      await this.router.navigate(['/login']); // Genellikle login sayfasına yönlendirmek daha mantıklı
+
+      // Sayfa yenileme genellikle SPA'larda tercih edilmez ama isteniyorsa:
+      // if (this.router.url === '/') {
+      //   window.location.reload();
+      // }
     }
-    
-    return true; // Çıkış başarılı
+
+    return true; // Çıkış işlemi her zaman başarılı kabul edilebilir (local temizlik yapıldığı için)
   }
-  // Add this method to the AuthService class
-async logoutFromAllDevices(callBackFunction?: () => void): Promise<boolean> {
-  try {
-    this.toastrService.message('Output from all devices ... ','The process continues', {
-      toastrMessageType: ToastrMessageType.Info,
-      position: ToastrPosition.TopRight,
-    });
-    
-    // Use TokenService to revoke all tokens
-    const success = await this.tokenService.revokeAllTokens();
-    
-    if (success) {      
-      // Clear tokens and user data
-      this.tokenService.clearTokens();
-      
-      // Update authentication state
-      this.authStateSubject.next(false);
-      
-      // Clear user data from store
-      this.store.update('user', {
-        isAuthenticated: false,
-        data: null
-      });
-      
-      this.toastrService.message('All devices were successfully exited ','Success',{
-        toastrMessageType: ToastrMessageType.Success,
+
+  // Tüm Cihazlardan Çıkış Yap
+  async logoutFromAllDevices(callBackFunction?: () => void): Promise<boolean> {
+    try {
+      this.toastrService.message('Logging out from all devices...', 'Processing', {
+        toastrMessageType: ToastrMessageType.Info,
         position: ToastrPosition.TopRight,
       });
-      
-      // Call callback function if provided
-      if (callBackFunction) callBackFunction();
-      
-      // Navigate to login page
-      await this.router.navigate(['/login']);
-      
-      return true;
+
+      // TokenService üzerinden tüm tokenları iptal etme isteği
+      const success = await this.tokenService.revokeAllTokens(); // Backend'e istek atar
+
+      if (success) {
+        // Token'ları ve kullanıcı verilerini temizle (local)
+        this.tokenService.clearTokens();
+
+        // Kimlik durumunu güncelle
+        this.authStateSubject.next(false);
+
+        // Store'daki kullanıcı bilgilerini temizle
+        this.store.update('user', {
+          isAuthenticated: false,
+          data: null
+        });
+
+        this.toastrService.message('Successfully logged out from all devices', 'Success',{
+          toastrMessageType: ToastrMessageType.Success,
+          position: ToastrPosition.TopRight,
+        });
+
+        // Callback fonksiyonu varsa çağır
+        if (callBackFunction) callBackFunction();
+
+        // Giriş sayfasına yönlendir
+        await this.router.navigate(['/login']);
+
+        return true;
+      }
+
+      console.error("AuthService: Logout from all devices failed (backend response)");
+      this.toastrService.message('Could not log out from all devices', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight,
+      });
+      return false;
+    } catch (error) {
+      console.error('AuthService: Error during logout from all devices:', error);
+      this.toastrService.message('An error occurred while logging out from all devices', 'Error', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight,
+      });
+      return false;
     }
-    
-    console.error("AuthService: Exit from all devices failed");
-    
-    this.toastrService.message('An error occurred when exiting all devices', 'error', {
-      toastrMessageType: ToastrMessageType.Error,
-      position: ToastrPosition.TopRight,
-    });
-    
-    return false;
-  } catch (error) {
-    console.error('AuthService: Output error from all devices:', error);
-    
-    this.toastrService.message('All devices could not be exit ',' error ', {
-      toastrMessageType: ToastrMessageType.Error,
-      position: ToastrPosition.TopRight,
-    });
-    
-    return false;
   }
-}
 
   // Kullanıcı isim-soyisim bilgisini al
   getUserNameSurname(): string | null {
@@ -253,13 +261,14 @@ async logoutFromAllDevices(callBackFunction?: () => void): Promise<boolean> {
     try {
       const observable = this.httpClientService.post<VerifyResetTokenResponse>(
         {
-          controller: 'token', // Changed to tokens controller
+          controller: 'token', // Token controller doğru
           action: 'verify-reset-password'
         },
         { userId, resetToken }
       );
 
       const response = await firstValueFrom(observable);
+      // Backend'den dönen yanıta göre kontrol
       return response?.tokenValid === true;
     } catch (error) {
       console.error('Token verification error:', error);
@@ -273,7 +282,7 @@ async logoutFromAllDevices(callBackFunction?: () => void): Promise<boolean> {
       const observable = this.httpClientService.post(
         {
           controller: 'users',
-          action: 'update-forgot-password'
+          action: 'update-forgot-password' // Bu endpoint backend'de tanımlı olmalı
         },
         {
           userId,

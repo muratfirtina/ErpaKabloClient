@@ -30,6 +30,13 @@ export class LoginComponent extends BaseComponent {
   loading: boolean = false;
   rememberMe: boolean = false;
 
+  // Form input değerleri
+  usernameOrEmail: string = '';
+  password: string = '';
+
+  // Math nesnesini template'de kullanabilmek için
+  Math = Math;
+
   // Error handling properties
   errorMessage: string = '';
   showError: boolean = false;
@@ -39,6 +46,7 @@ export class LoginComponent extends BaseComponent {
   isLockedOut: boolean = false;
   lockoutTimeRemaining: number = 0;
   lockoutTimerId: any = null;
+  showPassword: boolean = false;
 
   constructor(
     private userAuthService: UserAuthService,
@@ -130,53 +138,48 @@ export class LoginComponent extends BaseComponent {
     const rememberedUser = localStorage.getItem('rememberedUser');
     if (rememberedUser) {
       const userData = JSON.parse(rememberedUser);
-      setTimeout(() => {
-        const usernameInput = document.getElementById('usernameOrEmail') as HTMLInputElement;
-        if (usernameInput) {
-          usernameInput.value = userData.username;
-        }
-      });
+      this.usernameOrEmail = userData.username;
     }
   }
 
   async login(userNameOrEmail: string, password: string) {
-    // Check if user is locked out
+    // Boş değer kontrolü
+    if (!userNameOrEmail || !password) {
+      this.showError = true;
+      this.errorMessage = 'Username/email and password are required';
+      return;
+    }
+    
+    // Hesap kilitli ise işlemi engelle
     if (this.isLockedOut) {
       return;
     }
-
-    // Check for rapid consecutive attempts
-    const now = Date.now();
-    const timeSinceLastAttempt = now - this.lastAttemptTime;
-    if (timeSinceLastAttempt < 1000 && this.loginAttempts > 0) { // Less than 1 second between attempts
-      this.showError = true;
-      this.errorMessage = 'Please wait a moment before trying again.';
-      return;
-    }
-
-    // Update login attempt tracking
-    this.lastAttemptTime = now;
-    this.loginAttempts++;
-
-    // Store attempt data
-    sessionStorage.setItem('loginAttempts', JSON.stringify({
-      count: this.loginAttempts,
-      lastAttempt: this.lastAttemptTime
-    }));
-
+    
     this.loading = true;
     this.showError = false;
+    
+    // Hızlı ardışık girişimler kontrolü
+    const now = Date.now();
+    const timeSinceLastAttempt = now - this.lastAttemptTime;
+    if (timeSinceLastAttempt < 1000 && this.loginAttempts > 0) { // 1 saniyeden kısa sürede ardışık denemeler
+      this.showError = true;
+      this.errorMessage = 'Please wait a moment before trying again.';
+      this.loading = false; // Spinner'ı hemen durdur
+      return;
+    }
+    
+    // Son deneme zamanını ve sayacını güncelle
+    this.lastAttemptTime = now;
 
     try {
-      // Using the UserAuthService.login method with callback
+      // AuthService login metodunu çağırma
       const result = await this.authService.login(userNameOrEmail, password, () => {
-        // Success callback - will be called by UserAuthService on success
-        // Reset attempt counters on successful login
+        // Başarılı giriş callback'i - deneme sayacını sıfırla
         this.loginAttempts = 0;
         sessionStorage.removeItem('loginAttempts');
         sessionStorage.removeItem('loginLockout');
 
-        // Save user info if "Remember Me" is checked
+        // Beni hatırla seçiliyse kullanıcı bilgilerini kaydet
         if (this.rememberMe) {
           localStorage.setItem('rememberedUser', JSON.stringify({
             username: userNameOrEmail
@@ -185,7 +188,7 @@ export class LoginComponent extends BaseComponent {
           localStorage.removeItem('rememberedUser');
         }
 
-        // Identity check and navigation
+        // Identity check ve yönlendirme
         this.authService.identityCheck();
         sessionStorage.clear();
         this.activatedRoute.queryParams.subscribe(params => {
@@ -200,57 +203,88 @@ export class LoginComponent extends BaseComponent {
             });
           }
         });
-
-        // Close the login popover/modal if needed
-        this.close();
       });
 
-      // If login failed but no exception was thrown
-      if (!result) { // Düzeltme burada
-        this.handleLoginError("Invalid username/email or password");
+      // Giriş başarısız - backend'den dönen hata bilgilerini işle
+      if (result !== true) {
+        // Spinner'ı hemen durduralım
+        this.loading = false;
+        this.showError = true;
+        
+        // Backend'den gelen hata bilgilerini kullan
+        if (typeof result === 'object') {
+          // Hata mesajını göster
+          this.errorMessage = result.message || 'Login failed';
+          
+          // Hesap kilitlenmişse
+          if (result.isLockedOut) {
+            this.isLockedOut = true;
+            
+            // Kilit süresini ayarla
+            if (result.lockoutSeconds) {
+              this.lockoutTimeRemaining = result.lockoutSeconds;
+              
+              // Kilit bilgilerini oturumda sakla
+              sessionStorage.setItem('loginLockout', JSON.stringify({
+                expiresAt: Date.now() + (result.lockoutSeconds * 1000)
+              }));
+              
+              // Geri sayım sayacını başlat
+              this.startLockoutTimer();
+              
+              // Özel kilit mesajı
+              this.errorMessage = `Your account has been locked for ${Math.ceil(this.lockoutTimeRemaining / 60)} minutes. Please try again later or reset your password.`;
+            }
+          } 
+          // Kilit yoksa ama başarısız girişler varsa
+          else if (result.failedAttempts) {
+            this.loginAttempts = result.failedAttempts;
+            
+            // Kalan deneme sayısını göster
+            const maxAttempts = 5;
+            const remainingAttempts = maxAttempts - this.loginAttempts;
+            
+            if (remainingAttempts > 0) {
+              this.errorMessage += ` (${remainingAttempts} attempts remaining)`;
+            }
+            
+            // Deneme bilgilerini oturumda sakla
+            sessionStorage.setItem('loginAttempts', JSON.stringify({
+              count: this.loginAttempts,
+              lastAttempt: Date.now()
+            }));
+          }
+        } else {
+          this.errorMessage = 'Invalid username/email or password';
+        }
       }
     } catch (error) {
-      // Handle any exceptions that were thrown during login
       console.error('Login error:', error);
-
-      let errorMessage = 'An unexpected error occurred. Please try again later.';
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error && typeof error === 'object' && 'message' in error) {
-        errorMessage = error.message as string;
-      }
-
-      this.handleLoginError(errorMessage);
-    } finally {
+      this.showError = true;
+      this.errorMessage = 'An unexpected error occurred during login. Please try again later.';
+      // Hata durumunda yükleniyor durumunu hemen kapat
       this.loading = false;
+    } finally {
+      // Bu noktada spinner zaten kapatılmış olmalı, ancak sigorta olarak ekleyelim
+      if (this.loading) {
+        this.loading = false;
+      }
     }
   }
-
-  private handleLoginError(errorMessage: string) {
-    this.showError = true;
-    this.errorMessage = errorMessage;
-
-    // Apply lockout after 5 consecutive failed attempts
-    if (this.loginAttempts >= 5) {
-      this.applyLockout();
-      this.errorMessage = `Too many failed login attempts. Please try again in ${this.lockoutTimeRemaining} seconds.`;
-    }
-
-    // Display an additional toast notification
-    this.toastrService.message(
-      this.errorMessage,
-      'Login Error',
-      {
-        toastrMessageType: ToastrMessageType.Error,
-        position: ToastrPosition.TopRight
-      }
-    );
+  togglePasswordVisibility(event: Event) {
+    event.preventDefault(); // Form gönderimi olmaması için
+    this.showPassword = !this.showPassword;
   }
 
   navigateToPasswordReset() {
     this.close();
     this.router.navigate(['/password-reset']);
+  }
+  
+  ngOnDestroy() {
+    // Timer'ı temizle
+    if (this.lockoutTimerId) {
+      clearInterval(this.lockoutTimerId);
+    }
   }
 }

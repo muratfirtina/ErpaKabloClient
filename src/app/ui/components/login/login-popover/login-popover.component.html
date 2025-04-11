@@ -9,40 +9,55 @@
       <div class="tab" (click)="navigateToRegister()">Register</div>
     </div>
 
-    <form #loginForm="ngForm" (ngSubmit)="login(txtUsernameOrEmail.value, txtPassword.value)">
-      <!-- Error Message Display -->
-      <div *ngIf="showError" class="alert alert-danger">
+    <form #loginForm="ngForm" (ngSubmit)="login(usernameOrEmail, password)">
+      <!-- Normal Hata Mesajı Gösterimi -->
+      <div *ngIf="showError && !isLockedOut" class="alert alert-danger">
         <p>{{ errorMessage }}</p>
-        <p *ngIf="!isLockedOut && errorMessage.includes('Invalid')">
+        <p *ngIf="errorMessage?.includes('Invalid') || errorMessage?.includes('invalid')">
           <a class="alert-link" (click)="navigateToPasswordReset()">Forgot your password?</a>
         </p>
       </div>
 
-      <!-- Lockout Timer Display -->
-      <div *ngIf="isLockedOut" class="alert alert-warning">
-        <p>Account temporarily locked. Please try again in {{ lockoutTimeRemaining }} seconds.</p>
+      <!-- Geliştirilmiş Hesap Kilitleme UI -->
+      <div *ngIf="isLockedOut" class="alert alert-warning account-lock-alert">
+        <div class="lock-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div class="lock-content">
+          <h5 class="lock-title">Account Temporarily Locked</h5>
+          <p class="lock-message">Your account has been locked due to too many failed login attempts.</p>
+          <p class="lock-timer">Time remaining: <strong>{{ Math.floor(lockoutTimeRemaining / 60) }} minutes {{ lockoutTimeRemaining % 60 }} seconds</strong></p>
+          <div class="lock-actions">
+            <a routerLink="/password-reset" class="reset-link" (click)="close()">Reset Password</a>
+          </div>
+        </div>
       </div>
 
       <div class="form-floating mb-3">
-        <input #txtUsernameOrEmail
-               type="text"
+        <input type="text"
                class="form-control"
                id="usernameOrEmail"
+               name="usernameOrEmail"
+               [(ngModel)]="usernameOrEmail"
                placeholder=" "
                required
                [disabled]="isLockedOut">
         <label for="usernameOrEmail">Username or Email</label>
       </div>
 
-      <div class="form-floating mb-3">
-        <input #txtPassword
-               type="password"
+      <div class="form-floating password-field">
+        <input [type]="showPassword ? 'text' : 'password'"
                class="form-control"
                id="password"
+               name="password"
+               [(ngModel)]="password"
                placeholder=" "
-               required
-               [disabled]="isLockedOut">
+               [disabled]="isLockedOut"
+               required>
         <label for="password">Password</label>
+        <button type="button" class="password-toggle" (click)="togglePasswordVisibility($event)">
+          <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+        </button>
       </div>
 
       <div class="login-actions mb-3">
@@ -57,7 +72,7 @@
         </div>
       </div>
 
-      <button type="submit" class="btn-login" [disabled]="loading || isLockedOut">
+      <button type="submit" class="btn-login" [disabled]="loading || isLockedOut || !loginForm.valid">
         <span [class.invisible]="loading">Sign In</span>
         <app-button-spinner *ngIf="loading"></app-button-spinner>
       </button>

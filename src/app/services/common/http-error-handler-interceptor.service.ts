@@ -1,6 +1,6 @@
-import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpStatusCode } from '@angular/common/http';
+import { HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HttpStatusCode, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, of } from 'rxjs';
+import { Observable, catchError, of, throwError, EMPTY } from 'rxjs'; // throwError ve EMPTY import edildi
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from '../ui/custom-toastr.service';
 import { Router } from '@angular/router';
 import { NgxSpinnerService } from 'ngx-spinner';
@@ -20,110 +20,97 @@ export class HttpErrorHandlerInterceptorService implements HttpInterceptor {
   ) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    return next.handle(req).pipe(catchError(error => {
+    return next.handle(req).pipe(catchError((error: HttpErrorResponse) => {
+      this.spinner.hide(SpinnerType.BallSpinClockwise);
+
+      // --- Login Endpoint Özel Kontrolü ---
+      if (error.status === HttpStatusCode.Unauthorized && req.url.includes('/api/auth/login')) {
+        // Login hatası (401), AuthService'in işlemesi için hatayı olduğu gibi fırlat.
+        return throwError(() => error); // Bu doğruydu
+      }
+      // --- Login Kontrolü Sonu ---
+
       switch (error.status) {
-        case HttpStatusCode.Unauthorized:
-          // Attempt token refresh using TokenService
+        case HttpStatusCode.Unauthorized: // Login dışındaki 401'ler
+          // Token yenileme denemesi asenkron çalışır
           this.tokenService.refreshToken().then(success => {
             if (!success) {
-              const url = this.router.url;
-              if (url == "/products") {
-                this.toastrService.message("Please log in to add products to the cart.", "Login Required", {
-                  toastrMessageType: ToastrMessageType.Warning,
-                  position: ToastrPosition.TopRight
-                });
-              } else {
-                this.toastrService.message("You are not authorized to perform this action.", "Unauthorized Action!", {
-                  toastrMessageType: ToastrMessageType.Warning,
-                  position: ToastrPosition.BottomFullWidth
-                });
-              }
-
-              // Redirect to login page if session has expired
-              this.router.navigate(['/login'], {
-                queryParams: { returnUrl: this.router.url }
-              });
+              this.showUnauthorizedToast();
+              this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
             }
+            // Başarılı olsa da olmasa da, orijinal istek başarısız oldu ve ele alınmaya çalışıldı.
+            // Component'in bu hatayı tekrar ele almasına gerek yok gibi duruyor.
+          }).catch(refreshError => {
+             console.error("Token refresh attempt failed:", refreshError);
+             this.showUnauthorizedToast();
+             this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
           });
-          break;
+
+          // Hata ele alınmaya çalışıldıktan sonra, hata akışını durdurmak yerine
+          // hatayı yine de fırlatmak daha güvenli olabilir. Böylece eğer component
+          // özel bir 401 işlemi yapıyorsa (nadiren gerekir) yapabilir veya global
+          // bir error handler yakalayabilir.
+          // **DÜZELTME:** `of(error)` yerine `throwError(() => error)` kullanıyoruz.
+          return throwError(() => error);
+          // Alternatif: Eğer hatayı tamamen yutup component'e hiç bildirmek istemiyorsanız:
+          // return EMPTY; // Akışı sonlandırır.
+
         case HttpStatusCode.InternalServerError:
-          this.toastrService.message("The server is unreachable.", "Server Error", {
+          this.toastrService.message("Sunucuya ulaşılamıyor.", "Sunucu Hatası!", {
             toastrMessageType: ToastrMessageType.Error,
             position: ToastrPosition.BottomFullWidth
           });
-          break;
+          // Hata fırlatılmalı ki component haberdar olsun (veya global handler)
+          return throwError(() => error); // return ekledik
+
         case HttpStatusCode.BadRequest:
-          this.toastrService.message("Invalid request.", "Invalid Operation!", {
-            toastrMessageType: ToastrMessageType.Warning,
-            position: ToastrPosition.BottomFullWidth
-          });
-          break;
+          if (!req.url.includes('/api/auth/login')) {
+             this.toastrService.message("Geçersiz istek.", "Hatalı İşlem!", {
+               toastrMessageType: ToastrMessageType.Warning,
+               position: ToastrPosition.BottomFullWidth
+             });
+          }
+          // Hata fırlatılmalı
+          return throwError(() => error); // return ekledik
+
         case HttpStatusCode.NotFound:
-          this.toastrService.message("Page not found.", "Page Not Found!", {
+          this.toastrService.message("Sayfa bulunamadı.", "Sayfa Bulunamadı!", {
             toastrMessageType: ToastrMessageType.Warning,
             position: ToastrPosition.TopCenter
           });
-          break;
+           // Hata fırlatılmalı
+          return throwError(() => error); // return ekledik
+
         default:
-          /* this.toastrService.message("An unexpected error occurred.", "Error!", {
-            toastrMessageType: ToastrMessageType.Warning,
-            position: ToastrPosition.BottomFullWidth
-          }); */
-          break;
+           if (!req.url.includes('/api/auth/login')) {
+             console.error("Unhandled HTTP Error:", error);
+             /* this.toastrService.message("Beklenmeyen bir hata oluştu.", "Hata!", {
+                toastrMessageType: ToastrMessageType.Warning,
+                position: ToastrPosition.BottomFullWidth
+             }); */
+           }
+           // Bilinmeyen hatalar da fırlatılmalı
+           return throwError(() => error); // return ekledik
       }
-      this.spinner.hide(SpinnerType.BallSpinClockwise);
-      return of(error);
+
+      // Switch içindeki her case'den bir Observable dönülmeli (throwError veya EMPTY gibi)
+      // Bu satıra normalde ulaşılmamalı ama yine de bir fallback ekleyelim.
+      // return throwError(() => error); // Zaten default case'de var.
     }));
   }
 
-    // Error handling helper method (İngilizce'ye çevrilmiş hali)
-    handleError(error: any, customMessage?: string): void {
-        let errorMessage = customMessage || 'An error occurred';
-
-        console.error('Error details:', error);
-
-        // Handle HTTP error responses
-        if (error.error) {
-            // Error message from backend
-            if (typeof error.error === 'string') {
-                errorMessage = error.error;
-            }
-            // More complex error object
-            else if (error.error.message) {
-                errorMessage = error.error.message;
-            }
-            // Validation errors
-            else if (error.error.errors) {
-                const validationErrors = Object.values(error.error.errors).join(', ');
-                errorMessage = `Validation error: ${validationErrors}`;
-            }
-        }
-
-        // User-friendly messages based on HTTP status codes
-        if (error.status === 400) {
-            errorMessage = customMessage || 'Invalid request. Please check your information.';
-        } else if (error.status === 401) {
-            errorMessage = 'Authentication required. Please log in.';
-            // Redirect to login page if session may have expired
-            this.router.navigate(['/login'], {
-                queryParams: { returnUrl: this.router.url }
-            });
-        } else if (error.status === 403) {
-            errorMessage = 'You do not have permission to perform this action.';
-        } else if (error.status === 404) {
-            errorMessage = 'The requested resource was not found.';
-        } else if (error.status === 500) {
-            errorMessage = 'Server error. Please try again later.';
-        }
-
-        // Show toast notification
-        this.toastrService.message(
-            errorMessage,
-            'Error',
-            {
-                toastrMessageType: ToastrMessageType.Error,
-                position: ToastrPosition.TopRight
-            }
-        );
+  private showUnauthorizedToast() {
+    const url = this.router.url;
+    if (url == "/products") {
+      this.toastrService.message("Sepete ürün eklemek için lütfen giriş yapınız.", "Giriş Gerekli", {
+        toastrMessageType: ToastrMessageType.Warning,
+        position: ToastrPosition.TopRight
+      });
+    } else {
+      this.toastrService.message("Bu işlemi yapmak için yetkiniz bulunmamaktadır.", "Yetkisiz İşlem!", {
+        toastrMessageType: ToastrMessageType.Warning,
+        position: ToastrPosition.BottomFullWidth
+      });
     }
+  }
 }

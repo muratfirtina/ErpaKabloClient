@@ -4,73 +4,81 @@
     <span class="logo-subtext" translate="yes">For All Industrial Products</span>
   </div>
   <div class="loginform">
-    <form #loginForm="ngForm" (ngSubmit)="login(txtUsernameOrEmail.value, txtPassword.value)">
+    <form #loginForm="ngForm" (ngSubmit)="login(usernameOrEmail, password)">
       <div class="title_container">
         <p class="title">Welcome Back</p>
         <p class="subtitle">Don't have an account? <a routerLink="/register">Sign up</a></p>
       </div>
 
-      <!-- Error Message Display -->
-      <div *ngIf="showError" class="alert alert-danger">
+      <!-- Normal Hata Mesajı Gösterimi -->
+      <div *ngIf="showError && !isLockedOut" class="alert alert-danger">
         <p>{{ errorMessage }}</p>
-        <p *ngIf="!isLockedOut && errorMessage.includes('Invalid')">
+        <p *ngIf="errorMessage?.includes('Invalid') || errorMessage?.includes('invalid')">
           <a class="alert-link" routerLink="/password-reset">Forgot your password?</a>
         </p>
       </div>
 
-      <!-- Lockout Timer Display -->
-      <div *ngIf="isLockedOut" class="alert alert-warning">
-        <p>Account temporarily locked. Please try again in {{ lockoutTimeRemaining }} seconds.</p>
+      <!-- Geliştirilmiş Hesap Kilitleme UI -->
+      <div *ngIf="isLockedOut" class="alert alert-warning account-lock-alert">
+        <div class="lock-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <div class="lock-content">
+          <h5 class="lock-title">Account Temporarily Locked</h5>
+          <p class="lock-message">Your account has been locked due to too many failed login attempts.</p>
+          <p class="lock-timer">Time remaining: <strong>{{ Math.floor(lockoutTimeRemaining / 60) }} minutes {{ lockoutTimeRemaining % 60 }} seconds</strong></p>
+          <div class="lock-actions">
+            <a routerLink="/password-reset" class="reset-link">Reset Password</a>
+          </div>
+        </div>
       </div>
 
+      <!-- Form Alanları - NgModel ile iki yönlü binding kullanarak -->
       <div class="form-floating">
-        <input #txtUsernameOrEmail type="text"
+        <input type="text"
                class="form-control"
                id="usernameOrEmail"
+               name="usernameOrEmail"
+               [(ngModel)]="usernameOrEmail"
                placeholder=" "
                [disabled]="isLockedOut"
                required>
         <label for="usernameOrEmail">Username or Email</label>
       </div>
 
-      <div class="form-floating">
-        <input #txtPassword type="password"
+      <div class="form-floating mb-3 password-field">
+        <input [type]="showPassword ? 'text' : 'password'"
                class="form-control"
                id="password"
+               name="password"
+               [(ngModel)]="password"
                placeholder=" "
-               [disabled]="isLockedOut"
-               required>
+               required
+               [disabled]="isLockedOut">
         <label for="password">Password</label>
+        <button type="button" class="password-toggle" (click)="togglePasswordVisibility($event)">
+          <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+        </button>
       </div>
 
-    <div class="remember">
-      <div class="remember-me">
-        <label class="checkbox-container">
-          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" [disabled]="isLockedOut">
-          <span class="checkmark"></span>
-          Remember me
-        </label>
+      <div class="remember">
+        <div class="remember-me">
+          <label class="checkbox-container">
+            <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe" [disabled]="isLockedOut">
+            <span class="checkmark"></span>
+            Remember me
+          </label>
+        </div>
+
+        <div class="forgot-password">
+          <a routerLink="/password-reset">Forgot Password?</a>
+        </div>
       </div>
 
-      <div class="forgot-password">
-        <a routerLink="/password-reset">Forgot Password?</a>
-      </div>
-    </div>
-
-      <button type="submit" class="btn-login" [disabled]="loading || isLockedOut">
+      <button type="submit" class="btn-login" [disabled]="loading || isLockedOut || !loginForm.valid">
         <span [class.invisible]="loading">Sign In</span>
         <app-button-spinner *ngIf="loading"></app-button-spinner>
       </button>
-
-      <!-- <div class="separator">
-        <hr class="line">
-        <span>or</span>
-        <hr class="line">
-      </div>
-
-      <button type="button" class="btn-social apple">
-        <i class="fab fa-apple"></i> Continue with Apple
-      </button> -->
 
       <p class="terms">By signing in, you agree to our <a href="#">Terms of Use</a> and <a href="#">Privacy Policy</a></p>
     </form>
