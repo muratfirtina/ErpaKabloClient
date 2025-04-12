@@ -63,20 +63,21 @@ export class ProductCardComponent implements OnDestroy {
     }
   }
 
-  onCardClick() {
-    this.router.navigate(['/' + this.product.id])
-      .then(() => {
-        window.scrollTo(0, 0); // Sayfa başına scroll
-      });
-  }
-
   onLikeClick(event: Event) {
-    event.stopPropagation();
+    event.stopPropagation(); // Tıklamanın karta yayılmasını engeller
+    event.preventDefault(); // Bağlantı davranışını engeller
     this.productOperations.toggleLike(this.product);
   }
+  preventNavigation(event: Event) {
+    // MouseDown olayını da engelle (orta tuş tıklamaları için)
+    event.stopPropagation();
+    event.preventDefault();
+  }
+  
 
   addToCart(event: Event) {
     event.stopPropagation();
+    event.preventDefault(); 
     this.productOperations.addToCart(this.product);
   }
 
@@ -186,6 +187,7 @@ export class ProductCardComponent implements OnDestroy {
   
   toggleFeaturePopup(event: Event): void {
     event.stopPropagation();
+    event.preventDefault();
     this.showFeaturePopup = !this.showFeaturePopup;
   }
   
@@ -222,5 +224,10 @@ export class ProductCardComponent implements OnDestroy {
         this.showFeaturePopup = false;
       }
     }
+  }
+
+  scrollToTop(event: Event) {
+    // Sadece scroll işlemini yap, yönlendirmeyi routerLink hallediyor
+    window.scrollTo(0, 0);
   }
 }

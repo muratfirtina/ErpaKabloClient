@@ -1,4 +1,4 @@
-<div class="product-card" [class.grid-view]="gridView" (click)="onCardClick()">
+<a [routerLink]="['/' + product.id]" class="product-card" [class.grid-view]="gridView" (click)="scrollToTop($event)">
   <div class="product-image">
     <img [src]="product.showcaseImage?.url || defaultProductImageUrl" [alt]="product.name">
     <button class="heart-icon" [class.liked]="product.isLiked" (click)="onLikeClick($event)">
@@ -54,4 +54,4 @@
     </svg>
     {{product.stock === -1 ? 'Add to Cart For Offer' : (product.stock > 0 ? 'Add to Cart For Offer' : 'Out of Stock')}}
   </button>
-</div>
+</a>

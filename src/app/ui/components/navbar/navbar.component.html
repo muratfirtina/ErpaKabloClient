@@ -12,7 +12,7 @@
 
           <!-- Brands Button (Mobile) -->
           <div class="brands d-lg-none mobile-brands">
-            <button class="btn" routerLink="/brand">Brands</button>
+            <button class="btn"><a class="brand-link" [routerLink]="['/brand']">Brands</a></button>
           </div>
 
           <!-- Search Bar -->
@@ -98,15 +98,15 @@
           <div class="nav-right">
             <!-- Brands (Desktop) -->
             <div class="brands d-none d-lg-block">
-              <button class="btn" routerLink="/brand">Brands</button>
+              <button class="btn"><a routerLink="/brand">Brands</a></button>
             </div>
             <span class="d-none d-lg-block" style="color:#e0e0e0;">|</span>
             <!-- About Us -->
             <div class="about-us d-none d-lg-block">
-              <button routerLink="/about-us" class="btn">About Us</button>
+              <button class="btn"><a routerLink="/about-us" >About Us</a></button>
             </div>
             <div class="about-us d-none d-lg-block">
-              <button routerLink="/contact" class="btn">Contact</button>
+              <button class="btn"><a routerLink="/contact" >Contact</a></button>
             </div>
           </div>
 
@@ -122,11 +122,10 @@
           <app-spinner [spinnerType]="'s2'" *ngIf="categoryLoading"></app-spinner>
           <div [class.invisible]="categoryLoading">
             <ul>
-              <li *ngFor="let category of topLevelCategories"
-                (mouseenter)="!showOnlyMainCategories && selectCategory(category)"
-                (click)="navigateToCategory(category.id)" 
-                [class.active]="category === selectedCategory">
-                {{ category.name }}
+              <li *ngFor="let category of topLevelCategories" 
+                  (mouseenter)="!showOnlyMainCategories && selectCategory(category)"
+                  [class.active]="category === selectedCategory">
+                <a [routerLink]="['/', category.id]">{{ category.name }}</a>
               </li>
             </ul>
           </div>
@@ -136,59 +135,61 @@
         <div class="subcategories" *ngIf="!showOnlyMainCategories">
           <app-spinner [spinnerType]="'s2'" *ngIf="subcategoryLoading"></app-spinner>
           <div [class.invisible]="subcategoryLoading">
-          <div class="subcategory-header" *ngIf="selectedCategory">
-            <h3>{{ selectedCategory.name }}</h3>
-            <a href="#" class="view-all">Show All →</a>
-          </div>
-          <ul class="subcategory-list" *ngIf="selectedCategory">
-            <li *ngFor="let subCategory of selectedCategory.subcategories" (click)="navigateToCategory(subCategory.id)">
-              {{ subCategory.name }}
-              <ul class="nested-subcategories"
-                *ngIf="subCategory.subcategories && subCategory.subcategories.length > 0">
-                <li *ngFor="let nestedSubCategory of subCategory.subcategories"
-                  (click)="navigateToCategory(nestedSubCategory.id); $event.stopPropagation()">
-                  {{ nestedSubCategory.name }}
-                </li>
-              </ul>
-            </li>
-          </ul>
+            <div class="subcategory-header" *ngIf="selectedCategory">
+              <h3>{{ selectedCategory.name }}</h3>
+              <a class="view-all" [routerLink]="['/',selectedCategory.id]" >Show All →</a>
+            </div>
+            <ul class="subcategory-list" *ngIf="selectedCategory">
+              <li *ngFor="let subCategory of selectedCategory.subcategories" 
+                  (mouseenter)="loadRecommendedForSubcategory(subCategory)">
+                <a class="subcategory-link" [routerLink]="['/', subCategory.id]">{{ subCategory.name }}</a>
+                <ul class="nested-subcategories"
+                  *ngIf="subCategory.subcategories && subCategory.subcategories.length > 0">
+                  <li *ngFor="let nestedSubCategory of subCategory.subcategories" 
+                      (mouseenter)="loadRecommendedForSubcategory(nestedSubCategory); $event.stopPropagation()">
+                    <a [routerLink]="['/', nestedSubCategory.id]" (click)="$event.stopPropagation()">
+                      {{ nestedSubCategory.name }}
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
           </div>
         </div>
 
         <!-- Recommended Products -->
         <div class="recommended-products"
-          *ngIf="!showOnlyMainCategories && selectedCategory && recommendedProducts?.items?.length > 0">
+          *ngIf="!showOnlyMainCategories && currentRecommendedCategory && recommendedProducts?.items?.length > 0">
           <app-spinner [spinnerType]="'s2'" *ngIf="recommendedLoading"></app-spinner>
           <div [class.invisible]="recommendedLoading">
-          <div class="recommended-header">
-            <h3>Recommended {{ selectedCategory.name }}</h3>
-            <a href="#" class="view-all">Show All →</a>
-          </div>
-          <div class="product-grid">
-            <div class="product-item" *ngFor="let product of recommendedProducts.items"
-              (click)="navigateToSearchResult(product.id)">
-              <img [src]="product?.showcaseImage?.url" [alt]="product.name">
-              <div class="product-info">
-                <div class="product-header">
-                  <p class="brand-name">{{product.brandName}}</p>
-                  <p class="product-name">{{product.name }}</p>
-                </div>
-                <p>{{ product.title }}</p>
-                <p>SKU:{{ product.sku }}</p>
+            <div class="recommended-header">
+              <h3>Recommended {{ currentRecommendedCategory.name }}</h3>
+              <a [routerLink]="['/',currentRecommendedCategory.id]" class="view-all">Show All →</a>
+            </div>
+            <div class="product-grid">
+              <a [routerLink]="['/', product.id]" class="product-item" 
+                *ngFor="let product of recommendedProducts.items">
+                <img [src]="product?.showcaseImage?.url" [alt]="product.name">
+                <div class="product-info">
+                  <div class="product-header">
+                    <p class="brand-name">{{product.brandName}}</p>
+                    <p class="product-name">{{product.name }}</p>
+                  </div>
+                  <p>{{ product.title }}</p>
+                  <p>SKU:{{ product.sku }}</p>
                   <div class="product-features mt-2">
                     <div *ngFor="let feature of product.productFeatureValues" class="feature-item">
                       <span class="feature-name">{{feature.featureName}}:</span>
                       <span class="feature-value">{{feature.featureValueName}}</span>
                     </div>
                   </div>
-                <!-- <p class="stock-status" [class.in-stock]="product.stock > 0">
-                  {{ product.stock > 0 ? 'In stock' : 'Out of stock' }}
-                </p> -->
-                <!-- <p class="price">${{ product.price }} <span> / each</span></p> -->
-                
-              </div>
+                  <!-- <p class="stock-status" [class.in-stock]="product.stock > 0">
+                    {{ product.stock > 0 ? 'In stock' : 'Out of stock' }}
+                  </p> -->
+                  <!-- <p class="price">${{ product.price }} <span> / each</span></p> -->
+                </div>
+              </a>
             </div>
-          </div>
           </div>
         </div>
       </div>

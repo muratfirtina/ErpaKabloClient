@@ -38,6 +38,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   categories: CategoryWithSubcategories[] = [];
   topLevelCategories: CategoryWithSubcategories[] = [];
   selectedCategory: CategoryWithSubcategories | null = null;
+  currentRecommendedCategory: CategoryWithSubcategories | null = null;
   recommendedProducts: GetListResponse<Product>
   isAllProductsOpen: boolean = false;
   searchLoading: boolean = false;
@@ -392,7 +393,8 @@ export class NavbarComponent extends BaseComponent implements OnInit {
 
   async selectCategory(category: CategoryWithSubcategories) {
     this.subcategoryLoading = true;
-    this.selectedCategory = category;
+    this.selectedCategory = category; // Ana kategorimizi ayarlıyoruz
+    this.currentRecommendedCategory = category; // Önerilen ürünler için kategoriyi ayarlıyoruz
     this.showSpinner(SpinnerType.SquareLoader);
     
     try {
@@ -407,6 +409,14 @@ export class NavbarComponent extends BaseComponent implements OnInit {
       this.subcategoryLoading = false;
       this.hideSpinner(SpinnerType.SquareLoader);
     }
+  }
+  loadRecommendedForSubcategory(category: CategoryWithSubcategories) {
+    // Sadece önerilen ürünleri değiştir, seçili ana kategoriyi değiştirme
+    this.currentRecommendedCategory = category;
+    this.recommendedLoading = true;
+    
+    // Önerilen ürünleri yükle
+    this.categorySubject.next(category.id);
   }
   
   async loadSubcategories(category: CategoryWithSubcategories) {
@@ -441,9 +451,15 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     this.recommendedLoading = true;
     this.showSpinner(SpinnerType.SquareLoader);
     try {
-      const response = await this.productService.getRandomProductsByCategory(categoryId);
-      this.categoryCache.set(categoryId, response);
-      this.recommendedProducts = response;
+      // Bu kategori için önbelleğe alınmış sonuçlarımız var mı kontrol edelim
+      if (this.categoryCache.has(categoryId)) {
+        this.recommendedProducts = this.categoryCache.get(categoryId);
+      } else {
+        // Önbellekte yoksa API'den yükleyelim
+        const response = await this.productService.getRandomProductsByCategory(categoryId);
+        this.categoryCache.set(categoryId, response);
+        this.recommendedProducts = response;
+      }
     } catch (error) {
       console.error(`Error loading recommended products for category ${categoryId}:`, error);
       this.recommendedProducts = { items: [], index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false };

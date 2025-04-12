@@ -3,7 +3,9 @@
     <div class="header-content">
       <!-- Logo Section with z-index to ensure it's fully visible -->
       <div class="logo" (click)="createRipple($event)">
-        <img [src]="logoUrl" alt="Company Logo" class="logo-image" routerLink="/home">
+        <a [routerLink]="['/home']" class="logo-link" [attr.aria-label]="'Go to home page'">
+          <img [src]="logoUrl" alt="Company Logo" class="logo-image">
+        </a>
         <div class="logo-text">
           <span class="logo-subtext">{{companySlogan}}</span>
         </div>

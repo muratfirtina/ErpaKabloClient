@@ -186,7 +186,7 @@ export class CategoryUpdateComponent extends BaseComponent implements OnInit {
             toastrMessageType: ToastrMessageType.Success,
             position: ToastrPosition.TopRight
           });
-          this.router.navigate(['/admin/categories']);
+          this.router.navigate(['/admin/categories/list']);
         },
         (error) => {
           this.hideSpinner(SpinnerType.BallSpinClockwise);
