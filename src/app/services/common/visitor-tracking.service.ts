@@ -3,9 +3,9 @@ import { NavigationEnd, Router } from '@angular/router';
 import { HubConnection, HubConnectionBuilder, HubConnectionState, LogLevel } from '@microsoft/signalr';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
 import { HubPaths } from 'src/app/constants/hub-paths';
 import { AuthService } from './auth.service';
+import { environment } from 'src/environments/environment.prod';
 
 export interface VisitorSessionData {
     id: string;
