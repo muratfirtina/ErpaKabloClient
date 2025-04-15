@@ -6,12 +6,14 @@ import { authGuard } from './guards/auth.guard';
 import { Roles } from './constants/roles';
 import { routeTypeResolver } from './services/common/route-resolver.service';
 import { offlineGuard } from './guards/offline.guard';
+import { VisitorTrackingComponent } from './admin/components/visitor-tracking/visitor-tracking.component';
 
 export const routes: Routes = [
     {
         path: "admin", component:LayoutComponent,canActivate: [authGuard],data: { [Roles.ADMIN]: true } ,children:[
-          { path: "", component: DashboardComponent, canActivate: [authGuard], data: { [Roles.ADMIN]: true } },
-          { path: "dashboard", component: DashboardComponent, canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
+          { path: "", component: DashboardComponent, canActivate: [authGuard], data: { [Roles.ADMIN]: true }},
+          { path: "dashboard", component: DashboardComponent, canActivate: [authGuard],data: { [Roles.ADMIN]: true }},
+          { path: 'visitor-tracking', component: VisitorTrackingComponent,canActivate: [authGuard],data: { [Roles.ADMIN]: true }},
           { path: "carousel", loadComponent: () => import('./admin/components/carousel/carousel.component').then(m => m.CarouselComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "carousel/carousel-create", loadComponent: () => import('./admin/components/carousel/carousel-create/carousel-create.component').then(m => m.CarouselCreateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "carousel/carousel-update", loadComponent: () => import('./admin/components/carousel/carousel-update/carousel-update.component').then(m => m.CarouselUpdateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },

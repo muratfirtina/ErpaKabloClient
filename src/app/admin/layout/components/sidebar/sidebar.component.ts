@@ -69,9 +69,9 @@ export class SidebarComponent implements OnInit {
       path: 'dashboard'
     },
     {
-      title: 'Monitoring',
-      icon: 'dashboard',
-      path: 'monitoring'
+      title: 'Ziyaretçi Takibi',
+      icon: 'people',
+      path: 'visitor-tracking'
     },
     {
       title: 'Brand',
@@ -124,6 +124,11 @@ export class SidebarComponent implements OnInit {
       children: [
         { title: 'List', icon: 'list', path: 'users/user-list' },
       ]
+    },
+    {
+      title: 'Monitoring',
+      icon: 'dashboard',
+      path: 'monitoring'
     },
     {
       title: 'Carousel',

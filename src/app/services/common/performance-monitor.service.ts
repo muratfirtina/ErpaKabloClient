@@ -84,6 +84,25 @@ export class PerformanceMonitorService {
   }
 
   /**
+   * Starts a performance measurement for an endpoint
+   * @param url The URL being measured
+   * @returns A timestamp for the start time
+   */
+  startMeasurement(url: string): number {
+    return performance.now();
+  }
+
+  /**
+   * Ends a performance measurement and records the result
+   * @param url The URL that was measured
+   * @param startTime The timestamp from startMeasurement
+   */
+  endMeasurement(url: string, startTime: number): void {
+    const duration = Math.round(performance.now() - startTime);
+    this.recordEndpointPerformance(url, duration, true);
+  }
+
+  /**
    * Records performance data for an endpoint
    */
   recordEndpointPerformance(endpoint: string, duration: number, success: boolean): void {
@@ -509,52 +528,5 @@ export class PerformanceMonitorService {
     });
     
     this.metricsSubject.next(metricsList);
-  }
-}
-
-/**
- * Performance monitoring HTTP interceptor
- */
-@Injectable()
-export class PerformanceInterceptor implements HttpInterceptor {
-  constructor(private performanceMonitor: PerformanceMonitorService) {}
-
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Skip monitoring for certain URLs
-    const config = this.performanceMonitor.getConfig().monitoring.performance;
-    if (config.endpointExclusions.some(pattern => req.url.includes(pattern))) {
-      return next.handle(req);
-    }
-    
-    const startTime = performance.now();
-    
-    return next.handle(req).pipe(
-      tap((event) => {
-        if (event instanceof HttpResponse) {
-          const endTime = performance.now();
-          const duration = Math.round(endTime - startTime);
-          
-          // Record successful endpoint performance
-          this.performanceMonitor.recordEndpointPerformance(
-            req.url,
-            duration,
-            true
-          );
-        }
-      }),
-      catchError(error => {
-        const endTime = performance.now();
-        const duration = Math.round(endTime - startTime);
-        
-        // Record failed endpoint performance
-        this.performanceMonitor.recordEndpointPerformance(
-          req.url,
-          duration,
-          false
-        );
-        
-        throw error;
-      })
-    );
   }
 }

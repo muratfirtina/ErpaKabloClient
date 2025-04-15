@@ -1,3 +1,4 @@
+// src/app/app.config.ts
 import { ApplicationConfig, importProvidersFrom, isDevMode } from '@angular/core';
 import { RouterModule, provideRouter } from '@angular/router';
 import { routes } from './app.routes';
@@ -23,12 +24,13 @@ import { JwtModule } from '@auth0/angular-jwt';
 import { HttpErrorHandlerInterceptorService } from './services/common/http-error-handler-interceptor.service';
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
 import { FileSizePipe } from './pipes/file-size.pipe';
-import { authInterceptor } from './interceptors/auth.interceptor';
 import { TokenValidatorInterceptor } from './interceptors/tokenValidator.interceptor';
 import { environment } from 'src/environments/environment.prod';
 import { LocationStrategy, PathLocationStrategy } from '@angular/common';
-import { PerformanceInterceptor } from './services/common/performance-monitor.service';
 import { provideServiceWorker } from '@angular/service-worker';
+import { authInterceptorFn } from './interceptors/auth.interceptor';
+import { SecurityInterceptor } from './interceptors/security.interceptor';
+import { PerformanceInterceptor } from './interceptors/performance.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -63,7 +65,18 @@ export const appConfig: ApplicationConfig = {
     SafeUrlPipe,
     SafeHtmlPipe,
     FileSizePipe,
-    // Her interceptor için ayrı bir provider tanımı
+    
+    // Interceptor sıralaması önemli
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: PerformanceInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: SecurityInterceptor,
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS, 
       useClass: HttpErrorHandlerInterceptorService,
@@ -74,14 +87,12 @@ export const appConfig: ApplicationConfig = {
       useClass: TokenValidatorInterceptor,
       multi: true
     },
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: PerformanceInterceptor,
-      multi: true
-    },
+    
+    // Fonksiyonel auth interceptor
     provideHttpClient(
-      withInterceptors([authInterceptor])
+      withInterceptors([authInterceptorFn])
     ),
+    
     { 
       provide: "baseUrl", 
       useValue: `${environment.baseUrl}/api`, 
@@ -90,8 +101,8 @@ export const appConfig: ApplicationConfig = {
     { provide: LocationStrategy, useClass: PathLocationStrategy }, 
     provideAnimationsAsync(), 
     provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          })
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ]
 };

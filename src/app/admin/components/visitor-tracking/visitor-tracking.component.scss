@@ -1,0 +1,471 @@
+// src/app/admin/components/visitor-tracking/visitor-tracking.component.scss
+// @use '@angular/material' as mat; // Angular Material tema fonksiyonları KULLANILMIYOR
+
+// Host elementinin (bileşenin kendisi) stil ayarları
+:host {
+    display: block;
+    padding: 1.5rem 2rem;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 64px);
+    box-sizing: border-box;
+  }
+  
+  // Ana konteyner için stil ayarları
+  .visitor-tracking-container {
+    font-family: 'Source Sans 3', sans-serif;
+    color: #343a40;
+  }
+  
+  // Başlık Bölümü (Başlık + Bağlantı Durumu)
+  .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+  
+      h1 {
+          font-size: clamp(1.5rem, 4vw, 1.8rem);
+          font-weight: 600;
+          color: #1e3a8a; // Örnek Mavi Renk
+          margin: 0;
+      }
+  }
+  
+  // Bağlantı Durumu Göstergesi Stil Ayarları
+  .connection-status {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.4rem 0.8rem;
+      border-radius: 16px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      gap: 0.4rem;
+      border: 1px solid transparent;
+  
+      mat-icon {
+          font-size: 1.1rem;
+          height: 1.1rem;
+          width: 1.1rem;
+      }
+  
+      // Material paletleri yerine standart renk kodları kullanıldı
+      &.connected { // Bağlı durumu
+          color: #166534; // Koyu Yeşil
+          background-color: #f0fdf4; // Çok Açık Yeşil
+          border-color: #bbf7d0; // Açık Yeşil Kenarlık
+      }
+      &.disconnected { // Bağlı değil durumu
+           color: #991b1b; // Koyu Kırmızı
+           background-color: #fef2f2; // Çok Açık Kırmızı
+           border-color: #fecaca; // Açık Kırmızı Kenarlık
+      }
+  }
+  
+  // Yükleme Göstergesi Konteyneri
+  .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 1rem;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); // Standart gölge
+      margin-bottom: 2rem;
+  
+      p {
+          margin-top: 1rem;
+          color: rgba(0,0,0,.6);
+          font-style: italic;
+      }
+  }
+  
+  // İstatistik Kartları Izgarası
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  // Tek bir İstatistik Kartı
+  .stat-card {
+    text-align: center;
+    background: white;
+    border-radius: 8px;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); // Hafif gölge
+  
+     &:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); // Daha belirgin gölge
+     }
+  
+     mat-card-content {
+         padding: 1.5rem 1rem;
+     }
+  
+     .stat-value {
+      font-size: clamp(1.8rem, 5vw, 2.2rem);
+      font-weight: 700;
+      color: #3b82f6; // Örnek Mavi Renk
+      margin-bottom: 0.3rem;
+      line-height: 1.1;
+      display: block;
+    }
+  
+    .stat-label {
+      font-size: 0.8rem;
+      color: #64748b; // Soluk etiket rengi
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 500;
+    }
+  }
+  
+  // Tablo ve Sayfa İstatistikleri Kartı Stil Ayarları
+  .table-card, .page-stats-card {
+     margin-bottom: 2.5rem;
+     background: white;
+     border-radius: 8px;
+     overflow: hidden;
+     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); // Hafif gölge
+  }
+  
+  // Filtre Giriş Alanı
+  .filter-field {
+    width: 100%;
+    max-width: 450px;
+    margin-bottom: 1.5rem;
+    // Sonek ikon düğmesinin dikey hizalamasını hedefler
+    // Angular 15+ MDC tabanlı bileşenler için:
+    ::ng-deep .mat-mdc-form-field-icon-suffix > .mat-icon-button {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0 !important; // Gerekirse padding'i sıfırla
+      margin-top: -4px; // Dikey hizalamayı ince ayar yapmak için gerekebilir
+    }
+    // Eski (legacy) Material bileşenleri için:
+    ::ng-deep .mat-form-field-suffix .mat-icon-button {
+       display: flex !important;
+       align-items: center !important;
+       justify-content: center !important;
+     }
+  }
+  
+  // Küçük ekranlarda yatay kaydırma için Tablo Sarmalayıcısı
+  .table-wrapper {
+     overflow-x: auto;
+     width: 100%;
+  }
+  
+  // Ziyaretçi Tablosu Stil Ayarları
+  .visitors-table {
+    width: 100%;
+    min-width: 600px;
+  
+    th.mat-header-cell {
+         font-weight: 600;
+         color: rgba(0,0,0,.65);
+         font-size: 0.75rem;
+         text-transform: uppercase;
+         padding: 0.8rem 1rem;
+         white-space: nowrap;
+         border-bottom-width: 2px;
+         border-bottom-color: rgba(0, 0, 0, 0.12);
+     }
+  
+     td.mat-cell {
+         padding: 0.8rem 1rem;
+         font-size: 0.875rem;
+         border-bottom-width: 1px;
+         border-bottom-style: solid;
+         border-bottom-color: rgba(0, 0, 0, 0.06);
+         vertical-align: middle;
+     }
+  
+     .mat-row.mat-no-data-row .mat-cell {
+       text-align: center;
+       padding: 2rem;
+       color: rgba(0,0,0,.54);
+       font-style: italic;
+     }
+  
+     .page-cell {
+          max-width: 280px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          cursor: default;
+     }
+  }
+  
+  // Tablo içindeki Kullanıcı Hücresi
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  
+    .user-status {
+       font-size: 12px;
+       width: 12px;
+       height: 12px;
+       &.online {
+          color: #22c55e; // Standart Yeşil
+       }
+    }
+  
+     .username {
+         font-weight: 500;
+         overflow: hidden;
+         text-overflow: ellipsis;
+         white-space: nowrap;
+         max-width: 150px;
+         vertical-align: middle;
+     }
+  
+    .user-badge {
+       display: flex;
+       align-items: center;
+       mat-icon {
+           font-size: 1rem;
+           width: 1rem;
+           height: 1rem;
+       }
+       &.anonymous {
+          color: #6b7280; // Standart Gri
+       }
+       &:not(.anonymous) {
+          color: #3b82f6; // Standart Mavi
+       }
+    }
+  }
+  
+  // Sayfa İstatistikleri Listesi Stil Ayarları
+  .page-stats-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  // Tek bir Sayfa İstatistiği Öğesi
+  .page-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  
+    .page-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+  
+    .page-path {
+      font-weight: 500;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1 1 auto;
+      min-width: 150px;
+      cursor: default;
+    }
+  
+    .page-visitors {
+      font-size: 0.85rem;
+      color: #6c757d; // Biraz farklı bir gri renk
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  
+     mat-progress-bar {
+         height: 8px;
+         border-radius: 4px;
+         // Standart renkler kullanılıyor, tema yerine CSS değişkeni veya doğrudan stil ile
+         --mdc-linear-progress-active-indicator-color: #3b82f6; // Örnek Mavi
+         --mdc-linear-progress-track-color: #e5e7eb; // Açık Gri
+     }
+  }
+  
+  // Genel Bilgi/Hata Mesajı Stil Ayarları
+   .info-message {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      text-align: center;
+      justify-content: center;
+      padding: 1.5rem 2rem;
+      color: rgba(0,0,0,.6);
+      font-style: italic;
+      background-color: #ffffff;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); // Çok hafif gölge
+  
+      mat-icon {
+          color: rgba(0,0,0,.4);
+      }
+  
+      &.error { // Hata mesajları için özel stil
+          color: #b91c1c; // Koyu Kırmızı Metin
+          background-color: #fee2e2; // Çok Açık Kırmızı Arka Plan
+          border: 1px solid #fecaca; // Açık Kırmızı Kenarlık
+          font-style: normal;
+  
+          mat-icon {
+              color: #dc2626; // Orta Kırmızı İkon
+          }
+      }
+  }
+  
+  
+  // Küçük ekranlar için duyarlı tasarım ayarlamaları
+  @media (max-width: 992px) {
+      :host {
+          padding: 1.5rem;
+      }
+       .visitors-table {
+          // .mat-column-ipAddress { display: none; } // Orta boy ekranlarda IP'yi gizle (isteğe bağlı)
+      }
+  }
+  
+  @media (max-width: 768px) {
+      :host {
+          padding: 1rem;
+      }
+      .stats-container {
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 1rem;
+      }
+       .visitors-table {
+          min-width: auto;
+          .mat-column-ipAddress { display: none; } // IP adresini gizle
+          // .mat-column-connectedAt { display: none; } // Bağlantı zamanını gizle (isteğe bağlı)
+      }
+      .filter-field {
+           max-width: none;
+      }
+      .header-section h1 {
+          font-size: 1.4rem;
+      }
+       .page-info {
+           flex-direction: column;
+           align-items: flex-start;
+           gap: 0.2rem;
+       }
+        .page-path {
+            white-space: normal;
+        }
+  }
+  
+  @media (max-width: 480px) {
+      .stats-container {
+           grid-template-columns: 1fr 1fr;
+       }
+       .visitors-table {
+          .mat-column-lastActivityAt { display: none; } // Son aktiviteyi gizle
+          .mat-column-connectedAt { display: none; } // Bağlantı zamanını gizle
+          th.mat-header-cell, td.mat-cell {
+               padding: 0.6rem 0.5rem;
+           }
+            font-size: 0.8rem;
+           .user-cell {
+               gap: 0.4rem;
+               .username {
+                  max-width: 100px;
+               }
+           }
+      }
+       .header-section h1 {
+          font-size: 1.25rem;
+      }
+       .connection-status {
+           padding: 0.3rem 0.6rem;
+           font-size: 0.75rem;
+           gap: 0.3rem;
+            mat-icon { font-size: 1rem; height: 1rem; width: 1rem; }
+       }
+        .page-stat-item {
+           gap: 0.3rem;
+       }
+  }
+  /* Debug bilgisi için stil */
+.debug-info {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #666;
+    background-color: #f5f5f5;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: none; /* Varsayılan olarak gizli, geliştirme sırasında açılabilir */
+  }
+  
+  /* Yeniden bağlanma butonu */
+  button[mat-raised-button] {
+    margin-left: 10px;
+  }
+  
+  /* Yükleme spinner'ını daha belirgin hale getir */
+  .loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 1rem 0;
+  }
+  
+  /* Bağlantı durumu göstergesini iyileştir */
+  .connection-status {
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    padding: 4px 8px;
+    border-radius: 16px;
+    margin-left: 10px;
+    
+    &.connected {
+      background-color: rgba(76, 175, 80, 0.2);
+      color: #2e7d32;
+    }
+    
+    &.disconnected {
+      background-color: rgba(244, 67, 54, 0.2);
+      color: #d32f2f;
+    }
+    
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      margin-right: 4px;
+    }
+  }
+  
+  /* Bilgi mesajı stillerini iyileştir */
+  .info-message {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    margin: 1rem 0;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    color: #555;
+    
+    &.error {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+    
+    mat-icon {
+      margin-right: 8px;
+    }
+  }
