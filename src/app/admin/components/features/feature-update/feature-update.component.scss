@@ -1,83 +1,65 @@
+/* feature-update.component.scss */
+
+// Remove Material specific styles if any were here e.g., .mat-tree-node, .mat-chip related styles
+
 .feature-card {
-    max-width: 800px;
-    margin: 20px auto;
-  }
-  
-  .feature-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .form-row {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .full-width {
-    width: 100%;
-  }
-  
-  .category-section {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .button-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  
-  .tree-container {
-    max-height: 300px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-  }
-  
-  .category-tree {
-    width: 100%;
-  }
-  
-  .selected-categories {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .chip-list {
-    height: -webkit-fill-available;
-    max-height: 253px;
-    overflow-y: auto;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-  }
-  
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-  }
-  
-  @media (max-width: 768px) {
-    .form-row {
-      flex-direction: column;
-    }
-  }
-  
-  .mdc-evolution-chip-set {
-    display:flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    gap: 10px;
+  // Bootstrap's card class handles basic styling. Add margin if needed.
+  margin: 20px auto;
+  // max-width: 800px; // Consider using Bootstrap container classes for width management
+}
+
+.category-tree-container,
+.selected-categories-container {
+  min-height: 150px; // Ensure they have some height even when empty
+  max-height: 350px; // Limit height and allow scrolling
+  overflow-y: auto;
+}
+
+// Style the tree nodes for clarity
+.tree-node {
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+
+  .node-toggle-button {
+      line-height: 1; // Align icon better
+      color: var(--bs-secondary-color); // Use a subtle color
+      text-decoration: none; // Remove underline from link button
+       &:focus {
+           box-shadow: none; // Remove focus ring if desired
+       }
   }
 
-  #deleteIcon{
-    color:#ba1a1a;
+  .node-toggle-placeholder{
+      display: inline-block;
+      width: 1.5em; // Match approx width of the button for alignment
+      height: 1em;
   }
+
+  .form-check {
+    // Ensure checkbox doesn't cause wrapping issues
+    margin-bottom: 0; // Remove default margin
+    padding-left: 0.5em; // Add space between toggle and checkbox
+  }
+  .form-check-label {
+    cursor: pointer; // Indicate it's clickable (though input is the target)
+  }
+}
+
+// Ensure badges with close buttons look okay
+.badge .btn-close {
+  vertical-align: middle; // Adjust alignment if needed
+}
+
+// Adjust gap for feature value rows if needed
+// .featurevalue-container .d-flex { ... }
+
+// Remove specific icon color rule
+// #deleteIcon {
+//   color: #ba1a1a; // Use Bootstrap classes like text-danger on the icon/button instead
+// }
+
+// Remove MDC chip override if present
+// .mdc-evolution-chip-set { ... }
+
+
+/* Add other Bootstrap overrides or component-specific styles as needed */

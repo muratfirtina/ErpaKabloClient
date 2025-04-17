@@ -1,86 +1,107 @@
-<mat-card class="feature-card">
-  <mat-card-header>
-    <mat-card-title>Özellik Ekle</mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <form [formGroup]="featureForm" (ngSubmit)="onSubmit($event)" class="feature-form">
-      <div class="form-row">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Özellik Adı</mat-label>
-          <input matInput formControlName="name" placeholder="Özellik Adı">
-          <mat-error *ngIf="featureForm.get('name').hasError('required')">
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Özellik Ekle</h4>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="featureForm" (ngSubmit)="onSubmit($event)">
+        <!-- Özellik Adı -->
+        <div class="mb-3" style="width: fit-content;">
+          <label for="featureName" class="form-label">Özellik Adı</label>
+          <input type="text" class="form-control" id="featureName" formControlName="name" placeholder="Özellik Adı">
+          <div *ngIf="featureForm.get('name').hasError('required') && featureForm.get('name').touched" class="text-danger mt-1">
             Özellik adı zorunludur
-          </mat-error>
-        </mat-form-field>
-      </div>
+          </div>
+        </div>
 
-      <div class="form-row">
-        <h3>Özellik Değerleri Ekle</h3>
-        <div formArrayName="featureValues" class="featurevalue-container" style="width: max-content;">
-          <div *ngFor="let featureValueControl of featureValues.controls; let i=index" class="form-row">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Özellik Değeri</mat-label>
-              <input matInput [formControlName]="i" placeholder="Özellik Değeri">
-              <mat-error *ngIf="featureValueControl.hasError('required')">
-                Özellik değeri zorunludur
-              </mat-error>
-            </mat-form-field>
-            <button mat-icon-button (click)="removeFeatureValueControl(i)"
-              *ngIf="featureValues.length > 1">
-              <mat-icon color="warn" >remove_circle</mat-icon>
+        <!-- Özellik Değerleri -->
+        <div class="mb-4" style="width: fit-content;">
+          <h5>Özellik Değerleri</h5>
+          <div formArrayName="featureValues" class="featureValues-container">
+            <div *ngFor="let control of featureValues.controls; let i=index" class="mb-2 row align-items-center">
+              <div class="col">
+                <input type="text" class="form-control" [formControlName]="i" placeholder="Özellik Değeri">
+                <div *ngIf="control.hasError('required') && control.touched" class="text-danger mt-1">
+                  Özellik değeri zorunludur
+                </div>
+              </div>
+              <div class="col-auto">
+                <button type="button" class="btn btn-danger btn-sm" (click)="removeFeatureValueControl(i)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+            <button type="button" class="btn btn-success mt-2" (click)="addFeatureValueControl()">
+              <i class="bi bi-plus-circle me-1"></i> Özellik Değeri Ekle
             </button>
           </div>
-          <button mat-raised-button color="primary" type="button" (click)="addFeatureValueControl()">Özellik Değeri Ekle</button>
         </div>
-      </div>
 
-      <div class="form-row">
-        <div class="category-section">
-          <h3>Kategorileri Kontrol Et</h3>
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Kategori Ara</mat-label>
-            <input matInput [formControl]="categoryFilterCtrl" placeholder="Kategori Ara">
-          </mat-form-field>
-
-          <div class="tree-container">
-            <mat-tree [dataSource]="dataSource" [treeControl]="treeControl" class="category-tree">
-              <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
-                <button mat-icon-button disabled></button>
-                <mat-checkbox class="checklist-leaf-node" [checked]="checklistSelection.isSelected(node)"
-                  (change)="todoLeafItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
-              </mat-tree-node>
-
-              <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
-                <div class="mat-tree-node">
-                  <button type="button" mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
-                    <mat-icon class="mat-icon-rtl-mirror">
-                      {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
-                    </mat-icon>
-                  </button>
-                  <mat-checkbox [checked]="descendantsAllSelected(node)"
-                    [indeterminate]="descendantsPartiallySelected(node)"
-                    (change)="todoItemSelectionToggle(node)">{{node.name}}</mat-checkbox>
+        <!-- Kategoriler -->
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h5>Kategorileri Kontrol Et</h5>
+            <div class="mb-3">
+              <input type="text" class="form-control" [formControl]="categoryFilterCtrl" placeholder="Kategori Ara">
+            </div>
+            
+            <div class="border p-3 category-tree-container" style="max-height: 300px; overflow-y: auto;">
+              <!-- Recursive Category Tree -->
+              <div class="category-tree">
+                <ng-container *ngTemplateOutlet="categoryTreeTemplate; context: {categories: dataSource.data, level: 0}"></ng-container>
+              </div>
+              
+              <!-- Recursive Template -->
+              <ng-template #categoryTreeTemplate let-categories="categories" let-level="level">
+                <div *ngFor="let category of categories" [style.padding-left.px]="level * 20">
+                  <div class="d-flex align-items-center py-1">
+                    <button *ngIf="category.subCategories && category.subCategories.length > 0" 
+                      class="btn btn-sm btn-link p-0 me-2" 
+                      (click)="toggleCategoryExpansion(category, $event)" 
+                      aria-label="Toggle category expansion">
+                      <i class="bi" [ngClass]="isExpanded(category) ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                    </button>
+                    <div *ngIf="!(category.subCategories && category.subCategories.length > 0)" style="width: 24px;"></div>
+                    <div class="form-check mb-0">
+                      <input class="form-check-input" type="checkbox" 
+                             [id]="category.id" 
+                             [checked]="isCategorySelected(category)"
+                             (change)="toggleCategory(category, $event)">
+                      <label class="form-check-label" [for]="category.id">
+                        {{category.name}}
+                      </label>
+                    </div>
+                  </div>
+                  
+                  <!-- Recursive call for subcategories -->
+                  <div *ngIf="category.subCategories && category.subCategories.length > 0 && isExpanded(category)">
+                    <ng-container *ngTemplateOutlet="categoryTreeTemplate; context: {categories: category.subCategories, level: level + 1}"></ng-container>
+                  </div>
                 </div>
-              </mat-tree-node>
-            </mat-tree>
+              </ng-template>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <h5>Seçilen Kategoriler</h5>
+            <div class="border p-3" style="min-height: 300px; max-height: 300px; overflow-y: auto;">
+              <div *ngIf="selectedCategories.length === 0" class="text-muted">
+                Henüz kategori seçilmedi
+              </div>
+              <div *ngFor="let category of selectedCategories" class="badge bg-primary me-2 mb-2 p-2">
+                {{category.name}}
+                <span class="ms-2" style="cursor: pointer;" (click)="removeCategory(category)">&times;</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="selected-categories">
-          <h3>Seçilen Kategoriler</h3>
-          <mat-chip-listbox class="chip-list">
-            <mat-chip *ngFor="let category of selectedCategories" (removed)="removeCategory(category)">
-              {{category.name}}
-              <mat-icon matChipRemove>cancel</mat-icon>
-            </mat-chip>
-          </mat-chip-listbox>
+        <!-- Form Actions -->
+        <div class="d-flex justify-content-end">
+          <button type="button" class="btn btn-secondary me-2" (click)="featureForm.reset()">Temizle</button>
+          <button type="submit" class="btn btn-primary" [disabled]="featureForm.invalid">Kaydet</button>
         </div>
-      </div>
-
-      <div class="form-actions">
-        <button mat-raised-button color="primary" type="submit" [disabled]="featureForm.invalid">Kaydet</button>
-        <button mat-button type="button" (click)="featureForm.reset()">Temizle</button>
-      </div>
-    </form>
-  </mat-card-content>
-</mat-card>
+      </form>
+    </div>
+  </div>
+</div>

@@ -76,10 +76,11 @@ export class SidebarComponent implements OnInit {
     {
       title: 'Brand',
       icon: 'branding_watermark',
-      children: [
+      path: 'brands'
+      /* children: [
         { title: 'Create', icon: 'add', path: 'brands/brand-create' },
         { title: 'List', icon: 'list', path: 'brands/brand-list' },
-      ]
+      ] */
     },
     {
       title: 'Product',
@@ -92,26 +93,29 @@ export class SidebarComponent implements OnInit {
     {
       title: 'Category',
       icon: 'category',
-      children: [
+      path: 'categories'
+      /* children: [
         { title: 'Create', icon: 'add', path: 'categories/category-create' },
         { title: 'List', icon: 'list', path: 'categories/category-list' },
-      ]
+      ] */
     },
     {
       title: 'Feature',
       icon: 'settings',
-      children: [
+      path: 'features',
+      /* children: [
         { title: 'Create', icon: 'add', path: 'features/feature-create' },
         { title: 'List', icon: 'list', path: 'features/feature-list' },
-      ]
+      ] */
     },
     {
       title: 'Feature Value',
       icon: 'settings',
-      children: [
+      path: 'featurevalues'
+      /* children: [
         { title: 'Create', icon: 'add', path: 'featurevalues/featurevalue-create' },
         { title: 'List', icon: 'list', path: 'featurevalues/featurevalue-list' },
-      ]
+      ] */
     },
     {
       title: 'Order',

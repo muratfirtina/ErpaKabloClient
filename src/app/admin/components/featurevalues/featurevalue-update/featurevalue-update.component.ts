@@ -2,32 +2,27 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { FeaturevalueUpdate } from 'src/app/contracts/featurevalue/featurevalue-update';
-import { MatSelectModule } from '@angular/material/select';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
-import { MatRadioModule } from '@angular/material/radio';
 import { ActivatedRoute } from '@angular/router';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 
 @Component({
   selector: 'app-featurevalue-update',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, MatSelectModule, MatRadioModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './featurevalue-update.component.html',
   styleUrls: ['./featurevalue-update.component.scss','../../../../../styles.scss']
 })
 export class FeaturevalueUpdateComponent extends BaseComponent implements OnInit {
   featurevalueForm: FormGroup;
   features: Feature[] = [];
+  filteredFeatures: Feature[] = [];
   featureValueId: string; // Güncellenecek featurevalue ID'si
+  searchTerm: string = '';
 
   constructor(spinner: SpinnerService,
     private featurevalueService: FeaturevalueService,
@@ -50,12 +45,12 @@ export class FeaturevalueUpdateComponent extends BaseComponent implements OnInit
     });
     
     this.loadFeatures();
-    
   }
 
   loadFeatures() {
     this.featureService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
       this.features = data.items;
+      this.filteredFeatures = [...this.features];
     }).catch(error => {
       this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
     });
@@ -101,5 +96,13 @@ export class FeaturevalueUpdateComponent extends BaseComponent implements OnInit
     }).finally(() => {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     });
+  }
+
+  searchFeatures(event: Event) {
+    const value = (event.target as HTMLInputElement).value.toLowerCase();
+    this.searchTerm = value;
+    this.filteredFeatures = this.features.filter(feature => 
+      feature.name.toLowerCase().includes(value)
+    );
   }
 }

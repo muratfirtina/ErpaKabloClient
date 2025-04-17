@@ -1,1 +1,255 @@
-<p>features works!</p>
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+      <div class="col-12 text-center">
+        <h1 class="mb-0">Özellik Yönetimi</h1>
+        <p class="text-muted">Özellikleri ekleyebilir, düzenleyebilir ve silebilirsiniz</p>
+      </div>
+    </div>
+  
+    <div class="row">
+      <!-- Left Column: Create/Update Form -->
+      <div class="col-lg-5 col-md-6 mb-4">
+        <div class="card shadow-sm h-100">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">{{ formMode === 'create' ? 'Özellik Ekle' : 'Özellik Güncelle' }}</h4>
+          </div>
+          <div class="card-body" id="feature-form">
+            <form [formGroup]="featureForm" (ngSubmit)="onSubmit($event)">
+              <!-- Feature Name -->
+              <div class="mb-3">
+                <label for="featureName" class="form-label">Özellik Adı</label>
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  id="featureName" 
+                  formControlName="name" 
+                  placeholder="Özellik Adı"
+                  [ngClass]="{'is-invalid': featureForm.get('name')?.invalid && featureForm.get('name')?.touched}"
+                >
+                <div class="invalid-feedback" *ngIf="featureForm.get('name')?.hasError('required') && featureForm.get('name')?.touched">
+                  Özellik adı zorunludur
+                </div>
+              </div>
+  
+              <!-- Feature Values -->
+              <div class="mb-4">
+                <h5>Özellik Değerleri</h5>
+                <div formArrayName="featureValues" class="feature-values-container">
+                  <div *ngFor="let control of featureValues.controls; let i=index" class="mb-2 row align-items-center">
+                    <ng-container *ngIf="isStringControl(i); else selectControl">
+                      <div class="col">
+                        <input 
+                          type="text" 
+                          class="form-control" 
+                          [formControlName]="i" 
+                          placeholder="Özellik Değeri"
+                          [ngClass]="{'is-invalid': control.invalid && control.touched}"
+                        >
+                        <div class="invalid-feedback" *ngIf="control.invalid && control.touched">
+                          Özellik değeri zorunludur
+                        </div>
+                      </div>
+                    </ng-container>
+                    <ng-template #selectControl>
+                      <div class="col" [formGroupName]="i">
+                        <select class="form-select" formControlName="id">
+                          <option value="">Özellik Değeri Seçin</option>
+                          <option *ngFor="let value of allFeatureValues" [value]="value.id">{{value.name}}</option>
+                        </select>
+                      </div>
+                    </ng-template>
+                    <div class="col-auto">
+                      <button type="button" class="btn btn-danger btn-sm" (click)="removeFeatureValueControl(i)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-success mt-2" (click)="addFeatureValueControl()">
+                    <i class="bi bi-plus-circle me-1"></i> Özellik Değeri Ekle
+                  </button>
+                </div>
+              </div>
+  
+              <!-- Categories -->
+              <div class="mb-4">
+                <h5>Kategoriler</h5>
+                <div class="mb-3">
+                  <input 
+                    type="text" 
+                    class="form-control" 
+                    [formControl]="categoryFilterCtrl" 
+                    placeholder="Kategori Ara..."
+                  >
+                </div>
+                
+                <div class="row">
+                  <!-- Category Tree -->
+                  <div class="col-md-6">
+                    <div class="border p-3 category-tree-container" style="max-height: 250px; overflow-y: auto;">
+                      <!-- Recursive Category Tree -->
+                      <div class="category-tree">
+                        <ng-container *ngTemplateOutlet="categoryTreeTemplate; context: {categories: dataSource.data, level: 0}"></ng-container>
+                      </div>
+                      
+                      <!-- Recursive Template -->
+                      <ng-template #categoryTreeTemplate let-categories="categories" let-level="level">
+                        <div *ngFor="let category of categories" [style.padding-left.px]="level * 20">
+                          <div class="d-flex align-items-center py-1">
+                            <button *ngIf="category.subCategories && category.subCategories.length > 0" 
+                              class="btn btn-sm btn-link p-0 me-2" 
+                              (click)="toggleCategoryExpansion(category, $event)" 
+                              aria-label="Toggle category expansion">
+                              <i class="bi" [ngClass]="isExpanded(category) ? 'bi-chevron-down' : 'bi-chevron-right'"></i>
+                            </button>
+                            <div *ngIf="!(category.subCategories && category.subCategories.length > 0)" style="width: 24px;"></div>
+                            <div class="form-check mb-0">
+                              <input class="form-check-input" type="checkbox" 
+                                     [id]="'cat-' + category.id" 
+                                     [checked]="isCategorySelected(category)"
+                                     (change)="toggleCategory(category, $event)">
+                              <label class="form-check-label" [for]="'cat-' + category.id">
+                                {{category.name}}
+                              </label>
+                            </div>
+                          </div>
+                          
+                          <!-- Recursive call for subcategories -->
+                          <div *ngIf="category.subCategories && category.subCategories.length > 0 && isExpanded(category)">
+                            <ng-container *ngTemplateOutlet="categoryTreeTemplate; context: {categories: category.subCategories, level: level + 1}"></ng-container>
+                          </div>
+                        </div>
+                      </ng-template>
+                    </div>
+                  </div>
+  
+                  <!-- Selected Categories -->
+                  <div class="col-md-6">
+                    <div class="border p-3" style="min-height: 250px; max-height: 250px; overflow-y: auto;">
+                      <div *ngIf="selectedCategories.length === 0" class="text-muted">
+                        Henüz kategori seçilmedi
+                      </div>
+                      <div *ngFor="let category of selectedCategories" class="badge bg-primary me-2 mb-2 p-2">
+                        {{category.name}}
+                        <span class="ms-2" style="cursor: pointer;" (click)="removeCategory(category)">&times;</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+  
+              <!-- Form Buttons -->
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" [disabled]="featureForm.invalid">
+                  {{ formMode === 'create' ? 'Kaydet' : 'Güncelle' }}
+                </button>
+                <button type="button" class="btn btn-secondary" (click)="resetForm()">
+                  {{ formMode === 'create' ? 'Temizle' : 'İptal' }}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Right Column: Features List -->
+      <div class="col-lg-7 col-md-6">
+        <div class="card shadow-sm">
+          <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Özellikler Listesi</h4>
+          </div>
+          <div class="card-body">
+            <!-- Search Box -->
+            <form [formGroup]="searchForm" (ngSubmit)="searchFeature()" class="mb-4">
+              <div class="input-group">
+                <input 
+                  type="text" 
+                  class="form-control" 
+                  placeholder="Özellik Ara..." 
+                  formControlName="nameSearch"
+                  aria-label="Search features"
+                >
+                <button class="btn btn-primary" type="submit">
+                  <i class="bi bi-search"></i> Ara
+                </button>
+              </div>
+            </form>
+  
+            <!-- Features Table -->
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col" width="8%">#</th>
+                    <th scope="col">Özellik Adı</th>
+                    <th scope="col" width="20%">İşlemler</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of pagedFeatures; let i = index">
+                    <td>{{ (currentPageNo - 1) * pageSize + i + 1 }}</td>
+                    <td>{{ item.name }}</td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <!-- Edit Button -->
+                        <button 
+                          class="btn btn-sm btn-outline-primary" 
+                          (click)="loadFeature(item)" 
+                          title="Düzenle"
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        
+                        <!-- Delete Button -->
+                        <app-delete-directive 
+                          [id]="item.id" 
+                          [controller]="'features'" 
+                          [itemName]="item.name" 
+                          (refresh)="removeFeatureFromList($event)"
+                          class="d-inline-block"
+                        ></app-delete-directive>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+  
+            <!-- Empty State -->
+            <div *ngIf="pagedFeatures.length === 0" class="text-center p-4">
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Gösterilecek özellik bulunamadı.
+              </div>
+            </div>
+  
+            <!-- Pagination -->
+            <div class="d-flex justify-content-between align-items-center mt-3">
+              <div>
+                <span class="text-muted">Toplam {{ count }} kayıt</span>
+              </div>
+              <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-end mb-0">
+                  <li class="page-item" [ngClass]="{'disabled': currentPageNo === 1}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange({pageIndex: currentPageNo - 2, pageSize: pageSize})">Önceki</a>
+                  </li>
+                  <li class="page-item" *ngFor="let page of [].constructor(pages > 5 ? 5 : pages); let i = index" 
+                      [ngClass]="{'active': currentPageNo === i + 1}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange({pageIndex: i, pageSize: pageSize})">
+                      {{ i + 1 }}
+                    </a>
+                  </li>
+                  <li class="page-item" *ngIf="pages > 5">
+                    <span class="page-link">...</span>
+                  </li>
+                  <li class="page-item" [ngClass]="{'disabled': currentPageNo === pages || pages === 0}">
+                    <a class="page-link" href="javascript:void(0)" (click)="onPageChange({pageIndex: currentPageNo, pageSize: pageSize})">Sonraki</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

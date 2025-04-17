@@ -1,34 +1,65 @@
-<div class="featurevalue-container">
-    <mat-card>
-      <mat-card-header>
-        <mat-card-title>Özellik Değeri Güncelle</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
-        <form [formGroup]="featurevalueForm" (ngSubmit)="onSubmit()">
-          <mat-form-field appearance="fill">
-            <mat-label>Özellik Değeri Adı</mat-label>
-            <input matInput formControlName="name" placeholder="Özellik Değeri Adı">
-            <mat-error *ngIf="featurevalueForm.get('name').hasError('required')">
-              Özellik değeri adı zorunludur
-            </mat-error>
-          </mat-form-field>
-  
-          <p>Özellik Seçimi:</p>
+<div class="container mt-4" style="width: fit-content;">
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Özellik Değeri Güncelle</h4>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="featurevalueForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label for="name" class="form-label">Özellik Değeri Adı</label>
+          <input 
+            type="text" 
+            class="form-control" 
+            id="name" 
+            formControlName="name" 
+            placeholder="Özellik Değeri Adı"
+            [ngClass]="{'is-invalid': featurevalueForm.get('name').invalid && featurevalueForm.get('name').touched}"
+          >
+          <div class="invalid-feedback" *ngIf="featurevalueForm.get('name').hasError('required') && featurevalueForm.get('name').touched">
+            Özellik değeri adı zorunludur
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Özellik Seçimi</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Özellik ara..." 
+              (input)="searchFeatures($event)"
+            >
+          </div>
+          
           <div class="feature-radio-group">
-            <mat-radio-group formControlName="featureId" class="radio-group">
-              <mat-radio-button *ngFor="let feature of features" [value]="feature.id">{{ feature.name }}</mat-radio-button>
-            </mat-radio-group>
+            <div class="form-check" *ngFor="let feature of filteredFeatures">
+              <input 
+                class="form-check-input" 
+                type="radio" 
+                [id]="'feature-' + feature.id" 
+                [value]="feature.id" 
+                formControlName="featureId"
+              >
+              <label class="form-check-label" [for]="'feature-' + feature.id">
+                {{ feature.name }}
+              </label>
+            </div>
           </div>
-          <mat-error *ngIf="featurevalueForm.get('featureId').hasError('required')" style="margin-bottom: 20px;">
+          <div class="text-danger small" *ngIf="featurevalueForm.get('featureId').hasError('required') && featurevalueForm.get('featureId').touched">
             Özellik seçimi zorunludur
-          </mat-error>
-  
-          <div class="buttons">
-            <button mat-raised-button color="primary" type="submit" [disabled]="featurevalueForm.invalid">Güncelle</button>
-            <button mat-button type="button" (click)="featurevalueForm.reset()">Temizle</button>
           </div>
-        </form>
-      </mat-card-content>
-    </mat-card>
+          
+          <div *ngIf="filteredFeatures.length === 0" class="alert alert-warning mt-2">
+            Aramanız için hiçbir özellik bulunamadı. Lütfen farklı bir arama terimi deneyin.
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary" [disabled]="featurevalueForm.invalid">Güncelle</button>
+          <button type="button" class="btn btn-secondary" (click)="featurevalueForm.reset()">Temizle</button>
+        </div>
+      </form>
+    </div>
   </div>
-  
+</div>

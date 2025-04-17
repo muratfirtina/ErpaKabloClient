@@ -229,7 +229,7 @@ export class OrdersComponent extends BaseComponent implements OnInit {
   async openOrderDetail(id: string) {
     const dialogRef = this.dialog.open(OrderDetailDialogComponent, {
       data: { id },
-      width: '1200px',  // Viewport genişliğinin %95'i
+      width: 'fit-content',  // Viewport genişliğinin %95'i
       maxWidth: '2400px', // Maksimum genişlik
       height: '90vh',  // Viewport yüksekliğinin %90'ı
       panelClass: 'full-width-dialog' // Özel CSS class

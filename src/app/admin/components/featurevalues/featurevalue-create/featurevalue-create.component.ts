@@ -2,31 +2,27 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl } from '@angular/forms';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
 import { FeaturevalueCreate } from 'src/app/contracts/featurevalue/featurevalue-create';
-import { MatSelectModule } from '@angular/material/select';
 import { Feature } from 'src/app/contracts/feature/feature';
 import { FeatureService } from 'src/app/services/common/models/feature.service';
-import { MatRadioModule } from '@angular/material/radio';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FeaturevaluecreateconfrimDialogComponent } from 'src/app/dialogs/featurevalueDialogs/featurevaluecreateconfrim-dialog/featurevaluecreateconfrim-dialog.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-featurevalue-create',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatFormFieldModule, MatInputModule, MatButtonModule, ReactiveFormsModule, MatDialogModule, MatSelectModule, MatRadioModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule],
   templateUrl: './featurevalue-create.component.html',
   styleUrls: ['./featurevalue-create.component.scss','../../../../../styles.scss']
 })
 export class FeaturevalueCreateComponent extends BaseComponent implements OnInit {
   featurevalueForm: FormGroup;
   features: Feature[] = [];
+  filteredFeatures: Feature[] = [];
+  searchTerm: string = '';
 
   constructor(spinner: SpinnerService,
     private featurevalueService: FeaturevalueService,
@@ -49,6 +45,7 @@ export class FeaturevalueCreateComponent extends BaseComponent implements OnInit
   loadFeatures() {
     this.featureService.list({ pageIndex: -1, pageSize: -1 }).then(data => {
       this.features = data.items;
+      this.filteredFeatures = [...this.features];
     }).catch(error => {
       this.toastrService.message(error, 'Error', { toastrMessageType: ToastrMessageType.Error, position: ToastrPosition.TopRight });
     });
@@ -94,5 +91,13 @@ export class FeaturevalueCreateComponent extends BaseComponent implements OnInit
     }).finally(() => {
       this.hideSpinner(SpinnerType.BallSpinClockwise);
     });
+  }
+
+  searchFeatures(event: Event) {
+    const value = (event.target as HTMLInputElement).value.toLowerCase();
+    this.searchTerm = value;
+    this.filteredFeatures = this.features.filter(feature => 
+      feature.name.toLowerCase().includes(value)
+    );
   }
 }
