@@ -94,6 +94,11 @@ export class AppComponent implements OnInit, OnDestroy {
             analytics: analyticsConsent,
             marketing: settings.marketing === true // Pass marketing consent too if present
         });
+        const hasAnalyticsConsent = localStorage.getItem('analytics_consent') === 'true';
+    
+        if (hasAnalyticsConsent) {
+      this.analyticsService.initializeAnalytics({ analytics: true });
+    }
       } catch (e) {
         console.error('Failed to parse cookie consent settings, initializing analytics as denied.', e);
         // Initialize with analytics denied

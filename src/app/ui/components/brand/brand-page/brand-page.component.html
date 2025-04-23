@@ -102,13 +102,12 @@
   
           <!-- Pagination -->
           <div class="mt-4 bg-white">
-            <mat-paginator 
-              [length]="totalItems" 
-              [pageSize]="pageRequest.pageSize" 
-              [pageSizeOptions]="[5, 10, 25, 100]"
-              (page)="onPageChange($event)" 
-              *ngIf="totalItems > 0">
-            </mat-paginator>
+            <!-- Bootstrap Pagination -->
+            <app-pagination 
+            [totalItems]="totalItems" 
+            [pageRequest]="pageRequest" 
+            (pageChange)="handlePageChange($event)">
+          </app-pagination>
           </div>
         </div>
       </div>

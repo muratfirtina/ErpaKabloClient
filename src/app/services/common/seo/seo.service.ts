@@ -9,6 +9,7 @@ import { SitemapService } from './sitemap.service';
 import { Observable } from 'rxjs';
 import { SeoConfig, ProductSeoConfig, WebVitalsMetric, PageType  } from 'src/app/contracts/seo/seo.types';
 import { ImageOptimizationService } from './image-optimization.service';
+import { PerformanceMonitorService } from '../performance-monitor.service';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,7 @@ export class SeoService {
     private openGraphService: OpenGraphService,
     private sitemapService: SitemapService,
     private imageOptimizationService: ImageOptimizationService,
+    private performanceMonitorService: PerformanceMonitorService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private meta: Meta,
@@ -408,10 +410,8 @@ export class SeoService {
   }
 
   private processWebVitalMetric(metric: WebVitalsMetric): void {
-      console.log(`Web Vital Metric - ${metric.name}:`, {
-      value: metric.value,
-      rating: metric.rating
-    }); 
+    // Performans servisine kaydet
+    this.performanceMonitorService.recordWebVital(metric);
   }
 
   private truncateDescription(text: string, maxLength: number = 160): string {

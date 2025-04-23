@@ -22,6 +22,8 @@ import { FeatureCreate } from 'src/app/contracts/feature/feature-create';
 import { FeatureUpdate } from 'src/app/contracts/feature/feature-update';
 import { FeaturevalueService } from 'src/app/services/common/models/featurevalue.service';
 import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-features',
@@ -30,7 +32,9 @@ import { Featurevalue } from 'src/app/contracts/featurevalue/featurevalue';
     CommonModule, 
     RouterModule, 
     ReactiveFormsModule,
-    DeleteDirectiveComponent
+    DeleteDirectiveComponent,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './features.component.html',
   styleUrls: ['./features.component.scss']

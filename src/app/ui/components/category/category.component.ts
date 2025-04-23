@@ -25,6 +25,7 @@ import { ProductOperationsService } from 'src/app/services/ui/product/product-op
 import { DownbarComponent } from '../downbar/downbar.component';
 import { FooterComponent } from '../footer/footer.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { PaginationComponent } from 'src/app/base/components/pagination/pagination.component';
 
 
 @Component({
@@ -40,6 +41,7 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
     BreadcrumbComponent,
     DownbarComponent,
     FooterComponent,
+    PaginationComponent
     ],
   templateUrl: './category.component.html',
   styleUrls: ['./category.component.scss']
@@ -456,5 +458,9 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
     // Eğer en az bir bölüm ayrıştırıldıysa, format edilmiş içerik
     this.isFormattedContent = result.length > 0;
     this.parsedCategories = result;
+  }
+  handlePageChange(updatedPageRequest: PageRequest): void {
+    this.pageRequest = updatedPageRequest;
+    this.loadProducts(); // Yeni sayfalama bilgilerine göre ürünleri yükle
   }
 }

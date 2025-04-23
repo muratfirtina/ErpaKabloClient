@@ -1,0 +1,229 @@
+// Main container styles
+.container-fluid {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    padding-bottom: 2rem;
+  }
+  
+  // Card styling
+  .card {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+    
+    &:hover {
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .card-header {
+    border-bottom: 0;
+    padding: 1rem 1.5rem;
+    font-weight: 500;
+    
+    h4 {
+      font-weight: 600;
+    }
+  }
+  
+  .card-body {
+    padding: 1.5rem;
+  }
+  
+  // Form styling
+  .form-control:focus {
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+  }
+  
+  // Product image
+  .product-table-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  
+  // Feature badges
+  .badge {
+    padding: 0.5em 0.75em;
+    font-weight: normal;
+    
+    &.bg-info {
+      background-color: #cff4fc !important;
+      color: #055160 !important;
+    }
+  }
+  
+  // Monospace text for variant IDs
+  .text-monospace {
+    font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9em;
+  }
+  
+  // Buttons
+  .btn {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    border-radius: 0.25rem;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    
+    &:hover, &:focus {
+      background-color: #0b5ed7;
+      border-color: #0a58ca;
+    }
+    
+    &:disabled {
+      background-color: rgba(13, 110, 253, 0.65);
+      border-color: rgba(13, 110, 253, 0.65);
+    }
+  }
+  
+  .btn-outline-primary {
+    color: #0d6efd;
+    border-color: #0d6efd;
+    
+    &:hover, &:focus {
+      background-color: #0d6efd;
+      color: #fff;
+    }
+  }
+  
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .btn-group {
+    display: flex;
+    gap: 0.25rem;
+  }
+  
+  // Table styling
+  .table {
+    margin-bottom: 0;
+    
+    th {
+      font-weight: 600;
+      background-color: #f8f9fa;
+      border-bottom-width: 1px;
+    }
+    
+    td {
+      vertical-align: middle;
+    }
+  }
+  
+  .table-responsive {
+    border-radius: 0.25rem;
+    overflow: hidden;
+  }
+  
+  // Pagination
+  .pagination {
+    margin-bottom: 0;
+    
+    .page-link {
+      color: #0d6efd;
+      border-color: #dee2e6;
+      padding: 0.375rem 0.75rem;
+      
+      &:hover {
+        background-color: #e9ecef;
+        border-color: #dee2e6;
+        color: #0a58ca;
+      }
+    }
+    
+    .page-item.active .page-link {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+      color: white;
+    }
+    
+    .page-item.disabled .page-link {
+      color: #6c757d;
+      pointer-events: none;
+      background-color: #fff;
+      border-color: #dee2e6;
+    }
+  }
+  
+  // Search box
+  .input-group {
+    .form-control {
+      border-top-right-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+    
+    .btn {
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+    }
+  }
+  
+  // Responsive adjustments
+  @media (max-width: 991.98px) {
+    .card {
+      margin-bottom: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 767.98px) {
+    .container-fluid {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    
+    .card-body {
+      padding: 1rem;
+    }
+    
+    .btn {
+      padding: 0.375rem 0.75rem;
+    }
+    
+    .table {
+      font-size: 0.875rem;
+    }
+    
+    .product-table-image {
+      width: 50px;
+      height: 50px;
+    }
+  }
+  
+  @media (max-width: 575.98px) {
+    h1 {
+      font-size: 1.75rem;
+    }
+    
+    .card-header h4 {
+      font-size: 1.25rem;
+    }
+    
+    // Adjust table for small screens
+    .table {
+      font-size: 0.75rem;
+    }
+    
+    .product-table-image {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .badge {
+      font-size: 0.7em;
+    }
+    
+    .pagination {
+      font-size: 0.875rem;
+    }
+  }

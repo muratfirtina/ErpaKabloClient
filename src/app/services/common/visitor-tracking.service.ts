@@ -52,25 +52,20 @@ export class VisitorTrackingService implements OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe((event: any) => {
       this.currentPage = event.urlAfterRedirects.split('?')[0].split('#')[0] || '/';
-      console.log(`VisitorTrackingService: Navigation detected to ${this.currentPage}`);
       this.notifyPageChange();
     });
   }
 
   public async initialize(): Promise<void> {
     if (this.hubConnection?.state === HubConnectionState.Connected || this.connecting) {
-      console.log(`VisitorTrackingService: Başlatma atlandı: Zaten ${this.hubConnection?.state === HubConnectionState.Connected ? 'bağlı' : 'bağlanıyor'}.`);
       return;
     }
-
-    console.log('VisitorTrackingService: Başlatılıyor...');
     this.connecting = true;
     this.connectionErrorSubject.next(null);
     this.connectionEstablished.next(false);
 
     try {
         const hubUrl = `${environment.baseUrl}${HubPaths.VisitorTrackingHub}`;
-        console.log(`VisitorTrackingService: Hub URL: ${hubUrl}`);
 
         this.hubConnection = new HubConnectionBuilder()
           .withUrl(hubUrl, {
@@ -160,9 +155,7 @@ export class VisitorTrackingService implements OnDestroy {
     this.hubConnection.off('ReceiveVisitorsList');
 
     // Ziyaretçi istatistiklerini işle - DÜZELTME: Backend ile veri format uyumluluğu kontrolü
-    this.hubConnection.on('ReceiveVisitorStats', (stats: any) => {
-        console.log('BACKEND\'DEN GELEN HAM VERİ:', stats);
-        
+    this.hubConnection.on('ReceiveVisitorStats', (stats: any) => {        
         // Gelen verileri doğru şekilde dönüştür
         const formattedStats: VisitorStats = {
           totalVisitors: stats.TotalVisitors ?? stats.totalVisitors ?? 0,
@@ -184,13 +177,11 @@ export class VisitorTrackingService implements OnDestroy {
           })) ?? []
         };
         
-        console.log('Eşleştirilmiş veri:', formattedStats);
         this.visitorStatsSubject.next(formattedStats);
       });
 
     // Başlangıç ziyaretçi listesini işle - DÜZELTME: Veri format dönüşümü eklendi
     this.hubConnection.on('ReceiveVisitorsList', (visitors: any[]) => {
-        console.log("HAM ZİYARETÇİ LİSTESİ:", visitors);
         
         if (!visitors || !Array.isArray(visitors)) {
           console.warn('Geçersiz ziyaretçi listesi alındı', visitors);
@@ -208,9 +199,7 @@ export class VisitorTrackingService implements OnDestroy {
           lastActivityAt: v.LastActivityAt ?? v.lastActivityAt ?? new Date().toISOString(),
           userAgent: v.UserAgent ?? v.userAgent ?? ''
         }));
-        
-        console.log('Eşleştirilmiş ziyaretçiler:', formattedVisitors);
-        
+                
         // İstatistik verisi oluştur
         const total = formattedVisitors.length;
         const authenticated = formattedVisitors.filter(v => v.isAuthenticated).length;
@@ -234,8 +223,6 @@ export class VisitorTrackingService implements OnDestroy {
             pageStats: formattedPageStats,
             activeVisitors: formattedVisitors
         };
-        
-        console.log('VisitorTrackingService: Oluşturulan yeni istatistikler:', newStats);
         this.visitorStatsSubject.next(newStats);
     });
   }
@@ -243,7 +230,7 @@ export class VisitorTrackingService implements OnDestroy {
   private notifyPageChange(): void {
     if (this.hubConnection && this.hubConnection.state === HubConnectionState.Connected) {
       this.hubConnection.invoke('PageChanged', this.currentPage)
-        .then(() => console.log(`VisitorTrackingService: Sayfa değişikliği bildirimi gönderildi: ${this.currentPage}`))
+        .then(() => {})
         .catch(err => console.error(`VisitorTrackingService: Sayfa değişikliği bildirimi gönderme hatası (${this.currentPage}):`, this.formatError(err)));
     } else {
       console.debug(`VisitorTrackingService: Sayfa değişikliği bildirimi gönderilemiyor, bağlantı durumu: ${this.hubConnection?.state ?? 'Başlatılmadı'}`);
@@ -256,21 +243,17 @@ export class VisitorTrackingService implements OnDestroy {
 
   public async reconnect(): Promise<void> {
     if (this.connecting || this.isConnected()) {
-        console.log(`VisitorTrackingService: Manuel yeniden bağlanma atlandı: Durum=${this.hubConnection?.state}`);
         return;
     }
-
-    console.log("VisitorTrackingService: Manuel yeniden bağlanma isteniyor...");
     await this.initialize();
   }
 
   ngOnDestroy(): void {
-    console.log('VisitorTrackingService: Servis yok ediliyor ve bağlantı durduruluyor...');
     this.destroy$.next();
     this.destroy$.complete();
 
     this.hubConnection?.stop()
-        .then(() => console.log("VisitorTrackingService: SignalR bağlantısı başarıyla durduruldu."))
+        .then(() => {})
         .catch(err => console.error("VisitorTrackingService: SignalR bağlantısını durdurma hatası:", this.formatError(err)));
   }
 

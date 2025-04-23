@@ -1,0 +1,394 @@
+<div class="visitor-analytics-container">
+    <div class="header-section">
+      <h1>Ziyaretçi Analizi</h1>
+      <p class="subtitle">Ziyaretçilerin detaylı istatistiklerini görüntüleyin</p>
+    </div>
+    
+    <!-- Filtre Alanı -->
+    <div class="card filter-card mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label for="startDate">Başlangıç Tarihi</label>
+            <input type="date" class="form-control" id="startDate" 
+                  [(ngModel)]="dateRange.start" name="startDate">
+          </div>
+          
+          <div class="col-md-4 mb-3">
+            <label for="endDate">Bitiş Tarihi</label>
+            <input type="date" class="form-control" id="endDate" 
+                  [(ngModel)]="dateRange.end" name="endDate">
+          </div>
+          
+          <div class="col-md-3 mb-3">
+            <label for="dataSource">Veri Kaynağı</label>
+            <select class="form-control" id="dataSource" [(ngModel)]="selectedDataSource" (change)="onDataSourceChange()">
+              <option *ngFor="let source of dataSources" [value]="source.value">
+                {{source.label}}
+              </option>
+            </select>
+          </div>
+          
+          <div class="col-md-1 mb-3 d-flex align-items-end">
+            <button class="btn btn-primary w-100" (click)="onDateRangeChange()">
+              <i class="bi bi-funnel"></i> Uygula
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Ana İçerik - Tabs -->
+    <ul class="nav nav-tabs" id="analyticsTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" 
+                data-bs-target="#overview" type="button" role="tab" 
+                aria-controls="overview" aria-selected="true">
+          Genel Bakış
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="traffic-tab" data-bs-toggle="tab" 
+                data-bs-target="#traffic" type="button" role="tab" 
+                aria-controls="traffic" aria-selected="false">
+          Trafik Kaynakları
+        </button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="pages-tab" data-bs-toggle="tab" 
+                data-bs-target="#pages" type="button" role="tab" 
+                aria-controls="pages" aria-selected="false">
+          Popüler Sayfalar
+        </button>
+      </li>
+    </ul>
+    
+    <div class="tab-content" id="analyticsTabContent">
+      <!-- Genel Bakış Tab İçeriği -->
+      <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+        <!-- Yükleniyor İndikatörü -->
+        <div *ngIf="isLoading.summary" class="loading-container">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Yükleniyor...</span>
+          </div>
+          <p>Veriler yükleniyor...</p>
+        </div>
+        
+        <!-- Özet Bilgiler -->
+        <div *ngIf="!isLoading.summary && analyticsData">
+          <div class="row mt-4 mb-4">
+            <!-- İstatistik Kartları -->
+            <div class="col-md-3 col-sm-6 mb-3">
+              <div class="card stat-card h-100">
+                <div class="card-body text-center">
+                  <div class="stat-value">{{ analyticsData.totalVisits }}</div>
+                  <div class="stat-label">Toplam Ziyaret</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+              <div class="card stat-card h-100">
+                <div class="card-body text-center">
+                  <div class="stat-value">{{ analyticsData.uniqueVisitors }}</div>
+                  <div class="stat-label">Tekil Ziyaretçi</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+              <div class="card stat-card h-100">
+                <div class="card-body text-center">
+                  <div class="stat-value">{{ analyticsData.newVisitors }}</div>
+                  <div class="stat-label">Yeni Ziyaretçi</div>
+                  <div class="stat-percentage">
+                    {{ calculatePercentage(analyticsData.newVisitors, analyticsData.uniqueVisitors) }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="col-md-3 col-sm-6 mb-3">
+              <div class="card stat-card h-100">
+                <div class="card-body text-center">
+                  <div class="stat-value">{{ analyticsData.returningVisitors }}</div>
+                  <div class="stat-label">Geri Dönen Ziyaretçi</div>
+                  <div class="stat-percentage">
+                    {{ calculatePercentage(analyticsData.returningVisitors, analyticsData.uniqueVisitors) }}%
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Ziyaretçi Zaman Çizelgesi -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Ziyaretçi Zaman Çizelgesi</h5>
+            </div>
+            <div class="card-body">
+              <div *ngIf="isLoading.timeline" class="loading-container">
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Yükleniyor...</span>
+                </div>
+              </div>
+              <div *ngIf="!isLoading.timeline" class="chart-container">
+                <!-- Chart.js canvas elementi -->
+                <canvas #timelineCanvas></canvas>
+              </div>
+            </div>
+          </div>
+          
+          <!-- İki Sütunlu Grafik Kartları -->
+          <div class="row">
+            <!-- Trafik Kaynakları -->
+            <div class="col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">Trafik Kaynakları</h5>
+                </div>
+                <div class="card-body">
+                  <div *ngIf="isLoading.summary" class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Yükleniyor...</span>
+                    </div>
+                  </div>
+                  
+                  <!-- Referrer Chart.js Grafiği -->
+                  <div *ngIf="!isLoading.summary && analyticsData.referrerTypeBreakdown" class="chart-container mb-3">
+                    <canvas #referrerCanvas></canvas>
+                  </div>
+                  
+                  <!-- Referrer Liste -->
+                  <div *ngIf="!isLoading.summary && analyticsData.referrerTypeBreakdown" class="referrer-type-list">
+                    <div *ngFor="let item of analyticsData.referrerTypeBreakdown | keyvalue" class="referrer-type-item">
+                      <div class="referrer-info mb-1">
+                        <i class="bi" [ngClass]="'bi-' + getReferrerIcon(getStringValue(item.key))"></i>
+                        <span class="referrer-name">{{ item.key }}</span>
+                        <span class="visit-count">{{ item.value }} ziyaret</span>
+                      </div>
+                      <div class="progress" style="height: 8px;">
+                        <div class="progress-bar" role="progressbar"
+                          [style.width.%]="calculatePercentage(getNumberValue(item.value), analyticsData.totalVisits)"
+                          [attr.aria-valuenow]="calculatePercentage(getNumberValue(item.value), analyticsData.totalVisits)"
+                          aria-valuemin="0" aria-valuemax="100"
+                          [ngClass]="'referrer-' + getReferrerClass(item.key)">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Cihaz ve Tarayıcı Dağılımı -->
+            <div class="col-md-6 mb-4">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">Cihaz ve Tarayıcı Dağılımı</h5>
+                </div>
+                <div class="card-body">
+                  <div *ngIf="isLoading.devices" class="loading-container">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Yükleniyor...</span>
+                    </div>
+                  </div>
+                  <div *ngIf="!isLoading.devices && deviceStats" class="device-stats">
+                    <!-- Cihaz Dağılım Grafiği -->
+                    <div class="chart-container mb-4">
+                      <canvas #deviceCanvas></canvas>
+                    </div>
+                    
+                    <!-- Tarayıcı Dağılımı -->
+                    <div class="browser-breakdown">
+                      <h3>Tarayıcı Dağılımı</h3>
+                      <div *ngFor="let browser of deviceStats.browsers | keyvalue" class="browser-item">
+                        <div class="browser-info">
+                          <span>{{ browser.key }}</span>
+                        </div>
+                        <span class="browser-count">{{ browser.value }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Veri Bulunamadı Mesajı -->
+        <div *ngIf="!isLoading.summary && !analyticsData" class="no-data-message">
+          <i class="bi bi-info-circle"></i>
+          <p>Seçilen tarih aralığı için veri bulunamadı.</p>
+        </div>
+      </div>
+      
+      <!-- Trafik Kaynakları Tab İçeriği -->
+      <div class="tab-pane fade" id="traffic" role="tabpanel" aria-labelledby="traffic-tab">
+        <!-- Yükleniyor İndikatörü -->
+        <div *ngIf="isLoading.referrers" class="loading-container">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Yükleniyor...</span>
+          </div>
+          <p>Trafik kaynakları yükleniyor...</p>
+        </div>
+        
+        <!-- Trafik Kaynakları Tablosu -->
+        <div *ngIf="!isLoading.referrers" class="mt-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Trafik Kaynakları</h5>
+              <div class="card-subtitle mb-2 text-muted">Ziyaretçilerinizin hangi sitelerden geldiğini görün</div>
+            </div>
+            <div class="card-body">
+              <!-- Filtre Giriş Alanı -->
+              <div class="mb-3">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" class="form-control" placeholder="Kaynaklarda Ara" 
+                         (keyup)="applyReferrerFilter($event)">
+                </div>
+              </div>
+              
+              <!-- Tablo -->
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col" (click)="sortTable('referrerDataSource', 'domain')">Kaynak</th>
+                      <th scope="col" (click)="sortTable('referrerDataSource', 'type')">Tür</th>
+                      <th scope="col" (click)="sortTable('referrerDataSource', 'visitCount')">Ziyaret</th>
+                      <th scope="col" (click)="sortTable('referrerDataSource', 'uniqueVisitorCount')">Tekil Ziyaretçi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let referrer of referrerDataSource.filteredData">
+                      <td>{{referrer.domain}}</td>
+                      <td>
+                        <div class="with-icon">
+                          <i class="bi" [ngClass]="'bi-' + getReferrerIcon(referrer.type)"></i>
+                          {{referrer.type}}
+                        </div>
+                      </td>
+                      <td>{{referrer.visitCount}}</td>
+                      <td>{{referrer.uniqueVisitorCount}}</td>
+                    </tr>
+                    <tr *ngIf="referrerDataSource.filteredData.length === 0">
+                      <td colspan="4" class="text-center py-3">
+                        Eşleşen trafik kaynağı bulunamadı.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Bootstrap Pagination -->
+              <nav aria-label="Trafik kaynakları sayfaları">
+                <ul class="pagination justify-content-center mt-4">
+                  <li class="page-item" [class.disabled]="currentReferrerPage === 1">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('referrer', 1)">İlk</a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentReferrerPage === 1">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('referrer', currentReferrerPage - 1)">Önceki</a>
+                  </li>
+                  <li *ngFor="let page of getReferrerPageNumbers()" class="page-item" [class.active]="currentReferrerPage === page">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('referrer', page)">{{page}}</a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentReferrerPage === totalReferrerPages">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('referrer', currentReferrerPage + 1)">Sonraki</a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentReferrerPage === totalReferrerPages">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('referrer', totalReferrerPages)">Son</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Popüler Sayfalar Tab İçeriği -->
+      <div class="tab-pane fade" id="pages" role="tabpanel" aria-labelledby="pages-tab">
+        <!-- Yükleniyor İndikatörü -->
+        <div *ngIf="isLoading.pageViews" class="loading-container">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Yükleniyor...</span>
+          </div>
+          <p>Sayfa görüntüleme verileri yükleniyor...</p>
+        </div>
+        
+        <!-- Popüler Sayfalar Tablosu -->
+        <div *ngIf="!isLoading.pageViews" class="mt-4">
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">En Çok Ziyaret Edilen Sayfalar</h5>
+            </div>
+            <div class="card-body">
+              <!-- Filtre Giriş Alanı -->
+              <div class="mb-3">
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                  </span>
+                  <input type="text" class="form-control" placeholder="Sayfalarda Ara" 
+                         (keyup)="applyPageFilter($event)">
+                </div>
+              </div>
+              
+              <!-- Tablo -->
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th scope="col" (click)="sortTable('pageViewsDataSource', 'pageUrl')">Sayfa</th>
+                      <th scope="col" (click)="sortTable('pageViewsDataSource', 'viewCount')">Görüntülenme</th>
+                      <th scope="col" (click)="sortTable('pageViewsDataSource', 'uniqueViewerCount')">Tekil Görüntüleme</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let page of pageViewsDataSource.filteredData">
+                      <td>
+                        <div class="page-url" title="{{page.pageUrl}}">
+                          {{ page.pageUrl }}
+                        </div>
+                      </td>
+                      <td>{{page.viewCount}}</td>
+                      <td>{{page.uniqueViewerCount}}</td>
+                    </tr>
+                    <tr *ngIf="pageViewsDataSource.filteredData.length === 0">
+                      <td colspan="3" class="text-center py-3">
+                        Eşleşen sayfa bulunamadı.
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- Bootstrap Pagination -->
+              <nav aria-label="Sayfa listesi sayfaları">
+                <ul class="pagination justify-content-center mt-4">
+                  <li class="page-item" [class.disabled]="currentPageViewsPage === 1">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('pageViews', 1)">İlk</a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPageViewsPage === 1">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('pageViews', currentPageViewsPage - 1)">Önceki</a>
+                  </li>
+                  <li *ngFor="let page of getPageViewsPageNumbers()" class="page-item" [class.active]="currentPageViewsPage === page">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('pageViews', page)">{{page}}</a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPageViewsPage === totalPageViewsPages">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('pageViews', currentPageViewsPage + 1)">Sonraki</a>
+                  </li>
+                  <li class="page-item" [class.disabled]="currentPageViewsPage === totalPageViewsPages">
+                    <a class="page-link" href="javascript:void(0)" (click)="changePage('pageViews', totalPageViewsPages)">Son</a>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

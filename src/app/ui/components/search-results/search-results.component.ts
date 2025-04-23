@@ -26,6 +26,7 @@ import { DownbarComponent } from '../downbar/downbar.component';
 import { MatIconModule } from '@angular/material/icon';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../footer/footer.component';
+import { PaginationComponent } from 'src/app/base/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-search-results',
@@ -40,7 +41,8 @@ import { FooterComponent } from '../footer/footer.component';
     FilterComponent,
     RouterModule,
     DownbarComponent,
-    FooterComponent],
+    FooterComponent,
+    PaginationComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss'
 })
@@ -49,7 +51,7 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];
   selectedFilters: { [key: string]: string[] } = {};
-  pageRequest: PageRequest = { pageIndex: 0, pageSize: 20 };
+  pageRequest: PageRequest = { pageIndex: 0, pageSize: 50 };
   totalItems: number = 0;
   noResults: boolean = false;
   sortOrder: string = '';
@@ -183,6 +185,11 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   formatCurrency(value: number | undefined): string {
     if (value === undefined) return 'N/A';
     return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
+  }
+
+  handlePageChange(updatedPageRequest: PageRequest): void {
+    this.pageRequest = updatedPageRequest;
+    this.searchProducts(); // Yeni sayfalama bilgilerine göre ürünleri yükle
   }
 
 }

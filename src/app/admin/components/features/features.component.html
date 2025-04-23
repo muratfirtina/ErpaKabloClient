@@ -192,12 +192,9 @@
                     <td>
                       <div class="btn-group" role="group">
                         <!-- Edit Button -->
-                        <button 
-                          class="btn btn-sm btn-outline-primary" 
-                          (click)="loadFeature(item)" 
-                          title="Düzenle"
-                        >
-                          <i class="bi bi-pencil"></i>
+                        <button mat-mini-fab class="edit-button-list" (click)="loadFeature(item)" 
+                        title="Düzenle">
+                          <mat-icon>edit</mat-icon>
                         </button>
                         
                         <!-- Delete Button -->

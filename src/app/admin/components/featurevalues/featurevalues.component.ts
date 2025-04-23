@@ -19,6 +19,8 @@ import { FeaturevalueCreate } from 'src/app/contracts/featurevalue/featurevalue-
 import { FeaturevalueUpdate } from 'src/app/contracts/featurevalue/featurevalue-update';
 import { MatDialog } from '@angular/material/dialog';
 import { FeaturevaluecreateconfrimDialogComponent } from 'src/app/dialogs/featurevalueDialogs/featurevaluecreateconfrim-dialog/featurevaluecreateconfrim-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-featurevalues',
@@ -28,7 +30,9 @@ import { FeaturevaluecreateconfrimDialogComponent } from 'src/app/dialogs/featur
     RouterModule, 
     FormsModule, 
     ReactiveFormsModule,
-    DeleteDirectiveComponent
+    DeleteDirectiveComponent,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './featurevalues.component.html',
   styleUrls: ['./featurevalues.component.scss']

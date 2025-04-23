@@ -229,7 +229,109 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
     Object.keys(this.allFeatures).forEach(featureName => {
       this.allFeatures[featureName] = this.sortFeatureValues(featureName, this.allFeatures[featureName]);
     });
+  }
+
+  isFeatureValueCompatible(featureName: string, featureValue: string): boolean {
+    // Eğer bu özellik zaten bu değerle seçiliyse, uyumludur
+    if (this.selectedFeatures[featureName] === featureValue) {
+      return true;
+    }
+    
+    // Mevcut seçimlerin bir kopyasını oluştur ve test et
+    const testSelections = { ...this.selectedFeatures };
+    testSelections[featureName] = featureValue;
+    
+    // Tüm ürünleri topla (ana ürün + varyantlar)
+    if (!this.product) return false;
+    const allProducts = [this.product, ...(this.product.relatedProducts || [])];
+    
+    // Bu test seçimleriyle eşleşen herhangi bir ürün var mı kontrol et
+    return allProducts.some(product => {
+      if (!product || !Array.isArray(product.productFeatureValues)) {
+        return false;
       }
+      
+      // Test seçimlerindeki tüm özellik adları
+      const featureNames = Object.keys(testSelections);
+      
+      // Tüm test özelliklerinin bu ürünün özellikleriyle eşleşip eşleşmediğini kontrol et
+      return featureNames.every(name => {
+        // Bu özellik henüz seçilmemişse kontrolü atla
+        if (name !== featureName && !testSelections[name]) {
+          return true;
+        }
+        
+        // Üründe eşleşen bir özellik bul
+        const productFeature = product.productFeatureValues.find(
+          feature => feature.featureName === name
+        );
+        
+        // Özelliğin bulunup bulunmadığını ve doğru değere sahip olup olmadığını kontrol et
+        return productFeature && 
+               productFeature.featureValueName === testSelections[name];
+      });
+    });
+  }
+
+  onFeatureSelect(featureName: string, featureValue: string) {
+    // Zaten seçili olan değeri tekrar seçmeye gerek yok
+    if (this.isFeatureValueSelected(featureName, featureValue)) {
+      return;
+    }
+    
+    // Ana ürün ve varyantlarını kontrol et
+    if (!this.product) {
+      console.warn("onFeatureSelect: Ürün yok");
+      return;
+    }
+    
+    // ÖNEMLİ: Sadece mevcut ürünün varyantları arasında arama yap
+    // Mevcut ürünün varyantlarını topla
+    const productVariants = this.product.relatedProducts || [];
+    
+    // Seçilen özellik değerine sahip bir varyant bul
+    const matchingVariant = productVariants.find(variant => {
+      if (!variant || !Array.isArray(variant.productFeatureValues)) {
+        return false;
+      }
+      
+      // Seçilen özellik değeriyle eşleşen bir varyant ara
+      return variant.productFeatureValues.some(
+        feature => feature.featureName === featureName && 
+                  feature.featureValueName === featureValue
+      );
+    });
+    
+    if (matchingVariant) {
+      console.log(`Seçilen "${featureValue}" değeriyle eşleşen varyant bulundu:`, matchingVariant.id);
+      
+      // Bulunan varyanta yönlendir
+      this.router.navigate([`/${matchingVariant.id}`]);
+    } else {
+      // Mevcut ana üründe kontrol et (ana ürünün kendisi de bir varyant olabilir)
+      const isFeatureInMainProduct = this.product.productFeatureValues && 
+        this.product.productFeatureValues.some(
+          feature => feature.featureName === featureName && 
+                    feature.featureValueName === featureValue
+        );
+        
+      if (isFeatureInMainProduct) {
+        // Ana ürün kendisi bu özelliğe sahip, zaten oradayız
+        console.log(`Seçilen "${featureValue}" değeri zaten ana üründe mevcut`);
+        return;
+      }
+      
+      console.warn(`"${featureName}: ${featureValue}" ile eşleşen varyant bulunamadı`);
+      this.customToastrService.message(
+        `"${featureName}: ${featureValue}" özelliği ile eşleşen varyant bulunamadı`,
+        "Bilgi",
+        {
+          toastrMessageType: ToastrMessageType.Info,
+          position: ToastrPosition.TopRight
+        }
+      );
+    }
+  }
 
   findMatchingProduct(): Product | null {
     if (!this.product) {
@@ -276,36 +378,6 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
     });
     
     return matchingProduct || null;
-  }
-
-  onFeatureSelect(featureName: string, featureValue: string) {
-    
-    // Check if this feature is already selected (no need to do anything)
-    if (this.isFeatureValueSelected(featureName, featureValue)) {
-      return;
-    }
-    
-    // Update the selected feature
-    this.selectedFeatures[featureName] = featureValue;
-    
-    // Find a product matching all selected features
-    const matchingProduct = this.findMatchingProduct();
-    
-    if (matchingProduct) {
-      
-      // Navigate to the matching product
-      this.router.navigate([`/${matchingProduct.id}`]);
-    } else {
-      console.warn("No product found matching the selected features");
-      this.customToastrService.message(
-        "No products found matching the selected features",
-        "Information",
-        {
-          toastrMessageType: ToastrMessageType.Info,
-          position: ToastrPosition.TopRight
-        }
-      );
-    }
   }
 
   async loadRandomProducts(productId: string) {

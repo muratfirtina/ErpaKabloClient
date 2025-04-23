@@ -186,14 +186,10 @@
                     <td>
                       <div class="btn-group" role="group">
                         <!-- Edit Button -->
-                        <button 
-                          class="btn btn-sm btn-outline-primary" 
-                          (click)="loadCategory(item)" 
-                          title="Düzenle"
-                        >
-                          <i class="bi bi-pencil"></i>
+                        <button mat-mini-fab class="edit-button-list" (click)="loadCategory(item)" 
+                        title="Düzenle">
+                          <mat-icon>edit</mat-icon>
                         </button>
-                        
                         <!-- Delete Button -->
                         <app-delete-directive 
                           [id]="item.id" 

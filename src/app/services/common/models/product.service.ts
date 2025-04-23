@@ -190,8 +190,12 @@ async searchProducts(searchTerm: string, pageRequest: PageRequest): Promise<{
     const observable: Observable<GetListResponse<Product>> = this.httpClientService.post<GetListResponse<Product>>({
       controller: 'products',
       action: 'filter',
-      queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
-    }, { searchTerm: searchTerm, filters: filters , sortOrder: sortOrder});
+    }, { 
+      searchTerm: searchTerm, 
+      filters: filters, 
+      sortOrder: sortOrder,
+      pageRequest: pageRequest
+    })
 
     const promiseData = firstValueFrom(observable);
     promiseData.then(successCallback)

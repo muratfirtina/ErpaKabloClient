@@ -20,6 +20,8 @@ import { CategorycreateconfrimDialogComponent } from 'src/app/dialogs/categoryDi
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
 import { CategoryGetById } from 'src/app/contracts/category/category-getbyid';
 import { CategoryImageFile } from 'src/app/contracts/category/categoryImageFile';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-categories',
@@ -29,7 +31,9 @@ import { CategoryImageFile } from 'src/app/contracts/category/categoryImageFile'
     RouterModule, 
     FormsModule, 
     ReactiveFormsModule,
-    DeleteDirectiveComponent
+    DeleteDirectiveComponent,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './categories.component.html',
   styleUrls: ['./categories.component.scss']

@@ -74,6 +74,11 @@ export class SidebarComponent implements OnInit {
       path: 'visitor-tracking'
     },
     {
+      title: 'Ziyaretçi Analizi',
+      icon: 'dashboard',
+      path: 'visitor-analytics'
+    },
+    {
       title: 'Brand',
       icon: 'branding_watermark',
       path: 'brands'

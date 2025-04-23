@@ -106,12 +106,11 @@
         <app-ui-product-list *ngIf="!noResults" [products]="products" [loading]="isProductsLoading"></app-ui-product-list>
 
         <!-- Pagination -->
-        <mat-paginator [length]="totalItems" 
-                      [pageSize]="pageRequest.pageSize" 
-                      [pageSizeOptions]="[5, 10, 25, 100]"
-                      (page)="onPageChange($event)" 
-                      *ngIf="totalItems > 0">
-        </mat-paginator>
+        <app-pagination 
+            [totalItems]="totalItems" 
+            [pageRequest]="pageRequest" 
+            (pageChange)="handlePageChange($event)">
+          </app-pagination>
       </div>
     </div>
   </div>

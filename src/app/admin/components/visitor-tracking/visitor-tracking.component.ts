@@ -68,14 +68,11 @@ export class VisitorTrackingComponent implements OnInit, OnDestroy, AfterViewIni
     this.visitorTrackingService.visitorStats$
       .pipe(takeUntil(this.destroy$))
       .subscribe(stats => {
-        console.log("VisitorTrackingComponent: İstatistikler alındı:", stats);
         this.lastUpdated = new Date();
         
         // Debug veriyi ekle
         if (stats) {
           this.debugInfo = `Toplam: ${stats.totalVisitors}, Aktif: ${stats.activeVisitors?.length || 0}, Sayfa İstatistikleri: ${stats.pageStats?.length || 0}`;
-          console.log("activeVisitors mevcut mu:", !!stats.activeVisitors);
-          console.log("activeVisitors uzunluğu:", stats.activeVisitors?.length || 0);
         } else {
           this.debugInfo = 'Stats null';
         }
@@ -228,8 +225,6 @@ export class VisitorTrackingComponent implements OnInit, OnDestroy, AfterViewIni
   // Tabloyu güncellemek için ek yöntem
   refreshTable() {
     if (this.visitorStats?.activeVisitors) {
-      console.log('Tablodaki veri sayısı:', this.visitorStats.activeVisitors.length);
-      console.log('Örnek veri:', this.visitorStats.activeVisitors[0]);
     }
     this.dataSource.data = this.visitorStats?.activeVisitors || [];
     this.cdRef.detectChanges();

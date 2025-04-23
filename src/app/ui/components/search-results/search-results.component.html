@@ -46,14 +46,13 @@
         [loading]="isProductsLoading">
       </app-ui-product-list>
       
-      <mat-paginator 
-        [length]="totalItems" 
-        [pageSize]="pageRequest.pageSize" 
-        [pageSizeOptions]="[5, 10, 25, 100]"
-        (page)="onPageChange($event)" 
+      <app-pagination 
+            [totalItems]="totalItems" 
+            [pageRequest]="pageRequest" 
+            (pageChange)="handlePageChange($event)"
         *ngIf="totalItems > 0"
         class="mt-3">
-      </mat-paginator>
+      </app-pagination>
     </div>
   </div>
 </div>

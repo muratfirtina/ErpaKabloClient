@@ -14,6 +14,7 @@ export const routes: Routes = [
           { path: "", component: DashboardComponent, canActivate: [authGuard], data: { [Roles.ADMIN]: true }},
           { path: "dashboard", component: DashboardComponent, canActivate: [authGuard],data: { [Roles.ADMIN]: true }},
           { path: 'visitor-tracking', component: VisitorTrackingComponent,canActivate: [authGuard],data: { [Roles.ADMIN]: true }},
+          { path: 'visitor-analytics', loadComponent: () => import('./admin/components/visitor-analytics/visitor-analytics.component').then(m => m.VisitorAnalyticsComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }},
           { path: "carousel", loadComponent: () => import('./admin/components/carousel/carousel.component').then(m => m.CarouselComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "carousel/carousel-create", loadComponent: () => import('./admin/components/carousel/carousel-create/carousel-create.component').then(m => m.CarouselCreateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },
           { path: "carousel/carousel-update", loadComponent: () => import('./admin/components/carousel/carousel-update/carousel-update.component').then(m => m.CarouselUpdateComponent), canActivate: [authGuard],data: { [Roles.ADMIN]: true }  },

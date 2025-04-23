@@ -16,6 +16,8 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { MatDialog } from '@angular/material/dialog';
 import { BrandcreateconfrimDialogComponent } from 'src/app/dialogs/brandDialogs/brandcreateconfrim-dialog/brandcreateconfrim-dialog.component';
 import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/file-upload-dialog.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-brands',
@@ -24,7 +26,9 @@ import { FileUploadDialogComponent } from 'src/app/dialogs/file-upload-dialog/fi
     CommonModule, 
     RouterModule, 
     ReactiveFormsModule,
-    DeleteDirectiveComponent
+    DeleteDirectiveComponent,
+    MatIconModule,
+    MatButtonModule
   ],
   templateUrl: './brands.component.html',
   styleUrls: ['./brands.component.scss']

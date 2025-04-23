@@ -19,7 +19,7 @@ import { SecurityConfig, DEFAULT_SECURITY_CONFIG } from "src/app/config/security
       }
   
       const now = Date.now();
-      const windowStart = now - (this.config.rateLimiting.windowSizeInMinutes * 60 * 1000);
+      const windowStart = now - (this.config.rateLimiting.windowSizeInMinutes * 60 * 1000 * 100);
       
       let requests = this.requests.get(url) || [];
       requests = requests.filter(time => time > windowStart);

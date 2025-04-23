@@ -163,6 +163,8 @@ export class ProductCreateComponent implements OnInit {
       brandSearch: [''],
       categoryId: ['', Validators.required],
       categorySearch: [''],
+      existingVaryantGroup: [false], // Mevcut varyant grubuna ekleme yapılacak mı?
+      varyantGroupId: [''], // Mevcut varyant grup ID'si
       tax: [0, /* [Validators.required, Validators.min(0)] */],
       features: this.fb.array([]),
       variants: this.fb.array([])
@@ -246,23 +248,23 @@ export class ProductCreateComponent implements OnInit {
       this.treeControl.expandAll();
       return;
     }
-    
+
     const filterTree = (categories: Category[]): Category[] => {
       return categories.reduce((acc, category) => {
         const matchesSearch = category.name.toLowerCase().includes(input.toLowerCase());
         const filteredChildren = filterTree(category.subCategories || []);
-        
+
         if (matchesSearch || filteredChildren.length > 0) {
           acc.push({
             ...category,
             subCategories: filteredChildren
           });
         }
-        
+
         return acc;
       }, [] as Category[]);
     };
-  
+
     const filteredCategories = filterTree([...this.categories]);
     this.categorydataSource.data = this.createHierarchy(filteredCategories);
     this.treeControl.expandAll();
@@ -273,9 +275,9 @@ export class ProductCreateComponent implements OnInit {
   handleClickOutside(event: Event) {
     const categoryContainer = document.querySelector('.category-tree');
     const categoryInput = document.querySelector('#categorySearch');
-    
+
     if (categoryContainer && categoryInput) {
-      if (!categoryContainer.contains(event.target as Node) && 
+      if (!categoryContainer.contains(event.target as Node) &&
           !categoryInput.contains(event.target as Node)) {
         this.showCategoryTree = false;
       }
@@ -354,10 +356,17 @@ export class ProductCreateComponent implements OnInit {
       await Promise.all(
         this.features.map(feature => this.loadFeatureValues(feature.id))
       );
+      // Clear existing features and variants when category changes
+      this.featureFormArray.clear();
+      this.variants.clear();
+      this.variantsCreated = false;
+      this.canGenerateVariants = false;
+      this.changeDetectorRef.detectChanges(); // Update view
     } catch (error) {
       this.handleError('Kategori özellikleri yüklenemedi', error);
     }
   }
+
 
   private async loadFeatureValues(featureId: string) {
     try {
@@ -397,28 +406,48 @@ export class ProductCreateComponent implements OnInit {
   generateVariants() {
     const combinations = this.generateCombinations();
     this.variants.clear();
-    
+
+    const featureMappings = this.getFeatureMappings(); // Get mappings
+
     combinations.forEach(combination => {
-      this.variants.push(this.createVariantFormGroup(combination.join(' - ')));
+      this.variants.push(this.createVariantFormGroup(combination, featureMappings)); // Pass mappings
     });
 
     this.variantsCreated = true;
     this.updateButtonText();
   }
 
-  private createVariantFormGroup(combination: string): FormGroup {
+  private getFeatureMappings(): { featureId: string, valueId: string, valueName: string }[][] {
+    return this.featureFormArray.controls.map(control => {
+        const featureId = this.getControl(control, 'featureId').value;
+        return (this.getControl(control, 'selectedValues').value as string[]).map(valueId => {
+            const value = this.featureValues[featureId]?.find(v => v.id === valueId);
+            return {
+                featureId: featureId,
+                valueId: valueId,
+                valueName: value?.name || 'Unknown'
+            };
+        });
+    }).filter(group => group.length > 0);
+  }
+
+
+  private createVariantFormGroup(combination: { featureId: string, valueId: string, valueName: string }[], featureMappings: any): FormGroup {
+    const combinationName = combination.map(c => c.valueName).join(' - ');
     return this.fb.group({
-      selected: [false],
-      combination: [combination],
-      price: [0, [Validators.required, Validators.min(0)]],
-      stock: [-1, [Validators.required, Validators.min(-1)]],
-      sku: ['', Validators.required],
-      title: [''],
-      description: [''],
-      images: [[]],
-      showcaseImageIndex: [null]
+        selected: [false],
+        combination: [combinationName], // Display name
+        combinationDetails: [combination], // Store detailed mapping
+        price: [0, [Validators.required, Validators.min(0)]],
+        stock: [-1, [Validators.required, Validators.min(-1)]],
+        sku: ['', Validators.required],
+        title: [''],
+        description: [''],
+        images: [[]],
+        showcaseImageIndex: [null] // Default to null
     });
   }
+
 
   removeVariant(index: number) {
     this.variants.removeAt(index);
@@ -450,7 +479,7 @@ export class ProductCreateComponent implements OnInit {
   updateSelectedVariants(event: Event, field: string, index: number) {
     const value = (event.target as HTMLInputElement).value;
     const currentVariant = this.variants.at(index);
-    
+
     if (!this.getControl(currentVariant, 'selected').value) {
       return;
     }
@@ -462,25 +491,35 @@ export class ProductCreateComponent implements OnInit {
     });
   }
 
-  private generateCombinations(): string[][] {
-    const selectedValues = this.featureFormArray.controls.map(control => 
-      this.getControl(control, 'selectedValues').value.map(valueId => 
-        this.featureValues[this.getControl(control, 'featureId').value]
-          .find(v => v.id === valueId).name
-      )
-    ).filter(values => values.length > 0);
+  private generateCombinations(): { featureId: string, valueId: string, valueName: string }[][] {
+    const selectedValuesGrouped = this.featureFormArray.controls.map(control => {
+        const featureId = this.getControl(control, 'featureId').value;
+        const selectedValueIds = this.getControl(control, 'selectedValues').value as string[];
+        return selectedValueIds.map(valueId => {
+            const value = this.featureValues[featureId]?.find(v => v.id === valueId);
+            return {
+                featureId: featureId,
+                valueId: valueId,
+                valueName: value?.name || 'Unknown' // Fallback if value not found
+            };
+        });
+    }).filter(group => group.length > 0); // Filter out features with no selected values
 
-    return this.cartesianProduct(selectedValues);
+    return this.cartesianProduct(selectedValuesGrouped);
   }
 
-  private cartesianProduct(arrays: string[][]): string[][] {
-    return arrays.reduce((a, b) => 
-      a.flatMap(x => b.map(y => [...x, y])),
-      [[]] as string[][]
+
+  private cartesianProduct<T>(arrays: T[][]): T[][] {
+    if (!arrays || arrays.length === 0) {
+        return [[]]; // Return an array with an empty combination if input is empty
+    }
+    return arrays.reduce((a, b) =>
+        a.flatMap(x => b.map(y => [...x, y])),
+        [[]] as T[][]
     );
   }
 
-  
+
 
   private updateVariantsState() {
     this.variantsCreated = this.variants.length > 0;
@@ -502,69 +541,86 @@ export class ProductCreateComponent implements OnInit {
   }
 
   async onSubmit() {
-    if (!this.productForm.valid) {
-      this.customToasterService.message('Lütfen tüm gerekli alanları doldurun', 'Hata', {
+    // Mark all controls as touched to display validation errors
+    this.productForm.markAllAsTouched();
+    this.variants.controls.forEach(variant => (variant as FormGroup).markAllAsTouched());
+
+    if (!this.productForm.valid || this.variants.controls.some(v => v.invalid)) {
+      console.log("Form is invalid:", this.productForm.errors);
+      this.variants.controls.forEach((v, i) => {
+        if(v.invalid) console.log(`Variant ${i} is invalid:`, v.errors);
+      });
+      this.customToasterService.message('Lütfen tüm gerekli alanları doldurun ve varyant bilgilerini kontrol edin.', 'Hata', {
         toastrMessageType: ToastrMessageType.Error,
         position: ToastrPosition.TopRight
       });
       return;
     }
-  
+
+    if (this.variants.length === 0) {
+      this.customToasterService.message('En az bir varyant oluşturmalısınız.', 'Hata', {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+      return;
+    }
+
     try {
       this.loading = true;
       this.spinnerService.show(SpinnerType.BallSpinClockwise);
-      this.productForm.disable();
-  
+      this.productForm.disable(); // Disable form during submission
+
       const formData = new FormData();
       this.variants.controls.forEach((variant, index) => {
         this.appendVariantData(formData, variant, index);
       });
-  
+
       await this.productService.createMultiple(
         formData,
-        () => {
+        () => { // Success Callback
           this.loading = false;
           this.spinnerService.hide();
-          this.productForm.enable();
-  
-          // Form temizleme işlemleri
-          this.productForm.patchValue({ name: '' });
-          while (this.featureFormArray.length > 0) {
-            this.featureFormArray.removeAt(0);
-          }
-          this.variants.clear();
-          this.variantsCreated = false;
-          this.canGenerateVariants = false;
-          this.allSelected = false;
-  
-          // Başarı mesajını göster
+          this.productForm.enable(); // Re-enable form
+
+          // More robust form reset
+          this.resetForm();
+
           this.customToasterService.message('Ürünler başarıyla oluşturuldu', 'Başarılı', {
             toastrMessageType: ToastrMessageType.Success,
             position: ToastrPosition.TopRight
           });
         },
-        (error) => {
+        (error) => { // Error Callback
           this.loading = false;
           this.spinnerService.hide();
-          this.productForm.enable();
-          
+          this.productForm.enable(); // Re-enable form on error
+
+          console.error("Product creation error:", error);
+          // Try to parse backend error message if available
+          let errorMessage = 'Ürün oluşturulamadı. Lütfen tekrar deneyin.';
+          if (error && typeof error === 'string') {
+              errorMessage = error; // Use string error directly
+          } 
+
           this.customToasterService.message(
-            'Ürün oluşturulamadı',
+            errorMessage,
             'Hata',
             {
               toastrMessageType: ToastrMessageType.Error,
-              position: ToastrPosition.TopRight
+              position: ToastrPosition.TopRight,
+              
             }
           );
         }
       );
-    } catch (error) {
+    } catch (error) { // Catch synchronous errors or errors from the promise itself
       this.loading = false;
       this.spinnerService.hide();
-      this.productForm.enable();
-      
+      this.productForm.enable(); // Re-enable form
+
+      console.error("Unexpected error during submission:", error);
       this.customToasterService.message(
-        error?.message || 'Bir hata oluştu',
+        'Beklenmedik bir hata oluştu.',
         'Hata',
         {
           toastrMessageType: ToastrMessageType.Error,
@@ -574,46 +630,61 @@ export class ProductCreateComponent implements OnInit {
     }
   }
 
+
   private appendVariantData(formData: FormData, variant: AbstractControl, index: number) {
     const baseData = {
-      name: this.productForm.get('name').value,
-      description: this.getControl(variant, 'description').value,
-      title: this.getControl(variant, 'title').value,
+      name: this.productForm.get('name').value, // Use base name
+      description: this.getControl(variant, 'description').value || '', // Ensure string
+      title: this.getControl(variant, 'title').value || '', // Ensure string
       categoryId: this.productForm.get('categoryId').value,
       brandId: this.productForm.get('brandId').value,
       sku: this.getControl(variant, 'sku').value,
       price: this.getControl(variant, 'price').value,
       stock: this.getControl(variant, 'stock').value,
-      tax: this.productForm.get('tax').value,
-      showcaseImageIndex: this.getControl(variant, 'showcaseImageIndex').value
+      tax: this.productForm.get('tax').value || 0, // Default tax if null/undefined
+      // Send showcaseImageIndex only if it's not null
+      ...(this.getControl(variant, 'showcaseImageIndex').value !== null && { showcaseImageIndex: this.getControl(variant, 'showcaseImageIndex').value })
     };
+    if (this.productForm.get('existingVaryantGroup').value && 
+      this.productForm.get('varyantGroupId').value) {
+        baseData['varyantGroupID'] = this.productForm.get('varyantGroupId').value;
+      }
 
     Object.entries(baseData).forEach(([key, value]) => {
-      formData.append(`Products[${index}].${key}`, value);
+      // Ensure value is not null/undefined before appending
+      if (value !== null && value !== undefined) {
+         // Handle potential boolean values if needed in the future
+         if (typeof value === 'boolean') {
+            formData.append(`Products[${index}].${key}`, value.toString());
+         } else {
+            formData.append(`Products[${index}].${key}`, value);
+         }
+      }
     });
+
 
     this.appendFeatureData(formData, variant, index);
 
-    const images = this.getControl(variant, 'images').value;
-    images.forEach((image: File) => {
-      formData.append(`Products[${index}].ProductImages`, image, image.name);
-    });
+    const images = this.getControl(variant, 'images').value as File[];
+    if (images && images.length > 0) {
+      images.forEach((image: File) => {
+        formData.append(`Products[${index}].ProductImages`, image, image.name);
+      });
+    }
   }
 
+
   private appendFeatureData(formData: FormData, variant: AbstractControl, index: number) {
-    const combination = this.getControl(variant, 'combination').value.split(' - ');
-    
-    this.featureFormArray.controls.forEach((feature, featureIndex) => {
-      const featureId = this.getControl(feature, 'featureId').value;
-      formData.append(`Products[${index}].FeatureIds[${featureIndex}]`, featureId);
-      
-      const featureValue = this.featureValues[featureId]
-        .find(fv => fv.name === combination[featureIndex]);
-      
-      if (featureValue) {
-        formData.append(`Products[${index}].FeatureValueIds[${featureIndex}]`, featureValue.id);
-      }
-    });
+    const combinationDetails = this.getControl(variant, 'combinationDetails').value as { featureId: string, valueId: string }[];
+
+    if (combinationDetails && combinationDetails.length > 0) {
+      combinationDetails.forEach((detail, featureIndex) => {
+          if (detail.featureId && detail.valueId) { // Ensure both IDs exist
+              formData.append(`Products[${index}].FeatureIds[${featureIndex}]`, detail.featureId);
+              formData.append(`Products[${index}].FeatureValueIds[${featureIndex}]`, detail.valueId);
+          }
+      });
+    }
   }
 
   private handleSuccess(message: string) {
@@ -633,19 +704,43 @@ export class ProductCreateComponent implements OnInit {
   }
 
   private resetForm() {
-    this.createForm();
+    // Reset the main form group, keeping category/brand if desired or resetting fully
+    this.productForm.reset({
+        name: '',
+        brandId: '', // Reset brand or keep it based on workflow
+        brandSearch: '',
+        categoryId: '', // Reset category or keep it
+        categorySearch: '',
+        tax: 0
+        // Don't reset arrays here, clear them below
+    });
+
+    // Clear FormArrays explicitly
+    this.featureFormArray.clear();
+    this.variants.clear();
+
+    // Reset state variables
     this.variantsCreated = false;
     this.canGenerateVariants = false;
     this.allSelected = false;
-    this.features = [];
-    this.featureValues = {};
+    this.features = []; // Clear loaded features for the category
+    this.featureValues = {}; // Clear loaded feature values
     this.filteredBrands = [];
     this.showBrandResults = false;
-    this.showCategoryTree = false;
+    this.showCategoryTree = false; // Ensure category tree is hidden
+
+    // Reset image preview URLs
+    this.imageUrls.forEach(url => URL.revokeObjectURL(url));
+    this.imageUrls.clear();
+
+    // Trigger change detection if needed, though reset usually does
+    this.changeDetectorRef.detectChanges();
   }
+
 
   ngOnDestroy() {
     this.brandSearchSubject.complete();
+    // Clean up object URLs
     this.imageUrls.forEach(url => {
       URL.revokeObjectURL(url);
     });
@@ -690,21 +785,30 @@ export class ProductCreateComponent implements OnInit {
     const feature = this.featureFormArray.at(index);
     feature.patchValue({ selectedValues: [] }); // Seçili değerleri sıfırla
     this.updateCanGenerateVariants();
+    this.variantsCreated = false; // Reset variants flag
+    this.variants.clear(); // Clear variants if features change significantly
+    this.updateButtonText();
 }
-
 
 
 onFeatureSelect(event: Event, index: number) {
   const select = event.target as HTMLSelectElement;
   const featureId = select.value;
-  
+
   // Seçilen özelliğin değerlerini temizle
   const feature = this.featureFormArray.at(index);
-  feature.patchValue({ selectedValues: [] });
-  
+  feature.patchValue({ selectedValues: [] }); // Reset selected values
+
+  // Reset variants if feature changes
+  this.variantsCreated = false;
+  this.variants.clear();
+  this.updateCanGenerateVariants();
+  this.updateButtonText();
+
   // Değişiklikleri tetikle
   this.changeDetectorRef.detectChanges();
 }
+
 
 isValueSelected(feature: AbstractControl, valueId: string): boolean {
   const selectedValues = feature.get('selectedValues').value as string[];
@@ -714,27 +818,34 @@ isValueSelected(feature: AbstractControl, valueId: string): boolean {
 toggleFeatureValue(feature: AbstractControl, valueId: string) {
   const selectedValues = [...feature.get('selectedValues').value] as string[];
   const index = selectedValues.indexOf(valueId);
-  
+
   if (index === -1) {
     selectedValues.push(valueId);
   } else {
     selectedValues.splice(index, 1);
   }
-  
+
   feature.patchValue({ selectedValues });
+  // Reset variants if values change
+  this.variantsCreated = false;
+  this.variants.clear();
+  this.updateCanGenerateVariants();
+  this.updateButtonText();
   this.changeDetectorRef.detectChanges();
 }
 
 
 // Varyant oluşturma butonunun aktifliğini kontrol et
 private updateCanGenerateVariants(): void {
-    this.canGenerateVariants = this.featureFormArray.length > 0 && 
+    this.canGenerateVariants = this.featureFormArray.length > 0 &&
         this.featureFormArray.controls.every(control => {
             const featureId = control.get('featureId').value;
             const selectedValues = control.get('selectedValues').value;
-            return featureId && selectedValues.length > 0;
+            // Ensure a feature is selected AND at least one value is selected for it
+            return featureId && Array.isArray(selectedValues) && selectedValues.length > 0;
         });
 }
+
 
 openImageUploadDialog(variant: AbstractControl): void {
   this.dialogService.openDialog({
@@ -746,22 +857,24 @@ openImageUploadDialog(variant: AbstractControl): void {
     afterClosed: (result: File[]) => {
       if (result && result.length > 0) {
         const currentImages = [...this.getControl(variant, 'images').value];
-        result.forEach(file => {
-          if (this.isValidImageFile(file)) {
-            currentImages.push(file);
-          }
-        });
+        const newImages = result.filter(file => this.isValidImageFile(file)); // Filter valid images
+
+        currentImages.push(...newImages); // Add only new, valid images
         this.getControl(variant, 'images').setValue(currentImages);
 
-        // İlk resim yüklendiğinde otomatik olarak showcase olarak ayarla
-        if (currentImages.length === result.length && 
-            this.getControl(variant, 'showcaseImageIndex').value === null) {
-          this.getControl(variant, 'showcaseImageIndex').setValue(0);
-        }
+        // --- REMOVED AUTOMATIC SHOWCASE SETTING ---
+        // if (currentImages.length === newImages.length && // Check if these are the *first* images added
+        //     this.getControl(variant, 'showcaseImageIndex').value === null) {
+        //   this.getControl(variant, 'showcaseImageIndex').setValue(0); // Don't automatically set showcase
+        // }
+        // --- END REMOVED BLOCK ---
+
+        this.changeDetectorRef.detectChanges(); // Ensure view updates
       }
     }
   });
 }
+
 
 // Resim geçerlilik kontrolü
 private isValidImageFile(file: File): boolean {
@@ -773,45 +886,74 @@ private isValidImageFile(file: File): boolean {
 // Showcase image ayarlama
 setShowcaseImage(variant: AbstractControl, imageIndex: number): void {
   const currentShowcaseIndex = this.getControl(variant, 'showcaseImageIndex').value;
+  // If the clicked image is already the showcase, deselect it (set to null)
+  // Otherwise, select the clicked image.
   this.getControl(variant, 'showcaseImageIndex')
     .setValue(currentShowcaseIndex === imageIndex ? null : imageIndex);
+  this.changeDetectorRef.detectChanges(); // Update view
 }
 
-// Resim önizleme URL'i oluşturma
-getImagePreviewUrl(file: File): string {
-  return URL.createObjectURL(file);
-}
+
+// Resim önizleme URL'i oluşturma (Use SafeUrlPipe in template)
+// getImagePreviewUrl(file: File): string {
+//   return URL.createObjectURL(file); // Keep URL creation logic if needed elsewhere, but prefer pipe
+// }
 
 // Resim silme
 removeImage(variant: AbstractControl, imageIndex: number): void {
   const images = [...this.getControl(variant, 'images').value];
-  images.splice(imageIndex, 1);
+  const removedFile = images.splice(imageIndex, 1)[0]; // Remove and get the file
+
+  // Clean up Object URL if using the map
+  const fileId = `${removedFile.name}-${removedFile.lastModified}`;
+  if (this.imageUrls.has(fileId)) {
+      URL.revokeObjectURL(this.imageUrls.get(fileId));
+      this.imageUrls.delete(fileId);
+  }
+
   this.getControl(variant, 'images').setValue(images);
 
-  // Silinen resim showcase ise, showcase'i sıfırla veya ilk resmi seç
+  // Silinen resim showcase ise, showcase'i sıfırla
   const showcaseIndex = this.getControl(variant, 'showcaseImageIndex').value;
   if (showcaseIndex === imageIndex) {
-    this.getControl(variant, 'showcaseImageIndex').setValue(images.length > 0 ? 0 : null);
-  } else if (showcaseIndex > imageIndex) {
+    // If the deleted image was the showcase, reset showcase to null
+    this.getControl(variant, 'showcaseImageIndex').setValue(null);
+  } else if (showcaseIndex !== null && showcaseIndex > imageIndex) {
+    // If a showcase exists and it was after the deleted image, decrement its index
     this.getControl(variant, 'showcaseImageIndex').setValue(showcaseIndex - 1);
   }
+  // If showcase was before the deleted image, its index remains correct.
+
+  this.changeDetectorRef.detectChanges(); // Update view
 }
+
 onImageDrop(variant: AbstractControl, event: CdkDragDrop<File[]>) {
   const images = [...this.getControl(variant, 'images').value];
-  const showcaseIndex = this.getControl(variant, 'showcaseImageIndex').value;
-  
-  moveItemInArray(images, event.previousIndex, event.currentIndex);
+  const currentShowcaseIndex = this.getControl(variant, 'showcaseImageIndex').value;
+  const previousIndex = event.previousIndex;
+  const currentIndex = event.currentIndex;
+
+  // Perform the array move
+  moveItemInArray(images, previousIndex, currentIndex);
   this.getControl(variant, 'images').setValue(images);
 
-  // Showcase image indexini güncelle
-  if (showcaseIndex === event.previousIndex) {
-    this.getControl(variant, 'showcaseImageIndex').setValue(event.currentIndex);
-  } else if (showcaseIndex > event.previousIndex && showcaseIndex <= event.currentIndex) {
-    this.getControl(variant, 'showcaseImageIndex').setValue(showcaseIndex - 1);
-  } else if (showcaseIndex < event.previousIndex && showcaseIndex >= event.currentIndex) {
-    this.getControl(variant, 'showcaseImageIndex').setValue(showcaseIndex + 1);
+  // Update showcase index if it was affected by the move
+  if (currentShowcaseIndex !== null) {
+    if (currentShowcaseIndex === previousIndex) {
+      // If the showcase image itself was moved, update its index
+      this.getControl(variant, 'showcaseImageIndex').setValue(currentIndex);
+    } else if (currentShowcaseIndex > previousIndex && currentShowcaseIndex <= currentIndex) {
+      // If an item was moved from *before* the showcase to *at or after* the showcase's original position
+      this.getControl(variant, 'showcaseImageIndex').setValue(currentShowcaseIndex - 1);
+    } else if (currentShowcaseIndex < previousIndex && currentShowcaseIndex >= currentIndex) {
+      // If an item was moved from *after* the showcase to *at or before* the showcase's original position
+      this.getControl(variant, 'showcaseImageIndex').setValue(currentShowcaseIndex + 1);
+    }
+    // Otherwise, the showcase index remains correct relative to the other images
   }
+  this.changeDetectorRef.detectChanges(); // Update view
 }
+
 
 openDescriptionEditor(variant: AbstractControl, index: number): void {
   const dialogRef = this.dialogService.openDialog({
@@ -824,7 +966,7 @@ openDescriptionEditor(variant: AbstractControl, index: number): void {
     afterClosed: result => {
       if (result !== undefined) {
         this.getControl(variant, 'description').setValue(result);
-        // Event oluşturmak yerine direkt değeri güncelliyoruz
+        // Update other selected variants if needed
         this.updateSelectedVariantsValue('description', result, index);
       }
     }
@@ -833,16 +975,16 @@ openDescriptionEditor(variant: AbstractControl, index: number): void {
 
 // Yeni metod ekleyelim
 updateSelectedVariantsValue(field: string, value: any, currentIndex: number): void {
+  // Check if the *current* variant is selected before propagating
   if (!this.getControl(this.variants.at(currentIndex), 'selected').value) {
-      return;
+      return; // Don't propagate if the source variant isn't selected
   }
 
   this.variants.controls.forEach((control, i) => {
+      // Propagate only to *other* selected variants
       if (i !== currentIndex && this.getControl(control, 'selected').value) {
           this.getControl(control, field).setValue(value);
       }
   });
 }
-
-
 }

@@ -74,6 +74,7 @@ export class PerformanceMonitorService {
       }
     }
   };
+  lastRateLimitError: number | null = null;
 
   constructor(
     private httpClientService: HttpClientService,
@@ -360,7 +361,7 @@ export class PerformanceMonitorService {
    */
    private startPeriodicMetricsCollection(): void {
     // Poll metrics from server every 30 seconds
-    timer(0, 30000).pipe(
+    timer(0, 300000).pipe(
       switchMap(() => this.fetchServerMetrics())
     ).subscribe({
       next: (serverMetrics) => {
@@ -378,8 +379,16 @@ export class PerformanceMonitorService {
    * Fetches metrics from server
    */
   private fetchServerMetrics(): Observable<any> {
-    // If we're in development or don't have a server endpoint, use mock data
+    // Eğer üretim ortamında değilsek veya monitoring etkin değilse mock veri döndür
     if (!this.config.monitoring.enabled || environment.production === false) {
+      return of(this.generateMockServerMetrics());
+    }
+    
+    // Request limit sonrası backoff stratejisi uygulayalım
+    // Son 429 hatasından sonra en az 1 dakika bekleyelim
+    const now = Date.now();
+    if (this.lastRateLimitError && (now - this.lastRateLimitError) < 60000) {
+      console.log('Skipping metrics request due to recent rate limit error');
       return of(this.generateMockServerMetrics());
     }
     
@@ -390,6 +399,9 @@ export class PerformanceMonitorService {
     return this.httpClientService.get<any>(requestParams).pipe(
       catchError((err) => {
         console.error('Error fetching server metrics:', err);
+        if (err.status === 429) {
+          this.lastRateLimitError = Date.now();
+        }
         return of(this.generateMockServerMetrics());
       })
     );

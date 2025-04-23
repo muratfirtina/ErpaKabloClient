@@ -25,11 +25,14 @@ import { DownbarComponent } from '../../downbar/downbar.component';
 import { FooterComponent } from '../../footer/footer.component';
 import { UiProductListComponent } from '../../product/ui-product-list/ui-product-list.component';
 import { DefaultImages } from 'src/app/contracts/defaultImages';
+import { FormsModule } from '@angular/forms';
+import { PaginationComponent } from 'src/app/base/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-brand-page',
   standalone: true,
   imports: [CommonModule,
+    FormsModule,
     MainHeaderComponent,
     NavbarComponent, 
     MatPaginatorModule, 
@@ -38,7 +41,9 @@ import { DefaultImages } from 'src/app/contracts/defaultImages';
     BreadcrumbComponent,
     UiProductListComponent,
     DownbarComponent,
-    FooterComponent],
+    FooterComponent,
+    PaginationComponent
+  ],
   templateUrl: './brand-page.component.html',
   styleUrl: './brand-page.component.scss'
 })
@@ -52,13 +57,15 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
   products: Product[] = [];
   availableFilters: FilterGroup[] = [];
   selectedFilters: { [key: string]: string[] } = {};
-  pageRequest: PageRequest = { pageIndex: 0, pageSize: 10 };
+  pageRequest: PageRequest = { pageIndex: 0, pageSize: 50 };
   totalItems: number = 0;
   noResults: boolean = false;
   sortOrder: string = '';
   isMobile: boolean = false;
   isFiltersLoading: boolean = false;
   isProductsLoading: boolean = false;
+  pageList: number[] = [];
+  Math = Math; // Template'de Math fonksiyonlarını kullanabilmek için
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
@@ -207,11 +214,6 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
     }
   }
 
-  onPageChange(event: PageEvent) {
-    this.pageRequest.pageIndex = event.pageIndex;
-    this.pageRequest.pageSize = event.pageSize;
-    this.loadProducts();
-  }
 
   onSortChange(event: Event) {
     this.sortOrder = (event.target as HTMLSelectElement).value;
@@ -287,5 +289,10 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
   scrollRight() {
     const grid = this.categoryGrid.nativeElement;
     grid.scrollBy({ left: 250, behavior: 'smooth' });
+  }
+
+  handlePageChange(updatedPageRequest: PageRequest): void {
+    this.pageRequest = updatedPageRequest;
+    this.loadProducts(); // Yeni sayfalama bilgilerine göre ürünleri yükle
   }
 }

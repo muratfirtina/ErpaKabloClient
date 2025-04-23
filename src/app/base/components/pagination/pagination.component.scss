@@ -1,0 +1,127 @@
+// Değişkenler
+$home-primary-color: #333333;
+$home-secondary-color: #f0f0f0;
+$accent-color: #ff9900;
+$home-text-color: #333;
+$light-text: #fff;
+$primary-color: #e53935;
+$secondary-color: #212121;
+$background-color: #ffffff;
+$text-color: #484848;
+$border-color: #e0e0e0;
+$hover-color: rgba($primary-color, 0.1);
+$success-color: #059669;
+$link-color: #0000ee;
+
+// Pagination Container
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: $home-primary-color;
+  color: $light-text;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-top: 20px;
+  border: 4px solid $primary-color;
+  
+  .pagination-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    .pagination-select {
+      width: auto;
+      display: inline-block;
+      background-color: $secondary-color;
+      color: $light-text;
+      border: 1px solid darken($secondary-color, 10%);
+      
+      &:focus {
+        border-color: $accent-color;
+        box-shadow: 0 0 0 0.2rem rgba($accent-color, 0.25);
+      }
+      
+      option {
+        background-color: $secondary-color;
+        color: $light-text;
+      }
+    }
+  }
+  
+  .page-counter {
+    color: darken($light-text, 15%);
+    font-size: 14px;
+  }
+  
+  .pagination {
+    margin: 0;
+    
+    .page-item {
+      
+      .page-link {
+        color: $light-text;
+        border: none;
+        background-color: transparent;
+        padding: 6px 12px;
+        min-width: 40px;
+        text-align: center;
+        
+        &:hover {
+          background-color: rgba($light-text, 0.1);
+        }
+
+        &.ellipsis {
+            padding: 6px 8px;
+            cursor: default;
+            background-color: transparent !important;
+            
+            &:hover {
+              background-color: transparent !important;
+            }
+          }
+      }
+      
+      &.active .page-link {
+        background-color: $primary-color;
+        color: $light-text;
+        border-radius: 4px;
+      }
+      
+      &.disabled .page-link {
+        color: darken($light-text, 50%);
+        pointer-events: none;
+        opacity: 0.6;
+      }
+    }
+  }
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 15px;
+    
+    .pagination-info, .page-counter, .pagination {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+    }
+  }
+}
+
+// Dark mode desteği
+@media (prefers-color-scheme: dark) {
+  .pagination-container {
+    background-color: darken($home-primary-color, 5%);
+    
+    .pagination-select {
+      background-color: darken($secondary-color, 5%);
+      border-color: darken($secondary-color, 15%);
+    }
+    
+    .page-item {
+      &.active .page-link {
+        background-color: $primary-color;
+      }
+    }
+  }
+}

@@ -73,11 +73,6 @@ export const appConfig: ApplicationConfig = {
       multi: true
     },
     {
-      provide: HTTP_INTERCEPTORS,
-      useClass: SecurityInterceptor,
-      multi: true
-    },
-    {
       provide: HTTP_INTERCEPTORS, 
       useClass: HttpErrorHandlerInterceptorService,
       multi: true

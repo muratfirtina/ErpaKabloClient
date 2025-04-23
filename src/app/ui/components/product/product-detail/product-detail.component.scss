@@ -453,6 +453,7 @@ $breakpoint-lg: 1200px;
   display: flex;
   align-items: center;
   margin: 1rem 0;
+  
 
   .Btn {
     max-width: 100%;
@@ -470,9 +471,10 @@ $breakpoint-lg: 1200px;
     padding: 0;
   
     .leftContainer {
-      width: 45px;
+      min-width: 50px;
+      width: -webkit-fill-available;
       height: 100%;
-      background-color: rgb(238, 0, 0);
+      background-color: rgb(192, 192, 192);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -491,7 +493,8 @@ $breakpoint-lg: 1200px;
     }
   
     .likeCount {
-      min-width: 45px;
+      min-width: 50px;
+      width: -webkit-fill-available;
       height: 100%;
       display: flex;
       align-items: center;
@@ -500,7 +503,6 @@ $breakpoint-lg: 1200px;
       font-weight: 600;
       position: relative;
       background-color: white;
-      margin: 0 7px;
   
       &::before {
         height: 8px;
@@ -509,7 +511,7 @@ $breakpoint-lg: 1200px;
         content: "";
         background-color: rgb(255, 255, 255);
         transform: rotate(45deg);
-        left: -11px;
+        left: -4px;
       }
     }
   
@@ -529,6 +531,7 @@ $breakpoint-lg: 1200px;
     }
 
     &.liked {
+      border: 1px solid rgb(238, 0, 0);
       .leftContainer {
         background-color: white;
         
