@@ -643,7 +643,9 @@ export class ProductCreateComponent implements OnInit {
       stock: this.getControl(variant, 'stock').value,
       tax: this.productForm.get('tax').value || 0, // Default tax if null/undefined
       // Send showcaseImageIndex only if it's not null
-      ...(this.getControl(variant, 'showcaseImageIndex').value !== null && { showcaseImageIndex: this.getControl(variant, 'showcaseImageIndex').value })
+      showcaseImageIndex: this.getControl(variant, 'showcaseImageIndex').value !== null 
+                         ? this.getControl(variant, 'showcaseImageIndex').value 
+                         : 0
     };
     if (this.productForm.get('existingVaryantGroup').value && 
       this.productForm.get('varyantGroupId').value) {
@@ -857,19 +859,20 @@ openImageUploadDialog(variant: AbstractControl): void {
     afterClosed: (result: File[]) => {
       if (result && result.length > 0) {
         const currentImages = [...this.getControl(variant, 'images').value];
-        const newImages = result.filter(file => this.isValidImageFile(file)); // Filter valid images
+        const newImages = result.filter(file => this.isValidImageFile(file));
 
-        currentImages.push(...newImages); // Add only new, valid images
+        const isFirstImageUpload = currentImages.length === 0; // İlk resim yüklemesi mi?
+        currentImages.push(...newImages);
         this.getControl(variant, 'images').setValue(currentImages);
 
-        // --- REMOVED AUTOMATIC SHOWCASE SETTING ---
-        // if (currentImages.length === newImages.length && // Check if these are the *first* images added
-        //     this.getControl(variant, 'showcaseImageIndex').value === null) {
-        //   this.getControl(variant, 'showcaseImageIndex').setValue(0); // Don't automatically set showcase
-        // }
-        // --- END REMOVED BLOCK ---
+        // Eğer bu ilk yüklenen resimler ise ve henüz vitrin resmi seçilmemişse,
+        // ilk resmi vitrin resmi olarak ayarla
+        if (isFirstImageUpload && 
+            this.getControl(variant, 'showcaseImageIndex').value === null) {
+          this.getControl(variant, 'showcaseImageIndex').setValue(0);
+        }
 
-        this.changeDetectorRef.detectChanges(); // Ensure view updates
+        this.changeDetectorRef.detectChanges();
       }
     }
   });
