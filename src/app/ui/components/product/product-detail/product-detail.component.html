@@ -50,11 +50,13 @@
   <!-- Product Information -->
   <div class="product-info">
     <!-- Product Header -->
-    <p class="product-display">
+    <div class="product-display">
       <a class="product-brand" [routerLink]="['/'+product.brandId]">{{product.brandName}}</a>
-      {{product.name}}
-      {{product.title}}
-    </p>
+      <span class="separator"> | </span>
+      <div class="product-name">{{product.name}}</div>
+      <span class="separator"> </span>
+      <div class="product-title">{{product.title}}</div>
+    </div>
     
     <!-- Like Button -->
     <div class="like-button-container">
@@ -77,7 +79,7 @@
     <!-- Product Features -->
     <div *ngFor="let featurePair of allFeatures | keyvalue" class="product-feature-selector">
       <!-- Feature Name -->
-      <h3>{{featurePair.key}}</h3>
+      <h3 style="color:#e0e0e0;">{{featurePair.key}}</h3>
       
       <!-- Feature Values -->
       <div class="feature-options">
@@ -155,7 +157,7 @@
     *ngIf="randomProducts"
     [products]="randomProducts.items"
     [loading]="randomProductsLoading"
-    [title]="'Other Products Related to This Product'">
+    [title]="'Related Products'">
   </app-product-grid>
 
   <app-product-grid 

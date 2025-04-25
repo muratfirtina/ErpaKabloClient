@@ -94,7 +94,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
 
   async loadMostLikedProducts()
   {
-    this.mostLikedProducts = await this.productService.getMostLikedProducts(10);
+    this.mostLikedProducts = await this.productService.getMostLikedProducts(20);
     if (this.authService.isAuthenticated) {
       const productIds = this.mostLikedProducts.items.map(p => p.id);
       const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
@@ -106,7 +106,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
 
   }
   async loadMostViewedProducts() {
-    this.mostViewedProducts = await this.productService.getMostViewedProducts(10);
+    this.mostViewedProducts = await this.productService.getMostViewedProducts(20);
     if (this.authService.isAuthenticated) {
         const productIds = this.mostViewedProducts.items.map(p => p.id);
         const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
@@ -117,7 +117,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
     }
   }
   async loadBestSellingProducts() {
-    this.bestSellingProducts = await this.productService.getBestSellingProducts(10);
+    this.bestSellingProducts = await this.productService.getBestSellingProducts(20);
     if (this.authService.isAuthenticated) {
         const productIds = this.bestSellingProducts.items.map(p => p.id);
         const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);
@@ -129,7 +129,7 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
 }
 
 async loadRandomProducts() {
-    this.randomProducts = await this.productService.getRandomProducts(10);
+    this.randomProducts = await this.productService.getRandomProducts(20);
     if (this.authService.isAuthenticated) {
         const productIds = this.randomProducts.items.map(p => p.id);
         const likedProductIds = await this.productLikeService.getUserLikedProductIds(productIds);

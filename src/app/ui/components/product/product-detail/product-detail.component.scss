@@ -22,28 +22,50 @@ $breakpoint-lg: 1200px;
 // Mixins
 @mixin respond-to($breakpoint) {
   @if $breakpoint == xs {
-    @media (max-width: $breakpoint-xs) { @content; }
+    @media (max-width: $breakpoint-xs) {
+      @content;
+    }
   } @else if $breakpoint == sm {
-    @media (max-width: $breakpoint-sm) { @content; }
+    @media (max-width: $breakpoint-sm) {
+      @content;
+    }
   } @else if $breakpoint == md {
-    @media (max-width: $breakpoint-md) { @content; }
+    @media (max-width: $breakpoint-md) {
+      @content;
+    }
   } @else if $breakpoint == lg {
-    @media (max-width: $breakpoint-lg) { @content; }
+    @media (max-width: $breakpoint-lg) {
+      @content;
+    }
   }
 }
 
 // Animations
 @keyframes skeleton-loading {
-  0% { background-color: #f0f0f0; }
-  100% { background-color: #e0e0e0; }
+  0% {
+    background-color: #f0f0f0;
+  }
+  100% {
+    background-color: #e0e0e0;
+  }
 }
 
 @keyframes heartBeat {
-  0% { transform: scale(1); }
-  14% { transform: scale(1.3); }
-  28% { transform: scale(1); }
-  42% { transform: scale(1.3); }
-  70% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+  14% {
+    transform: scale(1.3);
+  }
+  28% {
+    transform: scale(1);
+  }
+  42% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(1);
+  }
 }
 
 // Common styles
@@ -53,7 +75,7 @@ $breakpoint-lg: 1200px;
   margin: 0.5rem auto;
   padding: 0 1rem;
   gap: 2rem;
-  font-family: 'Roboto', Arial, sans-serif;
+  font-family: "Roboto", Arial, sans-serif;
   color: $text-color;
 
   @include respond-to(sm) {
@@ -69,7 +91,7 @@ $breakpoint-lg: 1200px;
   margin: 0.5rem auto;
   padding: 0 1rem;
   gap: 2rem;
-  font-family: 'Roboto', Arial, sans-serif;
+  font-family: "Roboto", Arial, sans-serif;
   color: $text-color;
 
   @include respond-to(lg) {
@@ -93,12 +115,12 @@ $breakpoint-lg: 1200px;
 .product-image-gallery {
   flex: 1;
   width: 420px;
-  
+
   @include respond-to(sm) {
     width: 100%;
     height: auto;
   }
-  
+
   .main-image {
     width: 420px;
     height: 420px;
@@ -107,18 +129,18 @@ $breakpoint-lg: 1200px;
     border: 1px solid $border-color;
     border-radius: 6px;
     overflow: hidden;
-    
+
     @include respond-to(md) {
       width: 100%;
       height: auto;
       min-height: 300px;
     }
-    
+
     img {
       width: 420px;
       height: -webkit-fill-available;
       object-fit: contain;
-      
+
       @include respond-to(md) {
         width: 100%;
         height: auto;
@@ -151,7 +173,7 @@ $breakpoint-lg: 1200px;
           opacity: 0.5;
           cursor: not-allowed;
         }
-        
+
         @include respond-to(xs) {
           padding: 0.75rem 0.4rem;
           font-size: 1.2rem;
@@ -165,7 +187,7 @@ $breakpoint-lg: 1200px;
     gap: 0.5rem;
     overflow-x: auto;
     padding: 0.5rem 0;
-    
+
     @include respond-to(md) {
       justify-content: center;
     }
@@ -178,13 +200,14 @@ $breakpoint-lg: 1200px;
       transition: opacity 0.3s ease, border-color 0.3s ease;
       border: 2px solid transparent;
       overflow: hidden;
-      
+
       @include respond-to(md) {
         width: 50px;
         height: 50px;
       }
 
-      &.active, &:hover {
+      &.active,
+      &:hover {
         opacity: 1;
         border-color: $primary-color;
       }
@@ -198,11 +221,24 @@ $breakpoint-lg: 1200px;
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  .product-info{
+    .product-display{
+      .product-brand,
+      .separator,
+      .product-name,
+      .product-title {
+        color: $light-text;
+      }
+    }
+  }
+}
+
 // Product Info
 .product-info {
   flex: 1;
   padding-left: 0;
-  
+
   @media (min-width: 1131px) {
     padding-right: 280px;
   }
@@ -216,32 +252,38 @@ $breakpoint-lg: 1200px;
     font-size: 18px;
     font-weight: bold;
     line-height: 24px;
-    
+    display: flex;
+    gap: 4px;
+
+    @include respond-to(md) {
+      flex-wrap: wrap;
+    }
+
     @include respond-to(xs) {
       font-size: 16px;
       line-height: 22px;
     }
-  }
-  
-  .product-brand {
-    margin-bottom: 0.5rem;
-    color: $primary-color;
-    text-decoration: none;
-    
-    &:hover {
-      text-decoration: underline;
+
+    .product-brand {
+      margin-bottom: 0.5rem;
+      color: $primary-color;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
-  }
-  
-  .product-title {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    color: $text-color;
-    font-weight: 500;
-    
-    @include respond-to(xs) {
-      font-size: 1rem;
-    }
+
+      .product-title {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        color: $light-text;
+        font-weight: 500;
+
+        @include respond-to(xs) {
+          font-size: 1rem;
+        }
+      }
   }
 
   .product-price {
@@ -256,7 +298,7 @@ $breakpoint-lg: 1200px;
     font-size: 0.9rem;
     color: lighten($text-color, 20%);
     margin-bottom: 0;
-    
+
     @include respond-to(xs) {
       font-size: 0.8rem;
     }
@@ -286,7 +328,7 @@ $breakpoint-lg: 1200px;
         color: $text-color;
         cursor: pointer;
         transition: all 0.3s ease;
-        
+
         @include respond-to(sm) {
           padding: 0.4rem 0.8rem;
           font-size: 0.8rem;
@@ -313,7 +355,7 @@ $breakpoint-lg: 1200px;
           flex-direction: column;
           align-items: center;
           padding: 0.5rem;
-          
+
           @include respond-to(sm) {
             .feature-image {
               width: 40px;
@@ -323,12 +365,12 @@ $breakpoint-lg: 1200px;
 
           &:not(.selected) {
             opacity: 0.7;
-            
+
             &:hover {
               opacity: 1;
             }
           }
-    
+
           .feature-image {
             width: 60px;
             height: 60px;
@@ -336,15 +378,15 @@ $breakpoint-lg: 1200px;
             margin-bottom: 0.25rem;
             border: 2px solid transparent;
           }
-    
+
           &.selected .feature-image {
             border-color: $primary-color;
           }
-          
+
           span {
             font-size: 0.8rem;
             text-align: center;
-            
+
             @include respond-to(xs) {
               font-size: 0.7rem;
             }
@@ -358,7 +400,7 @@ $breakpoint-lg: 1200px;
     display: flex;
     align-items: center;
     margin-bottom: 1.5rem;
-    
+
     @include respond-to(sm) {
       flex-direction: column;
       align-items: stretch;
@@ -372,7 +414,7 @@ $breakpoint-lg: 1200px;
       border: 1px solid $border-color;
       border-radius: 6px;
       overflow: hidden;
-      
+
       @include respond-to(sm) {
         width: 100%;
         margin-right: 0;
@@ -424,7 +466,7 @@ $breakpoint-lg: 1200px;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    
+
     @include respond-to(xs) {
       font-size: 0.9rem;
       padding: 0.6rem;
@@ -438,7 +480,7 @@ $breakpoint-lg: 1200px;
       opacity: 0.5;
       cursor: not-allowed;
     }
-    
+
     .cart-icon {
       @include respond-to(xs) {
         width: 18px;
@@ -453,7 +495,6 @@ $breakpoint-lg: 1200px;
   display: flex;
   align-items: center;
   margin: 1rem 0;
-  
 
   .Btn {
     max-width: 100%;
@@ -469,7 +510,7 @@ $breakpoint-lg: 1200px;
     background-color: transparent;
     transition: all 0.3s ease;
     padding: 0;
-  
+
     .leftContainer {
       min-width: 50px;
       width: -webkit-fill-available;
@@ -480,18 +521,18 @@ $breakpoint-lg: 1200px;
       justify-content: center;
       gap: 8px;
       transition: all 0.3s ease;
-  
+
       svg {
         transition: transform 0.3s ease;
         height: 1.2em;
       }
-  
+
       .like {
         color: white;
         font-weight: 600;
       }
     }
-  
+
     .likeCount {
       min-width: 50px;
       width: -webkit-fill-available;
@@ -503,7 +544,7 @@ $breakpoint-lg: 1200px;
       font-weight: 600;
       position: relative;
       background-color: white;
-  
+
       &::before {
         height: 8px;
         width: 8px;
@@ -514,15 +555,15 @@ $breakpoint-lg: 1200px;
         left: -4px;
       }
     }
-  
+
     &:hover .leftContainer {
       background-color: rgb(219, 0, 0);
     }
-  
+
     &:active {
       .leftContainer {
         background-color: rgb(201, 0, 0);
-        
+
         svg {
           transform: scale(1.15);
           transform-origin: top;
@@ -534,20 +575,20 @@ $breakpoint-lg: 1200px;
       border: 1px solid rgb(238, 0, 0);
       .leftContainer {
         background-color: white;
-        
+
         svg {
           fill: rgb(238, 0, 0);
         }
-        
+
         .like {
           color: rgb(238, 0, 0);
         }
       }
-      
+
       .likeCount {
         background-color: rgb(238, 0, 0);
         color: white;
-        
+
         &::before {
           background-color: rgb(238, 0, 0);
         }
@@ -567,7 +608,7 @@ $breakpoint-lg: 1200px;
   margin: 0 auto;
   max-width: 1200px;
   font-family: Arial, sans-serif;
-  
+
   @include respond-to(lg) {
     max-width: 95%;
   }
@@ -580,7 +621,7 @@ $breakpoint-lg: 1200px;
     border-bottom: 1px solid #e0e0e0;
     overflow-x: auto;
     white-space: nowrap;
-    
+
     @include respond-to(md) {
       flex-wrap: nowrap;
       overflow-x: auto;
@@ -594,12 +635,12 @@ $breakpoint-lg: 1200px;
       color: #484848;
       border-bottom: 3px solid transparent;
       transition: all 0.3s ease;
-      
+
       @include respond-to(md) {
         flex: 0 0 auto;
         white-space: nowrap;
       }
-      
+
       @include respond-to(xs) {
         padding: 0.75rem 1rem;
         font-size: 0.9rem;
@@ -621,7 +662,7 @@ $breakpoint-lg: 1200px;
         border-radius: 10px;
         font-size: 0.8rem;
         margin-left: 0.5rem;
-        
+
         @include respond-to(xs) {
           font-size: 0.7rem;
         }
@@ -631,7 +672,7 @@ $breakpoint-lg: 1200px;
 
   .tab-content {
     padding: 2rem 0;
-    
+
     @include respond-to(xs) {
       padding: 1rem;
     }
@@ -640,32 +681,21 @@ $breakpoint-lg: 1200px;
       font-size: 1.5rem;
       color: #484848;
       margin-bottom: 1rem;
-      
+
       @include respond-to(xs) {
         font-size: 1.2rem;
       }
     }
-    
+
     .description-wrapper {
       .description-content {
         line-height: 1.6;
-        
+
         @include respond-to(xs) {
           font-size: 0.9rem;
         }
       }
     }
-  }
-}
-
-// Products section
-.products {
-  padding-bottom: 35px;
-  max-width: 1200px;
-  margin: 0 auto;
-  
-  @include respond-to(lg) {
-    max-width: 95%;
   }
 }
 

@@ -68,7 +68,7 @@ $link-color: #0000ee;
       position: absolute;
       top: 50%;
       transform: translateY(-50%);
-      background-color: rgba($secondary-color, 0.5);
+      background-color: rgba($secondary-color, 0.2);
       color: $background-color;
       border: none;
       border-radius: 50%;
@@ -106,7 +106,7 @@ $link-color: #0000ee;
       }
   
       .scroll-btn {
-        background-color: rgba($home-primary-color, 0.8);
+        background-color: rgba($light-text, 0.3);
         color: $light-text;
   
         &:hover {
@@ -138,7 +138,7 @@ $link-color: #0000ee;
         margin: 0 20px;
   
         .product-list {
-          gap: 8px;
+          gap: 6px;
           
           .grid-item {
             width: 180px;

@@ -1,4 +1,4 @@
-$font-family-base: 'Source Sans Pro', sans-serif;
+$font-family-base: "Source Sans Pro", sans-serif;
 $home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
@@ -113,28 +113,31 @@ $link-color: #0000ee;
   .product-info {
     padding: 1rem 1rem 0rem 1rem;
 
-    .brand-name {
-      line-height: 12px;
-      color: $primary-color;
-      font-size: 14px;
-      margin-bottom: 0.25rem;
-      font-weight: 700;
-    }
+    .product-info-header {
+      min-height: 60px;
+      .brand-name {
+        line-height: 12px;
+        color: $primary-color;
+        font-size: 14px;
+        margin-bottom: 0.25rem;
+        font-weight: 700;
+      }
 
-    .product-name {
-      font-size: 14px;
-      font-weight: 600;
-      color: $text-color;
-      margin-bottom: 0.25rem;
-      line-height: 12px;
-    }
+      .product-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: $text-color;
+        margin-bottom: 0.25rem;
+        line-height: 12px;
+      }
 
-    .product-title {
-      font-size: 14px;
-      font-weight: 400;
-      color: $text-color;
-      margin-bottom: 0.5rem;
-      line-height: 16px;
+      .product-title {
+        font-size: 14px;
+        font-weight: 400;
+        color: $text-color;
+        margin-bottom: 0.5rem;
+        line-height: 16px;
+      }
     }
 
     .price-section {
@@ -246,7 +249,7 @@ $link-color: #0000ee;
     }
 
     .product-info {
-      .name-title {
+      .product-info-header {
         .brand-name {
           color: $primary-color;
         }
@@ -254,10 +257,10 @@ $link-color: #0000ee;
         .product-name {
           color: $light-text;
         }
-      }
 
-      .product-title {
-        color: rgba($light-text, 0.9);
+        .product-title {
+          color: rgba($light-text, 0.9);
+        }
       }
 
       .product-price {
@@ -300,7 +303,7 @@ $link-color: #0000ee;
   background-color: rgba($primary-color, 0.1);
   color: $primary-color;
   font-weight: 600;
-  
+
   &:hover {
     background-color: rgba($primary-color, 0.2);
   }
@@ -310,7 +313,8 @@ $link-color: #0000ee;
 
 .features-section {
   position: relative;
-  
+  min-height: 100px;
+
   .features-popup {
     position: absolute;
     bottom: calc(100% + 5px); // features-container'ın üstünde 5px boşlukla
@@ -324,7 +328,7 @@ $link-color: #0000ee;
     padding: 12px;
     z-index: 100;
     animation: fadeIn 0.2s ease;
-    
+
     .popup-title {
       font-weight: 600;
       font-size: 14px;
@@ -334,12 +338,12 @@ $link-color: #0000ee;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       padding-bottom: 6px;
     }
-    
+
     .popup-features-container {
       display: flex;
       flex-direction: column;
       gap: 10px; // Özellikler arasındaki boşluğu arttır
-      
+
       .feature-badge {
         padding: 10px 12px; // İç boşluğu arttır
         background-color: rgba(255, 255, 255, 0.15);
@@ -348,20 +352,20 @@ $link-color: #0000ee;
         color: white;
         text-align: center;
         word-break: break-word; // Uzun kelimelerde taşmayı önle
-        
+
         &:hover {
           background-color: rgba(255, 255, 255, 0.25);
         }
       }
     }
   }
-  
+
   .features-container {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 1rem;
-    
+
     .feature-badge {
       padding: 0.375rem 0.75rem;
       margin-top: 0.5rem;
@@ -370,22 +374,28 @@ $link-color: #0000ee;
       font-size: 0.875rem;
       color: $text-color;
     }
-    
+
     .more-features {
       cursor: pointer;
       background-color: rgba($primary-color, 0.1);
       color: $primary-color;
       font-weight: 600;
-      
+
       &:hover {
         background-color: rgba($primary-color, 0.2);
       }
     }
   }
-  
+
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 
@@ -394,17 +404,17 @@ $link-color: #0000ee;
   .features-section {
     .features-popup {
       background-color: rgba(255, 255, 255, 0.85);
-      
+
       .popup-title {
         color: $home-primary-color;
         border-bottom: 1px solid rgba(0, 0, 0, 0.1);
       }
-      
+
       .popup-features-container {
         .feature-badge {
           background-color: rgba(0, 0, 0, 0.1);
           color: $home-primary-color;
-          
+
           &:hover {
             background-color: rgba(0, 0, 0, 0.2);
           }
