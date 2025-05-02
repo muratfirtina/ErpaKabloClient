@@ -114,6 +114,12 @@ export class AppComponent implements OnInit, OnDestroy {
     // Call initialize once. The service handles its own connection lifecycle.
     this.visitorTrackingService.initialize().catch(err => {
       console.error("Visitor tracking service initialization failed:", err);
+      // 30 saniye sonra tekrar dene
+      setTimeout(() => {
+        this.visitorTrackingService.reconnect().catch(e => {
+          console.error("Visitor tracking re-initialization failed:", e);
+        });
+      }, 30000);
     });
   }
 
@@ -121,6 +127,7 @@ export class AppComponent implements OnInit, OnDestroy {
     // Clean up subscriptions to prevent memory leaks
     this.onlineStatusSubscription?.unsubscribe();
     this.swUpdateSubscription?.unsubscribe();
+    this.visitorTrackingService.dispose(); // Assuming this method exists for cleanup
     // VisitorTrackingService and TokenCheckService should handle their own cleanup if needed
   }
 
