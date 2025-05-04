@@ -57,6 +57,12 @@
       <span class="separator"> </span>
       <div class="product-title">{{product.title}}</div>
     </div>
+    <div class="admin-actions" *ngIf="isAdmin">
+      <button class="admin-edit-button" (click)="navigateToProductUpdate(product.id)">
+        <span class="icon">✏️</span>
+        Edit Product
+      </button>
+    </div>
     
     <!-- Like Button -->
     <div class="like-button-container">

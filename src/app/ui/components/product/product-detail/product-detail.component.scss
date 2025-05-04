@@ -222,8 +222,8 @@ $breakpoint-lg: 1200px;
 }
 
 @media (prefers-color-scheme: dark) {
-  .product-info{
-    .product-display{
+  .product-info {
+    .product-display {
       .product-brand,
       .separator,
       .product-name,
@@ -274,16 +274,44 @@ $breakpoint-lg: 1200px;
       }
     }
 
-      .product-title {
-        font-size: 1.2rem;
-        margin-bottom: 0.5rem;
-        color: $light-text;
-        font-weight: 500;
+    .product-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.5rem;
+      color: $light-text;
+      font-weight: 500;
 
-        @include respond-to(xs) {
-          font-size: 1rem;
-        }
+      @include respond-to(xs) {
+        font-size: 1rem;
       }
+    }
+    
+  }
+  .admin-actions {
+    margin: 1rem 0;
+    display: flex;
+
+    .admin-edit-button {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background-color: #ffb700;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #ffa200;
+      }
+
+      .icon {
+        font-size: 1.2rem;
+      }
+    }
   }
 
   .product-price {

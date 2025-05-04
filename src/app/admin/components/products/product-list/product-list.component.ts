@@ -1,16 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormBuilder } from '@angular/forms';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatTableModule } from '@angular/material/table';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
+import { PaginationComponent } from 'src/app/base/components/pagination/pagination.component';
 import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { Product } from 'src/app/contracts/product/product';
 import { ProductFilterByDynamic } from 'src/app/contracts/product/productFilterByDynamic';
@@ -25,18 +19,16 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, 
+  imports: [
+    CommonModule, 
+    RouterModule, 
+    FormsModule, 
     ReactiveFormsModule, 
-    MatPaginatorModule, 
-    MatTableModule, 
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatAutocompleteModule,
-    DeleteDirectiveComponent,],
+    DeleteDirectiveComponent,
+    PaginationComponent
+  ],
   templateUrl: './product-list.component.html',
-  styleUrls: ['./product-list.component.scss', '../../../../../styles.scss']
+  styleUrls: ['./product-list.component.scss']
 })
 export class ProductListComponent extends BaseComponent implements OnInit {
 
@@ -50,7 +42,6 @@ export class ProductListComponent extends BaseComponent implements OnInit {
   count: number = 0;
   pages: number = 0;
   pageList: number[] = [];
-  displayedColumns: string[] = ['No', 'Image', 'Feature', 'Product', 'CategoryName', 'VariantID' ,'Update','Delete'];
   searchForm: FormGroup;
   private searchCache: Product[] = []; // Arama sonuçları önbelleği
   private currentSearchTerm: string = ''; // Mevcut arama terimi
@@ -60,7 +51,6 @@ export class ProductListComponent extends BaseComponent implements OnInit {
     private productService: ProductService,
     private toastrService: CustomToastrService,
     private dialogService: DialogService,
-    private activatedRoute: ActivatedRoute,
     private fb: FormBuilder
   ) {
     super(spinner);
@@ -108,9 +98,8 @@ export class ProductListComponent extends BaseComponent implements OnInit {
     this.hideSpinner(SpinnerType.BallSpinClockwise);
   }
 
-  onPageChange(event: any) {
-    this.pageRequest.pageIndex = event.pageIndex;
-    this.pageRequest.pageSize = event.pageSize;
+  onPageChange(event: PageRequest) {
+    this.pageRequest = event;
     this.currentPageNo = event.pageIndex + 1;
     this.pageSize = event.pageSize;
     this.getProducts();
@@ -128,12 +117,13 @@ export class ProductListComponent extends BaseComponent implements OnInit {
       this.count = this.pagedProducts.length;
       this.pages = Math.ceil(this.count / this.pageSize);
       this.currentPageNo = 1;
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
     } else {
       // Sunucuya yeni bir istek at
       const filters: Filter[] = this.buildFilters(searchTerm);
   
       const dynamicQuery: DynamicQuery = {
-        sort: [{ field: 'Name', dir: 'asc' }], // 'Name' alanını güncellediğinizden emin olun
+        sort: [{ field: 'Name', dir: 'asc' }],
         filter: filters.length > 0 ? {
           logic: 'and',
           filters: filters
@@ -158,7 +148,6 @@ export class ProductListComponent extends BaseComponent implements OnInit {
       });
     }
   }
-  
 
   private buildFilters(searchTerm: string): Filter[] {
     const terms = searchTerm.split(' ').filter(term => term.length > 0);
@@ -211,8 +200,6 @@ export class ProductListComponent extends BaseComponent implements OnInit {
       name.includes(term) || variantGroupId.includes(term) || description.includes(term) || title.includes(term)
     );
   }
-  
-  
 
   removeProductFromList(productId: string) {
     this.pagedProducts = this.pagedProducts.filter(product => product.id !== productId);
@@ -224,5 +211,4 @@ export class ProductListComponent extends BaseComponent implements OnInit {
       this.getProducts();
     }
   }
-  
 }

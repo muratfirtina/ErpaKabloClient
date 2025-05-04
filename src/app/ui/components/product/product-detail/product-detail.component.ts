@@ -61,6 +61,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
   activeTab: string = 'description';
   isImageZoomed: boolean = false;
   isAuthenticated: boolean = false;
+  isAdmin: boolean = false;
   likeCount: number = 0;
   randomProductsLoading: boolean = false;
   randomProductsForBrandLoading: boolean = false;
@@ -83,6 +84,8 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
   }
 
   async ngOnInit() {
+    this.isAuthenticated = this.authService.isAuthenticated;
+    this.isAdmin = this.authService.isAdmin;
     if (this.productId) {
       this.loadProduct(this.productId);
       this.loadLikeCount(this.productId);
@@ -102,6 +105,12 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
       this.loadLikeCount(this.productId);
       this.loadRandomProducts(this.productId);
       this.loadRandomProductsForBrand(this.productId);
+    }
+  }
+
+  navigateToProductUpdate(productId: string) {
+    if (productId) {
+      this.router.navigate(['/admin/products/product-update', productId]);
     }
   }
 
