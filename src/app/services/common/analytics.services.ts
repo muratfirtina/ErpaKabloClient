@@ -80,7 +80,7 @@ export class AnalyticsService {
           clickmap:true,
         trackLinks:true,
         accurateTrackBounce:true,
-        ecommerce:"dataLayer"
+        ecommerce:"dataLayer",
           ut: "noindex", // IP anonimization for Yandex
           exp: 31536000 // 1 year cookie expiration in seconds
         });
