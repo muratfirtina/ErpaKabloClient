@@ -1,8 +1,17 @@
 <app-main-header></app-main-header>
 <app-navbar></app-navbar>
 
+<!-- Loading State Indicator -->
+<div *ngIf="isLoading" class="loading-container">
+  <app-spinner [spinnerType]="'s2'" [showOverlay]="false"></app-spinner>
+  <div class="loading-progress">
+    <div class="progress-bar" [style.width.%]="loadingProgress"></div>
+  </div>
+  <div class="loading-text">Loading content...</div>
+</div>
+
 <!-- Professional Carousel Section -->
-<section class="hero-carousel d-none d-md-block">
+<section class="hero-carousel d-none d-md-block" *ngIf="!isLoading">
   <div class="carousel-container">
     <div *ngFor="let item of carousels; let i = index" 
          class="carousel-slide" 
@@ -15,7 +24,38 @@
           <a href="#" class="btn-cta">Learn More</a>
         </div>
         <div class="image-content">
-          <img [src]="item.carouselImageFiles[0]?.url" [alt]="item.name">
+          <!-- Display image if carousel item has images -->
+          <img *ngIf="!item.isVideo && item.carouselImageFiles && item.carouselImageFiles.length > 0" 
+               [src]="item.carouselImageFiles[0]?.url" 
+               [alt]="item.name">
+          
+          <!-- Display video if carousel item is a video -->
+          <div *ngIf="item.isVideo" class="video-content">
+            <!-- For directly uploaded videos -->
+            <video *ngIf="item.videoType === 'local' && item.videoUrl" 
+                   controls autoplay muted loop>
+              <source [src]="item.videoUrl" [type]="item.videoMimeType || 'video/mp4'">
+              Your browser does not support the video tag.
+            </video>
+            
+            <!-- For YouTube videos -->
+            <iframe *ngIf="item.videoType === 'youtube' && item.videoId"
+                    width="100%" height="100%"
+                    [src]="sanitizeUrl('https://www.youtube.com/embed/' + item.videoId)"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+            
+            <!-- For Vimeo videos -->
+            <iframe *ngIf="item.videoType === 'vimeo' && item.videoId"
+                    width="100%" height="100%"
+                    [src]="sanitizeUrl('https://player.vimeo.com/video/' + item.videoId)"
+                    frameborder="0"
+                    allow="autoplay; fullscreen; picture-in-picture"
+                    allowfullscreen>
+            </iframe>
+          </div>
         </div>
       </div>
     </div>
@@ -31,7 +71,7 @@
   </div>
 </section>
 
-<section class="categories">
+<section class="categories" *ngIf="!isLoading">
   <div class="category-header" *ngIf="!isMobile">MAIN CATEGORIES</div>
   <div class="category-container"> <!-- container -> category-container -->
     <button class="scroll-btn left" (click)="scrollCategories('left')">
@@ -64,7 +104,7 @@
 </section>
 
 
-<section class="products">
+<section class="products" *ngIf="!isLoading">
   <app-product-grid 
     *ngIf="mostLikedProducts"
     [products]="mostLikedProducts.items"
@@ -72,7 +112,7 @@
   </app-product-grid>
 </section>
 
-<section class="products">
+<section class="products" *ngIf="!isLoading">
   <app-product-grid 
     *ngIf="mostViewedProducts"
     [products]="mostViewedProducts.items"
@@ -80,7 +120,7 @@
   </app-product-grid>
 </section>
 
-<section class="products">
+<section class="products" *ngIf="!isLoading">
   <app-product-grid 
     *ngIf="bestSellingProducts"
     [products]="bestSellingProducts.items"
@@ -88,7 +128,7 @@
   </app-product-grid>
 </section>
 
-<section class="products">
+<section class="products" *ngIf="!isLoading">
   <app-product-grid 
     *ngIf="randomProducts"
     [products]="randomProducts.items"

@@ -10,7 +10,7 @@ import { GetListResponse } from 'src/app/contracts/getListResponse';
 })
 export class CarouselService {
 
-  constructor(private httpClientService:HttpClientService) { }
+  constructor(private httpClientService: HttpClientService) { }
 
   async create(carouselData: FormData, successCallback?: () => void, errorCallback?: (errorMessage: string) => void) {
     const observable: Observable<any> = this.httpClientService.post({
@@ -22,8 +22,8 @@ export class CarouselService {
     return await promiseData;
   }
 
-  async list(pageRequest:PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Carousel>>{
-    const observable : Observable<GetListResponse<Carousel>> = this.httpClientService.get<GetListResponse<Carousel>>({
+  async list(pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Carousel>> {
+    const observable: Observable<GetListResponse<Carousel>> = this.httpClientService.get<GetListResponse<Carousel>>({
       controller: "carousels",
       queryString: `pageIndex=${pageRequest.pageIndex}&pageSize=${pageRequest.pageSize}`
     });
@@ -31,7 +31,6 @@ export class CarouselService {
     promiseData.then(successCallback)
       .catch(errorCallback);
     return await promiseData;
-    
   }
 
   async update(carousel: FormData, successCallBack?: () => void, errorCallBack?: (errorMessage: string) => void) {
@@ -44,5 +43,19 @@ export class CarouselService {
     }).catch(error => {
       errorCallBack(error);
     });
+  }
+
+  // Helper method to extract YouTube video ID from URL
+  extractYoutubeVideoId(url: string): string | null {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  }
+
+  // Helper method to extract Vimeo video ID from URL
+  extractVimeoVideoId(url: string): string | null {
+    const regExp = /vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|)(\d+)(?:|\/\?)/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
   }
 }

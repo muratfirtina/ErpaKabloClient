@@ -13,6 +13,7 @@ import { Feature } from 'src/app/contracts/feature/feature';
 import { DynamicQuery } from 'src/app/contracts/dynamic-query';
 import { FilterGroup } from 'src/app/contracts/product/filter/filters';
 import { Category } from 'src/app/contracts/category/category';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -235,6 +236,48 @@ async searchProducts(searchTerm: string, pageRequest: PageRequest): Promise<{
     }, formData);
     
     return await firstValueFrom(observable);
+  }
+
+  uploadDescriptionImageWithProgress(formData: FormData): Observable<HttpEvent<any>> {
+    return this.httpClientService.post<any, HttpEvent<any>>({
+      controller: "products",
+      action: "upload-description-image"
+    }, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+  }
+  
+  /**
+   * İlerleme takipli video yükleme metodu
+   */
+  async uploadDescriptionVideo(formData: FormData, progressCallback?: (progress: number) => void): Promise<any> {
+    const observable = this.httpClientService.post<any, HttpEvent<any>>({
+      controller: "products",
+      action: "upload-description-video"
+    }, formData, {
+      reportProgress: true,
+      observe: 'events'
+    });
+  
+    return new Promise((resolve, reject) => {
+      observable.subscribe(
+        (event: HttpEvent<any>) => {
+          if (event.type === HttpEventType.UploadProgress && event.total && progressCallback) {
+            const progress = Math.round(100 * event.loaded / event.total);
+            progressCallback(progress);
+          }
+  
+          if (event.type === HttpEventType.Response) {
+            resolve(event.body);
+          }
+        },
+        error => {
+          console.error('Error uploading video:', error);
+          reject(error);
+        }
+      );
+    });
   }
   async getMostViewedProducts(count: number = 10): Promise<GetListResponse<Product>> {
     const observable: Observable<GetListResponse<Product>> = this.httpClientService.get<GetListResponse<Product>>({

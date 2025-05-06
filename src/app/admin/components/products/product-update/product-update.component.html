@@ -114,12 +114,12 @@
   
         <!-- Full Width Description Editor -->
         <div class="col-12 mb-4">
-          <label class="form-label">Açıklama</label>
-          <angular-editor 
-            formControlName="description"
-            [config]="editorConfig"
-            placeholder="Ürün açıklamasını girin">
-          </angular-editor>
+          <div class="d-flex align-items-center mb-2">
+            <label class="form-label me-2 mb-0">Açıklama</label>
+            <button type="button" class="btn btn-primary btn-sm" (click)="openDescriptionEditor()">
+              <i class="fa fa-edit me-1"></i> Detaylı Düzenle
+            </button>
+          </div>
         </div>
   
         <!-- Features Section -->

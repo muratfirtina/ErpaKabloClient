@@ -7,23 +7,26 @@ declare let gtag: Function;
 declare let ym: Function;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AnalyticsService {
   private googleInitialized = false;
   private yandexInitialized = false;
-  
+
   constructor(private router: Router) {
     // Add listener for route changes to track page views
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: NavigationEnd) => {
-      this.trackPageView(event.urlAfterRedirects);
-    });
+    this.router.events
+      .pipe(filter((event) => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        this.trackPageView(event.urlAfterRedirects);
+      });
   }
 
   // Initialize all analytics platforms based on consent
-  initializeAnalytics(consentSettings: {analytics: boolean, marketing?: boolean}) {
+  initializeAnalytics(consentSettings: {
+    analytics: boolean;
+    marketing?: boolean;
+  }) {
     if (consentSettings.analytics) {
       this.initGoogleAnalytics(environment.analytics.googleAnalyticsId);
       this.initYandexMetrika(environment.analytics.yandexMetrikaId);
@@ -36,7 +39,7 @@ export class AnalyticsService {
       const script1 = document.createElement('script');
       script1.async = true;
       script1.src = `https://www.googletagmanager.com/gtag/js?id=${trackingId}`;
-      
+
       const script2 = document.createElement('script');
       script2.innerHTML = `
         window.dataLayer = window.dataLayer || [];
@@ -52,10 +55,10 @@ export class AnalyticsService {
           'analytics_storage': 'granted'
         });
       `;
-      
+
       document.head.appendChild(script1);
       document.head.appendChild(script2);
-      
+
       this.googleInitialized = true;
       console.log('Google Analytics initialized with consent');
     }
@@ -74,16 +77,15 @@ export class AnalyticsService {
         (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
         ym(${counterId}, "init", {
-          clickmap: true,
-          trackLinks: true,
-          accurateTrackBounce: true,
-          webvisor: true,
-          ecommerce: "dataLayer",
+          clickmap:true,
+        trackLinks:true,
+        accurateTrackBounce:true,
+        ecommerce:"dataLayer"
           ut: "noindex", // IP anonimization for Yandex
           exp: 31536000 // 1 year cookie expiration in seconds
         });
       `;
-      
+
       const noscript = document.createElement('noscript');
       const div = document.createElement('div');
       const img = document.createElement('img');
@@ -91,13 +93,13 @@ export class AnalyticsService {
       img.style.position = 'absolute';
       img.style.left = '-9999px';
       img.alt = '';
-      
+
       div.appendChild(img);
       noscript.appendChild(div);
-      
+
       document.head.appendChild(script);
       document.body.appendChild(noscript);
-      
+
       this.yandexInitialized = true;
       console.log('Yandex Metrika initialized with consent');
     }
@@ -107,14 +109,14 @@ export class AnalyticsService {
     this.disableGoogleAnalytics();
     this.disableYandexMetrika();
   }
-  
+
   private disableGoogleAnalytics() {
     if (typeof window !== 'undefined' && window['gaOptout'] === undefined) {
       window['gaOptout'] = true;
       // Opt-out for GA
       if (typeof gtag === 'function') {
         gtag('consent', 'update', {
-          'analytics_storage': 'denied'
+          analytics_storage: 'denied',
         });
       }
       // Remove GA cookies
@@ -123,7 +125,7 @@ export class AnalyticsService {
       console.log('Google Analytics disabled');
     }
   }
-  
+
   private disableYandexMetrika() {
     if (typeof window !== 'undefined' && typeof ym === 'function') {
       // Disable Yandex tracking if possible
@@ -132,16 +134,16 @@ export class AnalyticsService {
       } catch (e) {
         console.error('Error disabling Yandex Metrika:', e);
       }
-      
+
       // Remove Yandex Metrika cookies
       this.removeCookies(['_ym_uid', '_ym_d', '_ym_isad', '_ym_visorc']);
       this.yandexInitialized = false;
       console.log('Yandex Metrika disabled');
     }
   }
-  
+
   private removeCookies(cookieNames: string[]) {
-    cookieNames.forEach(name => {
+    cookieNames.forEach((name) => {
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     });
   }
@@ -150,7 +152,7 @@ export class AnalyticsService {
   trackPageView(path: string) {
     if (this.googleInitialized && typeof gtag === 'function') {
       gtag('config', environment.analytics.googleAnalyticsId, {
-        'page_path': path
+        page_path: path,
       });
     }
     if (this.yandexInitialized && typeof ym === 'function') {
@@ -159,13 +161,19 @@ export class AnalyticsService {
   }
 
   // Track events
-  trackEvent(eventName: string, eventCategory: string, eventAction: string, eventLabel: string = null, eventValue: number = null) {
+  trackEvent(
+    eventName: string,
+    eventCategory: string,
+    eventAction: string,
+    eventLabel: string = null,
+    eventValue: number = null
+  ) {
     if (this.googleInitialized && typeof gtag === 'function') {
       gtag('event', eventName, {
-        'event_category': eventCategory,
-        'event_action': eventAction,
-        'event_label': eventLabel,
-        'value': eventValue
+        event_category: eventCategory,
+        event_action: eventAction,
+        event_label: eventLabel,
+        value: eventValue,
       });
     }
     if (this.yandexInitialized && typeof ym === 'function') {
@@ -173,7 +181,7 @@ export class AnalyticsService {
         category: eventCategory,
         action: eventAction,
         label: eventLabel,
-        value: eventValue
+        value: eventValue,
       });
     }
   }
@@ -189,14 +197,16 @@ export class AnalyticsService {
       gtag('event', 'add_to_cart', {
         currency: 'USD',
         value: product.price * quantity,
-        items: [{
-          item_id: product.id,
-          item_name: product.name,
-          item_brand: product.brandName,
-          item_category: product.categoryName,
-          price: product.price,
-          quantity: quantity
-        }]
+        items: [
+          {
+            item_id: product.id,
+            item_name: product.name,
+            item_brand: product.brandName,
+            item_category: product.categoryName,
+            price: product.price,
+            quantity: quantity,
+          },
+        ],
       });
     }
     if (this.yandexInitialized && typeof ym === 'function') {
@@ -209,8 +219,8 @@ export class AnalyticsService {
           brand: product.brandName,
           category: product.categoryName,
           price: product.price,
-          quantity: quantity
-        }
+          quantity: quantity,
+        },
       });
     }
   }
@@ -220,29 +230,36 @@ export class AnalyticsService {
       gtag('event', 'remove_from_cart', {
         currency: 'USD',
         value: product.price * quantity,
-        items: [{
-          item_id: product.id,
-          item_name: product.name,
-          item_brand: product.brandName,
-          item_category: product.categoryName,
-          price: product.price,
-          quantity: quantity
-        }]
+        items: [
+          {
+            item_id: product.id,
+            item_name: product.name,
+            item_brand: product.brandName,
+            item_category: product.categoryName,
+            price: product.price,
+            quantity: quantity,
+          },
+        ],
       });
     }
     if (this.yandexInitialized && typeof ym === 'function') {
-      ym(environment.analytics.yandexMetrikaId, 'reachGoal', 'remove_from_cart', {
-        currency: 'USD',
-        value: product.price * quantity,
-        item: {
-          id: product.id,
-          name: product.name,
-          brand: product.brandName,
-          category: product.categoryName,
-          price: product.price,
-          quantity: quantity
+      ym(
+        environment.analytics.yandexMetrikaId,
+        'reachGoal',
+        'remove_from_cart',
+        {
+          currency: 'USD',
+          value: product.price * quantity,
+          item: {
+            id: product.id,
+            name: product.name,
+            brand: product.brandName,
+            category: product.categoryName,
+            price: product.price,
+            quantity: quantity,
+          },
         }
-      });
+      );
     }
   }
 
@@ -253,12 +270,12 @@ export class AnalyticsService {
         value: order.totalAmount,
         currency: 'USD',
         tax: order.tax,
-        items: order.orderItems.map(item => ({
+        items: order.orderItems.map((item) => ({
           item_id: item.productId,
           item_name: item.productName,
           price: item.price,
-          quantity: item.quantity
-        }))
+          quantity: item.quantity,
+        })),
       });
     }
     if (this.yandexInitialized && typeof ym === 'function') {
@@ -266,12 +283,12 @@ export class AnalyticsService {
         order_id: order.orderCode,
         order_price: order.totalAmount,
         currency: 'USD',
-        goods: order.orderItems.map(item => ({
+        goods: order.orderItems.map((item) => ({
           id: item.productId,
           name: item.productName,
           price: item.price,
-          quantity: item.quantity
-        }))
+          quantity: item.quantity,
+        })),
       });
     }
   }
@@ -282,13 +299,15 @@ export class AnalyticsService {
       gtag('event', 'view_item', {
         currency: 'USD',
         value: product.price,
-        items: [{
-          item_id: product.id,
-          item_name: product.name,
-          item_brand: product.brandName,
-          item_category: product.categoryName,
-          price: product.price
-        }]
+        items: [
+          {
+            item_id: product.id,
+            item_name: product.name,
+            item_brand: product.brandName,
+            item_category: product.categoryName,
+            price: product.price,
+          },
+        ],
       });
     }
     if (this.yandexInitialized && typeof ym === 'function') {
@@ -300,8 +319,8 @@ export class AnalyticsService {
           name: product.name,
           brand: product.brandName,
           category: product.categoryName,
-          price: product.price
-        }
+          price: product.price,
+        },
       });
     }
   }

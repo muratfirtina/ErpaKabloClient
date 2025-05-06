@@ -26,6 +26,7 @@ import { HttpEvent, HttpResponse } from '@angular/common/http';
 import { Observable, from, map } from 'rxjs';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { MatButtonModule } from '@angular/material/button';
+import { DescriptionEditorDialogComponent } from 'src/app/dialogs/description-editor-dialog/description-editor-dialog.component';
 
 interface FlatNode {
   expandable: boolean;
@@ -166,7 +167,6 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     
     // Form değişikliklerini izleme
     this.productForm.valueChanges.subscribe(() => {
-      console.log('Form değişti');
       // Formu dirty olarak işaretle
       this.productForm.markAsDirty();
     });
@@ -174,7 +174,6 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     // Angular editor için özel takip
     this.productForm.get('description').valueChanges.subscribe(value => {
       this.productForm.markAsDirty();
-      console.log('Description değişti, form dirty mi:', this.productForm.dirty);
     });
   }
 
@@ -262,7 +261,6 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       // En son özellikleri yükle
       await this.loadProductFeatures();
       
-      console.log('Ürün yükleme tamamlandı');
     } catch (error) {
       console.error('Ürün yükleme hatası:', error);
       this.customToastrService.message("Ürün yüklenemedi", "Hata", {
@@ -476,12 +474,10 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   
   async loadCategoryFeatures(categoryId: string) {
     try {
-      console.log('Ürün özellikleri yükleniyor...');
       const category = await this.categoryService.getById(categoryId);
       
       if (category && category.features) {
         this.features = category.features;
-        console.log(`${this.features.length} adet özellik bulundu`);
         
         // Özellik değerlerini bekleyerek yükle
         const promises = this.features.map(feature => this.loadFeatureValues(feature.id));
@@ -490,10 +486,8 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
         // Özellik değerlerini kontrol et
         this.features.forEach(feature => {
           const values = this.featureValues[feature.id];
-          console.log(`${feature.name} özelliği için ${values ? values.length : 0} değer yüklendi`);
         });
       } else {
-        console.log('Kategoride özellik bulunamadı');
       }
     } catch (error) {
       console.error('Ürün özellikleri yüklenemedi:', error);
@@ -506,14 +500,11 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
 
   async loadFeatureValues(featureId: string) {
     try {
-      console.log(`${featureId} özelliği için değerler yükleniyor...`);
       const feature = await this.featureService.getById(featureId);
       
       if (feature && feature.featureValues) {
         this.featureValues[featureId] = feature.featureValues;
-        console.log(`${featureId} özelliği için ${feature.featureValues.length} değer yüklendi`);
       } else {
-        console.log(`${featureId} özelliği için değer bulunamadı`);
         this.featureValues[featureId] = []; // Boş dizi başlat
       }
     } catch (error) {
@@ -534,13 +525,6 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   }
 
   onSubmit() {
-    console.log('onSubmit çağrıldı');
-    console.log('Form durumu - valid:', this.productForm.valid, 'dirty:', this.productForm.dirty);
-    
-    // Form validasyonu kontrolünü gevşetelim - hatalar görünsün
-    if (this.productForm.invalid) {
-      console.log('Form geçersiz. Hatalar:', this.getFormErrors());
-    }
     
     // Form geçersiz olsa bile devam edelim
     const formData = new FormData();
@@ -582,7 +566,6 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       }
     });
   
-    console.log('Form data hazırlandı, gönderiliyor...');
     
     this.productService.update(formData,
       () => {
@@ -638,6 +621,23 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     });
   }
 
+  openDescriptionEditor() {
+    this.dialogService.openDialog({
+      componentType: DescriptionEditorDialogComponent,
+      data: { description: this.productForm.get('description').value || '' },
+      options: {
+        width: '1200px',
+        height: '600px'
+      },
+      afterClosed: result => {
+        if (result !== undefined) {
+          this.productForm.patchValue({ description: result });
+          this.productForm.markAsDirty();
+        }
+      }
+    });
+  }
+
   removeImage(index: number) {
     this.productImageFiles.removeAt(index);
     if (this.productImageFiles.length > 0 && !this.productImageFiles.controls.some(control => control.get('showcase').value)) {
@@ -652,7 +652,6 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       featureValueId: [''],
       featureValueName: ['']
     }));
-    console.log('Yeni özellik eklendi');
   }
 
   removeFeature(index: number) {
@@ -660,21 +659,17 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
   }
 
   onFeatureChange(index: number) {
-    console.log(`Özellik değişti, index: ${index}`);
     const featureControl = this.productFeatureValues.at(index);
     const featureId = featureControl.get('featureId').value;
     
-    console.log(`Seçilen özellik ID: ${featureId}`);
     
     if (!featureId) {
-      console.log('Özellik ID boş');
       return;
     }
     
     const feature = this.features.find(f => f.id === featureId);
     
     if (feature) {
-      console.log(`Bulunan özellik: ${feature.name}`);
       featureControl.patchValue({ 
         featureName: feature.name,
         // Özellik değiştiğinde değeri sıfırla
@@ -684,25 +679,20 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
       
       // Değerleri kontrol et
       const values = this.getFeatureValues(featureId);
-      console.log(`${feature.name} için ${values.length} değer var`);
       
       // Form durumunu güncelle
       this.productForm.markAsDirty();
     } else {
-      console.log(`ID'si ${featureId} olan özellik bulunamadı`);
     }
   }
 
   onFeatureValueChange(index: number) {
-    console.log(`Özellik değeri değişti, index: ${index}`);
     const featureControl = this.productFeatureValues.at(index);
     const featureId = featureControl.get('featureId').value;
     const featureValueId = featureControl.get('featureValueId').value;
     
-    console.log(`Özellik ID: ${featureId}, Değer ID: ${featureValueId}`);
     
     if (!featureId || !featureValueId) {
-      console.log('Özellik ID veya değer ID boş');
       return;
     }
     
@@ -710,13 +700,11 @@ export class ProductUpdateComponent extends BaseComponent implements OnInit {
     const featureValue = values.find(fv => fv.id === featureValueId);
     
     if (featureValue) {
-      console.log(`Bulunan değer: ${featureValue.name}`);
       featureControl.patchValue({ featureValueName: featureValue.name });
       
       // Form durumunu güncelle
       this.productForm.markAsDirty();
     } else {
-      console.log(`ID'si ${featureValueId} olan değer bulunamadı`);
     }
   }
 

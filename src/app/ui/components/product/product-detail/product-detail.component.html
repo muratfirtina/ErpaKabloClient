@@ -4,8 +4,18 @@
   <app-breadcrumb></app-breadcrumb>
 </div>
 
+<!-- Loading State Indicator -->
+<!-- Loading State Indicator -->
+<div *ngIf="isLoading" class="loading-container">
+  <app-spinner [spinnerType]="'s2'" [showOverlay]="false"></app-spinner>
+  <div class="loading-progress">
+    <div class="progress-bar" [style.width.%]="loadingProgress"></div>
+  </div>
+  <div class="loading-text">product loading...</div>
+</div>
+
 <!-- Loading Skeleton -->
-<div *ngIf="!product" class="product-skeleton">
+<div *ngIf="!product && !isLoading" class="product-skeleton">
   <div class="image-skeleton"></div>
   <div class="info-skeleton">
     <div class="title-skeleton"></div>
@@ -19,7 +29,7 @@
 </div>
 
 <!-- Product Detail -->
-<div *ngIf="product" class="product-detail-container">
+<div *ngIf="product && !isLoading" class="product-detail-container">
   <!-- Product Images -->
   <div class="product-image-gallery">
     <div class="main-image" (click)="toggleImageZoom()">
@@ -141,7 +151,7 @@
 </div>
 
 <!-- Product Detail Tabs -->
-<div class="product-detail-tabs">
+<div class="product-detail-tabs" *ngIf="product && !isLoading">
   <ul class="tab-headers">
     <li class="tab-header" [class.active]="activeTab === 'description'" (click)="setActiveTab('description')">
       Descriptions
@@ -158,7 +168,7 @@
 </div>
 
 <!-- Related Products -->
-<section class="products">
+<section class="products" *ngIf="!isLoading">
   <app-product-grid 
     *ngIf="randomProducts"
     [products]="randomProducts.items"

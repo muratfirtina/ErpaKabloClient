@@ -178,6 +178,10 @@ body {
       .image-content {
         position: relative;
         left: 15%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
 
         img {
           height: 300px;
@@ -199,6 +203,42 @@ body {
           @media (max-width: 1024px) {
             max-height: 350px;
             max-width: 550px;
+          }
+        }
+        
+        // Video content styles
+        .video-content {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          
+          video, iframe {
+            max-height: 300px;
+            max-width: 100%;
+            width: auto;
+            height: auto;
+            mask-image: linear-gradient(
+              to right,
+              transparent 0%,
+              white 30%,
+              white 60%,
+              transparent 100%
+            );
+            -webkit-mask-image: linear-gradient(
+              to right,
+              transparent 0%,
+              white 30%,
+              white 60%,
+              transparent 100%
+            );
+            
+            @media (max-width: 1024px) {
+              max-height: 350px;
+              max-width: 550px;
+            }
           }
         }
       }
@@ -551,5 +591,70 @@ body {
     font-size: 0.9rem;
     color: #666;
     line-height: 1.5;
+  }
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #e53935;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-progress {
+  width: 250px;
+  height: 6px;
+  background-color: #eee;
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #e53935;
+  transition: width 0.3s ease;
+}
+
+.loading-text {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+// Dark mode desteği
+@media (prefers-color-scheme: dark) {
+  .loading-container {
+    background-color: rgba(51, 51, 51, 0.9);
+  }
+  
+  .loading-spinner {
+    border-color: rgba(255, 255, 255, 0.1);
+    border-top-color: #e53935;
+  }
+  
+  .loading-progress {
+    background-color: #333;
+  }
+  
+  .loading-text {
+    color: #e0e0e0;
   }
 }

@@ -1,33 +1,101 @@
 <div class="carousel-create-container">
-    <h1>Create Carousel</h1>
-  
-    <form (ngSubmit)="createCarousel()" #carouselForm="ngForm" enctype="multipart/form-data">
-      <div class="form-group">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" [(ngModel)]="carouselData.name" class="form-control" required />
+  <h1>Create Carousel</h1>
+
+  <form (ngSubmit)="createCarousel()" #carouselForm="ngForm" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" [(ngModel)]="carouselData.name" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" [(ngModel)]="carouselData.description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="order">Order</label>
+      <input type="number" id="order" name="order" [(ngModel)]="carouselData.order" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+      <label for="isActive">Is Active</label>
+      <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="carouselData.isActive" class="form-check-input" />
+    </div>
+
+    <!-- Media Type Selector -->
+    <div class="form-group">
+      <label>Media Type</label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="mediaType" id="mediaTypeImage" 
+               [(ngModel)]="carouselData.mediaType" value="image" checked>
+        <label class="form-check-label" for="mediaTypeImage">
+          Image
+        </label>
       </div>
-  
-      <div class="form-group">
-        <label for="description">Description</label>
-        <textarea id="description" name="description" [(ngModel)]="carouselData.description" class="form-control"></textarea>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="mediaType" id="mediaTypeVideo" 
+               [(ngModel)]="carouselData.mediaType" value="video">
+        <label class="form-check-label" for="mediaTypeVideo">
+          Video
+        </label>
       </div>
-  
-      <div class="form-group">
-        <label for="order">Order</label>
-        <input type="number" id="order" name="order" [(ngModel)]="carouselData.order" class="form-control" required />
+    </div>
+
+    <!-- Conditional display based on media type -->
+    <div *ngIf="carouselData.mediaType === 'image'" class="form-group">
+      <label for="carouselImageFiles">Upload Images</label>
+      <input type="file" id="carouselImageFiles" (change)="onFileSelected($event)" class="form-control" multiple accept="image/*" />
+    </div>
+
+    <div *ngIf="carouselData.mediaType === 'video'" class="form-group">
+      <div class="video-input-container">
+        <label>Video Type</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="videoType" id="videoTypeUpload" 
+                [(ngModel)]="carouselData.videoType" value="upload" checked>
+          <label class="form-check-label" for="videoTypeUpload">
+            Upload Video
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="videoType" id="videoTypeYoutube" 
+                [(ngModel)]="carouselData.videoType" value="youtube">
+          <label class="form-check-label" for="videoTypeYoutube">
+            YouTube Link
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="videoType" id="videoTypeVimeo" 
+                [(ngModel)]="carouselData.videoType" value="vimeo">
+          <label class="form-check-label" for="videoTypeVimeo">
+            Vimeo Link
+          </label>
+        </div>
       </div>
-  
-      <div class="form-group">
-        <label for="isActive">Is Active</label>
-        <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="carouselData.isActive" class="form-check-input" />
+
+      <!-- Upload video file -->
+      <div *ngIf="carouselData.videoType === 'upload'" class="form-group">
+        <label for="carouselVideoFiles">Upload Video</label>
+        <input type="file" id="carouselVideoFiles" (change)="onVideoFileSelected($event)" class="form-control" accept="video/*" />
       </div>
-  
-      <div class="form-group">
-        <label for="carouselImageFiles">Upload Images</label>
-        <input type="file" id="carouselImageFiles" (change)="onFileSelected($event)" class="form-control" multiple />
+
+      <!-- YouTube URL input -->
+      <div *ngIf="carouselData.videoType === 'youtube'" class="form-group">
+        <label for="youtubeUrl">YouTube URL</label>
+        <input type="text" id="youtubeUrl" name="youtubeUrl" [(ngModel)]="carouselData.videoUrl" 
+               class="form-control" placeholder="e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ" />
+        <small class="text-muted">Enter a valid YouTube video URL</small>
       </div>
-  
-      <button type="submit" class="btn btn-primary" [disabled]="!carouselForm.valid">Create Carousel</button>
-    </form>
-  </div>
-  
+
+      <!-- Vimeo URL input -->
+      <div *ngIf="carouselData.videoType === 'vimeo'" class="form-group">
+        <label for="vimeoUrl">Vimeo URL</label>
+        <input type="text" id="vimeoUrl" name="vimeoUrl" [(ngModel)]="carouselData.videoUrl" 
+               class="form-control" placeholder="e.g., https://vimeo.com/123456789" />
+        <small class="text-muted">Enter a valid Vimeo video URL</small>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="!carouselForm.valid">Create Carousel</button>
+  </form>
+</div>

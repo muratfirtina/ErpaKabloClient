@@ -1,47 +1,183 @@
 <div class="carousel-update-container">
-    <h1>Update Carousel</h1>
-  
-    <div class="carousel-list">
-      <h2>Select a Carousel to Update</h2>
-      <ul>
-        <li *ngFor="let carousel of carousels.items" (click)="onCarouselSelect(carousel)">
-          <h5>{{ carousel.name }}</h5>
-          <p>{{ carousel.description }}</p>
-          <img *ngIf="carousel.carouselImageFiles.length > 0" [src]="carousel.carouselImageFiles[0].url" alt="{{ carousel.carouselImageFiles[0].alt }}">
-        </li>
-      </ul>
-    </div>
-  
-    <div class="update-form" *ngIf="selectedCarousel">
-      <h2>Update {{ selectedCarousel.name }}</h2>
-      <form (ngSubmit)="updateCarousel()" #carouselForm="ngForm">
-        <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" id="name" name="name" [(ngModel)]="selectedCarousel.name" class="form-control" required />
+  <h1>Update Carousel</h1>
+
+  <div class="carousel-list">
+    <h2>Select a Carousel to Update</h2>
+    <ul>
+      <li *ngFor="let carousel of carousels.items" (click)="onCarouselSelect(carousel)">
+        <div class="carousel-list-item">
+          <div class="carousel-info">
+            <h5>{{ carousel.name }}</h5>
+            <p>{{ carousel.description }}</p>
+          </div>
+          <div class="carousel-media">
+            <!-- Resim olarak kaydedilmiş carousel -->
+            <img *ngIf="carousel.mediaType !== 'video' && carousel.carouselImageFiles && carousel.carouselImageFiles.length > 0" 
+                 [src]="carousel.carouselImageFiles[0]?.url" 
+                 [alt]="carousel.carouselImageFiles[0]?.alt || carousel.name">
+            
+            <!-- Video olarak kaydedilmiş carousel -->
+            <div *ngIf="carousel.mediaType === 'video'" class="video-thumbnail">
+              <div class="video-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                  <path d="M8 5v14l11-7z" fill="currentColor"/>
+                </svg>
+              </div>
+              <span>Video: {{ getVideoTypeName(carousel.videoType) }}</span>
+            </div>
+          </div>
         </div>
-  
-        <div class="form-group">
-          <label for="description">Description</label>
-          <textarea id="description" name="description" [(ngModel)]="selectedCarousel.description" class="form-control"></textarea>
-        </div>
-  
-        <div class="form-group">
-          <label for="order">Order</label>
-          <input type="number" id="order" name="order" [(ngModel)]="selectedCarousel.order" class="form-control" required />
-        </div>
-  
-        <div class="form-group">
-          <label for="isActive">Is Active</label>
-          <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="selectedCarousel.isActive" class="form-check-input" />
-        </div>
-  
-        <div class="form-group">
-          <label for="carouselImageFiles">Upload New Images</label>
-          <input type="file" id="carouselImageFiles" (change)="onFileSelected($event)" class="form-control" multiple />
-        </div>
-  
-        <button type="submit" class="btn btn-primary" [disabled]="!carouselForm.valid">Update Carousel</button>
-      </form>
-    </div>
+      </li>
+    </ul>
   </div>
-  
+
+  <div class="update-form" *ngIf="selectedCarousel">
+    <h2>Update {{ selectedCarousel.name }}</h2>
+    <form (ngSubmit)="updateCarousel()" #carouselForm="ngForm">
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" [(ngModel)]="selectedCarousel.name" class="form-control" required />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" [(ngModel)]="selectedCarousel.description" class="form-control"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="order">Order</label>
+        <input type="number" id="order" name="order" [(ngModel)]="selectedCarousel.order" class="form-control" required />
+      </div>
+
+      <div class="form-group">
+        <label for="isActive">Is Active</label>
+        <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="selectedCarousel.isActive" class="form-check-input" />
+      </div>
+
+      <!-- Media Type Selector -->
+      <div class="form-group">
+        <label>Media Type</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="mediaType" id="mediaTypeImage" 
+                 [(ngModel)]="selectedCarousel.mediaType" value="image">
+          <label class="form-check-label" for="mediaTypeImage">
+            Image
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="mediaType" id="mediaTypeVideo" 
+                 [(ngModel)]="selectedCarousel.mediaType" value="video">
+          <label class="form-check-label" for="mediaTypeVideo">
+            Video
+          </label>
+        </div>
+      </div>
+
+      <!-- Conditional display based on media type -->
+      <div *ngIf="selectedCarousel.mediaType === 'image'" class="form-group">
+        <label for="carouselImageFiles">Upload Images</label>
+        <input type="file" id="carouselImageFiles" (change)="onFileSelected($event)" class="form-control" multiple accept="image/*" />
+        
+        <!-- Mevcut resimleri göster -->
+        <div class="current-images" *ngIf="selectedCarousel.carouselImageFiles && selectedCarousel.carouselImageFiles.length > 0">
+          <h4>Current Images</h4>
+          <div class="image-grid">
+            <div class="image-item" *ngFor="let image of selectedCarousel.carouselImageFiles; let i = index">
+              <img [src]="image.url" [alt]="image.alt || 'Carousel image'">
+              <div class="image-actions">
+                <button type="button" class="btn btn-danger btn-sm" (click)="removeExistingImage(i)">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedCarousel.mediaType === 'video'" class="form-group">
+        <div class="video-input-container">
+          <label>Video Type</label>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="videoType" id="videoTypeUpload" 
+                  [(ngModel)]="selectedCarousel.videoType" value="upload">
+            <label class="form-check-label" for="videoTypeUpload">
+              Upload Video
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="videoType" id="videoTypeYoutube" 
+                  [(ngModel)]="selectedCarousel.videoType" value="youtube">
+            <label class="form-check-label" for="videoTypeYoutube">
+              YouTube Link
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="videoType" id="videoTypeVimeo" 
+                  [(ngModel)]="selectedCarousel.videoType" value="vimeo">
+            <label class="form-check-label" for="videoTypeVimeo">
+              Vimeo Link
+            </label>
+          </div>
+        </div>
+
+        <!-- Upload video file -->
+        <div *ngIf="selectedCarousel.videoType === 'upload'" class="form-group">
+          <label for="carouselVideoFiles">Upload Video</label>
+          <input type="file" id="carouselVideoFiles" (change)="onVideoFileSelected($event)" class="form-control" accept="video/*" />
+          
+          <!-- Mevcut video -->
+          <div *ngIf="selectedCarousel.videoUrl" class="current-video mt-3">
+            <h4>Current Video</h4>
+            <div class="video-preview">
+              <video controls width="320">
+                <source [src]="selectedCarousel.videoUrl" type="video/mp4">
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+        </div>
+
+        <!-- YouTube URL input -->
+        <div *ngIf="selectedCarousel.videoType === 'youtube'" class="form-group">
+          <label for="youtubeUrl">YouTube URL</label>
+          <input type="text" id="youtubeUrl" name="videoUrl" [(ngModel)]="selectedCarousel.videoUrl" 
+                class="form-control" placeholder="e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ" />
+          <small class="text-muted">Enter a valid YouTube video URL</small>
+          
+          <!-- Preview -->
+          <div *ngIf="selectedCarousel.videoId" class="youtube-preview mt-3">
+            <h4>Video Preview</h4>
+            <iframe width="320" height="180" 
+                   [src]="getYouTubeEmbedUrl(selectedCarousel.videoId)" 
+                   frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                   allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+
+        <!-- Vimeo URL input -->
+        <div *ngIf="selectedCarousel.videoType === 'vimeo'" class="form-group">
+          <label for="vimeoUrl">Vimeo URL</label>
+          <input type="text" id="vimeoUrl" name="videoUrl" [(ngModel)]="selectedCarousel.videoUrl" 
+                class="form-control" placeholder="e.g., https://vimeo.com/123456789" />
+          <small class="text-muted">Enter a valid Vimeo video URL</small>
+          
+          <!-- Preview -->
+          <div *ngIf="selectedCarousel.videoId" class="vimeo-preview mt-3">
+            <h4>Video Preview</h4>
+            <iframe width="320" height="180" 
+                   [src]="getVimeoEmbedUrl(selectedCarousel.videoId)" 
+                   frameborder="0" allow="autoplay; fullscreen; picture-in-picture" 
+                   allowfullscreen>
+            </iframe>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="!carouselForm.valid">Update Carousel</button>
+    </form>
+  </div>
+</div>

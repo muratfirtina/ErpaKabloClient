@@ -7,6 +7,7 @@ import { Category } from 'src/app/contracts/category/category';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
 import { CategoryUpdate } from 'src/app/contracts/category/category-update';
 import { CategoryGetById } from 'src/app/contracts/category/category-getbyid';
+import { param } from 'jquery';
 
 @Injectable({
   providedIn: 'root'
@@ -80,6 +81,19 @@ export class CategoryService {
     return await promiseData;
     
   }
+  
+ async getSubCategoriesByMultipleIds(categoryIds: string[]): Promise<{[categoryId: string]: GetListResponse<Category>}> {
+   if (!categoryIds || categoryIds.length === 0) {
+     return {};
+   }
+   
+   const observable = this.httpClientService.post<{[categoryId: string]: GetListResponse<Category>}>({
+     controller: 'categories',
+     action: 'GetSubCategoriesByMultipleIds'
+   }, categoryIds);
+   
+   return await firstValueFrom(observable);
+ }
 
   async getCategoriesByDynamicQuery(dynamicQuery: any, pageRequest: PageRequest, successCallback?: () => void, errorCallback?: (errorMessage: string) => void): Promise<GetListResponse<Category>> {
     const observable: Observable<GetListResponse<Category>> = this.httpClientService.post<GetListResponse<Category>>({

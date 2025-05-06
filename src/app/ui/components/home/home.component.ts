@@ -23,11 +23,13 @@ import { ProductGridComponent } from '../product/product-grid/product-grid.compo
 import { FooterComponent } from '../footer/footer.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { DefaultImages } from 'src/app/contracts/defaultImages';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [MainHeaderComponent, CommonModule, NavbarComponent, RouterModule, DownbarComponent, ProductGridComponent, FooterComponent],
+  imports: [MainHeaderComponent, CommonModule, NavbarComponent, RouterModule, DownbarComponent, ProductGridComponent, FooterComponent,SpinnerComponent],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss']
 })
@@ -42,6 +44,8 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
   bestSellingProducts: GetListResponse<Product>;
   randomProducts: GetListResponse<Product>;
   defaultProductImage = DefaultImages.defaultProductImage;
+  isLoading: boolean = true;
+  loadingProgress: number = 0;
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
@@ -52,28 +56,67 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    spinner: SpinnerService,
+    private spinnerService: SpinnerService, 
     private categoryService: CategoryService,
     private carouselService: CarouselService,
     private productService: ProductService,
     private productLikeService: ProductLikeService,
     private productOperations: ProductOperationsService,
     private authService: AuthService,
+    private sanitizer: DomSanitizer
   ) {
-    super(spinner);
+    super(spinnerService);
   }
 
   async ngOnInit() {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
-    await this.loadMainCategories();
-    await this.loadCarousels();
-    await this.loadMostLikedProducts();
-    await this.loadMostViewedProducts(),
-    await this.loadBestSellingProducts(),
-    await this.loadRandomProducts()
-    this.hideSpinner(SpinnerType.BallSpinClockwise);
-    this.startSlideShow();
-    this.checkScreenSize()
+    this.isLoading = true;
+    this.loadingProgress = 0;
+    this.spinnerService.updateProgress(SpinnerType.SquareLoader, 0);
+    this.showSpinner(SpinnerType.SquareLoader);
+    
+    try {
+      // Ana kategorileri yükle
+      await this.loadMainCategories();
+      this.loadingProgress = 15;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 15);
+      
+      // Carouselleri yükle
+      await this.loadCarousels();
+      this.loadingProgress = 30;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 30);
+      
+      // En çok beğenilen ürünleri yükle
+      await this.loadMostLikedProducts();
+      this.loadingProgress = 50;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 50);
+      
+      // En çok görüntülenen ürünleri yükle
+      await this.loadMostViewedProducts();
+      this.loadingProgress = 65;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 65);
+      
+      // En çok satan ürünleri yükle
+      await this.loadBestSellingProducts();
+      this.loadingProgress = 80;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 80);
+      
+      // Rastgele ürünleri yükle
+      await this.loadRandomProducts();
+      this.loadingProgress = 100;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 100);
+      
+    } catch (error) {
+      console.error('Error loading home data:', error);
+    } finally {
+      this.hideSpinner(SpinnerType.SquareLoader);
+      
+      // Küçük bir gecikme ile yükleme durumunu kapat
+      setTimeout(() => {
+        this.isLoading = false;
+        this.startSlideShow();
+        this.checkScreenSize();
+      }, 300);
+    }
   }
 
   ngOnDestroy() {
@@ -90,6 +133,32 @@ export class HomeComponent extends BaseComponent implements OnInit, OnDestroy {
     const pageRequest: PageRequest = { pageIndex: -1, pageSize: -1 };
     const response = await this.carouselService.list(pageRequest, () => {}, (error) => {});
     this.carousels = response.items;
+    
+    // Process video URLs
+    this.carousels.forEach(carousel => {
+      // Check if this is a video carousel
+      if (carousel.mediaType === 'video') {
+        carousel.isVideo = true;
+        
+        if (carousel.videoType === 'youtube') {
+          // Extract YouTube video ID from URL
+          const videoIdMatch = carousel.videoUrl?.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+          if (videoIdMatch && videoIdMatch[1]) {
+            carousel.videoId = videoIdMatch[1];
+          }
+        } 
+        else if (carousel.videoType === 'vimeo') {
+          // Extract Vimeo video ID from URL
+          const videoIdMatch = carousel.videoUrl?.match(/vimeo\.com\/(?:channels\/(?:\w+\/)?|groups\/(?:[^\/]*)\/videos\/|)(\d+)(?:|\/\?)/);
+          if (videoIdMatch && videoIdMatch[1]) {
+            carousel.videoId = videoIdMatch[1];
+          }
+        }
+      }
+    });
+  }
+  sanitizeUrl(url: string): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 
   async loadMostLikedProducts()

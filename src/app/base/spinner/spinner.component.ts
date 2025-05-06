@@ -12,7 +12,12 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
 })
 export class SpinnerComponent implements OnInit {
   @Input() spinnerType: string = 's1';
-  @Input() showOverlay: boolean = true;  // Yeni input ekleyelim
+  @Input() showOverlay: boolean = true;
+  @Input() showProgress: boolean = false; // New: enable progress mode
+  @Input() showProgressBar: boolean = true; // New: control progress bar visibility
+  @Input() progressValue: number = 0; // New: progress percentage
+  @Input() loadingText: string = ''; // New: loading text
+  
   loading$!: Observable<boolean>;
 
   constructor(private spinner: SpinnerService) {}

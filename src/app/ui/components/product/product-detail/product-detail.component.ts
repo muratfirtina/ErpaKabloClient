@@ -24,6 +24,7 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../../footer/footer.component';
 import { AnalyticsService } from 'src/app/services/common/analytics.services';
 import { DefaultImages } from 'src/app/contracts/defaultImages';
+import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
 
 @Component({
   selector: 'app-product-detail',
@@ -40,7 +41,8 @@ import { DefaultImages } from 'src/app/contracts/defaultImages';
     BreadcrumbComponent,
     DownbarComponent,
     ProductGridComponent,
-    FooterComponent
+    FooterComponent,
+    SpinnerComponent 
   ]
 })
 export class ProductDetailComponent extends BaseComponent implements OnInit, OnChanges {
@@ -65,6 +67,10 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
   likeCount: number = 0;
   randomProductsLoading: boolean = false;
   randomProductsForBrandLoading: boolean = false;
+  
+  // Yeni değişkenler
+  isLoading: boolean = true;
+  loadingProgress: number = 0;
 
   @ViewChild('productGrid') productGrid!: ElementRef;
   
@@ -78,33 +84,71 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
     private productLikeService: ProductLikeService,
     private productOperations: ProductOperationsService,
     private analyticsService: AnalyticsService,
-    spinner: SpinnerService
+    private spinnerService: SpinnerService // 'spinner' yerine 'private spinnerService' kullan
   ) {
-    super(spinner);
+    super(spinnerService);
   }
 
   async ngOnInit() {
     this.isAuthenticated = this.authService.isAuthenticated;
     this.isAdmin = this.authService.isAdmin;
-    if (this.productId) {
-      this.loadProduct(this.productId);
-      this.loadLikeCount(this.productId);
-      this.loadRandomProducts(this.productId);
-      this.loadRandomProductsForBrand(this.productId);
-      if (this.authService.isAuthenticated) {
-        await this.productService.trackProductView(this.productId);
-      }
-    }
+  
     this.determineVisualFeatures();
     this.isAuthenticated = this.authService.isAuthenticated;
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if ((changes['productId'] || changes['key']) && this.productId) {
-      this.loadProduct(this.productId);
-      this.loadLikeCount(this.productId);
-      this.loadRandomProducts(this.productId);
-      this.loadRandomProductsForBrand(this.productId);
+      this.loadData();
+    }
+  }
+
+  // Tüm veri yükleme işlemlerini sıralı olarak yönetmek için yeni metod
+  async loadData() {
+    this.isLoading = true;
+    this.loadingProgress = 0;
+    this.spinnerService.updateProgress(SpinnerType.SquareLoader, 0);
+  
+    try {
+      // Ana ürün verisini yükle
+      await this.loadProduct(this.productId);
+      this.loadingProgress = 25;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 25);
+      
+      // Beğeni sayısını yükle
+      await this.loadLikeCount(this.productId);
+      this.loadingProgress = 50;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 50);
+      
+      // Rastgele ürünleri yükle
+      await this.loadRandomProducts(this.productId);
+      this.loadingProgress = 75;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 75);
+      
+      // Marka için rastgele ürünleri yükle
+      await this.loadRandomProductsForBrand(this.productId);
+      this.loadingProgress = 100;
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, 100);
+      
+      // Görüntülenme istatistiği kaydet
+      if (this.authService.isAuthenticated) {
+        await this.productService.trackProductView(this.productId);
+      }
+    } catch (error) {
+      console.error('Error loading product data:', error);
+      this.customToastrService.message(
+        "Ürün verisi yüklenirken bir hata oluştu", 
+        "Hata", 
+        {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        }
+      );
+    } finally {
+      // İşlem tamamlandıktan sonra küçük bir gecikme ile yükleme durumunu kapat
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 300);
     }
   }
 
@@ -142,7 +186,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
   }
   
   async loadProduct(productId: string) {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+    this.showSpinner(SpinnerType.SquareLoader);
     try {
       // URL pattern kontrolü
       if (!productId.includes('-p-')) {
@@ -188,7 +232,7 @@ export class ProductDetailComponent extends BaseComponent implements OnInit, OnC
       );
       this.router.navigate(['/']);
     } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
 

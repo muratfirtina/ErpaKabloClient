@@ -1,11 +1,18 @@
 <div class="product-list position-relative" [class.list-view]="listView">
-  <!-- Spinner yokken yükleme devam ediyorsa -->
-  <div *ngIf="loading" class="d-flex justify-content-center align-items-center min-h-100">
-    <app-spinner [spinnerType]="'s2'"></app-spinner>
+  <!-- Spinner ve Progress Bar Container -->
+  <div *ngIf="loading" class="loading-container">
+    <!-- SquareLoader spinner'ı -->
+    <app-spinner [spinnerType]="'s2'" [showOverlay]="false"></app-spinner>
+    
+    <!-- Progress Bar -->
+    <div class="loading-progress">
+      <div class="progress-bar" [style.width.%]="loadingProgress"></div>
+    </div>
+    <div class="loading-text">{{loadingText || 'Loading products...'}}</div>
   </div>
   
-  <!-- Ürünleri göster - yükleme durumunda opacity düşür -->
-  <div class="row" [class.opacity-25]="loading">
+  <!-- Ürünleri göster - yükleme durumunda opacity düşür veya gizle -->
+  <div class="row" [class.opacity-25]="loading" [class.d-none]="loading">
     <div class="col-12 col-sm-6 col-lg-3 mb-4" *ngFor="let product of products">
       <app-product-card [product]="product" [listView]="listView"></app-product-card>
     </div>

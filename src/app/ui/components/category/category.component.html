@@ -14,7 +14,7 @@
       <div class="row g-0" style="height: 300px;">
         <!-- Text content on the left -->
         <div class="col-7 d-flex align-items-center text-white">
-          <div class="p-3 p-md-4" >
+          <div class="p-3 p-md-4">
             <h1 class="category-name display-6 border-bottom border-3 pb-2 mb-3"
               style="border-color: #e53935 !important; width: fit-content; font-size: calc(1.5rem + 2vw); font-variant: small-caps; font-weight: 600;">
               {{ category?.name }}
@@ -93,24 +93,20 @@
 
       <!-- Filter Sidebar -->
       <div class="col-md-3 mb-4 mb-md-0">
-        <app-filter 
-          [availableFilters]="availableFilters" 
-          [selectedFilters]="selectedFilters"
-          [isLoading]="isFiltersLoading"
-          (filterChange)="onFilterChange($event)">
+        <app-filter [availableFilters]="availableFilters" [selectedFilters]="selectedFilters"
+          [isLoading]="isFiltersLoading" (filterChange)="onFilterChange($event)">
         </app-filter>
       </div>
 
       <!-- Product List -->
       <div class="col-md-9 product-list-container">
-        <app-ui-product-list *ngIf="!noResults" [products]="products" [loading]="isProductsLoading"></app-ui-product-list>
+        <app-ui-product-list [products]="products" [loading]="isLoading" [loadingProgress]="loadingProgress"
+          [loadingText]="'Loading your products...'">
+        </app-ui-product-list>
 
         <!-- Pagination -->
-        <app-pagination 
-            [totalItems]="totalItems" 
-            [pageRequest]="pageRequest" 
-            (pageChange)="handlePageChange($event)">
-          </app-pagination>
+        <app-pagination [totalItems]="totalItems" [pageRequest]="pageRequest" (pageChange)="handlePageChange($event)">
+        </app-pagination>
       </div>
     </div>
   </div>

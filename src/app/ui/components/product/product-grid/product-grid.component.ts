@@ -10,7 +10,7 @@ import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
 @Component({
   selector: 'app-product-grid',
   standalone: true,
-  imports: [CommonModule, RouterModule, ProductCardComponent,SpinnerComponent],
+  imports: [CommonModule, RouterModule, ProductCardComponent, SpinnerComponent],
   templateUrl: './product-grid.component.html',
   styleUrls: ['./product-grid.component.scss']
 })
@@ -19,11 +19,13 @@ export class ProductGridComponent extends BaseComponent implements OnChanges {
   @Input() title?: string;
   @Input() showNavigationButtons: boolean = true;
   @Input() loading: boolean = false;
+  @Input() loadingProgress: number = 0; // Yeni: ilerleme yüzdesi
+  @Input() loadingText: string = ''; // Yeni: yükleme metni
 
   @ViewChild('productGrid') productGrid!: ElementRef;
 
-  constructor(spinner: SpinnerService) {
-    super(spinner);
+  constructor(private spinnerService: SpinnerService) {
+    super(spinnerService);
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -33,6 +35,11 @@ export class ProductGridComponent extends BaseComponent implements OnChanges {
       } else {
         this.hideSpinner(SpinnerType.SquareLoader);
       }
+    }
+    
+    // Progress değişikliklerini ele al
+    if (changes['loadingProgress'] && this.loadingProgress) {
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, this.loadingProgress);
     }
   }
 

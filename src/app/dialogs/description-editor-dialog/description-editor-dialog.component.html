@@ -1,0 +1,115 @@
+<h2 mat-dialog-title>Açıklama Düzenle</h2>
+<mat-dialog-content class="mat-typography">
+  <mat-tab-group [selectedIndex]="selectedTab" (selectedIndexChange)="onTabChange($event)">
+    <mat-tab label="Editör">
+      <div class="editor-container">
+        <div class="editor-tips alert alert-info mb-3">
+          <strong>İpuçları:</strong>
+          <ul>
+            <li>Video eklemek için "Video Ekle" sekmesini kullanabilirsiniz</li>
+            <li>Eklenen videoları editör içerisinde "Videoyu Sil" butonuyla silebilirsiniz</li>
+            <li>Video etrafına metin eklemek için, video altındaki veya üstündeki paragrafa tıklayın</li>
+          </ul>
+        </div>
+        <angular-editor [(ngModel)]="description" [config]="editorConfig"></angular-editor>
+        <div *ngIf="imageUploadProgress > 0 && imageUploadProgress < 100" class="progress-container">
+          <div class="progress">
+            <div class="progress-bar" [style.width.%]="imageUploadProgress">{{imageUploadProgress}}%</div>
+          </div>
+          <span class="progress-text">Resim yükleniyor...</span>
+        </div>
+      </div>
+    </mat-tab>
+    <mat-tab label="Video Ekle">
+      <div class="video-embed-container">
+        <h3>Video Ekle</h3>
+        <div class="alert alert-info mb-3">
+          <strong>Bilgi:</strong> Video ekledikten sonra, editör bölümüne dönüp video etrafına metin ekleyebilir veya videoyu silebilirsiniz.
+        </div>
+        
+        <div class="form-group">
+          <label for="videoType">Video Kaynağı</label>
+          <select id="videoType" [(ngModel)]="videoType" class="form-control">
+            <option value="upload">Bilgisayardan Yükle</option>
+            <option value="youtube">YouTube</option>
+            <option value="vimeo">Vimeo</option>
+            <option value="html5">Doğrudan Video URL</option>
+          </select>
+        </div>
+        
+        <!-- Video Yükleme Seçeneği -->
+        <div class="form-group" *ngIf="videoType === 'upload'">
+          <label for="videoFile">Video Dosyası Yükle</label>
+          <input type="file" id="videoFile" (change)="onVideoFileSelected($event)" class="form-control" accept="video/*">
+          <div *ngIf="uploadProgress > 0 && uploadProgress < 100" class="progress mt-2">
+            <div class="progress-bar" [style.width.%]="uploadProgress">{{uploadProgress}}%</div>
+          </div>
+          <small class="text-muted">Desteklenen formatlar: MP4, WebM, MOV (maks 50MB)</small>
+        </div>
+        
+        <!-- YouTube URL seçeneği -->
+        <div class="form-group" *ngIf="videoType === 'youtube'">
+          <label for="videoUrl">YouTube URL</label>
+          <input type="text" id="videoUrl" [(ngModel)]="videoUrl" class="form-control"
+                 placeholder="Video URL'sini girin">
+          <small class="text-muted">
+            Örnek: https://www.youtube.com/watch?v=dQw4w9WgXcQ
+          </small>
+        </div>
+        
+        <!-- Vimeo URL seçeneği -->
+        <div class="form-group" *ngIf="videoType === 'vimeo'">
+          <label for="videoUrl">Vimeo URL</label>
+          <input type="text" id="videoUrl" [(ngModel)]="videoUrl" class="form-control"
+                 placeholder="Video URL'sini girin">
+          <small class="text-muted">
+            Örnek: https://vimeo.com/123456789
+          </small>
+        </div>
+        
+        <!-- Doğrudan Video URL seçeneği -->
+        <div class="form-group" *ngIf="videoType === 'html5'">
+          <label for="videoUrl">Doğrudan Video URL</label>
+          <input type="text" id="videoUrl" [(ngModel)]="videoUrl" class="form-control"
+                 placeholder="Video URL'sini girin">
+          <small class="text-muted">
+            Örnek: https://example.com/video.mp4
+          </small>
+        </div>
+        
+        <!-- Poster Image URL (HTML5 videoları için) -->
+        <div class="form-group" *ngIf="videoType === 'html5' || videoType === 'upload'">
+          <label for="videoPoster">Video Önizleme Resmi URL (İsteğe bağlı)</label>
+          <input type="text" id="videoPoster" [(ngModel)]="videoPoster" class="form-control"
+                 placeholder="Önizleme resmi URL'si girin">
+        </div>
+        
+        <!-- Video boyut ayarları -->
+        <div class="embed-options">
+          <div class="form-group">
+            <label for="videoWidth">Genişlik</label>
+            <input type="text" id="videoWidth" [(ngModel)]="videoWidth" class="form-control">
+          </div>
+          <div class="form-group">
+            <label for="videoHeight">Yükseklik</label>
+            <input type="text" id="videoHeight" [(ngModel)]="videoHeight" class="form-control">
+          </div>
+        </div>
+        
+        <button mat-raised-button color="primary" (click)="embedVideo()" [disabled]="isEmbedButtonDisabled()">
+          Video Ekle
+        </button>
+        
+        <!-- Video ön izleme -->
+        <div class="preview" *ngIf="videoPreviewHtml">
+          <h4>Önizleme:</h4>
+          <div [innerHTML]="videoPreviewHtml"></div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">İptal</button>
+  <button mat-button color="primary" (click)="save()">Kaydet</button>
+</mat-dialog-actions>

@@ -1,0 +1,168 @@
+.mat-dialog-content {
+  max-height: 70vh;
+  height: 500px;
+}
+
+.editor-container {
+  position: relative;
+}
+
+.editor-tips {
+  font-size: 0.9rem;
+  
+  ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+  }
+}
+
+.progress-container {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 5px;
+  border-radius: 4px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+}
+
+.progress-text {
+  margin-left: 10px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.video-embed-container {
+  padding: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.text-muted {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
+
+.embed-options {
+  display: flex;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.embed-options .form-group {
+  flex: 1;
+}
+
+.preview {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 5px;
+  border-radius: 3px;
+  background-color: #e9ecef;
+  width: 100%;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #007bff;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  text-align: center;
+  font-size: 10px;
+  line-height: 5px;
+  color: white;
+}
+
+/* Alert */
+.alert {
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+}
+
+.alert-info {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border-color: #bee5eb;
+}
+
+/* Angular Editor Özel Stiller */
+::ng-deep .angular-editor-textarea {
+  min-height: 250px !important;
+}
+
+::ng-deep .angular-editor-toolbar {
+  font-size: 14px !important;
+}
+
+::ng-deep .angular-editor-button {
+  padding: 0.2rem !important;
+}
+
+// Video içerik stilleri (editör içinde kullanılacak)
+::ng-deep .video-wrapper {
+  position: relative;
+  margin: 15px 0;
+  border: 1px dashed #ccc;
+  padding: 5px;
+}
+
+::ng-deep .video-toolbar {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 3px;
+  padding: 3px;
+}
+
+::ng-deep .video-delete-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 2px 8px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+::ng-deep .video-delete-btn:hover {
+  background: #c82333;
+}
+
+/* Duyarlı Tasarım */
+@media (max-width: 768px) {
+  .mat-dialog-content {
+    height: 450px;
+  }
+  
+  .embed-options {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  ::ng-deep .angular-editor-toolbar {
+    font-size: 12px !important;
+  }
+}

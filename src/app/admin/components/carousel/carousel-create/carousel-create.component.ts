@@ -9,7 +9,7 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 @Component({
   selector: 'app-carousel-create',
   standalone: true,
-  imports: [CommonModule,ReactiveFormsModule,FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './carousel-create.component.html',
   styleUrl: './carousel-create.component.scss'
 })
@@ -19,9 +19,14 @@ export class CarouselCreateComponent extends BaseComponent {
     description: '',
     order: 0,
     isActive: true,
-    carouselImageFiles: null
+    mediaType: 'image', // Default to image type
+    videoType: 'upload', // Default to upload type for videos
+    videoUrl: '', // For YouTube or Vimeo URLs
+    carouselImageFiles: null,
+    carouselVideoFile: null
   };
   selectedFiles: File[] = [];
+  selectedVideoFile: File | null = null;
 
   constructor(
     private carouselService: CarouselService,
@@ -35,6 +40,13 @@ export class CarouselCreateComponent extends BaseComponent {
     this.selectedFiles = Array.from(event.target.files);
   }
 
+  onVideoFileSelected(event: any) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      this.selectedVideoFile = files[0]; // Only get the first file for videos
+    }
+  }
+
   createCarousel() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
 
@@ -43,27 +55,35 @@ export class CarouselCreateComponent extends BaseComponent {
     formData.append('description', this.carouselData.description);
     formData.append('order', this.carouselData.order.toString());
     formData.append('isActive', this.carouselData.isActive ? 'true' : 'false');
+    formData.append('mediaType', this.carouselData.mediaType);
 
-    if (this.selectedFiles.length > 0) {
+    if (this.carouselData.mediaType === 'image' && this.selectedFiles.length > 0) {
       this.selectedFiles.forEach((file, index) => {
         formData.append(`carouselImageFiles`, file, file.name);
       });
+    } else if (this.carouselData.mediaType === 'video') {
+      formData.append('videoType', this.carouselData.videoType);
+      
+      if (this.carouselData.videoType === 'upload' && this.selectedVideoFile) {
+        formData.append('carouselVideoFile', this.selectedVideoFile, this.selectedVideoFile.name);
+      } else if (['youtube', 'vimeo'].includes(this.carouselData.videoType) && this.carouselData.videoUrl) {
+        formData.append('videoUrl', this.carouselData.videoUrl);
+      }
     }
 
     this.carouselService.create(
       formData,
       () => {
         this.hideSpinner(SpinnerType.BallSpinClockwise);
-        this.customToastrService.message("Carousel başarıyla oluşturuldu", "Başarılı", {
+        this.customToastrService.message("Carousel successfully created", "Success", {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight
         });
-        // Burada formu sıfırlayabilir veya başka bir sayfaya yönlendirebilirsiniz
         this.resetForm();
       },
       (error) => {
         this.hideSpinner(SpinnerType.BallSpinClockwise);
-        this.customToastrService.message("Carousel oluşturulurken bir hata oluştu", "Hata", {
+        this.customToastrService.message("An error occurred while creating carousel", "Error", {
           toastrMessageType: ToastrMessageType.Error,
           position: ToastrPosition.TopRight
         });
@@ -78,8 +98,13 @@ export class CarouselCreateComponent extends BaseComponent {
       description: '',
       order: 0,
       isActive: true,
-      carouselImageFiles: null
+      mediaType: 'image',
+      videoType: 'upload',
+      videoUrl: '',
+      carouselImageFiles: null,
+      carouselVideoFile: null
     };
     this.selectedFiles = [];
+    this.selectedVideoFile = null;
   }
 }

@@ -18,12 +18,14 @@ export class UiProductListComponent extends BaseComponent implements OnChanges {
   @Input() products: Product[] = [];
   @Input() listView: boolean = false;
   @Input() loading: boolean = false;
+  @Input() loadingProgress: number = 0; // New input for progress percentage
+  @Input() loadingText: string = ''; // New input for loading text
   
   // Daha önce ürün yüklenip yüklenmediğini takip etmek için
   private hasHadProducts = false;
   
-  constructor(spinner: SpinnerService) {
-    super(spinner);
+  constructor(private spinnerService: SpinnerService) {
+    super(spinnerService);
   }
   
   ngOnInit() {
@@ -42,6 +44,11 @@ export class UiProductListComponent extends BaseComponent implements OnChanges {
       } else {
         this.hideSpinner(SpinnerType.SquareLoader);
       }
+    }
+    
+    // Progress değişikliklerini ele al
+    if (changes['loadingProgress'] && this.loadingProgress) {
+      this.spinnerService.updateProgress(SpinnerType.SquareLoader, this.loadingProgress);
     }
   }
   
