@@ -1,5 +1,5 @@
-$font-family-base: 'Source Sans Pro', sans-serif;
 // Variables
+$font-family-base: 'Source Sans Pro', sans-serif;
 $home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
@@ -25,17 +25,55 @@ $text-light: #e0e0e0;
 $register-blue: #0d6efd;
 $transition-speed: 0.3s;
 
+// Mixins for responsive design
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == "xs" {
+    @media (max-width: 576px) { @content; }
+  }
+  @else if $breakpoint == "sm" {
+    @media (max-width: 768px) { @content; }
+  }
+  @else if $breakpoint == "md" {
+    @media (max-width: 992px) { @content; }
+  }
+  @else if $breakpoint == "lg" {
+    @media (max-width: 1200px) { @content; }
+  }
+  @else if $breakpoint == "xl" {
+    @media (min-width: 1201px) { @content; }
+  }
+}
+
+// Mixins for common patterns
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+}
+
+@mixin button-base {
+  @include flex-center;
+  gap: 0.8rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all $transition-speed;
+  border: none;
+  cursor: pointer;
+  background: transparent;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
 .main-header {
   font-family: $font-family-base;
-
   height: $header-height;
   background: linear-gradient(135deg, $header-bg-dark 0%, darken($header-bg-dark, 10%) 100%);
   position: relative;
   z-index: 100;
   
   // Top and bottom accent lines
-  &::before,
-  &::after {
+  &::before, &::after {
     content: '';
     position: absolute;
     left: 0;
@@ -44,14 +82,8 @@ $transition-speed: 0.3s;
     background: $accent-red;
   }
 
-  &::before { 
-    top: 0;
-    z-index: 7;
-   }
-  &::after { 
-    bottom: 0;
-    z-index: 3;
-   }
+  &::before { top: 0; z-index: 7; }
+  &::after { bottom: 0; z-index: 3; }
 
   .container {
     height: 100%;
@@ -60,7 +92,7 @@ $transition-speed: 0.3s;
     max-width: 1440px;
     position: relative;
 
-    // Diagonal background effect - adjusted to avoid overlap with sign in/register
+    // Diagonal background effect
     &::after {
       content: '';
       position: absolute;
@@ -72,6 +104,27 @@ $transition-speed: 0.3s;
       transform: skew(-20deg);
       z-index: 5;
     }
+    
+    @include respond-to(lg) {
+      padding: 0 1rem;
+      
+      &::after {
+        width: 60%;
+      }
+    }
+    
+    @include respond-to(md) {
+      &::after {
+        width: 70%;
+      }
+    }
+    
+    @include respond-to(xs) {
+      &::after {
+        width: 54%;
+        left: -5%;
+      }
+    }
   }
 
   .header-content {
@@ -81,21 +134,11 @@ $transition-speed: 0.3s;
     justify-content: space-between;
     position: relative;
     z-index: 10;
-    
-    // Create more space between logo and user actions
-    & > * {
-      flex: 0 1 auto;
-    }
-    
-    & > .logo {
-      //margin-right: auto;
-    }
   }
 
   // Logo section
   .logo {
-    display: flex;
-    align-items: center;
+    @include flex-center;
     gap: 1rem;
     padding-right: 2rem;
     z-index: 10;
@@ -106,10 +149,17 @@ $transition-speed: 0.3s;
       max-height: 55px;
       width: auto;
       transition: transform $transition-speed;
-      cursor: pointer;
       
       &:hover {
         transform: scale(1.05);
+      }
+      
+      @include respond-to(sm) {
+        max-height: 45px;
+      }
+      
+      @include respond-to(xs) {
+        max-height: 40px;
       }
     }
 
@@ -120,109 +170,100 @@ $transition-speed: 0.3s;
         font-style: italic;
         opacity: 0.8;
       }
+      
+      @include respond-to(xs) {
+        display: none;
+      }
+    }
+    
+    @include respond-to(sm) {
+      padding-right: 0;
     }
   }
 
   // User actions section
   .user-actions {
-    display: flex;
-    align-items: center;
+    @include flex-center;
     gap: 0.75rem;
     position: relative;
-    z-index: 15; // Higher z-index to ensure it stays above the diagonal background
+    z-index: 15;
 
     .auth-links {
-      display: flex;
-      align-items: center;
+      @include flex-center;
       gap: 0.75rem;
       position: relative;
 
       .sign-in {
-        display: flex;
-        align-items: center;
+        @include flex-center;
         gap: 0.5rem;
         cursor: pointer;
         width: auto;
-        position: relative; // Popover için referans noktası
+        position: relative; 
         
         .sign-in-content {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem; // Gap sadece svg ile metin arasında olacak
+          @include flex-center;
+          gap: 0.5rem; 
           
           svg {
             vertical-align: middle;
           }
+          
           span {
-            color: #e0e0e0;
+            color: $text-light;
+            
+            @include respond-to(sm) {
+              display: none;
+            }
           }
-        }
-        
-        app-login-popover {
-          margin-left: 0; // Popover ile text arasında gap olmasın
         }
       }
 
-      a {
-        color: $text-light;
+      .divider {
+        width: 2px;
+        height: 1rem;
+        background-color: $text-light;
+        margin: 0;
+      }
+
+      .register-link {
+        color: $register-blue;
         text-decoration: none;
         border-radius: 4px;
         transition: all $transition-speed;
         font-size: 0.9rem;
         cursor: pointer;
         
-        &.register-link {
-          color: $register-blue;
+        @include respond-to(sm) {
+          display: none;
         }
-      }
-
-      .separator {
-        color: $text-light;
-        opacity: 0.4;
       }
     }
 
     .user-profile-link {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding: 0.5rem 1rem;
-      border-radius: 4px;
-      transition: all $transition-speed;
+      @include button-base;
       color: $text-light;
-      cursor: pointer;
       
-      &:hover {
-        background: rgba(255, 255, 255, 0.1);
+      .user-icon {
+        @include flex-center;
       }
-
-      i {
-        display: flex;
-        align-items: center;
+      
+      @include respond-to(sm) {
+        padding: 0.4rem 0.8rem;
+        
+        .btn-text {
+          display: none;
+        }
       }
     }
 
     .btn-cart {
-      display: flex;
-      align-items: center;
-      gap: 0.8rem;
-      padding: 0.5rem 1.2rem;
-      background: transparent;
+      @include button-base;
       color: $text-light;
-      border-radius: 4px;
       position: relative;
-      transition: all $transition-speed;
-      border: none;
-      outline: none;
-      cursor: pointer;
       
-      &:hover {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
       &.has-items {
-        i {
-          color: #4CAF50;
+        .cart-icon {
+          color: $success-color;
         }
       }
 
@@ -241,88 +282,27 @@ $transition-speed: 0.3s;
         font-size: 0.8rem;
         font-weight: bold;
       }
-    }
-  }
-}
-
-// Responsive styles - improved breakpoints
-@media (max-width: 1200px) {
-  .main-header {
-    .container {
-      padding: 0 1rem;
       
-      &::after {
-        width: 60%;
-      }
-    }
-    
-    .user-actions {
-      gap: 1rem;
-    }
-  }
-}
-
-@media (max-width: 992px) {
-  .main-header {
-    height: $header-height-mobile;
-    
-    .container::after {
-      width: 70%;
-    }
-  }
-}
-@media (min-width: 1024px) {
-  app-login-popover {
-    position: absolute;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-header {
-    .container::after {
-      width: 70%;
-    }
-    
-    .header-content {
-      justify-content: space-between;
-    }
-    
-    .logo {
-      padding-right: 0;
-      
-      .logo-image {
-        max-height: 45px;
-      }
-    }
-    
-    .user-actions {
-      gap: 1rem;
-      
-      .auth-links {
-        .register-link {
-          display: none; // 768px altında Register butonunu gizle
-        }
-        
-        .sign-in span {
-          display: none; // 768px altında Sign In yazısını gizle, sadece ikonu göster
-        }
-        
-        .sign-in {
-          width: auto;
-          // Padding ekleme seçeneği:
-          // padding-right: 0.4rem;
-        }
-      }
-      
-      .btn-cart {
+      @include respond-to(sm) {
         padding: 0.4rem 0.8rem 0.5rem 0;
         
         .btn-text {
           display: none;
         }
       }
+    }
+    
+    // Endüstriyel ürünler için teklif isteme butonu
+    .btn-quote {
+      @include button-base;
+      color: $text-light;
+      background-color: rgba($accent-red, 0.8);
       
-      .user-profile-link {
+      &:hover {
+        background-color: $accent-red;
+      }
+      
+      @include respond-to(sm) {
         padding: 0.4rem 0.8rem;
         
         .btn-text {
@@ -330,36 +310,14 @@ $transition-speed: 0.3s;
         }
       }
     }
+    
+    @include respond-to(sm) {
+      gap: 1rem;
+    }
   }
-}
-
-// Extra small devices
-@media (max-width: 576px) {
-  .main-header {
-    .container::after {
-      width: 54%;
-      left: -5%;
-    }
-    
-    .logo {
-      .logo-image {
-        max-height: 40px;
-        //margin-right: 1rem;
-      }
-      .logo-text {
-        display:none;
-      }
-    }
-    
-    .user-actions {
-      .auth-links {
-        padding-left: 16px; 
-        gap: 1rem;
-        .separator {
-          margin: 0 0.2rem;
-        }
-      }
-    }
+  
+  @include respond-to(md) {
+    height: $header-height-mobile;
   }
 }
 
@@ -370,4 +328,23 @@ $transition-speed: 0.3s;
   .container::after {
     background-color: rgba(255, 255, 255, 0.03);
   }
+}
+
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-down {
+  animation: slideDown 0.3s ease-in-out;
 }

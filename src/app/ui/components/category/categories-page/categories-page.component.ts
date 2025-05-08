@@ -11,6 +11,7 @@ import { DownbarComponent } from '../../downbar/downbar.component';
 import { MainHeaderComponent } from '../../main-header/main-header.component';
 import { NavbarComponent } from '../../navbar/navbar.component';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
+import { SpinnerComponent } from 'src/app/base/spinner/spinner.component';
 
 @Component({
   selector: 'app-categories-page',
@@ -21,13 +22,16 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
     NavbarComponent, 
     DownbarComponent,
     FooterComponent,
-    BreadcrumbComponent],
+    BreadcrumbComponent,
+    SpinnerComponent],
   templateUrl: './categories-page.component.html',
   styleUrl: './categories-page.component.scss'
 })
 export class CategoriesPageComponent extends BaseComponent implements OnInit {
   categories: Category[] = [];
   totalCategoryCount: number = 0;
+  isLoading: boolean = true; // Loading state ekleyin
+  loadingProgress: number = 0; // Progress değeri ekleyin
 
   constructor(
     private breadcrumbService: BreadcrumbService,
@@ -38,24 +42,43 @@ export class CategoriesPageComponent extends BaseComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.isLoading = true;
+    this.loadingProgress = 0;
+    
     this.breadcrumbService.setBreadcrumbs([
       { label: 'Categories', url: '/categories' }
     ]);
+    
     await this.loadCategories();
   }
 
   async loadCategories() {
-    this.showSpinner(SpinnerType.BallSpinClockwise);
+    this.showSpinner(SpinnerType.SquareLoader);
+    
     try {
+      // Progress değerini artıralım
+      this.loadingProgress = 20;
+      
       const data = await this.categoryService.getMainCategories(
         { pageIndex: 0, pageSize: 50 }
       );
+      
+      // Veriler yüklenince progress'i ilerletelim
+      this.loadingProgress = 80;
+      
       this.categories = data.items;
       this.totalCategoryCount = data.count;
+      
+      // İşlem tamamlandı
+      this.loadingProgress = 100;
     } catch (error) {
       console.error('Error loading categories:', error);
     } finally {
-      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      // Kısa bir gecikme ile loading state'i kapatalım
+      setTimeout(() => {
+        this.isLoading = false;
+        this.hideSpinner(SpinnerType.SquareLoader);
+      }, 300);
     }
   }
 }

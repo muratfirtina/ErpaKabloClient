@@ -10,7 +10,7 @@
   <div class="loading-text">Loading content...</div>
 </div>
 
-<!-- Professional Carousel Section -->
+<!-- Enhanced Hero Carousel Section -->
 <section class="hero-carousel d-none d-md-block" *ngIf="!isLoading">
   <div class="carousel-container">
     <div *ngFor="let item of carousels; let i = index" 
@@ -19,9 +19,13 @@
       <div class="slide-content">
         <div class="overlay"></div>
         <div class="text-content">
+          <span class="slide-badge">Featured</span>
           <h2 class="slide-title">{{item.name}}</h2>
           <p class="slide-description">{{item.description}}</p>
-          <a href="#" class="btn-cta">Learn More</a>
+          <div class="slide-cta-group">
+            <a [routerLink]="['/search']" [queryParams]="{q: item.name}" class="btn-cta primary">Explore</a>
+            <a href="categories-page" class="btn-cta secondary">All Products</a>
+          </div>
         </div>
         <div class="image-content">
           <!-- Display image if carousel item has images -->
@@ -33,15 +37,14 @@
           <div *ngIf="item.isVideo" class="video-content">
             <!-- For directly uploaded videos -->
             <video *ngIf="item.videoType === 'local' && item.videoUrl" 
-                   controls autoplay muted loop>
+                   autoplay muted loop>
               <source [src]="item.videoUrl" [type]="item.videoMimeType || 'video/mp4'">
-              Your browser does not support the video tag.
+              Video not supported.
             </video>
             
             <!-- For YouTube videos -->
             <iframe *ngIf="item.videoType === 'youtube' && item.videoId"
-                    width="100%" height="100%"
-                    [src]="sanitizeUrl('https://www.youtube.com/embed/' + item.videoId)"
+                    [src]="sanitizeUrl('https://www.youtube.com/embed/' + item.videoId + '?autoplay=1&mute=1&loop=1&controls=0&showinfo=0')"
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
@@ -49,8 +52,7 @@
             
             <!-- For Vimeo videos -->
             <iframe *ngIf="item.videoType === 'vimeo' && item.videoId"
-                    width="100%" height="100%"
-                    [src]="sanitizeUrl('https://player.vimeo.com/video/' + item.videoId)"
+                    [src]="sanitizeUrl('https://player.vimeo.com/video/' + item.videoId + '?autoplay=1&loop=1&background=1')"
                     frameborder="0"
                     allow="autoplay; fullscreen; picture-in-picture"
                     allowfullscreen>
@@ -60,20 +62,71 @@
       </div>
     </div>
   </div>
+  
+  <!-- Carousel Controls -->
   <button class="carousel-control prev" (click)="prevSlide()" aria-label="Previous slide">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
   </button>
   <button class="carousel-control next" (click)="nextSlide()" aria-label="Next slide">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
   </button>
+  
+  <!-- Enhanced Indicators -->
   <div class="carousel-indicators">
-    <span *ngFor="let item of carousels; let i = index" [class.active]="i === currentSlide" (click)="setCurrentSlide(i)"></span>
+    <span *ngFor="let item of carousels; let i = index" 
+          [class.active]="i === currentSlide" 
+          (click)="setCurrentSlide(i)"
+          [attr.aria-label]="'Slide ' + (i+1)">
+    </span>
   </div>
 </section>
 
-<section class="categories" *ngIf="!isLoading">
+<!-- PROMO BANNER -->
+<section class="promo-banner" *ngIf="!isMobile">
+  <div class="container">
+    <div class="promo-item">
+      <div class="promo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+      </div>
+      <div class="promo-text">
+        <h4>Fast Supply</h4>
+        <p>Secure and fast shipping</p>
+      </div>
+    </div>
+    <div class="promo-item">
+      <div class="promo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      </div>
+      <div class="promo-text">
+        <h4>Secure Payment</h4>
+        <p>Powered by trusted banks.</p>
+      </div>
+    </div>
+    <div class="promo-item">
+      <div class="promo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v4l3 3"></path></svg>
+      </div>
+      <div class="promo-text">
+        <h4>Technical Support</h4>
+        <p>24/7 expert assistance</p>
+      </div>
+    </div>
+    <div class="promo-item">
+      <div class="promo-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+      </div>
+      <div class="promo-text">
+        <h4>Quality Guarantee</h4>
+        <p>Consistent quality, every time.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Categories Section (Original Layout with View All button) -->
+<section class="categories" *ngIf="!isLoading" id="categories">
   <div class="category-header" *ngIf="!isMobile">MAIN CATEGORIES</div>
-  <div class="category-container"> <!-- container -> category-container -->
+  <div class="category-container">
     <button class="scroll-btn left" (click)="scrollCategories('left')">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -84,11 +137,10 @@
     <div class="category-grid" #categoryGrid>
       <a class="category-card" *ngFor="let category of mainCategories" [routerLink]="['/'+category.id]">
         <div class="category-image">
-          <img [src]="category.categoryImage?.url" [alt]="category.name">
+          <img [src]="category.categoryImage?.url || defaultProductImage" [alt]="category.name">
         </div>
         <div class="category-content">
           <h3 class="category-title">{{ category.name }}</h3>
-          <!-- <p class="category-description" *ngIf="!isMobile" >{{ category.title || 'Ürünlerimizi keşfedin' }}</p> -->
         </div>
       </a>
     </div>
@@ -100,11 +152,31 @@
         <polyline points="9 18 15 12 9 6"></polyline>
       </svg>
     </button>
+
+    <div class="view-all-link">
+      <a [routerLink]="['/categories-page']" class="btn-view-all">View All Categories</a>
+    </div>
   </div>
 </section>
 
+<!-- Featured Products Video Section -->
+<section class="featured-video" *ngIf="!isLoading" #featuredVideoSection>
+  <div class="container">
+    <div class="video-wrapper">
+      <video autoplay muted loop>
+        <source src="../../../../assets/homecard/caruselvideo1.mp4" type="video/mp4">
+      </video>
+      <div class="video-overlay">
+        <h2>Industrial Solutions</h2>
+        <p>All the equipment you need to optimize your production lines</p>
+        <a [routerLink]="['/search']" [queryParams]="{category: 'manufacturing'}" class="video-cta">Discover Solutions</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-<section class="products" *ngIf="!isLoading">
+<!-- Product Grids (Original Implementation) -->
+<section class="products" *ngIf="!isLoading" #mostLikedSection>
   <app-product-grid 
     *ngIf="mostLikedProducts"
     [products]="mostLikedProducts.items"
@@ -112,7 +184,7 @@
   </app-product-grid>
 </section>
 
-<section class="products" *ngIf="!isLoading">
+<section class="products" *ngIf="!isLoading" #mostViewedSection>
   <app-product-grid 
     *ngIf="mostViewedProducts"
     [products]="mostViewedProducts.items"
@@ -120,7 +192,7 @@
   </app-product-grid>
 </section>
 
-<section class="products" *ngIf="!isLoading">
+<section class="products" *ngIf="!isLoading" #bestSellingSection>
   <app-product-grid 
     *ngIf="bestSellingProducts"
     [products]="bestSellingProducts.items"
@@ -128,7 +200,7 @@
   </app-product-grid>
 </section>
 
-<section class="products" *ngIf="!isLoading">
+<section class="products" *ngIf="!isLoading" #randomSection>
   <app-product-grid 
     *ngIf="randomProducts"
     [products]="randomProducts.items"
@@ -136,48 +208,119 @@
   </app-product-grid>
 </section>
 
-<section class="info-cards">
-  <div class="info-container">
-    <div class="card-grid">
-      <div class="info-card">
-        <div class="card-image">
-          <img src="../../../../assets/homecard/bestquality3.avif" alt="Kalite">
+<!-- Featured Products Video Section -->
+<section class="featured-video" *ngIf="!isLoading" #featuredVideoSection>
+  <div class="container">
+    <div class="video-wrapper">
+      <video autoplay muted loop>
+        <source src="../../../../assets/homecard/carouselvideo2.mp4" type="video/mp4">
+      </video>
+      <div class="video-overlay">
+        <h2>Industrial Solutions</h2>
+        <p>All the equipment you need to optimize your production lines</p>
+        <a [routerLink]="['/search']" [queryParams]="{category: 'manufacturing'}" class="video-cta">Discover Solutions</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Brands We Work With -->
+<section class="partner-brands" *ngIf="!isLoading && brands && brands.length > 0" #brandSection>
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">BRANDS WE WORK WITH</h2>
+      <a [routerLink]="['/brand']" class="section-link">View All <span>&rarr;</span></a>
+    </div>
+    
+    <div class="brands-grid">
+      <div class="brand-logo" *ngFor="let brand of brands">
+        <img [src]="brand.brandImage?.url || defaultProductImage" [alt]="brand.name">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials" *ngIf="!isLoading">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">WHAT OUR CUSTOMERS SAY</h2>
+    </div>
+    
+    <div class="testimonial-slider" #testimonialsContainer>
+      <div class="testimonial-slide" *ngFor="let testimonial of testimonials">
+        <div class="testimonial-quote">
+          <svg viewBox="0 0 24 24" width="36" height="36"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
         </div>
-        <div class="card-content">
-          <h3 class="card-title">Best Quality</h3>
-          <p class="card-description">We find products of the highest quality standards</p>
+        <p>"{{ testimonial.quote }}"</p>
+        <div class="testimonial-author">
+          <span class="name">{{ testimonial.name }}</span>
+          <span class="company">{{ testimonial.company }}</span>
         </div>
       </div>
-      <div class="info-card">
-        <div class="card-image">
-          <img src="../../../../assets/homecard/inovation.avif" alt="İnovasyon">
+    </div>
+    
+    <div class="testimonial-controls">
+      <button class="testimonial-control prev" (click)="scrollTestimonials('left')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+      </button>
+      <button class="testimonial-control next" (click)="scrollTestimonials('right')">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- Improved Info Cards Section -->
+<section class="company-features">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">WHY CHOOSE US</h2>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <img src="../../../../assets/homecard/bestquality3.avif" alt="Quality">
         </div>
-        <div class="card-content">
-          <h3 class="card-title">Inovation</h3>
-          <p class="card-description">We work continuously focused on innovation and development.</p>
+        <div class="feature-content">
+          <h3>Premium Quality</h3>
+          <p>All our products are manufactured and tested according to international quality standards.</p>
         </div>
       </div>
-      <div class="info-card">
-        <div class="card-image">
-          <img src="../../../../assets/homecard/forcustomer.avif" alt="Müşteri Hizmetleri">
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <img src="../../../../assets/homecard/inovation.avif" alt="Innovation">
         </div>
-        <div class="card-content">
-          <h3 class="card-title">For Customer</h3>
-          <p class="card-description">Customer satisfaction is our priority.</p>
+        <div class="feature-content">
+          <h3>Continuous Innovation</h3>
+          <p>Our R&D team follows the latest developments in industrial technologies and continuously improves our products.</p>
         </div>
       </div>
-      <div class="info-card">
-        <div class="card-image">
-          <img src="../../../../assets/homecard/Sustainability.avif" alt="Sürdürülebilirlik">
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <img src="../../../../assets/homecard/forcustomer.avif" alt="Support">
         </div>
-        <div class="card-content">
-          <h3 class="card-title">Sustainability</h3>
-          <p class="card-description">We offer environmentally friendly production and sustainable solutions.</p>
+        <div class="feature-content">
+          <h3>Expert Support</h3>
+          <p>Our technical team is at your service 24/7 to understand your needs and provide the right solutions.</p>
+        </div>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">
+          <img src="../../../../assets/homecard/Sustainability.avif" alt="Sustainability">
+        </div>
+        <div class="feature-content">
+          <h3>Sustainability</h3>
+          <p>We protect our world by keeping our carbon footprint to a minimum with our environmentally friendly production processes.</p>
         </div>
       </div>
     </div>
   </div>
 </section>
+
 <app-downbar></app-downbar>
 <app-footer></app-footer>
-

@@ -1,33 +1,45 @@
 <app-main-header></app-main-header>
-    <app-navbar></app-navbar>
+<app-navbar></app-navbar>
 
-    <div class="breadcrumb-container">
-      <div class="row mb-3">
-        <div class="col-12">
-          <app-breadcrumb></app-breadcrumb>
+<!-- Loading State Indicator -->
+<div *ngIf="isLoading" class="loading-container">
+  <app-spinner [spinnerType]="'s2'" [showOverlay]="false"></app-spinner>
+  <div class="loading-progress">
+    <div class="progress-bar" [style.width.%]="loadingProgress"></div>
+  </div>
+  <div class="loading-text">Categories loading...</div>
+</div>
+
+<!-- Ana içerik - sadece yükleme tamamlandığında göster -->
+<div *ngIf="!isLoading">
+  <div class="breadcrumb-container">
+    <div class="row mb-3">
+      <div class="col-12">
+        <app-breadcrumb></app-breadcrumb>
+      </div>
+    </div>
+  </div>
+
+  <div class="categories-container">
+    <div class="categories-header">
+      <h1>Product Categories</h1>
+      <p>Browse our wide range of product categories</p>
+    </div>
+
+    <div class="categories-grid">
+      <div class="category-card" *ngFor="let category of categories" [routerLink]="['/', category.id]">
+        <div class="category-image">
+          <img [src]="category.categoryImage?.url || 'assets/default-category.png'" 
+               [alt]="category.name + ' image'">
+        </div>
+        <div class="category-info">
+          <h3>{{category.name}}</h3>
+          <p>{{category.productCount || 0}} Products</p>
         </div>
       </div>
     </div>
+  </div>
+</div>
 
-    <div class="categories-container">
-      <div class="categories-header">
-        <h1>Product Categories</h1>
-        <p>Browse our wide range of product categories</p>
-      </div>
-
-      <div class="categories-grid">
-        <div class="category-card" *ngFor="let category of categories" [routerLink]="['/', category.id]">
-          <div class="category-image">
-            <img [src]="category.categoryImage?.url || 'assets/default-category.png'" 
-                 [alt]="category.name + ' image'">
-          </div>
-          <div class="category-info">
-            <h3>{{category.name}}</h3>
-            <p>{{category.productCount || 0}} Products</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <app-footer></app-footer>
-    <app-downbar></app-downbar>
+<app-footer></app-footer>
+<app-downbar></app-downbar>

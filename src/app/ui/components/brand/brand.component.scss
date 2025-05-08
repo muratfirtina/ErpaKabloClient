@@ -196,3 +196,47 @@ $link-color: #0000ee;
     }
   }
 }
+// Loading state stilleri
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  
+  .loading-progress {
+    width: 250px;
+    height: 6px;
+    background-color: #eee;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    
+    .progress-bar {
+      height: 100%;
+      background-color: $primary-color;
+      transition: width 0.3s ease;
+    }
+  }
+  
+  .loading-text {
+    font-size: 1rem;
+    color: #666;
+    margin-top: 0.5rem;
+  }
+}
+
+// Karanlık mod için loading state stillerini güncelleyin
+@media (prefers-color-scheme: dark) {
+  .loading-container {
+    background-color: transparent;
+    
+    .loading-progress {
+      background-color: #444;
+    }
+    
+    .loading-text {
+      color: #ccc;
+    }
+  }
+}

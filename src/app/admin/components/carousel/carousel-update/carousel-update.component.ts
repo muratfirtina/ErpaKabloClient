@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
 import { Carousel } from 'src/app/contracts/carousel/carousel';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
@@ -21,31 +22,45 @@ export class CarouselUpdateComponent extends BaseComponent implements OnInit {
   selectedCarousel: Carousel | null = null;
   selectedFiles: File[] = [];
   selectedVideoFile: File | null = null;
-  removedImageIndices: number[] = []; // Silinen mevcut resimlerin indeksleri
+  existingImageIds: string[] = []; // Silinen resimlerin ID'leri - backend'in beklediği parametre adı
 
   constructor(
     private carouselService: CarouselService,
     private customToastrService: CustomToastrService,
     private sanitizer: DomSanitizer,
+    private route: ActivatedRoute,
+    private router: Router,
     spinner: SpinnerService
   ) {
     super(spinner);
   }
 
   ngOnInit() {
-    this.loadCarousels();
+    // URL'den id parametresini kontrol et
+    this.route.paramMap.subscribe(params => {
+      const carouselId = params.get('id');
+      if (carouselId) {
+        this.loadCarouselById(carouselId);
+      } else {
+        this.loadCarousels();
+      }
+    });
   }
 
   loadCarousels() {
     this.showSpinner(SpinnerType.BallSpinClockwise);
     this.carouselService.list(
-      { pageIndex: 0, pageSize: 100 },
+      { pageIndex: -1, pageSize: -1 },
       () => {
         this.showSpinner(SpinnerType.BallSpinClockwise);
       },
       (error) => {
         this.hideSpinner(SpinnerType.BallSpinClockwise);
         console.error('Error loading carousels:', error);
+        this.customToastrService.message("Carousel listesi yüklenirken hata oluştu", "Hata", {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        });
       }
     ).then((response) => {
       this.carousels = { ...response };
@@ -53,28 +68,75 @@ export class CarouselUpdateComponent extends BaseComponent implements OnInit {
     });
   }
 
-  onCarouselSelect(carousel: Carousel) {
-    // Mevcut carousel için derin kopya oluştur
-    this.selectedCarousel = JSON.parse(JSON.stringify(carousel));
-    
-    // Varsayılan media type ayarla (geriye dönük uyumluluk için)
-    if (!this.selectedCarousel.mediaType) {
-      if (this.selectedCarousel.videoUrl || this.selectedCarousel.videoType || this.selectedCarousel.videoId) {
-        this.selectedCarousel.mediaType = 'video';
+  async loadCarouselById(id: string) {
+    this.showSpinner(SpinnerType.BallSpinClockwise);
+    try {
+      // Şimdilik list metodunu kullanarak tüm karouselleri getirip filtreleme yapıyoruz
+      // Backend'de GetById endpoint'i oluşturulduğunda direkt o kullanılabilir
+      const response = await this.carouselService.list(
+        { pageIndex: -1, pageSize: -1 },
+        () => {},
+        (error) => {
+          this.hideSpinner(SpinnerType.BallSpinClockwise);
+          console.error('Error loading carousels:', error);
+        }
+      );
+      
+      const carousel = response.items.find(c => c.id === id);
+      
+      if (carousel) {
+        // Yüklenen carousel'i seç
+        this.selectedCarousel = JSON.parse(JSON.stringify(carousel));
+        
+        // Media type ayarla (geriye dönük uyumluluk için)
+        if (!this.selectedCarousel.mediaType) {
+          if (this.selectedCarousel.videoUrl || this.selectedCarousel.videoType || this.selectedCarousel.videoId) {
+            this.selectedCarousel.mediaType = 'video';
+          } else {
+            this.selectedCarousel.mediaType = 'image';
+          }
+        }
+        
+        // Video ID'yi çıkar (eğer varsa)
+        if (this.selectedCarousel.mediaType === 'video' && this.selectedCarousel.videoUrl) {
+          this.extractVideoId();
+        }
+        
+        // Durumu sıfırla
+        this.existingImageIds = [];
+        this.selectedFiles = [];
+        this.selectedVideoFile = null;
       } else {
-        this.selectedCarousel.mediaType = 'image';
+        this.customToastrService.message("Carousel bulunamadı", "Hata", {
+          toastrMessageType: ToastrMessageType.Error,
+          position: ToastrPosition.TopRight
+        });
+        this.router.navigate(['/admin/carousel/carousel-update']);
       }
+      
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+    } catch (error) {
+      this.hideSpinner(SpinnerType.BallSpinClockwise);
+      console.error('Error loading carousel by ID:', error);
+      this.customToastrService.message("Carousel yüklenirken hata oluştu", "Hata", {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+    }
+  }
+
+  onCarouselSelect(carousel: Carousel) {
+    if (!carousel || !carousel.id) {
+      this.customToastrService.message("Geçersiz carousel seçimi", "Hata", {
+        toastrMessageType: ToastrMessageType.Error,
+        position: ToastrPosition.TopRight
+      });
+      return;
     }
     
-    // URL'lerden video ID'leri çıkar (eğer seçili carousel video ise)
-    if (this.selectedCarousel.mediaType === 'video' && this.selectedCarousel.videoUrl) {
-      this.extractVideoId();
-    }
-    
-    // Yeni seçim yapıldığında, silinen resim indeksleri listesini sıfırla
-    this.removedImageIndices = [];
-    this.selectedFiles = [];
-    this.selectedVideoFile = null;
+    // URL'e id ekleyerek yönlendirme yap
+    // Admin routes.ts dosyasındaki tanıma uygun olarak carousel komponentini dikkate alıyoruz
+    this.router.navigate(['/admin/carousel/carousel-update', carousel.id]);
   }
 
   onFileSelected(event: any) {
@@ -106,13 +168,13 @@ export class CarouselUpdateComponent extends BaseComponent implements OnInit {
   
   // Silinen mevcut resimleri işaretle
   removeExistingImage(index: number) {
-    if (!this.selectedCarousel) return;
+    if (!this.selectedCarousel || !this.selectedCarousel.carouselImageFiles) return;
     
-    // İndeksi listede sakla
-    this.removedImageIndices.push(index);
+    // Resmin ID'sini sakla - Backend'in beklediği parametre adı "existingImageIds"
+    const imageId = this.selectedCarousel.carouselImageFiles[index].id;
+    this.existingImageIds.push(imageId);
     
-    // UI'da görünümü güncelle (asıl silme işlemi submit sırasında olacak)
-    // Bu, kullanıcı formdan vazgeçerse orjinal verileri korumak için gerekli
+    // UI'da görünümü güncelle
     const carouselImagesCopy = [...this.selectedCarousel.carouselImageFiles];
     carouselImagesCopy.splice(index, 1);
     this.selectedCarousel.carouselImageFiles = carouselImagesCopy;
@@ -124,37 +186,45 @@ export class CarouselUpdateComponent extends BaseComponent implements OnInit {
     this.showSpinner(SpinnerType.BallSpinClockwise);
 
     const formData = new FormData();
+    
+    // Temel bilgiler
     formData.append('id', this.selectedCarousel.id);
     formData.append('name', this.selectedCarousel.name);
-    formData.append('description', this.selectedCarousel.description);
+    formData.append('description', this.selectedCarousel.description || '');
     formData.append('order', this.selectedCarousel.order.toString());
     formData.append('isActive', this.selectedCarousel.isActive ? 'true' : 'false');
-    formData.append('mediaType', this.selectedCarousel.mediaType);
+    formData.append('mediaType', this.selectedCarousel.mediaType || 'image');
     
-    // Silinen resimlerin indekslerini ekle
-    if (this.removedImageIndices.length > 0) {
-      this.removedImageIndices.forEach((index, i) => {
-        formData.append(`removedImageIndices[${i}]`, index.toString());
+    // Silinen resimlerin ID'lerini ekle - DOĞRU PARAMETRE ADI: existingImageIds
+    if (this.existingImageIds.length > 0) {
+      this.existingImageIds.forEach((id, i) => {
+        formData.append(`existingImageIds[${i}]`, id);
       });
     }
 
     // Medya türüne göre dosya ekleme
     if (this.selectedCarousel.mediaType === 'image') {
-      // Resim dosyaları
+      // Yeni resim dosyaları ekle - DOĞRU PARAMETRE ADI: newCarouselImages
       if (this.selectedFiles.length > 0) {
-        this.selectedFiles.forEach((file, index) => {
-          formData.append(`carouselImageFiles`, file, file.name);
+        this.selectedFiles.forEach((file) => {
+          formData.append('newCarouselImages', file, file.name);
         });
       }
     } else if (this.selectedCarousel.mediaType === 'video') {
-      formData.append('videoType', this.selectedCarousel.videoType);
+      formData.append('videoType', this.selectedCarousel.videoType || '');
       
       if (this.selectedCarousel.videoType === 'upload' && this.selectedVideoFile) {
         formData.append('carouselVideoFile', this.selectedVideoFile, this.selectedVideoFile.name);
-      } else if (['youtube', 'vimeo'].includes(this.selectedCarousel.videoType) && this.selectedCarousel.videoUrl) {
+      } else if (['youtube', 'vimeo'].includes(this.selectedCarousel.videoType || '') && this.selectedCarousel.videoUrl) {
         formData.append('videoUrl', this.selectedCarousel.videoUrl);
       }
     }
+
+    // FormData içeriğini konsola yazdırarak debug edebilirsiniz
+    // FormData içeriğini kontrol et (debug için)
+    formData.forEach((value, key) => {
+      console.log(`${key}: ${value}`);
+    });
 
     this.carouselService.update(
       formData,
@@ -164,11 +234,11 @@ export class CarouselUpdateComponent extends BaseComponent implements OnInit {
           toastrMessageType: ToastrMessageType.Success,
           position: ToastrPosition.TopRight
         });
-        this.loadCarousels(); // Listeyi yenile
-        this.selectedCarousel = null;
-        this.selectedFiles = [];
-        this.selectedVideoFile = null;
-        this.removedImageIndices = [];
+        
+        // Güncel verileri yeniden yükle
+        if (this.selectedCarousel) {
+          this.loadCarouselById(this.selectedCarousel.id);
+        }
       },
       (error) => {
         this.hideSpinner(SpinnerType.BallSpinClockwise);

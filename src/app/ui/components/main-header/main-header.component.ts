@@ -4,9 +4,9 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { Observable, Subject, map, takeUntil } from 'rxjs';
 import { AuthService } from 'src/app/services/common/auth.service';
-import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/services/ui/custom-toastr.service';
+import { CustomToastrService } from 'src/app/services/ui/custom-toastr.service';
 import { CartService } from 'src/app/services/common/models/cart.service';
-import { ComponentName, DynamicloadcomponentService } from 'src/app/services/common/dynamicloadcomponent.service';
+import { DynamicloadcomponentService } from 'src/app/services/common/dynamicloadcomponent.service';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { UserService } from 'src/app/services/common/models/user.service';
 import { CartComponent } from '../cart/cart.component';
@@ -36,28 +36,24 @@ import { LoginPopoverComponent } from '../login/login-popover/login-popover.comp
 })
 export class MainHeaderComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
-  cartItems: CartItem[];
- 
+  private cartUpdateSubscription: any;
+  
+  // State variables
+  cartItems: CartItem[] = [];
   currentUser: UserDto | null = null;
-  isLoading: boolean = true;
+  isLoading: boolean = false;
   isDarkTheme = false;
   DrawerType = DrawerType;
+  
+  // Assets
   logoUrl = 'assets//icons/TUMdex.png';
   topline = 'assets/homecard/top-line.png';
   companySlogan = 'For All Industrial Products';
   
+  // Observables
   drawerState$ = this.drawerService.getDrawerState();
   cartItems$ = this.store.select('cart').pipe(map(cart => cart.items));
   userData$ = this.store.select('user').pipe(map(user => user.data));
-
-  showLoginPopover(event: MouseEvent) {
-    event.stopPropagation();
-    const loginPopover = this.loginPopoverComponent;
-    if (loginPopover) {
-      loginPopover.show();
-    }
-  }
-  
 
   @ViewChild(LoginPopoverComponent)
   loginPopoverComponent: LoginPopoverComponent;
@@ -69,70 +65,82 @@ export class MainHeaderComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private userService: UserService,
     private authService: AuthService,
-    private animationService: AnimationService
+    private animationService: AnimationService,
+    private router: Router
   ) {}
 
+  // Ripple effect animation
   createRipple(event: MouseEvent): void {
     const element = event.currentTarget as HTMLElement;
     this.animationService.createRippleEffect(event, element);
   }
 
+  // Authentication check
   get isAuthenticated(): boolean {
     return this.authService.isAuthenticated;
   }
 
   async ngOnInit() {
+    this.isLoading = true;
+    
     try {
+      // Identity check and cart initialization
       await this.authService.identityCheck();
       
-      if (this.authService.isAuthenticated) {
-        await this.loadInitialCartItems();
-        
-        this.cartService.getCartItemsObservable().subscribe(
-          items => {
-            this.cartItems = items;
-          }
-        );
-        
-        await this.getCurrentUser();
+      if (this.isAuthenticated) {
+        await this.initializeUserData();
       }
     } catch (error) {
-      console.error('Error in ngOnInit:', error);
+      console.error('Error initializing header:', error);
+    } finally {
+      this.isLoading = false;
     }
 
+    // Theme subscription
     this.themeService.getCurrentTheme()
       .pipe(takeUntil(this.destroy$))
       .subscribe(theme => {
         this.isDarkTheme = theme.isDark;
       });
 
+    // Store subscription 
     this.store.select('theme')
       .pipe(takeUntil(this.destroy$))
       .subscribe(theme => {
         this.isDarkTheme = theme.isDark;
       });
+      
+    // Cart subscription - optimized to prevent memory leaks
+    this.cartUpdateSubscription = this.cartService.getCartItemsObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(items => {
+        this.cartItems = items;
+      });
   }
 
-  private async loadInitialCartItems() {
+  // Initialize user data and cart
+  private async initializeUserData() {
     try {
+      // Load cart items
       const items = await this.cartService.get();
       this.cartItems = items;
-    } catch (error) {
-      console.error('Error loading initial cart items:', error);
-    }
-  }
-
-  async getCurrentUser() {
-    this.isLoading = true;
-    try {
+      
+      // Load user data
       this.currentUser = await this.userService.getCurrentUser();
     } catch (error) {
-      console.error('Error fetching user details:', error);
-    } finally {
-      this.isLoading = false;
+      console.error('Error loading user data:', error);
     }
   }
 
+  // Show login popover
+  showLoginPopover(event: MouseEvent) {
+    event.stopPropagation();
+    if (this.loginPopoverComponent) {
+      this.loginPopoverComponent.show();
+    }
+  }
+
+  // Drawer controls
   toggleDrawer(type: DrawerType): void {
     this.drawerService.toggle(type);
   }
@@ -141,10 +149,25 @@ export class MainHeaderComponent implements OnInit, OnDestroy {
     this.drawerService.close();
   }
 
+  // Theme toggle
   toggleTheme(): void {
     this.themeService.toggleTheme();
   }
+  
+  // Navigations
+  navigateToHome(): void {
+    this.router.navigate(['/home']);
+  }
+  
+  navigateToUserProfile(): void {
+    if (this.isAuthenticated) {
+      this.router.navigate(['/user/profile']);
+    } else {
+      this.toggleDrawer(DrawerType.UserMenu);
+    }
+  }
 
+  // Cleanup
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();

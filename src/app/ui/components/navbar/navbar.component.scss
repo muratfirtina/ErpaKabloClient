@@ -1,4 +1,3 @@
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css");
 // Variables
 $home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
@@ -11,20 +10,48 @@ $background-color: #ffffff;
 $text-color: #484848;
 $border-color: #e0e0e0;
 $hover-color: rgba($primary-color, 0.1);
-$success-color: #00a046;
+$success-color: #059669;
 $link-color: #0000ee;
 
+// Breakpoints
 $breakpoint-mobile: 480px;
 $breakpoint-tablet: 768px;
 $breakpoint-laptop: 1024px;
 $breakpoint-desktop: 1200px;
 $breakpoint-large: 1400px;
 
+// Mixins
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == "xs" {
+    @media (max-width: 576px) { @content; }
+  }
+  @else if $breakpoint == "sm" {
+    @media (max-width: 768px) { @content; }
+  }
+  @else if $breakpoint == "md" {
+    @media (max-width: 992px) { @content; }
+  }
+  @else if $breakpoint == "lg" {
+    @media (max-width: 1200px) { @content; }
+  }
+  @else if $breakpoint == "xl" {
+    @media (min-width: 1201px) { @content; }
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+}
+
+// Navbar container styles
 .navbar-container {
   background: linear-gradient(to bottom, #333333, rgba(51, 51, 51, 0.4) 98%),
     linear-gradient(to bottom, #202020, #202020);
   height: 64px;
   width: 100%;
+  position: relative;
+  z-index: 100;
 
   @media (max-width: $breakpoint-mobile) {
     height: 56px;
@@ -40,8 +67,9 @@ $breakpoint-large: 1400px;
     linear-gradient(to bottom, #202020, #202020);
   font-size: 14px;
   position: static;
-  z-index: 1000;
+  z-index: 100;
   margin: auto;
+  
   .btn {
     text-decoration: none;
     a.brand-link {
@@ -49,10 +77,17 @@ $breakpoint-large: 1400px;
       color: $border-color;
     }
   }
+  
   a {
     text-decoration: none;
     color: $border-color;
+    transition: color 0.2s ease;
+    
+    &:hover {
+      color: $primary-color;
+    }
   }
+  
   a.subcategory-link {
     text-decoration: none;
     color: $text-color;
@@ -81,6 +116,7 @@ $breakpoint-large: 1400px;
     }
   }
 
+  // Top bar
   .top-bar {
     background: transparent;
     padding: 0 0 0 210px;
@@ -88,6 +124,8 @@ $breakpoint-large: 1400px;
     display: flex;
     align-items: center;
     height: 64px;
+    position: relative;
+    z-index: 100;
 
     .mobile-brands {
       button {
@@ -106,16 +144,16 @@ $breakpoint-large: 1400px;
       padding: 0 15px;
       height: 56px;
     }
+    
     .nav-right {
       display: flex;
       flex-direction: row;
       align-items: center;
       padding: 12px;
-      //margin-left: 24px;
 
       @media (max-width: $breakpoint-tablet) {
         .brands {
-          display: none; // Mobilde sağdaki Brands butonunu gizle
+          display: none;
         }
       }
 
@@ -132,8 +170,8 @@ $breakpoint-large: 1400px;
       }
     }
 
+    // All products dropdown button
     .all-products-dropdown {
-      //margin-left: 255px;
       padding: 0 1rem;
 
       @media (max-width: $breakpoint-tablet) {
@@ -150,6 +188,8 @@ $breakpoint-large: 1400px;
         height: 64px;
         display: flex;
         align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s ease;
 
         @media (max-width: $breakpoint-tablet) {
           height: 56px;
@@ -158,20 +198,22 @@ $breakpoint-large: 1400px;
         }
 
         .dropdown-arrow {
-          margin-left: 5px;
+          display: flex;
+          align-items: center;
           transition: transform 0.3s ease;
 
           &.open {
             transform: rotate(180deg);
           }
         }
-      }
-
-      button:hover {
-        background-color: rgb(119, 139, 194);
+        
+        &:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
       }
     }
 
+    // Search bar - FIXED SECTION
     .search-bar {
       flex-grow: 1;
       margin: 0 20px;
@@ -181,6 +223,28 @@ $breakpoint-large: 1400px;
       @media (max-width: $breakpoint-tablet) {
         margin: 0 10px;
         max-width: none;
+      }
+      
+      // Search overlay styling
+      .search-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.3); // Reduced opacity
+        z-index: 99; // Lower than dropdown but higher than other content
+        animation: fadeIn 0.2s ease;
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      .search-input-container {
+        position: relative;
+        z-index: 101; // Ensure input stays above the overlay
       }
 
       form {
@@ -194,14 +258,17 @@ $breakpoint-large: 1400px;
       }
 
       .search-input {
-        padding-right: 40px; // Button için yer açıyoruz
+        padding-right: 40px;
         width: 100%;
         height: 40px;
         border-radius: 4px;
         border: 1px solid $border-color;
+        transition: all 0.2s ease;
+        background: white; // Ensure background is solid white
+        color: #333; // Ensure text is dark
 
         &:focus {
-          box-shadow: none;
+          box-shadow: 0 0 0 2px rgba($primary-color, 0.25);
           border-color: $primary-color;
           outline: none;
         }
@@ -226,6 +293,7 @@ $breakpoint-large: 1400px;
         cursor: pointer;
         color: #666;
         transition: color 0.2s ease;
+        z-index: 101; // Ensure button stays above the overlay
 
         &:hover {
           color: $primary-color;
@@ -237,144 +305,250 @@ $breakpoint-large: 1400px;
         }
       }
 
+      // Search dropdown - FIXED STYLING
       .search-dropdown {
-        position: absolute;
+        position: absolute; // Changed back to absolute from fixed
         top: 100%;
         left: 0;
         right: 0;
+        width: 100%;
         background-color: white;
         border: 1px solid #ddd;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-        max-height: 900px;
-        max-width: 700px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 100; // Adjusted z-index to be higher than overlay
+        min-height: 200px; // Ensure a minimum height
+        max-height: 80vh;
         overflow-y: auto;
-
-        @media (max-width: $breakpoint-tablet) {
-          max-height: 70vh;
-          max-width: none;
+        border-radius: 4px;
+        animation: slideDown 0.3s ease;
+        
+        // Mobile-specific adjustments
+        @media (max-width: 768px) {
+          position: fixed; // Use fixed for mobile only
+          top: 64px;
+          max-height: 80vh;
+          border-radius: 0;
         }
-
-        .recent-searches,
-        .search-results > div {
-          padding: 10px;
-
+        
+        @media (max-width: 480px) {
+          top: 56px; // Smaller navbar height on small screens
+        }
+        
+        // Animation for dropdown
+        @keyframes slideDown {
+          from { 
+            transform: translateY(-20px); 
+            opacity: 0; 
+          }
+          to { 
+            transform: translateY(0); 
+            opacity: 1; 
+          }
+        }
+        
+        // Loading indicator styling
+        .search-loading {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 200px;
+        }
+        
+        // No results message
+        .no-results-message {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          height: 200px;
+          color: #666;
+          text-align: center;
+          
+          .icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            color: #ddd;
+          }
+          
+          p {
+            margin: 0;
+            font-size: 16px;
+          }
+          
+          small {
+            margin-top: 5px;
+            font-size: 14px;
+          }
+        }
+        
+        // Recent searches styling
+        .recent-searches {
+          padding: 15px;
+          background-color: white;
+          
           .recent-searches-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-
+            
             h4 {
               margin: 0;
+              font-size: 1.25rem;
+              font-weight: 600;
+              color: #333; // Ensure header text is dark
             }
-
+            
             .clear-history {
-              color: red;
+              color: #e53935;
+              font-weight: 500;
               cursor: pointer;
-              font-size: 12px;
-
-              &:hover {
-                text-decoration: underline;
-              }
             }
           }
-
-          h4 {
-            margin: 0 0 10px;
-            font-size: 1rem;
-            color: black;
-            font-weight: bold;
-          }
-
+          
           ul {
             list-style: none;
             padding: 0;
             margin: 0;
-
+            
             li {
-              padding: 4px 0;
+              display: flex;
+              align-items: center;
+              padding: 12px 0;
+              border-bottom: 1px solid #f0f0f0;
               cursor: pointer;
-              color: black;
-
+              color: #333; // Ensure text is dark
+              
               &:hover {
                 background-color: #f5f5f5;
+              }
+              
+              .history-icon {
+                margin-right: 12px;
+                color: #999;
+              }
+              
+              span {
+                color: #333; // Ensure text is dark
               }
             }
           }
         }
 
+        // Search results styling
         .search-results {
-          border-top: 1px solid #eee;
-
+          padding: 0;
+          
+          // Empty state when no results
+          &.empty {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: #666;
+            font-style: italic;
+          }
+          
+          // Products section
           .products {
+            padding: 15px;
+            border-top: 1px solid #f0f0f0;
+            
+            h4 {
+              margin: 0 0 10px;
+              font-size: 1rem;
+              font-weight: 600;
+              color: #333; // Ensure header text is dark
+            }
+            
             ul {
+              list-style: none;
+              padding: 0;
+              margin: 0;
+              
               li {
                 display: flex;
                 align-items: center;
-                padding: 8px 0;
+                padding: 10px 0;
                 cursor: pointer;
-
+                color: #333; // Ensure text is dark
+                
                 &:hover {
                   background-color: #f5f5f5;
                 }
-
+                
                 .product-thumbnail {
                   width: 50px;
                   height: 50px;
-                  object-fit: cover;
-                  margin-right: 10px;
-                  //border-radius: 4px;
+                  object-fit: contain;
+                  margin-right: 12px;
+                  border: 1px solid #eee;
                 }
-
+                
                 .product-info {
-                  flex-grow: 1;
-                  display: flex;
-                  flex-direction: column;
-                  overflow: hidden;
-
+                  flex: 1;
+                  
                   .product-name {
-                    font-weight: bold;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+                    font-weight: 600;
+                    display: block;
+                    color: #333; // Ensure product name is dark
                   }
-
+                  
+                  .product-brand {
+                    color: $primary-color;
+                    font-size: 0.85rem;
+                    display: block;
+                  }
+                  
                   .product-features {
-                    font-size: 0.8em;
+                    font-size: 0.8rem;
                     color: #666;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+                    display: block;
                   }
                 }
               }
             }
           }
+          
+          // Categories and brands styling
           .categories,
           .brands {
+            padding: 15px;
+            border-top: 1px solid #f0f0f0;
+            
+            h4 {
+              margin: 0 0 10px;
+              font-size: 1rem;
+              font-weight: 600;
+              color: #333; // Ensure header text is dark
+            }
+            
             ul {
+              list-style: none;
+              padding: 0;
+              margin: 0;
+              
               li {
                 display: flex;
                 align-items: center;
-                padding: 8px 0;
+                padding: 10px 0;
                 cursor: pointer;
-
+                color: #333; // Ensure text is dark
+                
                 &:hover {
                   background-color: #f5f5f5;
                 }
-
-                .category-thumbnail,
-                .brand-thumbnail {
+                
+                img {
                   width: 40px;
                   height: 40px;
-                  object-fit: cover;
-                  margin-right: 10px;
-                  //border-radius: 4px;
+                  object-fit: contain;
+                  margin-right: 12px;
+                  border: 1px solid #eee;
                 }
-
+                
                 span {
-                  flex-grow: 1;
+                  color: #333; // Ensure text is dark
                 }
               }
             }
@@ -385,20 +559,26 @@ $breakpoint-large: 1400px;
   }
 }
 
+// Dropdown overlay styling
 .dropdown-overlay {
-  position: relative;
+  position: absolute; // Using absolute position
+  top: 64px; // Navbar height
+  left: 0;
+  right: 0;
   padding-left: 125px;
   padding-right: 125px;
-  z-index: 999;
+  z-index: 99; // Lower than search dropdown
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
   display: none;
   --bs-gutter-x: 19rem !important;
   --bs-gutter-y: 0;
+  animation: fadeIn 0.3s ease;
 
   @media (max-width: $breakpoint-tablet) {
     padding-left: 50px;
     padding-right: 50px;
+    top: 56px; // Mobile navbar height
   }
 
   @media (max-width: $breakpoint-mobile) {
@@ -415,11 +595,14 @@ $breakpoint-large: 1400px;
     background-color: white;
     max-height: fit-content;
     overflow-y: auto;
+    border-radius: 4px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 
     @media (max-width: $breakpoint-mobile) {
       flex-direction: column;
     }
 
+    // Categories list styling
     .categories-list {
       padding-top: 25px;
       min-width: 310px;
@@ -440,11 +623,26 @@ $breakpoint-large: 1400px;
       ul {
         list-style-type: none;
         padding: 0;
+        margin: 0;
 
         li {
-          padding: 10px 20px;
           cursor: pointer;
-          font-size: 1rem;
+          
+          .category-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            
+            a {
+              color: white;
+              text-decoration: none;
+            }
+            
+            .chevron-icon {
+              color: rgba(255, 255, 255, 0.4);
+            }
+          }
 
           &:hover,
           &.active {
@@ -455,6 +653,7 @@ $breakpoint-large: 1400px;
       }
     }
 
+    // Subcategories styling
     .subcategories {
       background-color: #ebebeb;
       padding-right: 20px;
@@ -491,24 +690,26 @@ $breakpoint-large: 1400px;
             left: 0;
             width: 100px;
             height: 4px;
-            background-image: linear-gradient(
-                to bottom,
-                rgba(12, 108, 212, 0),
-                rgba(35, 41, 50, 0.15) 37%
-              ),
-              linear-gradient(to bottom, #0066cc, #0066cc);
+            background: $primary-color;
           }
         }
 
         .view-all {
-          color: #0066cc;
+          color: $primary-color;
           text-decoration: none;
           font-size: 12px;
+          transition: color 0.2s ease;
+          
+          &:hover {
+            color: darken($primary-color, 10%);
+          }
         }
       }
+      
       ul {
         list-style-type: none;
         padding: 0;
+        margin: 0;
 
         li {
           padding: 5px 5px 0 20px;
@@ -537,6 +738,7 @@ $breakpoint-large: 1400px;
       }
     }
 
+    // Recommended products styling
     .recommended-products {
       padding: 0px 20px 0px 20px;
       flex-grow: 1;
@@ -556,26 +758,25 @@ $breakpoint-large: 1400px;
           line-height: 28px;
 
           &::after {
-            // Eklendi
             content: "";
             position: absolute;
-            bottom: -8px; // Yazının altında 8px boşluk bırakır
+            bottom: -8px;
             left: 0;
             width: 100px;
             height: 4px;
-            background-image: linear-gradient(
-                to bottom,
-                rgba(12, 108, 212, 0),
-                rgba(35, 41, 50, 0.15) 37%
-              ),
-              linear-gradient(to bottom, #0066cc, #0066cc);
+            background: $primary-color;
           }
         }
 
         .view-all {
-          color: #0066cc;
+          color: $primary-color;
           text-decoration: none;
           font-size: 14px;
+          transition: color 0.2s ease;
+          
+          &:hover {
+            color: darken($primary-color, 10%);
+          }
         }
       }
 
@@ -592,6 +793,12 @@ $breakpoint-large: 1400px;
           border: 1px solid #e0e0e0;
           height: 243px;
           justify-content: space-evenly;
+          transition: all 0.2s ease;
+          
+          &:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+          }
 
           img {
             width: 100px;
@@ -619,7 +826,6 @@ $breakpoint-large: 1400px;
             }
 
             p {
-              //font-size: 1rem;
               margin: 0 0 5px 0;
               color: $text-color;
             }
@@ -632,34 +838,6 @@ $breakpoint-large: 1400px;
               font-size: 0.675rem;
               color: $text-color;
             }
-
-            .stock-status {
-              color: red;
-              font-size: 12px;
-
-              &.in-stock {
-                color: green;
-              }
-            }
-
-            .price {
-              font-weight: bold;
-              font-size: 16px;
-              margin-top: 1rem;
-              border-top: 1px solid #eee;
-              padding-top: 10px;
-
-              span {
-                font-weight: normal;
-                font-size: 12px;
-              }
-            }
-
-            .sign-in {
-              color: #0066cc;
-              text-decoration: none;
-              font-size: 12px;
-            }
           }
         }
       }
@@ -667,25 +845,7 @@ $breakpoint-large: 1400px;
   }
 }
 
-@media (max-width: $breakpoint-tablet) {
-  .industrial-navbar .top-bar {
-    padding: 0 10px;
-    gap: 5px;
-
-    .mobile-brands {
-      order: 1; // Sıralamayı ayarla
-    }
-
-    .search-bar {
-      order: 2; // Sıralamayı ayarla
-      margin: 0 5px;
-    }
-
-    .nav-right {
-      order: 3; // Sıralamayı ayarla
-    }
-  }
-}
+// Spinner and loading states
 .categories-list,
 .subcategories,
 .recommended-products {
@@ -705,33 +865,8 @@ $breakpoint-large: 1400px;
   }
 }
 
-.custom-spinner-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.custom-spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+// Animations
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

@@ -1,28 +1,39 @@
 <app-main-header></app-main-header>
 <app-navbar></app-navbar>
-
-<div class="breadcrumb-container">
-  <div class="row mb-3">
-    <div class="col-12">
-      <app-breadcrumb></app-breadcrumb>
-    </div>
+<!-- Loading State Indicator -->
+<div *ngIf="isLoading" class="loading-container">
+  <app-spinner [spinnerType]="'s2'" [showOverlay]="false"></app-spinner>
+  <div class="loading-progress">
+    <div class="progress-bar" [style.width.%]="loadingProgress"></div>
   </div>
+  <div class="loading-text">Kategoriler yükleniyor...</div>
 </div>
 
-<div class="brands-container">
-  <div class="brands-header">
-    <h1>Our Brands</h1>
-    <p>Discover quality products from trusted manufacturers</p>
+<!-- Ana içerik - sadece yükleme tamamlandığında göster -->
+<div *ngIf="!isLoading">
+  <div class="breadcrumb-container">
+    <div class="row mb-3">
+      <div class="col-12">
+        <app-breadcrumb></app-breadcrumb>
+      </div>
+    </div>
   </div>
 
-  <div class="brands-grid">
-    <div class="brand-card" *ngFor="let brand of brands" routerLink="/{{brand.id}}">
-      <div class="brand-image">
-        <img [src]="brand.brandImage?.url || defaultBrandImageUrl" [alt]="brand.name + ' logo'">
-      </div>
-      <div class="brand-info">
-        <h3>{{brand.name}}</h3>
-        <p>{{brand.productCount}} Products</p>
+  <div class="brands-container">
+    <div class="brands-header">
+      <h1>Our Brands</h1>
+      <p>Discover quality products from trusted manufacturers</p>
+    </div>
+
+    <div class="brands-grid">
+      <div class="brand-card" *ngFor="let brand of brands" routerLink="/{{brand.id}}">
+        <div class="brand-image">
+          <img [src]="brand.brandImage?.url || defaultBrandImageUrl" [alt]="brand.name + ' logo'">
+        </div>
+        <div class="brand-info">
+          <h3>{{brand.name}}</h3>
+          <p>{{brand.productCount}} Products</p>
+        </div>
       </div>
     </div>
   </div>

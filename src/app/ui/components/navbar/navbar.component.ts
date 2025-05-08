@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, Input } from '@angular/core';
+import { Component, OnInit, HostListener, Input, OnDestroy, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Category } from 'src/app/contracts/category/category';
 import { PageRequest } from 'src/app/contracts/pageRequest';
@@ -6,17 +6,12 @@ import { Product } from 'src/app/contracts/product/product';
 import { CategoryService } from 'src/app/services/common/models/category.service';
 import { ProductService } from 'src/app/services/common/models/product.service';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
-import { Subject, async } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import {
-  FormGroup,
-  FormBuilder,
-  FormsModule,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormGroup, FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Brand } from 'src/app/contracts/brand/brand';
 import { BrandService } from 'src/app/services/common/models/brand.service';
-import { Filter, DynamicQuery } from 'src/app/contracts/dynamic-query';
+import { Filter } from 'src/app/contracts/dynamic-query';
 import { ProductFilterByDynamic } from 'src/app/contracts/product/productFilterByDynamic';
 import { Router, RouterModule } from '@angular/router';
 import { GetListResponse } from 'src/app/contracts/getListResponse';
@@ -32,96 +27,170 @@ interface CategoryWithSubcategories extends Category {
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, RouterModule, SpinnerComponent],
   templateUrl: './navbar.component.html',
-  styleUrls: ['./navbar.component.scss', '../../../../styles.scss']
+  styleUrls: ['./navbar.component.scss']
 })
-export class NavbarComponent extends BaseComponent implements OnInit {
+export class NavbarComponent extends BaseComponent implements OnInit, AfterViewInit, OnDestroy {
+  // Properties
   categories: CategoryWithSubcategories[] = [];
   topLevelCategories: CategoryWithSubcategories[] = [];
   selectedCategory: CategoryWithSubcategories | null = null;
   currentRecommendedCategory: CategoryWithSubcategories | null = null;
-  recommendedProducts: GetListResponse<Product>
+  recommendedProducts: GetListResponse<Product>;
+  
+  // States
   isAllProductsOpen: boolean = false;
+  isMobileMenuOpen: boolean = false;
+  isSearchFocused: boolean = false;
+  
+  // Loading states
   searchLoading: boolean = false;
   categoryLoading: boolean = false;
   subcategoryLoading: boolean = false;
   recommendedLoading: boolean = false;
   isCategoriesLoaded: boolean = false;
   
-  private categorySubject = new Subject<string>();
-  private categoryCache: Map<string, GetListResponse<Product>> = new Map();
-
-  isMobileMenuOpen: boolean = false;
-
-  isSearchFocused: boolean = false;
+  // Search related
   recentSearches: string[] = [];
-  searchResults: {
-    products: Product[];
-    categories: Category[];
-    brands: Brand[];
-  } = { products: [], categories: [], brands: [] };
-  private searchSubject = new Subject<string>();
+  searchResults: { products: Product[]; categories: Category[]; brands: Brand[]; } = { 
+    products: [], categories: [], brands: [] 
+  };
   searchForm: FormGroup;
-  private searchCache: Product[] = [];
-  private currentSearchTerm: string = '';
-
   searchTerm: string = '';
-
+  
+  // Cache
+  private categoryCache: Map<string, CategoryWithSubcategories[]> = new Map();
+  private productCache: Map<string, GetListResponse<Product>> = new Map();
+  private searchCache: Product[] = [];
+  
+  // RxJS subjects
+  private destroy$ = new Subject<void>();
+  private categorySubject = new Subject<string>();
+  private searchSubject = new Subject<string>();
+  private searchTimeoutId: any;
+  private currentSearchTerm: string = '';
+  
+  // Refs
+  @ViewChild('categoryDropdown') categoryDropdown: ElementRef;
+  
+  // Inputs
   @Input() showOnlyMainCategories: boolean = false;
-
 
   constructor(
     private categoryService: CategoryService,
     private productService: ProductService,
     private brandService: BrandService,
-    spinner: SpinnerService,
+    private spinnerService: SpinnerService,
     private router: Router,
     private fb: FormBuilder,
+    private cdr: ChangeDetectorRef
   ) {
-    super(spinner);
+    super(spinnerService);
     this.setupCategorySubject();
     this.setupSearchSubject();
     this.createSearchForm();
   }
 
-  onSearch(): void {
-    if (this.searchTerm.trim()) {
-        this.router.navigate(['/search'], {
-            queryParams: { term: this.searchTerm }
-        });
-    }
+  ngOnInit(): void {
+    // Only initializes event listeners, doesn't load data
+    this.loadRecentSearches();
   }
-
+  
+  ngAfterViewInit(): void {
+    // Set up intersection observer for performance optimization
+    this.setupIntersectionObserver();
+  }
+  
+  // Setup methods
   private setupCategorySubject() {
     this.categorySubject
-      .pipe(debounceTime(300), distinctUntilChanged())
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
       .subscribe((categoryId) => {
         this.loadRecommendedProductsWithCache(categoryId);
       });
   }
 
-  private createSearchForm() {
-    this.searchForm = this.fb.group({
-      searchTerm: [''],
-    });
-
-    this.searchForm
-      .get('searchTerm')
-      .valueChanges.pipe(debounceTime(300), distinctUntilChanged())
-      .subscribe((value) => {
-        if (value.length >= 2) {
-          this.searchProducts(value);
-        } else if (value.length === 0) {
-          this.clearSearchResults();
-        }
-      });
-  }
-
   private setupSearchSubject() {
     this.searchSubject
-      .pipe(debounceTime(300), distinctUntilChanged())
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
       .subscribe((searchTerm) => {
         this.searchProducts(searchTerm);
       });
+  }
+
+  private createSearchForm() {
+    this.searchForm = this.fb.group({
+      searchTerm: ['']
+    });
+
+    this.searchForm.get('searchTerm').valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((value) => {
+        this.debounceSearch(value);
+      });
+  }
+  
+  // Optimize search with debouncing
+  private debounceSearch(searchTerm: string) {
+    if (this.searchTimeoutId) {
+      clearTimeout(this.searchTimeoutId);
+    }
+    
+    this.searchTimeoutId = setTimeout(() => {
+      if (searchTerm && searchTerm.length >= 2) {
+        this.searchProducts(searchTerm);
+      } else if (searchTerm.length === 0) {
+        this.clearSearchResults();
+      }
+    }, 300);
+  }
+  
+  // Setup intersection observer for lazy loading elements
+  private setupIntersectionObserver() {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.1
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const categoryId = entry.target.getAttribute('data-category-id');
+          if (categoryId) {
+            this.loadRecommendedProductsWithCache(categoryId);
+            observer.unobserve(entry.target);
+          }
+        }
+      });
+    }, options);
+    
+    // Observe category elements when they're in the DOM
+    setTimeout(() => {
+      document.querySelectorAll('[data-category-id]').forEach(element => {
+        observer.observe(element);
+      });
+    }, 1000);
+  }
+
+  // Search methods
+  onSearch(): void {
+    if (this.searchTerm.trim()) {
+      this.router.navigate(['/search'], {
+        queryParams: { term: this.searchTerm }
+      });
+    }
   }
 
   onSearchSubmit(event: Event) {
@@ -135,6 +204,8 @@ export class NavbarComponent extends BaseComponent implements OnInit {
         this.searchForm.reset();
         this.isSearchFocused = false;
       });
+      
+      this.saveRecentSearch(searchTerm);
     }
   }
 
@@ -150,15 +221,22 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   async searchProducts(searchTerm: string) {
+    if (!searchTerm || searchTerm.length < 2) return;
+    
     this.searchLoading = true;
     this.showSpinner(SpinnerType.SquareLoader);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    
     try {
+      // Use cache if possible for similar searches
       if (searchTerm.startsWith(this.currentSearchTerm) && this.searchCache.length > 0) {
         this.filterCachedResults(searchTerm);
       } else {
         await this.performNewSearch(searchTerm);
       }
+      
+      this.saveRecentSearch(searchTerm);
+    } catch (error) {
+      console.error('Search error:', error);
     } finally {
       this.searchLoading = false;
       this.hideSpinner(SpinnerType.SquareLoader);
@@ -168,123 +246,100 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   private filterCachedResults(searchTerm: string) {
     this.searchResults.products = this.searchCache
       .filter((product) => this.productMatchesSearchTerm(product, searchTerm))
-      .slice(0, 5); // Sadece ilk 3 sonucu göster
-    this.saveRecentSearch(searchTerm);
-  }
-
-  clearSearchHistory() {
-    this.recentSearches = [];
-    localStorage.removeItem('recentSearches');
+      .slice(0, 5);
   }
 
   private async performNewSearch(searchTerm: string) {
     const pageRequest: PageRequest = { pageIndex: 0, pageSize: 5 };
-
+  
     try {
-        // Tüm aramaları parallel olarak yapalım
-        const [productResponse, directCategoryResponse, directBrandResponse] = await Promise.all([
-            // 1. Ürün araması
-            this.productService.getProductsByDynamicQuery(
-                {
-                    sort: [{ field: ProductFilterByDynamic.Name, dir: 'asc' }],
-                    filter: {
-                        logic: 'and',
-                        filters: this.buildFilters(searchTerm)
-                    }
-                },
-                pageRequest
-            ),
-            
-            // 2. Doğrudan kategori araması
-            this.categoryService.searchCategories(searchTerm),
-            
-            // 3. Doğrudan marka araması
-            this.brandService.searchBrands(searchTerm)
-        ]);
-
-        // 4. Ürünlerin kategori ve markalarını al
-        const productCategoryIds = productResponse.items.map(product => product.categoryId);
-        const productBrandIds = productResponse.items.map(product => product.brandId);
-
-        const [relatedCategories, relatedBrands] = await Promise.all([
-            this.categoryService.getCategoriesByIds(productCategoryIds),
-            this.brandService.getBrandsByIds(productBrandIds)
-        ]);
-
-        // Tüm sonuçları birleştir ve tekrarları kaldır
-        const allCategories = [...directCategoryResponse.items, ...relatedCategories.items];
-        const allBrands = [...directBrandResponse.items, ...relatedBrands.items];
-
-        this.searchResults = {
-            products: productResponse.items,
-            categories: this.removeDuplicates(allCategories, 'id'),
-            brands: this.removeDuplicates(allBrands, 'id')
-        };
-        
-        this.searchCache = productResponse.items;
-        this.currentSearchTerm = searchTerm;
-        this.saveRecentSearch(searchTerm);
-        
+      // 1. Önce ürün araması yapalım
+      const productResponse = await this.productService.getProductsByDynamicQuery(
+        {
+          sort: [{ field: ProductFilterByDynamic.Name, dir: 'asc' }],
+          filter: {
+            logic: 'and',
+            filters: this.buildFilters(searchTerm)
+          }
+        },
+        pageRequest
+      );
+      
+      // 2. Doğrudan kategori ve marka araması da yapalım
+      const [directCategoryResponse, directBrandResponse] = await Promise.all([
+        this.categoryService.searchCategories(searchTerm),
+        this.brandService.searchBrands(searchTerm)
+      ]);
+      
+      // 3. Bulunan ürünlerin kategori ve marka ID'lerini toplayalım
+      const categoryIds = new Set<string>();
+      const brandIds = new Set<string>();
+      
+      productResponse.items.forEach(product => {
+        if (product.categoryId) categoryIds.add(product.categoryId);
+        if (product.brandId) brandIds.add(product.brandId);
+      });
+      
+      // 4. Ürünlerden gelen kategori ve markaları getirelim
+      const [relatedCategories, relatedBrands] = await Promise.all([
+        this.categoryService.getCategoriesByIds(Array.from(categoryIds)),
+        this.brandService.getBrandsByIds(Array.from(brandIds))
+      ]);
+      
+      // 5. Tüm kategori ve markaları birleştirip, tekrarları kaldıralım
+      const allCategories = [...directCategoryResponse.items, ...relatedCategories.items];
+      const allBrands = [...directBrandResponse.items, ...relatedBrands.items];
+      
+      // 6. Tekrarları kaldır
+      const uniqueCategories = this.removeDuplicateItems(allCategories, 'id');
+      const uniqueBrands = this.removeDuplicateItems(allBrands, 'id');
+      
+      // 7. Sonuçları atayalım
+      this.searchResults = {
+        products: productResponse.items,
+        categories: uniqueCategories,
+        brands: uniqueBrands
+      };
+      
+      // 8. Önbelleğe alalım
+      this.searchCache = productResponse.items;
+      this.currentSearchTerm = searchTerm;
+      this.saveRecentSearch(searchTerm);
     } catch (error) {
-        console.error('Search error:', error);
+      console.error('Search error:', error);
+      this.searchResults = { products: [], categories: [], brands: [] };
     }
   }
-
-  // Yardımcı metod: Tekrarlanan sonuçları kaldır
-  private removeDuplicates<T>(array: T[], key: keyof T): T[] {
-      return Array.from(new Map(array.map(item => [item[key], item])).values());
+  
+  // Yardımcı metod: Nesneler listesinde belirli bir özelliğe göre tekrarları kaldır
+  private removeDuplicateItems<T>(items: T[], key: keyof T): T[] {
+    const seenKeys = new Set();
+    return items.filter(item => {
+      const itemKey = item[key];
+      if (seenKeys.has(itemKey)) {
+        return false;
+      }
+      seenKeys.add(itemKey);
+      return true;
+    });
   }
 
   private buildFilters(searchTerm: string): Filter[] {
-    // Arama terimlerini küçük harfe çevirip boşluklara göre ayırıyoruz
     const terms = searchTerm.toLowerCase().split(' ').filter((term) => term.length > 0);
 
-    const name = ProductFilterByDynamic.Name;
-    const varyantGroupId = ProductFilterByDynamic.VaryantGroupID;
-    const description = ProductFilterByDynamic.Description;
-    const title = ProductFilterByDynamic.Title;
-    const brandName = ProductFilterByDynamic.BrandName;
-    const categoryName = ProductFilterByDynamic.CategoryName;
-
-    const filters: Filter[] = terms.map((term) => ({
-      field: name,
-      operator: 'contains', // case-insensitive operatör
+    // Simplified but effective filter
+    return terms.map((term) => ({
+      field: ProductFilterByDynamic.Name,
+      operator: 'contains',
       value: term,
       logic: 'or',
       filters: [
-        {
-          field: brandName,
-          operator: 'contains',
-          value: term,
-          logic: 'or',
-          filters: [
-            {
-              field: description,
-              operator: 'contains',
-              value: term,
-              logic: 'or',
-              filters: [
-                {
-                  field: title,
-                  operator: 'contains',
-                  value: term,
-                  logic: 'or',
-                  filters: [
-                    {
-                      field: categoryName,
-                      operator: 'contains',
-                      value: term,
-                    }
-                  ]
-                },
-              ],
-            },
-          ],
-        },
-      ],
+        { field: ProductFilterByDynamic.BrandName, operator: 'contains', value: term },
+        { field: ProductFilterByDynamic.Description, operator: 'contains', value: term },
+        { field: ProductFilterByDynamic.Title, operator: 'contains', value: term },
+        { field: ProductFilterByDynamic.CategoryName, operator: 'contains', value: term }
+      ]
     }));
-
-    return filters;
   }
 
   private productMatchesSearchTerm(product: Product, searchTerm: string): boolean {
@@ -317,12 +372,14 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     }
   }
   
-  // Recent search'e tıklandığında çağrılacak metod
-  async onRecentSearchClick(searchTerm: string) {
-    // Form'un değerini güncelle
+  clearSearchHistory() {
+    this.recentSearches = [];
+    localStorage.removeItem('recentSearches');
+  }
+  
+  onRecentSearchClick(searchTerm: string) {
     this.searchForm.get('searchTerm').setValue(searchTerm);
     
-    // Arama sayfasına yönlendir
     this.router.navigate(['/search'], { 
       queryParams: { q: searchTerm } 
     }).then(() => {
@@ -332,148 +389,129 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
 
   saveRecentSearch(query: string) {
-    if (!this.recentSearches.includes(query)) {
-      this.recentSearches.unshift(query);
-      this.recentSearches = this.recentSearches.slice(0, 5);
-      localStorage.setItem(
-        'recentSearches',
-        JSON.stringify(this.recentSearches)
-      );
-    }
+    if (!query || this.recentSearches.includes(query)) return;
+    
+    this.recentSearches.unshift(query);
+    this.recentSearches = this.recentSearches.slice(0, 5);
+    localStorage.setItem('recentSearches', JSON.stringify(this.recentSearches));
   }
 
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent) {
-    const dropdownElement = document.querySelector('.dropdown-overlay');
-    const allProductsButton = document.querySelector(
-      '.all-products-dropdown button'
-    );
-
-    if (this.isAllProductsOpen && dropdownElement && allProductsButton) {
-      if (
-        !dropdownElement.contains(event.target as Node) &&
-        !allProductsButton.contains(event.target as Node)
-      ) {
-        this.closeAllProducts();
-      }
-    }
-  }
-
-  ngOnInit(): void {
-    // Remove loading categories on init
-    // Now only setup other initialization tasks if needed
-  }
-
+  // Category methods
   async loadCategories() {
-    if (this.isCategoriesLoaded) {
-      return; // Skip if categories are already loaded
-    }
+    if (this.isCategoriesLoaded) return;
     
     this.categoryLoading = true;
     this.showSpinner(SpinnerType.SquareLoader);
+    
     try {
-      // Sadece ana kategorileri yükle
       const pageRequest: PageRequest = { pageIndex: -1, pageSize: -1 };
       const response = await this.categoryService.getMainCategories(pageRequest);
+      
       this.topLevelCategories = response.items.map(category => ({
         ...category,
-        subcategories: [] // Başlangıçta boş alt kategoriler
+        subcategories: []
       }));
+      
       this.isCategoriesLoaded = true;
     } catch (error) {
-      console.error('Error loading main categories:', error);
+      console.error('Error loading categories:', error);
     } finally {
       this.categoryLoading = false;
       this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
 
-  // Bu metod artık kullanılmıyor, ana kategoriler direkt olarak yükleniyor
-  // ve alt kategoriler talep üzerine (hover) ayrı ayrı yükleniyor
-
   async selectCategory(category: CategoryWithSubcategories) {
     this.subcategoryLoading = true;
-    this.selectedCategory = category; // Ana kategorimizi ayarlıyoruz
-    this.currentRecommendedCategory = category; // Önerilen ürünler için kategoriyi ayarlıyoruz
+    this.selectedCategory = category;
+    this.currentRecommendedCategory = category;
     this.showSpinner(SpinnerType.SquareLoader);
     
     try {
-      // Alt kategorileri sadece onları henüz yüklemediyse yükle
+      // Load subcategories if not already loaded
       if (!category.subcategories || category.subcategories.length === 0) {
         await this.loadSubcategories(category);
       }
       
-      // Önerilen ürünleri yükle
+      // Load recommended products
       this.categorySubject.next(category.id);
     } finally {
       this.subcategoryLoading = false;
       this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
+
   loadRecommendedForSubcategory(category: CategoryWithSubcategories) {
-    // Sadece önerilen ürünleri değiştir, seçili ana kategoriyi değiştirme
     this.currentRecommendedCategory = category;
     this.recommendedLoading = true;
-    
-    // Önerilen ürünleri yükle
     this.categorySubject.next(category.id);
   }
   
   async loadSubcategories(category: CategoryWithSubcategories) {
+    // Use cache if available
+    const cacheKey = `subcategories_${category.id}`;
+    if (this.categoryCache.has(cacheKey)) {
+      category.subcategories = this.categoryCache.get(cacheKey);
+      return;
+    }
+    
     try {
       const response = await this.categoryService.getSubCategories(category.id);
-      
-      // Alt kategorileri set et
-      category.subcategories = response.items.map(subCategory => ({
+      const subcategories = response.items.map(subCategory => ({
         ...subCategory,
-        subcategories: [] // Başlangıçta boş alt-alt kategoriler
+        subcategories: []
       }));
       
-      // Her bir alt kategori için alt-alt kategorileri yüklemek istersen:
-      // Bu özelliği aktif etmek için aşağıdaki kod bloğunu yorum satırından çıkar
-      /*
-      for (const subCategory of category.subcategories) {
-        try {
-          const nestedResponse = await this.categoryService.getSubCategories(subCategory.id);
-          subCategory.subcategories = nestedResponse.items;
-        } catch (error) {
-          console.error(`Error loading nested subcategories for ${subCategory.name}:`, error);
-        }
-      }
-      */
+      // Cache the results
+      this.categoryCache.set(cacheKey, subcategories);
+      category.subcategories = subcategories;
     } catch (error) {
-      console.error(`Error loading subcategories for ${category.name}:`, error);
-      category.subcategories = []; // Hata durumunda boş dizi
+      console.error(`Error loading subcategories:`, error);
+      category.subcategories = [];
     }
   }
 
   async loadRecommendedProductsWithCache(categoryId: string) {
     this.recommendedLoading = true;
-    this.showSpinner(SpinnerType.SquareLoader);
+    
     try {
-      // Bu kategori için önbelleğe alınmış sonuçlarımız var mı kontrol edelim
-      if (this.categoryCache.has(categoryId)) {
-        this.recommendedProducts = this.categoryCache.get(categoryId);
-      } else {
-        // Önbellekte yoksa API'den yükleyelim
-        const response = await this.productService.getRandomProductsByCategory(categoryId);
-        this.categoryCache.set(categoryId, response);
-        this.recommendedProducts = response;
+      // Check cache first
+      if (this.productCache.has(categoryId)) {
+        this.recommendedProducts = this.productCache.get(categoryId);
+        return;
       }
+      
+      // Otherwise load from API
+      const response = await this.productService.getRandomProductsByCategory(categoryId);
+      this.productCache.set(categoryId, response);
+      this.recommendedProducts = response;
     } catch (error) {
-      console.error(`Error loading recommended products for category ${categoryId}:`, error);
-      this.recommendedProducts = { items: [], index: 0, size: 0, count: 0, pages: 0, hasPrevious: false, hasNext: false };
+      console.error(`Error loading products:`, error);
+      this.recommendedProducts = { 
+        items: [], index: 0, size: 0, count: 0, 
+        pages: 0, hasPrevious: false, hasNext: false 
+      };
     } finally {
       this.recommendedLoading = false;
-      this.hideSpinner(SpinnerType.SquareLoader);
     }
   }
 
-  toggleAllProducts() {
+  // UI interaction methods
+  toggleAllProducts(): void {
     this.isAllProductsOpen = !this.isAllProductsOpen;
+    
+    // Değişiklikleri hemen uygula
+    this.cdr.detectChanges();
     
     if (this.isAllProductsOpen && !this.isCategoriesLoaded) {
       this.loadCategories();
+    }
+    
+    // Dropdown açıldığında sayfa kaydırmayı engelle
+    if (this.isAllProductsOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
     }
   }
 
@@ -485,7 +523,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     }
   }
 
-  public closeAllProducts() {
+  closeAllProducts() {
     this.isAllProductsOpen = false;
   }
 
@@ -495,24 +533,13 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     }
   }
 
+  // Navigation methods
   navigateToSearchResult(id: string) {
     const url = `/${id}`;
     
-    // Mevcut URL'yi kontrol et
     if (this.router.url !== url) {
-      this.router.navigateByUrl(url).then(
-        (success) => {
-          if (success) {
-            // Navigasyon başarılı olduktan sonra sayfayı yenile
-            window.location.reload();
-          } else {
-            window.location.href = url; // Fallback yöntemi
-          }
-        },
-        (error) => console.error('Navigation error:', error)
-      );
+      this.router.navigateByUrl(url);
     } else {
-      // Eğer aynı sayfadaysak, sadece sayfayı yenile
       window.location.reload();
     }
     
@@ -520,7 +547,7 @@ export class NavbarComponent extends BaseComponent implements OnInit {
   }
   
   navigateToRecommendedProduct(productId: string) {
-    this.router.navigate(['/'+productId]);
+    this.router.navigate(['/' + productId]);
     this.closeAllProducts();
   }
   
@@ -528,6 +555,14 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     this.navigateToSearchResult(product.id);
   }
 
+  navigateToCategory(categoryId: string) {
+    this.router.navigate(['/' + categoryId]);
+    this.closeAllProducts();
+    this.isMobileMenuOpen = false;
+    document.body.style.overflow = 'auto';
+  }
+
+  // Mobile menu methods
   @HostListener('window:resize', ['$event'])
   onResize() {
     if (window.innerWidth > 768) {
@@ -535,37 +570,44 @@ export class NavbarComponent extends BaseComponent implements OnInit {
     }
   }
 
-  // ESC tuşu ile menüyü kapatma
   @HostListener('window:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     if (event.key === 'Escape') {
       this.closeMobileMenu();
+      this.closeAllProducts();
     }
   }
+
+  @HostListener('document:click', ['$event'])
+onDocumentClick(event: MouseEvent) {
+  // Dropdown açıksa ve tıklanan element dropdown toggle butonu değilse kapat
+  const dropdownToggle = document.querySelector('.dropdown-toggle1');
+  const dropdownOverlay = document.querySelector('.dropdown-overlay');
+  
+  if (this.isAllProductsOpen) {
+    // Tıklanan elementin dropdown toggle butonu veya dropdown overlay içinde olup olmadığını kontrol et
+    const clickedOnToggle = dropdownToggle && dropdownToggle.contains(event.target as Node);
+    const clickedOnOverlay = dropdownOverlay && dropdownOverlay.contains(event.target as Node);
+    
+    // Eğer toggle butonuna veya overlay içinde bir yere tıklanmadıysa dropdown'u kapat
+    if (!clickedOnToggle && !clickedOnOverlay) {
+      this.closeAllProducts();
+    }
+  }
+}
 
   closeMobileMenu() {
     this.isMobileMenuOpen = false;
-    this.updateBodyScroll();
+    document.body.style.overflow = 'auto';
   }
 
-  private updateBodyScroll() {
-    if (this.isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-  }
-
-  // Component destroy olduğunda scroll'u geri getir
   ngOnDestroy() {
-    document.body.style.overflow = 'auto';
-  }
-
-  // Mevcut navigateToCategory metodunu güncelle
-  navigateToCategory(categoryId: string) {
-    this.router.navigate(['/'+ categoryId]);
-    this.closeAllProducts();
-    this.isMobileMenuOpen = false; // Mobile menüyü kapat
-    document.body.style.overflow = 'auto';
+    document.body.style.overflow = 'auto'; // Bileşen yok edildiğinde scroll'u geri getir
+    this.destroy$.next();
+    this.destroy$.complete();
+    
+    if (this.searchTimeoutId) {
+      clearTimeout(this.searchTimeoutId);
+    }
   }
 }

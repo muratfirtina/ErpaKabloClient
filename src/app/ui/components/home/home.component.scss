@@ -1,13 +1,13 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800;900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
 
-// Variables
+// Variables - Using the existing color palette
 $home-primary-color: #333333;
 $home-secondary-color: #f0f0f0;
 $accent-color: #ff9900;
 $home-text-color: #333;
 $light-text: #fff;
-$primary-color: #e53935;
+$primary-color: #e53935; // Existing primary color
 $secondary-color: #212121;
 $background-color: #ffffff;
 $text-color: #484848;
@@ -16,12 +16,14 @@ $hover-color: rgba($primary-color, 0.1);
 $success-color: #059669;
 $link-color: #0000ee;
 
+// Breakpoints
 $breakpoint-mobile: 480px;
 $breakpoint-tablet: 768px;
 $breakpoint-laptop: 1024px;
 $breakpoint-desktop: 1200px;
 $breakpoint-large: 1400px;
 
+// Base styles
 * {
   margin: 0;
   padding: 0;
@@ -37,76 +39,135 @@ body {
   line-height: 1.6;
 }
 
-.row {
-  display: flex;
-  justify-content: center;
-}
-
-// Genel container stili
 .container {
   max-width: 1420px;
   margin: auto;
+  padding: 0 15px;
+}
+
+// Section styles - improved headers
+.section-header {
   display: flex;
-  overflow-x: auto;
-  gap: 20px;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
-}
-
-.container::-webkit-scrollbar {
-  height: 8px;
-}
-
-.container::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.container::-webkit-scrollbar-thumb {
-  background: #888;
-}
-
-.container::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-.hero-carousel {
-  position: relative;
-  height: 300px;
-  background-color: #1e1e1e;
-
-  @media (max-width: $breakpoint-tablet) {
-    display: none; // Mobilde carousel'i gizle
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  
+  .section-title {
+    font-family: "Bebas Neue", serif;
+    font-size: 2.5rem;
+    color: $home-primary-color;
+    font-weight: 500;
+    position: relative;
+    padding-bottom: 15px;
+    
+    &:after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: $primary-color;
+    }
   }
-
-  @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-laptop) {
-    height: 250px;
-
-    .slide-content {
-      .text-content {
-        left: 10%;
-        
-        .slide-title {
-          font-size: 2rem;
-        }
-        
-        .slide-description {
-          font-size: 1rem;
-        }
-      }
-
-      .image-content img {
-        height: 350px;
+  
+  .section-link {
+    color: $primary-color;
+    text-decoration: none;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    
+    span {
+      margin-left: 5px;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover {
+      span {
+        transform: translateX(5px);
       }
     }
   }
+}
 
+// Buttons
+.btn-cta {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 0; // Keeping with the industrial theme
+  font-weight: 600;
+  text-decoration: none;
+  text-align: center;
+  transition: all 0.3s ease;
+  
+  &.primary {
+    background-color: $primary-color;
+    color: $light-text;
+    
+    &:hover {
+      background-color: darken($primary-color, 10%);
+      transform: translateY(-2px);
+    }
+  }
+  
+  &.secondary {
+    background-color: transparent;
+    color: $light-text;
+    border: 2px solid $light-text;
+    
+    &:hover {
+      background-color: rgba($light-text, 0.1);
+      transform: translateY(-2px);
+    }
+  }
+}
+
+// Loading component
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  
+  .loading-progress {
+    width: 250px;
+    height: 6px;
+    background-color: #eee;
+    border-radius: 10px;
+    margin-bottom: 0.5rem;
+    overflow: hidden;
+    
+    .progress-bar {
+      height: 100%;
+      background-color: $primary-color;
+      transition: width 0.3s ease;
+    }
+  }
+  
+  .loading-text {
+    font-size: 1rem;
+    color: #666;
+    margin-top: 0.5rem;
+  }
+}
+
+// Enhanced Hero Carousel
+.hero-carousel {
+  position: relative;
+  height: 450px; // Taller for more impact
+  background-color: #1e1e1e;
+  
+  @media (max-width: $breakpoint-tablet) {
+    display: none; // Mobile carousel hidden as per original
+  }
+  
   .carousel-container {
     height: 100%;
     position: relative;
   }
-
+  
   .carousel-slide {
     position: absolute;
     top: 0;
@@ -114,78 +175,117 @@ body {
     height: 100%;
     opacity: 0;
     transition: opacity 0.8s ease;
-
+    
     &.active {
       opacity: 1;
     }
-
-    .slide-content {
+  }
+  
+  .slide-content {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5%;
+    
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0.3) 100%);
+    }
+    
+    .text-content {
+      z-index: 2;
+      color: $light-text;
+      text-align: center;
+      position: absolute;
+      top: 50%;
+      left: 15%;
+      transform: translateY(-50%);
+      flex: 1;
+      z-index: 1;
+      
+      .slide-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        background-color: $primary-color;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        margin-bottom: 15px;
+      }
+      
+      .slide-title {
+        font-family: 'Source Sans Pro', sans-serif;
+        font-size: 2.8rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+      }
+      
+      .slide-description {
+        font-size: 1.2rem;
+        margin-bottom: 2rem;
+      }
+      
+      .slide-cta-group {
+        display: flex;
+        gap: 15px;
+        
+        @media (max-width: $breakpoint-mobile) {
+          flex-direction: column;
+          gap: 10px;
+        }
+      }
+    }
+    
+    .image-content {
       position: relative;
+      left: 15%;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 5%;
-
-      .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
-      }
-
-      .text-content {
-        z-index: 2;
-        color: #fff;
-        text-align: center;
-        position: absolute; // Absolute konumlandırma ile sabitle
-        top: 50%; // Yatayda ortala
-        left: 15%; // Soldan uzaklık
-        transform: translateY(
-          -50%
-        ); // Dikeyde tam ortalamak için translate kullan
-        flex: 1;
-        z-index: 1; // Metnin görüntünün üstünde kalmasını sağla
-
-        .slide-title {
-          font-family: 'Source Sans Pro', sans-serif;
-          font-size: 2.5rem;
-          font-weight: bold;
-          margin-bottom: 1rem;
-        }
-
-        .slide-description {
-          font-size: 1.2rem;
-          margin-bottom: 2rem;
-        }
-
-        .btn-cta {
-          padding: 12px 30px;
-          background-color: #fcb900;
-          color: #000;
-          text-decoration: none;
-          //border-radius: 5px;
-          transition: background-color 0.3s;
-
-          &:hover {
-            background-color: #e0a700;
-          }
+      
+      img {
+        height: 400px; // Larger images
+        object-fit: cover;
+        mask-image: linear-gradient(
+          to right,
+          transparent 0%,
+          white 30%,
+          white 60%,
+          transparent 100%
+        );
+        -webkit-mask-image: linear-gradient(
+          to right,
+          transparent 0%,
+          white 30%,
+          white 60%,
+          transparent 100%
+        );
+        
+        @media (max-width: 1024px) {
+          max-height: 350px;
+          max-width: 550px;
         }
       }
-
-      .image-content {
+      
+      .video-content {
         position: relative;
-        left: 15%;
+        width: 100%;
         height: 100%;
         display: flex;
         align-items: center;
         justify-content: center;
-
-        img {
-          height: 300px;
-          object-fit: cover;
+        
+        video, iframe {
+          max-height: 400px;
+          max-width: 100%;
+          width: auto;
+          height: auto;
           mask-image: linear-gradient(
             to right,
             transparent 0%,
@@ -200,51 +300,16 @@ body {
             white 60%,
             transparent 100%
           );
+          
           @media (max-width: 1024px) {
             max-height: 350px;
             max-width: 550px;
           }
         }
-        
-        // Video content styles
-        .video-content {
-          position: relative;
-          width: 100%;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          
-          video, iframe {
-            max-height: 300px;
-            max-width: 100%;
-            width: auto;
-            height: auto;
-            mask-image: linear-gradient(
-              to right,
-              transparent 0%,
-              white 30%,
-              white 60%,
-              transparent 100%
-            );
-            -webkit-mask-image: linear-gradient(
-              to right,
-              transparent 0%,
-              white 30%,
-              white 60%,
-              transparent 100%
-            );
-            
-            @media (max-width: 1024px) {
-              max-height: 350px;
-              max-width: 550px;
-            }
-          }
-        }
       }
     }
   }
-
+  
   .carousel-control {
     position: absolute;
     top: 50%;
@@ -258,24 +323,24 @@ body {
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.3s;
-
+    
     &:hover {
       background-color: rgba(0, 0, 0, 0.7);
     }
-
+    
     &.prev {
       left: 20px;
     }
-
+    
     &.next {
       right: 20px;
     }
-
+    
     svg {
-      stroke: #fff;
+      stroke: $light-text;
     }
   }
-
+  
   .carousel-indicators {
     position: absolute;
     bottom: 20px;
@@ -283,22 +348,77 @@ body {
     transform: translateX(-50%);
     display: flex;
     gap: 10px;
-
+    
     span {
       width: 12px;
       height: 12px;
       background-color: #555;
       border-radius: 50%;
       cursor: pointer;
-
+      
       &.active {
-        background-color: #fcb900;
+        background-color: $primary-color;
       }
     }
   }
 }
 
-// Categories bölümü
+// Promo Banner
+.promo-banner {
+  background-color: $home-secondary-color;
+  padding: 20px 0;
+  
+  .container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+  
+  .promo-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 15px;
+    
+    .promo-icon {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      color: $primary-color;
+      
+      svg {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    
+    .promo-text {
+      h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 3px;
+        color: $home-primary-color;
+      }
+      
+      p {
+        font-size: 0.85rem;
+        color: $text-color;
+      }
+    }
+  }
+  
+  @media (max-width: $breakpoint-tablet) {
+    .container {
+      flex-direction: column;
+    }
+    
+    .promo-item {
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  }
+}
+
+// Categories - Keeping original structure with added view all button
 .categories {
   position: relative;
   background-color: $light-text;
@@ -310,46 +430,43 @@ body {
     font-size: 2.5rem;
     color: $home-primary-color;
     font-weight: 500;
-    margin: 0 auto 20px;
-    max-width: 1320px;
+    margin: 0 auto 30px; // Increased bottom margin to account for the line
+    max-width: 1420px; // Updated from 1320px to match new width
     position: relative;
     display: flex;
     justify-content: center;
     text-transform: uppercase;
-
+    padding-bottom: 15px; // Added padding at the bottom for the underline
+    
     @media (max-width: $breakpoint-tablet) {
       font-size: 1.1rem;
     }
 
+    // Updated the ::after pseudo-element to match the product grid title styling
     &::after {
       content: "";
       position: absolute;
-      bottom: 0;
-      top: 35px;
-      transform: translateX(-60%);
-      width: 100px;
-      height: 4px;
-      background-image: linear-gradient(
-          to bottom,
-          rgba(12, 108, 212, 0),
-          rgba(35, 41, 50, 0.15) 37%
-        ),
-        linear-gradient(to bottom, #0066cc, #0066cc);
+      bottom: 0; // Position at the bottom of the element
+      //left: 0; // Start from the left edge
+      width: 20%; // Extend full width
+      height: 3px; // 3px thick line
+      background-color: $primary-color; // Use primary color (red)
     }
   }
-
-  .category-container { // container -> category-container
-    max-width: 1320px;
+  
+  .category-container {
+    max-width: 1420px;
     margin: 0 auto;
     display: flex;
+    flex-direction: column;
     align-items: center;
     position: relative;
-    padding: 0 20px; // Yanlarda 20px padding bırakarak kartların kesilmesini önle
-
+    padding: 0 20px;
+    
     @media (max-width: $breakpoint-mobile) {
       padding: 0 10px;
     }
-
+    
     .scroll-btn {
       position: absolute;
       top: 50%;
@@ -365,72 +482,70 @@ body {
       align-items: center;
       cursor: pointer;
       z-index: 10;
-
+      
       svg {
         width: 20px;
         height: 20px;
       }
-
+      
       &.left {
         left: 0;
       }
-
+      
       &.right {
         right: 0;
       }
     }
-
+    
     .category-grid {
       display: flex;
       width: 100%;
       gap: 1rem;
       overflow-x: auto;
-      padding: 20px 5px;
+      padding: a0px 5px;
       scroll-behavior: smooth;
       margin: 0;
-      /* Webkit scrollbar'ı gizle */
+      /* Webkit scrollbar hide */
       &::-webkit-scrollbar {
         display: none;
       }
-      /* Firefox scrollbar'ı gizle */
+      /* Firefox scrollbar hide */
       scrollbar-width: none;
       
-      // İlk kartın düzgün gösterilmesi için
+      // Better first card display
       &::before {
         content: '';
         display: block;
-        min-width: 5px; // Küçük bir boşluk
+        min-width: 5px;
         height: 1px;
       }
       
       @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-laptop) {
         height: 200px;
       }
-
+      
       @media (max-width: $breakpoint-laptop) {
         width: 100%;
         padding: 10px 5px;
       }
       
-
       .category-card {
         text-decoration: none;
         cursor: pointer;
         flex: 0 0 auto;
         width: 205px;
-        min-width: 205px; // Min-width ekleyerek boyutun sabit kalmasını sağla
-        max-width: 205px; // Max-width ekleyerek boyutun sabit kalmasını sağla
+        min-width: 205px;
+        max-width: 205px;
         background-color: $home-secondary-color;
         overflow: hidden;
         transition: transform 0.3s, box-shadow 0.3s;
-        border: 1px solid #eee; // Kartların sınırlarını belirginleştir
+        border: 1px solid #eee;
         
-
         &:hover {
           transform: translateY(-5px);
           box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-
+        
         .category-image {
           margin-top: 20px;
           height: 120px;
@@ -438,23 +553,22 @@ body {
           display: flex;
           justify-content: center;
           align-items: center;
-
+          
           img {
             width: 100%;
             height: 100%;
             object-fit: contain;
           }
         }
-
+        
         .category-content {
           padding: 20px;
           text-align: center;
           display: flex;
           align-items: center;
           flex-direction: column;
-          
         }
-
+        
         .category-title {
           margin-top: 20px;
           line-height: normal;
@@ -471,175 +585,322 @@ body {
           overflow: hidden;
           width: 100%;
         }
-
-        .category-description {
-          line-height: normal;
-          margin-top: 5px;
-          width: 150px;
-          height: 50px;
-          font-size: 0.75rem;
-          display: -webkit-box;
-          -webkit-box-orient: vertical;
-          -webkit-line-clamp: 3;
-          overflow: hidden;
+      }
+    }
+    
+    // View All Button - New addition
+    .view-all-link {
+      margin-top: 30px;
+      margin-bottom: 20px;
+      
+      .btn-view-all {
+        display: inline-block;
+        background-color: $primary-color;
+        color: white;
+        padding: 10px 25px;
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background-color: darken($primary-color, 10%);
         }
       }
     }
   }
 }
 
-// Info Cards bölümü
-.info-cards {
-  padding: 50px 0;
-  background-color: #f8f9fa;
-  font-family: 'Source Sans Pro', sans-serif;
-
-  .info-container { // container -> info-container
+// Featured Video Section
+.featured-video {
+  margin: 50px 0;
+  
+  .video-wrapper {
+    position: relative;
     width: 100%;
-    max-width: 1320px;
-    margin: 0 auto;
-    padding: 0;
-  }
-
-  .card-grid {
-    display: flex;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 30px;
+    height: 600px;
+    overflow: hidden;
     
-    @media (max-width: 768px) {
-      margin: auto;
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .video-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      //width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.3) 100%);
       display: flex;
       flex-direction: column;
       justify-content: center;
-      gap: 20px;
-    }
-  }
-
-  .info-card {
-    width: calc((1320px - 90px) / 4);
-    background-color: #ffffff;
-    border: 1px solid $border-color;
-    overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-
-    &:hover {
-      transform: translateY(-5px);
-    }
-
-    @media (max-width: $breakpoint-mobile) {
-      width: 100%;
-    }
-
-    @media (min-width: $breakpoint-mobile) and (max-width: $breakpoint-tablet) {
-      width: calc(50% - 10px);
-    }
-
-    @media (min-width: $breakpoint-tablet) and (max-width: $breakpoint-laptop) {
-      width: calc(50% - 10px);
-    }
-
-    @media (min-width: $breakpoint-laptop) {
-      width: calc((100% - 60px) / 4);
-    }
-
-    .card-image {
-      height: 200px;
-      overflow: hidden;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+      align-items: flex-start;
+      padding: 0 10%;
+      
+      h2 {
+        color: white;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 15px;
       }
-    }
-
-    .card-content {
-      padding: 20px;
-      position: relative;
-    }
-
-    .card-title {
-      font-family: 'Source Sans Pro', sans-serif;
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: #333;
-      position: relative;
-      display: inline-block;
-      padding-bottom: 10px;
-
-      &::after {
-        content: "";
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 50px;
-        height: 4px;
-        background-image: linear-gradient(
-            to bottom,
-            rgba(12, 108, 212, 0),
-            rgba(35, 41, 50, 0.15) 37%
-          ),
-          linear-gradient(to bottom, #0066cc, #0066cc);
+      
+      p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        max-width: 500px;
+      }
+      
+      .video-cta {
+        display: inline-block;
+        background-color: $primary-color;
+        color: white;
+        padding: 12px 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          background-color: darken($primary-color, 10%);
+          transform: translateY(-2px);
+        }
       }
     }
   }
-
-  .card-description {
-    font-family: 'Source Sans Pro', sans-serif;
-    font-size: 0.9rem;
-    color: #666;
-    line-height: 1.5;
-  }
-}
-
-.loading-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
   
+  @media (max-width: $breakpoint-tablet) {
+    .video-wrapper {
+      height: 350px;
+      
+      .video-overlay {
+        h2 {
+          font-size: 2rem;
+        }
+        
+        p {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: $breakpoint-mobile) {
+    .video-wrapper {
+      height: 300px;
+      
+      .video-overlay {
+        h2 {
+          font-size: 1.5rem;
+        }
+      }
+    }
+  }
 }
 
-.loading-spinner {
-  border: 4px solid rgba(0, 0, 0, 0.1);
-  border-radius: 50%;
-  border-top: 4px solid #e53935;
-  width: 50px;
-  height: 50px;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+// Brands We Work With
+.partner-brands {
+  padding: 50px 0;
+  background-color: $home-secondary-color;
+  
+  .brands-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 20px;
+    align-items: center;
+    
+    .brand-logo {
+      padding: 20px;
+      text-align: center;
+      
+      img {
+        max-width: 100%;
+        max-height: 80px;
+        filter: grayscale(100%);
+        opacity: 0.7;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          filter: grayscale(0%);
+          opacity: 1;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: $breakpoint-tablet) {
+    .brands-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: $breakpoint-mobile) {
+    .brands-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+// Testimonials
+.testimonials {
+  padding: 60px 0;
+  background-color: $light-text;
+  
+  .testimonial-slider {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    gap: 30px;
+    padding: 20px 0;
+    
+    /* Hide scrollbar */
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+    
+    .testimonial-slide {
+      flex: 0 0 90%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 30px;
+      background-color: $home-secondary-color;
+      border-radius: 5px;
+      scroll-snap-align: center;
+      
+      @media (min-width: $breakpoint-tablet) {
+        flex: 0 0 45%;
+      }
+      
+      .testimonial-quote {
+        margin-bottom: 20px;
+        
+        svg {
+          fill: rgba($primary-color, 0.1);
+        }
+      }
+      
+      p {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: $home-primary-color;
+        font-style: italic;
+        margin-bottom: 20px;
+      }
+      
+      .testimonial-author {
+        .name {
+          display: block;
+          font-weight: 600;
+          color: $home-primary-color;
+          font-size: 1.1rem;
+        }
+        
+        .company {
+          color: $text-color;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+  
+  .testimonial-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+    
+    .testimonial-control {
+      background-color: $primary-color;
+      color: white;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      
+      &:hover {
+        background-color: darken($primary-color, 10%);
+      }
+      
+      svg {
+        width: 20px;
+        height: 20px;
+        stroke: white;
+      }
+    }
+  }
 }
 
-.loading-progress {
-  width: 250px;
-  height: 6px;
-  background-color: #eee;
-  border-radius: 10px;
-  margin-bottom: 0.5rem;
-  overflow: hidden;
+// Company Features
+.company-features {
+  padding: 60px 0;
+  background-color: $light-text;
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    
+    .feature-card {
+      background-color: $home-secondary-color;
+      padding: 30px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        
+        .feature-icon {
+          transform: scale(1.1);
+        }
+      }
+      
+      .feature-icon {
+        //width: 70px;
+        height: 200px;
+        margin-bottom: 20px;
+        transition: transform 0.3s ease;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+      
+      .feature-content {
+        h3 {
+          font-size: 1.2rem;
+          font-weight: 600;
+          margin-bottom: 10px;
+          color: $home-primary-color;
+        }
+        
+        p {
+          font-size: 0.95rem;
+          color: $text-color;
+          line-height: 1.6;
+        }
+      }
+    }
+  }
+  
+  @media (max-width: $breakpoint-mobile) {
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+  }
 }
 
-.progress-bar {
-  height: 100%;
-  background-color: #e53935;
-  transition: width 0.3s ease;
-}
-
-.loading-text {
-  font-size: 1rem;
-  color: #666;
-  margin-top: 0.5rem;
-}
-
-// Dark mode desteği
+// Dark mode support
 @media (prefers-color-scheme: dark) {
   .loading-container {
     background-color: rgba(51, 51, 51, 0.9);
@@ -647,7 +908,7 @@ body {
   
   .loading-spinner {
     border-color: rgba(255, 255, 255, 0.1);
-    border-top-color: #e53935;
+    border-top-color: $primary-color;
   }
   
   .loading-progress {

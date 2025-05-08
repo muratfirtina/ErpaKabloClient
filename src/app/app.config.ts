@@ -25,12 +25,13 @@ import { HttpErrorHandlerInterceptorService } from './services/common/http-error
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
 import { FileSizePipe } from './pipes/file-size.pipe';
 import { TokenValidatorInterceptor } from './interceptors/tokenValidator.interceptor';
-import { environment } from 'src/environments/environment.prod';
 import { LocationStrategy, PathLocationStrategy } from '@angular/common';
 import { provideServiceWorker } from '@angular/service-worker';
 import { authInterceptorFn } from './interceptors/auth.interceptor';
 import { SecurityInterceptor } from './interceptors/security.interceptor';
 import { PerformanceInterceptor } from './interceptors/performance.interceptor';
+import { RetryInterceptor } from './interceptors/retry.interceptor';
+import { environment } from 'src/environments/environment.prod';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -70,6 +71,11 @@ export const appConfig: ApplicationConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: PerformanceInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: RetryInterceptor,
       multi: true
     },
     {

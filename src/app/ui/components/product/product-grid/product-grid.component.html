@@ -1,5 +1,16 @@
-<div class="product-grid-container position-relative">
-  <h2 *ngIf="title">{{ title }}</h2>
+<div class="product-grid-container">
+  <!-- Updated title area with View All link -->
+  <h2 *ngIf="title">
+    {{ title }}
+    <a *ngIf="showViewAllLink" [routerLink]="[viewAllRoute]" [queryParams]="viewAllParams" class="view-all-link">
+      View All
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 12h14"></path>
+        <path d="M12 5l7 7-7 7"></path>
+      </svg>
+    </a>
+  </h2>
+  
   <div class="container">
     <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="showNavigationButtons">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
@@ -8,12 +19,9 @@
       </svg>
     </button>
     
-    <!-- Geliştirilmiş Loading Container -->
+    <!-- Loading Container -->
     <div *ngIf="loading" class="loading-container">
-      <!-- SquareLoader Spinner -->
       <app-spinner [spinnerType]="'s2'" [showOverlay]="false"></app-spinner>
-      
-      <!-- Progress Bar -->
       <div class="loading-progress">
         <div class="progress-bar" [style.width.%]="loadingProgress"></div>
       </div>

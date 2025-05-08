@@ -71,7 +71,7 @@ $breakpoint-lg: 1200px;
 // Common styles
 .breadcrumb {
   display: flex;
-  max-width: 1200px;
+  max-width: 1420px;
   margin: 0.5rem auto;
   padding: 0 1rem;
   gap: 2rem;
@@ -87,7 +87,7 @@ $breakpoint-lg: 1200px;
 // Product Detail Container
 .product-detail-container {
   display: flex;
-  max-width: 1200px;
+  max-width: 1420px;
   margin: 0.5rem auto;
   padding: 0 1rem;
   gap: 2rem;
@@ -634,7 +634,7 @@ $breakpoint-lg: 1200px;
 // Product Detail Tabs
 .product-detail-tabs {
   margin: 0 auto;
-  max-width: 1200px;
+  max-width: 1420px;
   font-family: Arial, sans-serif;
 
   @include respond-to(lg) {

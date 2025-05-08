@@ -1,8 +1,8 @@
 <div class="carousel-update-container">
-  <h1>Update Carousel</h1>
+  <h1>Carousel Güncelleme</h1>
 
-  <div class="carousel-list">
-    <h2>Select a Carousel to Update</h2>
+  <div class="carousel-list" *ngIf="!selectedCarousel">
+    <h2>Güncellenecek Carousel Seçin</h2>
     <ul>
       <li *ngFor="let carousel of carousels.items" (click)="onCarouselSelect(carousel)">
         <div class="carousel-list-item">
@@ -32,36 +32,45 @@
   </div>
 
   <div class="update-form" *ngIf="selectedCarousel">
-    <h2>Update {{ selectedCarousel.name }}</h2>
+    <div class="form-header">
+      <h2>{{ selectedCarousel.name }} - Güncelleme</h2>
+      <button type="button" class="btn btn-link back-btn" (click)="selectedCarousel = null">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Listeye Dön
+      </button>
+    </div>
+    
     <form (ngSubmit)="updateCarousel()" #carouselForm="ngForm">
       <div class="form-group">
-        <label for="name">Name</label>
+        <label for="name">İsim</label>
         <input type="text" id="name" name="name" [(ngModel)]="selectedCarousel.name" class="form-control" required />
       </div>
 
       <div class="form-group">
-        <label for="description">Description</label>
+        <label for="description">Açıklama</label>
         <textarea id="description" name="description" [(ngModel)]="selectedCarousel.description" class="form-control"></textarea>
       </div>
 
       <div class="form-group">
-        <label for="order">Order</label>
+        <label for="order">Sıra</label>
         <input type="number" id="order" name="order" [(ngModel)]="selectedCarousel.order" class="form-control" required />
       </div>
 
       <div class="form-group">
-        <label for="isActive">Is Active</label>
+        <label for="isActive">Aktif</label>
         <input type="checkbox" id="isActive" name="isActive" [(ngModel)]="selectedCarousel.isActive" class="form-check-input" />
       </div>
 
       <!-- Media Type Selector -->
       <div class="form-group">
-        <label>Media Type</label>
+        <label>Medya Türü</label>
         <div class="form-check">
           <input class="form-check-input" type="radio" name="mediaType" id="mediaTypeImage" 
                  [(ngModel)]="selectedCarousel.mediaType" value="image">
           <label class="form-check-label" for="mediaTypeImage">
-            Image
+            Resim
           </label>
         </div>
         <div class="form-check">
@@ -75,12 +84,12 @@
 
       <!-- Conditional display based on media type -->
       <div *ngIf="selectedCarousel.mediaType === 'image'" class="form-group">
-        <label for="carouselImageFiles">Upload Images</label>
+        <label for="carouselImageFiles">Yeni Resim Yükle</label>
         <input type="file" id="carouselImageFiles" (change)="onFileSelected($event)" class="form-control" multiple accept="image/*" />
         
         <!-- Mevcut resimleri göster -->
         <div class="current-images" *ngIf="selectedCarousel.carouselImageFiles && selectedCarousel.carouselImageFiles.length > 0">
-          <h4>Current Images</h4>
+          <h4>Mevcut Resimler</h4>
           <div class="image-grid">
             <div class="image-item" *ngFor="let image of selectedCarousel.carouselImageFiles; let i = index">
               <img [src]="image.url" [alt]="image.alt || 'Carousel image'">
@@ -99,12 +108,12 @@
 
       <div *ngIf="selectedCarousel.mediaType === 'video'" class="form-group">
         <div class="video-input-container">
-          <label>Video Type</label>
+          <label>Video Türü</label>
           <div class="form-check">
             <input class="form-check-input" type="radio" name="videoType" id="videoTypeUpload" 
                   [(ngModel)]="selectedCarousel.videoType" value="upload">
             <label class="form-check-label" for="videoTypeUpload">
-              Upload Video
+              Video Yükle
             </label>
           </div>
           <div class="form-check">
@@ -125,16 +134,16 @@
 
         <!-- Upload video file -->
         <div *ngIf="selectedCarousel.videoType === 'upload'" class="form-group">
-          <label for="carouselVideoFiles">Upload Video</label>
+          <label for="carouselVideoFiles">Video Yükle</label>
           <input type="file" id="carouselVideoFiles" (change)="onVideoFileSelected($event)" class="form-control" accept="video/*" />
           
           <!-- Mevcut video -->
           <div *ngIf="selectedCarousel.videoUrl" class="current-video mt-3">
-            <h4>Current Video</h4>
+            <h4>Mevcut Video</h4>
             <div class="video-preview">
               <video controls width="320">
                 <source [src]="selectedCarousel.videoUrl" type="video/mp4">
-                Your browser does not support the video tag.
+                Tarayıcınız video etiketini desteklemiyor.
               </video>
             </div>
           </div>
@@ -144,12 +153,12 @@
         <div *ngIf="selectedCarousel.videoType === 'youtube'" class="form-group">
           <label for="youtubeUrl">YouTube URL</label>
           <input type="text" id="youtubeUrl" name="videoUrl" [(ngModel)]="selectedCarousel.videoUrl" 
-                class="form-control" placeholder="e.g., https://www.youtube.com/watch?v=dQw4w9WgXcQ" />
-          <small class="text-muted">Enter a valid YouTube video URL</small>
+                class="form-control" placeholder="ör: https://www.youtube.com/watch?v=dQw4w9WgXcQ" />
+          <small class="text-muted">Geçerli bir YouTube video URL'si girin</small>
           
           <!-- Preview -->
           <div *ngIf="selectedCarousel.videoId" class="youtube-preview mt-3">
-            <h4>Video Preview</h4>
+            <h4>Video Önizleme</h4>
             <iframe width="320" height="180" 
                    [src]="getYouTubeEmbedUrl(selectedCarousel.videoId)" 
                    frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
@@ -162,12 +171,12 @@
         <div *ngIf="selectedCarousel.videoType === 'vimeo'" class="form-group">
           <label for="vimeoUrl">Vimeo URL</label>
           <input type="text" id="vimeoUrl" name="videoUrl" [(ngModel)]="selectedCarousel.videoUrl" 
-                class="form-control" placeholder="e.g., https://vimeo.com/123456789" />
-          <small class="text-muted">Enter a valid Vimeo video URL</small>
+                class="form-control" placeholder="ör: https://vimeo.com/123456789" />
+          <small class="text-muted">Geçerli bir Vimeo video URL'si girin</small>
           
           <!-- Preview -->
           <div *ngIf="selectedCarousel.videoId" class="vimeo-preview mt-3">
-            <h4>Video Preview</h4>
+            <h4>Video Önizleme</h4>
             <iframe width="320" height="180" 
                    [src]="getVimeoEmbedUrl(selectedCarousel.videoId)" 
                    frameborder="0" allow="autoplay; fullscreen; picture-in-picture" 
@@ -177,7 +186,10 @@
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary" [disabled]="!carouselForm.valid">Update Carousel</button>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="selectedCarousel = null">İptal</button>
+        <button type="submit" class="btn btn-primary" [disabled]="!carouselForm.valid">Carousel Güncelle</button>
+      </div>
     </form>
   </div>
 </div>

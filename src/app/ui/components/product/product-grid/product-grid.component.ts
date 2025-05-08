@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Product } from 'src/app/contracts/product/product';
@@ -19,8 +19,14 @@ export class ProductGridComponent extends BaseComponent implements OnChanges {
   @Input() title?: string;
   @Input() showNavigationButtons: boolean = true;
   @Input() loading: boolean = false;
-  @Input() loadingProgress: number = 0; // Yeni: ilerleme yüzdesi
-  @Input() loadingText: string = ''; // Yeni: yükleme metni
+  @Input() loadingProgress: number = 0;
+  @Input() loadingText: string = '';
+  @Input() isLoading = false;
+  
+  // Yeni eklenen özellikler
+  @Input() showViewAllLink: boolean = false;
+  @Input() viewAllRoute: string = '/search';
+  @Input() viewAllParams: any = {};
 
   @ViewChild('productGrid') productGrid!: ElementRef;
 

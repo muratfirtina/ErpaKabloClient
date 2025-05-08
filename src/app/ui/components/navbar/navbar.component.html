@@ -5,8 +5,13 @@
         <div class="top-bar d-flex align-items-center justify-content-flex-start">
           <!-- All Products Dropdown (Desktop) -->
           <div class="all-products-dropdown d-none d-lg-block">
-            <button class="dropdown-toggle" (click)="toggleAllProducts()">
+            <button class="dropdown-toggle1" (click)="toggleAllProducts()">
               All Products
+              <span class="dropdown-arrow" [class.open]="isAllProductsOpen">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+              </span>
             </button>
           </div>
 
@@ -18,36 +23,77 @@
           <!-- Search Bar -->
           <div class="search-bar flex-grow-1 mx-2 mx-lg-4">
             <form class="d-flex w-100" [formGroup]="searchForm" (submit)="onSearchSubmit($event)">
-              <input type="text" class="form-control search-input" formControlName="searchTerm"
-                placeholder="Search for products, categories or brands" 
-                (focus)="onSearchFocus()"
-                (blur)="onSearchBlur()">
-              <button type="submit" class="search-button">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                </svg>
-              </button>
+              <div class="search-input-container w-100">
+                <input type="text" class="form-control search-input" formControlName="searchTerm"
+                  placeholder="Search for products, categories or brands" 
+                  (focus)="onSearchFocus()"
+                  (blur)="onSearchBlur()">
+                <button type="submit" class="search-button">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                  </svg>
+                </button>
+              </div>
             </form>
+
+            <!-- Search overlay -->
+            <div class="search-overlay" *ngIf="isSearchFocused" (click)="isSearchFocused = false"></div>
 
             <!-- Search Dropdown -->
             <div class="search-dropdown" *ngIf="isSearchFocused">
-              <app-spinner [spinnerType]="'s2'" *ngIf="searchLoading"></app-spinner>
+              <!-- Loading Indicator -->
+              <div class="search-loading" *ngIf="searchLoading">
+                <app-spinner [spinnerType]="'s2'"></app-spinner>
+              </div>
+              
               <!-- Recent Searches -->
-              <div class="recent-searches" *ngIf="recentSearches.length > 0">
+              <div class="recent-searches" *ngIf="recentSearches.length > 0 && !searchLoading">
                 <div class="recent-searches-header">
                   <h4>Recent Searches</h4>
-                  <span class="clear-history" (click)="clearSearchHistory()">Clear Search History</span>
+                  <span class="clear-history" (click)="clearSearchHistory()">Clear</span>
                 </div>
                 <ul>
                   <li *ngFor="let search of recentSearches" 
                       (click)="onRecentSearchClick(search)">
-                    {{search}}
+                    <i class="history-icon">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                        <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                      </svg>
+                    </i>
+                    <span>{{search}}</span>
                   </li>
                 </ul>
               </div>
 
+              <!-- Empty State - No Recent Searches and Not Loading -->
+              <div class="no-results-message" *ngIf="!searchLoading && recentSearches.length === 0 && !searchForm.get('searchTerm').value">
+                <div class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                  </svg>
+                </div>
+                <p>Start typing to search</p>
+                <small>Search for products, categories or brands</small>
+              </div>
+
               <!-- Search Results -->
-              <div class="search-results">
+              <div class="search-results" *ngIf="!searchLoading && searchForm.get('searchTerm').value">
+                <!-- No Results Message -->
+                <div class="no-results-message" *ngIf="searchForm.get('searchTerm').value && 
+                      searchResults.products.length === 0 && 
+                      searchResults.categories.length === 0 && 
+                      searchResults.brands.length === 0">
+                  <div class="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" viewBox="0 0 16 16">
+                      <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                      <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                    </svg>
+                  </div>
+                  <p>No results found</p>
+                  <small>Try a different search term</small>
+                </div>
+              
                 <!-- Products -->
                 <div class="products" *ngIf="searchResults.products.length > 0">
                   <h4>Products</h4>
@@ -57,9 +103,10 @@
                         class="product-thumbnail">
                       <div class="product-info">
                         <span class="product-name">{{ product.name }}</span>
-                        <span class="product-features">
-                          <ng-container *ngFor="let feature of product.productFeatureValues; let last = last">
-                            {{ feature.featureValueName }}{{ !last ? ', ' : '' }}
+                        <span class="product-brand">{{ product.brandName }}</span>
+                        <span class="product-features" *ngIf="product.productFeatureValues?.length">
+                          <ng-container *ngFor="let feature of product.productFeatureValues | slice:0:2; let last = last">
+                            {{ feature.featureName }}: {{ feature.featureValueName }}{{ !last ? ', ' : '' }}
                           </ng-container>
                         </span>
                       </div>
@@ -71,8 +118,8 @@
                 <div class="categories" *ngIf="searchResults.categories.length > 0">
                   <h4>Categories</h4>
                   <ul>
-                    <li *ngFor="let category of searchResults.categories"
-                      (click)="navigateToSearchResult(category.id)">
+                    <li *ngFor="let category of searchResults.categories" 
+                        (click)="navigateToSearchResult(category.id)">
                       <img [src]="category.categoryImage?.url || 'assets/default-category-image.png'"
                         [alt]="category.name" class="category-thumbnail">
                       <span>{{ category.name }}</span>
@@ -84,9 +131,10 @@
                 <div class="brands" *ngIf="searchResults.brands.length > 0">
                   <h4>Brands</h4>
                   <ul>
-                    <li *ngFor="let brand of searchResults.brands" (click)="navigateToSearchResult(brand.id)">
-                      <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" [alt]="brand.name"
-                        class="brand-thumbnail">
+                    <li *ngFor="let brand of searchResults.brands" 
+                        (click)="navigateToSearchResult(brand.id)">
+                      <img [src]="brand.brandImage?.url || 'assets/default-brand-image.png'" 
+                        [alt]="brand.name" class="brand-thumbnail">
                       <span>{{ brand.name }}</span>
                     </li>
                   </ul>
@@ -103,13 +151,12 @@
             <span class="d-none d-lg-block" style="color:#e0e0e0;">|</span>
             <!-- About Us -->
             <div class="about-us d-none d-lg-block">
-              <button class="btn"><a routerLink="/about-us" >About Us</a></button>
+              <button class="btn"><a routerLink="/about-us">About Us</a></button>
             </div>
             <div class="about-us d-none d-lg-block">
-              <button class="btn"><a routerLink="/contact" >Contact</a></button>
+              <button class="btn"><a routerLink="/contact">Contact</a></button>
             </div>
           </div>
-
         </div>
       </div>
     </div>
@@ -125,7 +172,14 @@
               <li *ngFor="let category of topLevelCategories" 
                   (mouseenter)="!showOnlyMainCategories && selectCategory(category)"
                   [class.active]="category === selectedCategory">
-                <a [routerLink]="['/', category.id]">{{ category.name }}</a>
+                <div class="category-item">
+                  <a [routerLink]="['/', category.id]">{{ category.name }}</a>
+                  <i class="chevron-icon" *ngIf="!showOnlyMainCategories">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                  </i>
+                </div>
               </li>
             </ul>
           </div>
@@ -137,7 +191,7 @@
           <div [class.invisible]="subcategoryLoading">
             <div class="subcategory-header" *ngIf="selectedCategory">
               <h3>{{ selectedCategory.name }}</h3>
-              <a class="view-all" [routerLink]="['/',selectedCategory.id]" >Show All →</a>
+              <a class="view-all" [routerLink]="['/',selectedCategory.id]">Show All →</a>
             </div>
             <ul class="subcategory-list" *ngIf="selectedCategory">
               <li *ngFor="let subCategory of selectedCategory.subcategories" 
@@ -169,7 +223,7 @@
             <div class="product-grid">
               <a [routerLink]="['/', product.id]" class="product-item" 
                 *ngFor="let product of recommendedProducts.items">
-                <img [src]="product?.showcaseImage?.url" [alt]="product.name">
+                <img [src]="product?.showcaseImage?.url || 'assets/default-product-image.jpg'" [alt]="product.name">
                 <div class="product-info">
                   <div class="product-header">
                     <p class="brand-name">{{product.brandName}}</p>
@@ -177,16 +231,12 @@
                   </div>
                   <p>{{ product.title }}</p>
                   <p>SKU:{{ product.sku }}</p>
-                  <div class="product-features mt-2">
-                    <div *ngFor="let feature of product.productFeatureValues" class="feature-item">
+                  <div class="product-features mt-2" *ngIf="product.productFeatureValues?.length">
+                    <div *ngFor="let feature of product.productFeatureValues | slice:0:3" class="feature-item">
                       <span class="feature-name">{{feature.featureName}}:</span>
                       <span class="feature-value">{{feature.featureValueName}}</span>
                     </div>
                   </div>
-                  <!-- <p class="stock-status" [class.in-stock]="product.stock > 0">
-                    {{ product.stock > 0 ? 'In stock' : 'Out of stock' }}
-                  </p> -->
-                  <!-- <p class="price">${{ product.price }} <span> / each</span></p> -->
                 </div>
               </a>
             </div>
