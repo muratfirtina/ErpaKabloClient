@@ -136,7 +136,9 @@ export class MainHeaderComponent implements OnInit, OnDestroy {
   showLoginPopover(event: MouseEvent) {
     event.stopPropagation();
     if (this.loginPopoverComponent) {
-      this.loginPopoverComponent.show();
+      // Event'in hedefini sign-in-content elementi olarak al
+      const triggerElement = event.currentTarget as HTMLElement;
+      this.loginPopoverComponent.show(triggerElement);
     }
   }
 

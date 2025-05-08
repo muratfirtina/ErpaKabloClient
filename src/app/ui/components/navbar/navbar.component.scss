@@ -51,7 +51,7 @@ $breakpoint-large: 1400px;
   height: 64px;
   width: 100%;
   position: relative;
-  z-index: 100;
+  z-index: 100; /* Popover'dan düşük değer kullanın */
 
   @media (max-width: $breakpoint-mobile) {
     height: 56px;

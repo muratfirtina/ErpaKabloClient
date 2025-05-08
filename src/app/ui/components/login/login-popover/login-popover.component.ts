@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, HostListener, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, Output, Renderer2 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
@@ -18,11 +18,16 @@ import { CustomToastrService, ToastrMessageType, ToastrPosition } from 'src/app/
 })
 export class LoginPopoverComponent extends BaseComponent {
   @Output() closePopover = new EventEmitter<void>();
+  @Input() triggerElement: HTMLElement | null = null; // Sign in butonunu referansı
   isVisible = false;
   isDarkTheme = false;
   isMobile = false;
   loading: boolean = false;
   rememberMe: boolean = false;
+
+   // Position properties
+   popoverX: number = 0;
+   popoverY: number = 0;
 
   // Form değerleri için property'ler
   usernameOrEmail: string = '';
@@ -48,6 +53,7 @@ export class LoginPopoverComponent extends BaseComponent {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private el: ElementRef,
+    private renderer: Renderer2
   ) {
     super(spinner);
     // Check system theme preference
@@ -56,8 +62,12 @@ export class LoginPopoverComponent extends BaseComponent {
     // Mobil kontrol
     this.checkScreenSize();
     // Ekran boyutu değişikliklerini dinle
-    window.addEventListener('resize', () => this.checkScreenSize());
-
+    window.addEventListener('resize', () => {
+      this.checkScreenSize();
+      if (this.isVisible && this.triggerElement) {
+        this.updatePosition();
+      }
+    });
     // Check if there's a previous lockout state in session storage
     this.checkLockoutState();
   }
@@ -125,8 +135,51 @@ export class LoginPopoverComponent extends BaseComponent {
     }
   }
 
-  show() {
+  updatePosition() {
+    if (!this.triggerElement) {
+      // Trigger element bulunamazsa varsayılan konum
+      return;
+    }
+
+    const rect = this.triggerElement.getBoundingClientRect();
+    const popoverEl = this.el.nativeElement.querySelector('.login-popover');
+    
+    if (!popoverEl) return;
+
+    if (this.isMobile) {
+      // Mobilde ortada göster
+      this.renderer.setStyle(popoverEl, 'left', '50%');
+      this.renderer.setStyle(popoverEl, 'right', 'auto');
+      this.renderer.setStyle(popoverEl, 'transform', 'translateX(-50%)');
+    } else {
+      // Sign in butonunun altında, sağa hizalı
+      const buttonCenter = rect.left + rect.width / 2;
+      
+      // Popover'ın sağa hizalanması için
+      this.renderer.setStyle(popoverEl, 'left', 'auto');
+      this.renderer.setStyle(popoverEl, 'right', `${window.innerWidth - (rect.left + rect.width)}px`);
+      this.renderer.setStyle(popoverEl, 'transform', 'none');
+      
+      // Üçgen işaretçi konumu
+      const arrow = popoverEl.querySelector('::after');
+      if (arrow) {
+        this.renderer.setStyle(arrow, 'left', 'auto');
+        this.renderer.setStyle(arrow, 'right', `${rect.width / 2}px`);
+      }
+    }
+  }
+
+  show(triggerElement?: HTMLElement) {
+    if (triggerElement) {
+      this.triggerElement = triggerElement;
+    }
+    
     this.isVisible = true;
+    
+    // DOM güncellemesi için bir tick bekle
+    setTimeout(() => {
+      this.updatePosition();
+    }, 0);
   }
 
   close() {
@@ -300,7 +353,10 @@ export class LoginPopoverComponent extends BaseComponent {
   
   // Yıkım aşamasında event listener'ı ve timer'ı temizleme
   ngOnDestroy() {
-    window.removeEventListener('resize', () => this.checkScreenSize());
+    window.removeEventListener('resize', () => {
+      this.checkScreenSize();
+      this.updatePosition();
+    });
     if (this.lockoutTimerId) {
       clearInterval(this.lockoutTimerId);
     }

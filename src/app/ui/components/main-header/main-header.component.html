@@ -1,3 +1,4 @@
+<!-- Login-popover'ı aşağıdaki şekilde taşıyın, main-header içinde değil, dışında tanımlayın -->
 <header class="main-header" [class.dark-theme]="isDarkTheme">
   <div class="container">
     <div class="header-content">
@@ -10,7 +11,7 @@
           <span class="logo-subtext">{{companySlogan}}</span>
         </div>
       </div>
-
+      
       <!-- Actions Section -->
       <div class="user-actions">
         <!-- User Account Section -->
@@ -26,19 +27,18 @@
             <span class="btn-text">{{ currentUser?.nameSurname || 'My Account' }}</span>
           </a>
         </ng-container>
-
+        
         <ng-template #notAuthenticated>
           <div class="auth-links">
-            <!-- Login Trigger & Popover -->
+            <!-- Login Trigger - Popover'ı burada çağırmayın, sadece click event'i olsun -->
             <div class="sign-in">
-              <div class="sign-in-content" (click)="showLoginPopover($event)" [attr.aria-label]="'Sign in'">
+              <div class="sign-in-content" #signInButton (click)="showLoginPopover($event)" [attr.aria-label]="'Sign in'">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#e0e0e0" class="bi bi-person-circle" viewBox="0 0 16 16">
                   <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
                   <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1"/>
                 </svg>
                 <span>Sign In</span>
               </div>
-              <app-login-popover></app-login-popover>
             </div>
             
             <!-- Separator -->
@@ -50,7 +50,7 @@
             </a>
           </div>
         </ng-template>
-
+        
         <!-- Cart Button -->
         <button class="btn-cart" [class.has-items]="cartItems?.length > 0"
           (click)="toggleDrawer(DrawerType.Cart)" [attr.aria-label]="'Open shopping cart'">
@@ -66,8 +66,6 @@
             {{ cartItems.length }}
           </span>
         </button>
-        
-        
       </div>
     </div>
   </div>
@@ -75,9 +73,9 @@
 
 <!-- Drawers -->
 <app-user-sidebar *ngIf="(drawerState$ | async)?.type === DrawerType.UserMenu" [isOpen]="(drawerState$ | async)?.isOpen"
-  (closeDrawer)="closeDrawer()">
-</app-user-sidebar>
-
+  (closeDrawer)="closeDrawer()"></app-user-sidebar>
 <app-cart *ngIf="(drawerState$ | async)?.type === DrawerType.Cart" [isOpen]="(drawerState$ | async)?.isOpen"
-  (closeDrawer)="closeDrawer()">
-</app-cart>
+  (closeDrawer)="closeDrawer()"></app-cart>
+
+<!-- Login Popover - dışarıda tanımlanmalı -->
+<app-login-popover #loginPopover></app-login-popover>

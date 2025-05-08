@@ -23,7 +23,7 @@ $link-color: #0000ee;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;
-  z-index: 9998;
+  z-index: 1050; /* Artırılmış z-index */
 }
 
 .overlay.show {
@@ -33,29 +33,25 @@ $link-color: #0000ee;
 
 .login-popover {
   font-family: $font-family-base;
-
-  position: fixed;
-  top: 80px;
-  right: auto;
-  left: auto;
-  transform: translateX(-50%) translateY(10px);
+  position: fixed; /* Konum dinamik olarak JavaScript tarafından ayarlanacak */
+  top: 80px; /* Top değeri sabit kalabilir */
+  right: auto; /* Bu dinamik olarak ayarlanacak */
   width: 350px;
   background: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.3s ease;
-  z-index: 9999;
+  transition: opacity 0.3s ease, visibility 0.3s ease; /* transform çıkarıldı, JavaScript ile pozisyon verilecek */
+  z-index: 1051;
 
   @media (max-width: 768px) {
     top: 35%;
-    left: 50%;
+    left: 50%; /* Mobilde ortalama */
     transform: translate(-50%, -50%);
     width: 90%;
     max-width: 320px;
 
-    // Üçgen işaretçiyi kaldıralım
     &::before,
     &::after {
       display: none;
@@ -65,20 +61,20 @@ $link-color: #0000ee;
   &.show {
     opacity: 1;
     visibility: visible;
-    transform: translateX(-50%) translateY(0);
+    /* Transform buradan çıkarıldı, dinamik olarak yönetilecek */
   }
 
+  /* Üçgen işaretçi - burası dinamik olarak ayarlanacak */
   &::before,
   &::after {
     content: "";
     position: absolute;
     top: -10px;
-    right: auto;
-    left: 60%;
-    transform: translateX(-50%);
+    right: 30px; /* Bu değer JavaScript ile yer değiştirebilir */
+    left: auto;
     border-style: solid;
     border-width: 0 8px 10px 8px;
-    z-index: 10000;
+    z-index: 1052;
   }
 
   &::before {
@@ -90,6 +86,7 @@ $link-color: #0000ee;
     border-color: transparent transparent #fff transparent;
   }
 
+  /* Diğer CSS kodları değiştirilmeden kalabilir */
   .popover-content {
     padding: 20px;
     position: relative;
