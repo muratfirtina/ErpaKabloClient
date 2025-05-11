@@ -1,8 +1,9 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnChanges, Input, Output, EventEmitter, SimpleChanges, PipeTransform, Pipe, AfterViewInit } from "@angular/core";
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { Component, OnChanges, Input, Output, EventEmitter, SimpleChanges, PipeTransform, Pipe, AfterViewInit, OnInit } from "@angular/core";
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import { Offcanvas } from 'bootstrap';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 import { FilterGroup, FilterType } from "src/app/contracts/product/filter/filters";
 
@@ -32,7 +33,7 @@ interface CategoryNode {
   templateUrl: './filter.component.html',
   styleUrls: ['./filter.component.scss']
 })
-export class FilterComponent implements OnChanges, AfterViewInit {
+export class FilterComponent implements OnChanges, AfterViewInit, OnInit {
   @Input() availableFilters: FilterGroup[] = [];
   @Input() selectedFilters: { [key: string]: string[] } = {};
   @Input() isLoading: boolean = true;
@@ -41,11 +42,17 @@ export class FilterComponent implements OnChanges, AfterViewInit {
   FilterType = FilterType;
   filterForm: FormGroup;
   categoryTree: CategoryNode[] = [];
-  customPriceRange: { min: string, max: string } = { min: '', max: '' };
   collapsedState: { [key: string]: boolean } = {};
+  searchControls: { [key: string]: FormControl } = {};
+  filteredOptions: { [key: string]: any[] } = {};
   private offcanvasInstance: Offcanvas | null = null;
 
   constructor(private fb: FormBuilder) {
+    this.filterForm = this.fb.group({});
+  }
+
+  ngOnInit() {
+    // Initialize empty form
     this.filterForm = this.fb.group({});
   }
 
@@ -80,8 +87,36 @@ export class FilterComponent implements OnChanges, AfterViewInit {
     if (changes['availableFilters'] || changes['selectedFilters']) {
       this.initializeFilters();
       this.buildCategoryTree();
+      
+      // Initialize collapsed state and search controls for each filter
       this.availableFilters.forEach(filter => {
-        this.collapsedState[filter.key] = false;
+        if (filter.key !== 'Category' && filter.type === FilterType.Checkbox) {
+          // Initialize search control if it doesn't exist
+          if (!this.searchControls[filter.key]) {
+            const control = new FormControl('');
+            // Subscribe to changes for filtering
+            control.valueChanges
+              .pipe(
+                debounceTime(300),
+                distinctUntilChanged()
+              )
+              .subscribe(value => {
+                this.updateFilteredOptions(filter.key, value);
+              });
+            
+            this.searchControls[filter.key] = control;
+          }
+          
+          // Initialize filtered options
+          this.updateFilteredOptions(filter.key, '');
+        }
+        
+        // Set default collapsed state (open for the first 3 filters)
+        if (!(filter.key in this.collapsedState)) {
+          // Default to open for important filters
+          const isImportantFilter = filter.key === 'Category' || filter.key === 'Brand';
+          this.collapsedState[filter.key] = !isImportantFilter;
+        }
       });
     }
   }
@@ -106,24 +141,36 @@ export class FilterComponent implements OnChanges, AfterViewInit {
   }
 
   buildCategoryTree() {
+    console.log("Building category tree from availableFilters:", this.availableFilters);
+    
     const categoryFilter = this.availableFilters.find(filter => filter.key === 'Category');
+    console.log("Category filter found:", categoryFilter);
+    
     if (categoryFilter) {
-      // Önce tüm kategorileri düzenli hale getir
+      // Kategorileri sırala
       const categories = [...categoryFilter.options].sort((a, b) => {
-        // Tip güvenliği için parentId kontrolü
-        const aParentId = (a as any).parentId;
-        const bParentId = (b as any).parentId;
+        const aParentId = a.parentId;
+        const bParentId = b.parentId;
         
-        // Önce üst kategorileri göster
+        // Önce kök kategoriler
         if (!aParentId && bParentId) return -1;
         if (aParentId && !bParentId) return 1;
         
-        // Sonra aynı seviyedeki kategorileri alfabetik olarak sırala
+        // Sonra alfabetik sıralama
         return a.displayValue.localeCompare(b.displayValue);
       });
       
+      console.log("Sorted categories:", categories);
+      
+      // Ağaç yapısını oluştur
       this.categoryTree = this.buildTree(categories);
+      console.log("Built category tree:", this.categoryTree);
+      
+      // Seçili kategorileri güncelle
       this.updateCategorySelectState(this.categoryTree);
+    } else {
+      console.warn("No category filter found in available filters");
+      this.categoryTree = [];
     }
   }
 
@@ -187,9 +234,64 @@ export class FilterComponent implements OnChanges, AfterViewInit {
 
   selectCategory(node: CategoryNode, event: Event) {
     event.stopPropagation();
-    this.clearCategorySelection(this.categoryTree);
-    node.selected = true;
+    
+    // Seçimi değiştir (toggle)
+    node.selected = !node.selected;
+    
+    if (node.selected) {
+      // Kategori seçildiyse, üst seviye kategorilerdeki seçimi kaldır 
+      // böylece sadece bu kategorinin ürünleri gösterilir
+      this.clearParentSelection(this.categoryTree, node);
+    } else {
+      // Seçim kaldırıldıysa, hiçbir alt kategori de seçilmemeli
+      this.clearChildrenSelection(node);
+    }
+    
     this.updateSelectedFilters();
+  }
+  
+  // Üst seviye kategorilerden seçimi kaldır
+  private clearParentSelection(nodes: CategoryNode[], selectedNode: CategoryNode) {
+    for (const node of nodes) {
+      // Bu düğüm seçilen düğümün üst seviyesi ise ve seçiliyse, seçimi kaldır
+      if (this.isParentOf(node, selectedNode) && node.selected) {
+        node.selected = false;
+      }
+      
+      // Alt kategorilerde arama yap
+      if (node.children && node.children.length > 0) {
+        this.clearParentSelection(node.children, selectedNode);
+      }
+    }
+  }
+  
+  // Bir düğümün diğer düğümün üst seviyesi olup olmadığını kontrol et
+  private isParentOf(potentialParent: CategoryNode, child: CategoryNode): boolean {
+    if (!potentialParent.children) return false;
+    
+    // Doğrudan alt kategori mi?
+    if (potentialParent.children.some(c => c.id === child.id)) {
+      return true;
+    }
+    
+    // Alt kategorilerde kontrol et
+    for (const subChild of potentialParent.children) {
+      if (this.isParentOf(subChild, child)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+  
+  // Alt kategorileri temizle
+  private clearChildrenSelection(node: CategoryNode) {
+    if (node.children) {
+      for (const child of node.children) {
+        child.selected = false;
+        this.clearChildrenSelection(child);
+      }
+    }
   }
 
   clearCategorySelection(nodes: CategoryNode[]) {
@@ -218,15 +320,6 @@ export class FilterComponent implements OnChanges, AfterViewInit {
     this.emitFilterChange();
   }
 
-  selectPriceRange(value: string | null) {
-    if (value === null) {
-      delete this.selectedFilters['Price'];
-    } else {
-      this.selectedFilters['Price'] = [value];
-    }
-    this.emitFilterChange();
-  }
-
   updateSelectedFilters() {
     const formValue = this.filterForm.value;
     const updatedFilters: { [key: string]: string[] } = {};
@@ -240,11 +333,6 @@ export class FilterComponent implements OnChanges, AfterViewInit {
     // Kategori filtresi için özel işlem
     updatedFilters['Category'] = this.getSelectedCategoryIds(this.categoryTree);
 
-    // Fiyat filtresi için özel işlem
-    if (this.selectedFilters['Price']) {
-      updatedFilters['Price'] = this.selectedFilters['Price'];
-    }
-
     this.filterChange.emit(updatedFilters);
   }
 
@@ -253,7 +341,9 @@ export class FilterComponent implements OnChanges, AfterViewInit {
     nodes.forEach(node => {
       if (node.selected) {
         selectedIds.push(node.id);
-      } else {
+      }
+      // Alt kategorilerde seçilenleri de ekle
+      if (node.children && node.children.length > 0) {
         selectedIds = selectedIds.concat(this.getSelectedCategoryIds(node.children));
       }
     });
@@ -266,23 +356,6 @@ export class FilterComponent implements OnChanges, AfterViewInit {
 
   onFilterChange() {
     this.updateSelectedFilters();
-  }
-
-  applyCustomPriceRange() {
-    const priceFilter = this.availableFilters.find(f => f.key === 'Price');
-    if (priceFilter) {
-      const priceControl = this.filterForm.get('Price') as FormGroup;
-      if (priceControl) {
-        const min = priceControl.get('min')?.value;
-        const max = priceControl.get('max')?.value;
-        if (min || max) {
-          this.selectedFilters['Price'] = [`${min || ''}-${max || ''}`];
-        } else {
-          delete this.selectedFilters['Price'];
-        }
-        this.emitFilterChange();
-      }
-    }
   }
 
   closeOffcanvas() {
@@ -355,8 +428,67 @@ export class FilterComponent implements OnChanges, AfterViewInit {
     this.collapsedState[filterKey] = !this.collapsedState[filterKey];
   }
 
-  // Collapse durumunu kontrol eden metod
   isCollapsed(filterKey: string): boolean {
     return this.collapsedState[filterKey];
+  }
+  
+  // Yeni Metodlar
+  
+  // Toplam seçilen filtre sayısını hesaplama
+  getTotalSelectedFilters(): number {
+    let count = 0;
+    
+    for (const key in this.selectedFilters) {
+      if (this.selectedFilters.hasOwnProperty(key)) {
+        count += this.selectedFilters[key].length;
+      }
+    }
+    
+    return count;
+  }
+  
+  // Belirli bir filtredeki seçili öğe sayısını hesaplama
+  getSelectedFilterCount(key: string): number {
+    return this.selectedFilters[key]?.length || 0;
+  }
+  
+  // Tüm filtreleri temizle
+  clearAllFilters() {
+    this.selectedFilters = {};
+    this.clearCategorySelection(this.categoryTree);
+    this.updateSelectedFilters();
+  }
+  
+  // Arama kontrolünü getir
+  getSearchControl(key: string): FormControl {
+    if (!this.searchControls[key]) {
+      this.searchControls[key] = new FormControl('');
+    }
+    return this.searchControls[key];
+  }
+  
+  // Filtrelenmiş seçenekleri güncelle
+  updateFilteredOptions(key: string, searchTerm: string) {
+    const filter = this.availableFilters.find(f => f.key === key);
+    if (!filter) return;
+    
+    const options = filter.options;
+    
+    if (!searchTerm || searchTerm.trim() === '') {
+      this.filteredOptions[key] = options;
+    } else {
+      const term = searchTerm.toLowerCase().trim();
+      this.filteredOptions[key] = options.filter(option => 
+        option.displayValue.toLowerCase().includes(term)
+      );
+    }
+  }
+  
+  // Filtrelenmiş seçenekleri getir
+  getFilteredOptions(filter: FilterGroup): any[] {
+    if (!this.filteredOptions[filter.key]) {
+      this.filteredOptions[filter.key] = filter.options;
+    }
+    return this.filteredOptions[filter.key];
   }
 }

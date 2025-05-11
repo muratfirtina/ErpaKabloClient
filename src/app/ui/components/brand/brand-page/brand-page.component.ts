@@ -149,20 +149,86 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
     );
   }
 
+  categoryImages: { [key: string]: any } = {};
+
   async loadAvailableFilters() {
     this.isFiltersLoading = true;
     try {
-        const filters = await this.productService.getAvailableFilters(
-            '', // MUTLAKA boş string olarak gönder (null yerine)
-            null,
-            [this.brandId]
-        );
-        this.availableFilters = filters;
+      // Marka ID'sine göre filtreleme yap
+      const filters = await this.productService.getAvailableFilters(
+        '', 
+        null, 
+        [this.brandId]
+      );
+      
+      // Kategori filtresini al
+      const categoryFilter = filters.find(f => f.key === 'Category');
+      if (categoryFilter) {
+        console.log(`Category filter found with ${categoryFilter.options.length} options`);
+        
+        // Ürünü olan tüm kategorileri al (kök ve alt)
+        const allCategories = categoryFilter.options.filter(c => c.count > 0);
+        
+        if (allCategories.length > 0) {
+          // Kategorileri ana ve alt olacak şekilde sırala
+          const sortedCategories = this.sortCategories(allCategories);
+          
+          // Her bir kategori için resim bilgisini getir
+          const categoryIds = sortedCategories.map(c => c.value);
+          await this.loadCategoryImages(categoryIds);
+          
+          // Kategorileri güncelle
+          this.subCategories = sortedCategories.map(c => ({
+            id: c.value,
+            name: c.displayValue,
+            categoryImage: this.categoryImages[c.value] || { url: '/assets/images/placeholder.jpg' },
+            // Alt kategori gösterimi için ekstra bilgi ekleyelim
+            isSubcategory: !!c.parentId
+          } as any)); // Category tipine isSubcategory ekliyoruz
+        }
+      }
+      
+      this.availableFilters = filters;
     } catch (error) {
-        console.error('Error loading filters:', error);
+      console.error('Error loading filters:', error);
     } finally {
-        this.isFiltersLoading = false;
+      this.isFiltersLoading = false;
     }
+  }
+
+private sortCategories(categories: any[]): any[] {
+  // Önce ana kategorileri, sonra alt kategorileri sırala
+  return categories.sort((a, b) => {
+    // Önce ana kategorileri göster
+    if (!a.parentId && b.parentId) return -1;
+    if (a.parentId && !b.parentId) return 1;
+    
+    // Aynı seviyedeki kategorileri isimlerine göre sırala
+    if ((!a.parentId && !b.parentId) || (a.parentId && b.parentId)) {
+      return a.displayValue.localeCompare(b.displayValue);
+    }
+    
+    return 0;
+  });
+}
+
+// Kategori resimlerini getiren yeni bir metot ekleyelim
+async loadCategoryImages(categoryIds: string[]) {
+  try {
+    // Kategori detaylarını al
+    const response = await this.categoryService.getCategoriesByIds(categoryIds);
+    
+    // Resimleri kategori ID'lerine göre düzenle
+    response.items.forEach(category => {
+      if (category.categoryImage && category.categoryImage.url) {
+        this.categoryImages[category.id] = {
+          url: category.categoryImage.url
+        };
+      }
+    });
+  } catch (error) {
+    console.error('Error loading category images:', error);
+  }
 }
 
   async loadProducts() {
@@ -200,18 +266,14 @@ export class BrandPageComponent extends BaseComponent implements OnInit,OnChange
   }
 
   onFilterChange(filters: { [key: string]: string[] }) {
-    // Check if the brand has changed
-    const newBrandId = filters['Brand'] ? filters['Brand'][0] : this.brandId;
-    
-    if (newBrandId !== this.brandId) {
-      // Brand has changed, update the route
-      this.router.navigate(['/brand', newBrandId]);
-    } else {
-      // Brand hasn't changed, just update filters and reload products
-      this.selectedFilters = filters;
-      this.pageRequest.pageIndex = 0;
-      this.loadProducts();
+    // Brand filtresini korumak için
+    if (!filters['Brand'] || !filters['Brand'].includes(this.brandId)) {
+      filters['Brand'] = [this.brandId];
     }
+    
+    this.selectedFilters = { ...filters };
+    this.pageRequest.pageIndex = 0;
+    this.loadProducts();
   }
 
 

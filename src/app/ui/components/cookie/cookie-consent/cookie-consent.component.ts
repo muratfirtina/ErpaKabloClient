@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Language } from 'src/app/enums/language';
 import { AnalyticsService } from 'src/app/services/common/analytics.services';
-import { environment } from 'src/environments/environment.prod';
 import { COMPANY_INFO } from 'src/app/config/company-info.config';
 import { CookieModalService } from 'src/app/services/common/cookie-modal.service';
 
@@ -454,7 +453,6 @@ export class CookieConsentComponent implements OnInit {
     // Initialize functional cookies if enabled
     if (this.cookieSettings.functional) {
       // Here you would implement functionality for remembering user preferences
-      console.log('Functional cookies enabled');
     } else {
       // Remove functional cookies
       this.removeCookies(['user_preferences', 'ui_settings']);
@@ -463,13 +461,10 @@ export class CookieConsentComponent implements OnInit {
   
   private initializeMarketingServices(): void {
     // Here you would initialize marketing services like Facebook Pixel    
-    console.log('Marketing services enabled');
+
   }
   
   private disableMarketingServices(): void {
-    // Here you would disable marketing services
-    console.log('Marketing services disabled');
-    
     // Remove marketing cookies
     const marketingCookies = ['_fbp', '_fbc']; // Add all marketing cookies here
     this.removeCookies(marketingCookies);

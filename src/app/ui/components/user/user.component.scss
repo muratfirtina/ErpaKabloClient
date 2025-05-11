@@ -110,6 +110,7 @@ $light: #f8fafc;
     left: 0;
     right: 0;
     bottom: 0;
+    width: -webkit-fill-available;
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1035;
     opacity: 0;
@@ -135,7 +136,7 @@ $light: #f8fafc;
 // Main Container
 .container {
     flex-grow: 1;
-    padding: 2rem 1rem;
+    padding: 2rem 0 0 0;
     
     @media (max-width: 991px) {
       padding-top: 5rem; // Menü butonuna yer açmak için
@@ -148,7 +149,7 @@ $light: #f8fafc;
   @include card-shadow;
   background: $background-color;
   margin-bottom: 2rem;
-  border-radius: 0.75rem;
+  border-radius: 0.25rem;
   overflow: hidden;
 
   .card-header {

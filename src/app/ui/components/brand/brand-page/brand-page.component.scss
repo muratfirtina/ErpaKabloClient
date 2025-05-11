@@ -208,13 +208,13 @@
       
     }
   
-    .container {
+    .container-grid {
       display: flex;
       align-items: center;
       overflow: hidden;
       position: relative;
-      max-width: 1420px;
       margin: auto;
+      max-width: 1420px;
       gap: 20px;
       //padding: 20px 0 0 0;
       scroll-snap-type: x mandatory;
@@ -253,7 +253,7 @@
       }
   
       .category-grid {
-        width: 1320px;
+        width: 1420px;
         margin: 0 55px;
         display: flex;
         gap: 1rem;
@@ -303,7 +303,7 @@
             font-weight: bold;
             color: $home-primary-color;
             margin: 0 auto 0;
-            max-width: 1320px;
+            max-width: 1420px;
             padding: 0 0 10px;
             position: relative;
           }

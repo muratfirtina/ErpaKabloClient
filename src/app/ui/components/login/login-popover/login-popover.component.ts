@@ -136,36 +136,33 @@ export class LoginPopoverComponent extends BaseComponent {
   }
 
   updatePosition() {
-    if (!this.triggerElement) {
-      // Trigger element bulunamazsa varsayılan konum
-      return;
-    }
-
+    if (!this.triggerElement) return;
+    
+    // Ölçeklendirme faktörünü hesaba kat
+    const scale = 0.8;
     const rect = this.triggerElement.getBoundingClientRect();
     const popoverEl = this.el.nativeElement.querySelector('.login-popover');
     
     if (!popoverEl) return;
-
+    
+    // Konumları ölçeklendirme faktörüne göre hesapla
+    const adjustedPosition = {
+      top: rect.top / scale,
+      left: rect.left / scale,
+      width: rect.width / scale,
+      height: rect.height / scale
+    };
+    
     if (this.isMobile) {
-      // Mobilde ortada göster
       this.renderer.setStyle(popoverEl, 'left', '50%');
       this.renderer.setStyle(popoverEl, 'right', 'auto');
       this.renderer.setStyle(popoverEl, 'transform', 'translateX(-50%)');
     } else {
-      // Sign in butonunun altında, sağa hizalı
-      const buttonCenter = rect.left + rect.width / 2;
+      const buttonCenter = adjustedPosition.left + adjustedPosition.width / 2;
       
-      // Popover'ın sağa hizalanması için
       this.renderer.setStyle(popoverEl, 'left', 'auto');
-      this.renderer.setStyle(popoverEl, 'right', `${window.innerWidth - (rect.left + rect.width)}px`);
+      this.renderer.setStyle(popoverEl, 'right', `${window.innerWidth/scale - (adjustedPosition.left + adjustedPosition.width)}px`);
       this.renderer.setStyle(popoverEl, 'transform', 'none');
-      
-      // Üçgen işaretçi konumu
-      const arrow = popoverEl.querySelector('::after');
-      if (arrow) {
-        this.renderer.setStyle(arrow, 'left', 'auto');
-        this.renderer.setStyle(arrow, 'right', `${rect.width / 2}px`);
-      }
     }
   }
 

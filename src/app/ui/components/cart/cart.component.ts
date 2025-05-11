@@ -23,7 +23,7 @@ import { SpinnerService } from 'src/app/services/common/spinner.service';
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule],
   templateUrl: './cart.component.html',
-  styleUrls: ['./cart.component.scss']
+  styleUrls: ['./cart.component.scss', '../../../../styles.scss']
 })
 export class CartComponent extends BaseDrawerComponent implements OnInit, OnDestroy {
   @Output() closeCart = new EventEmitter<void>();

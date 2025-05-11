@@ -472,7 +472,7 @@ $light: #f8fafc;
       }
 
       &:disabled {
-        background: lighten($success-color, 20%);
+        background: #759189;
         cursor: not-allowed;
       }
     }

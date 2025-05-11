@@ -69,13 +69,6 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
   isFormattedContent: boolean = false;
   isLoading: boolean = false;
   loadingProgress: number = 0;
-  private loadingState = {
-    category: false,
-    subCategories: false,
-    filters: false,
-    products: false
-  };
-  private processedCategoryIds: Set<string> = new Set();
 
   @ViewChild('categoryGrid') categoryGrid!: ElementRef;
 
@@ -85,7 +78,6 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
   }
 
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private categoryService: CategoryService,
     private productService: ProductService,
@@ -124,14 +116,13 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
     this.selectedFilters = {};
     this.pageRequest.pageIndex = 0;
     this.allCategoryIds = [this.categoryId];
-    this.processedCategoryIds.clear();
     
     // Yükleme bayraklarını ayarla
     this.isLoading = true;
     
-    // Önce ana kategoriyi yükle
+    // Ana kategoriyi yükle ve ardından sadece bir seviye alt kategorileri getir
     this.loadCategory()
-      .then(() => this.collectAndLoadAllSubCategories()) // Bütün alt kategorileri tek seferde yükle
+      .then(() => this.loadAllSubCategories()) // collectAndLoadAllSubCategories() yerine
       .then(() => this.loadAvailableFilters())
       .then(() => this.loadProducts())
       .finally(() => {
@@ -159,232 +150,68 @@ export class CategoryComponent extends BaseComponent implements OnInit,OnChanges
     }
   }
 
-  //Ana kategoriyi ve tüm alt kategorileri tek bir istekte toplar ve yükler
-  private async collectAndLoadAllSubCategories() {
-    if (!this.categoryId) return;
-    
-    try {
-      // Önce direk alt kategorileri yükle (tek seferde tüm alt kategoriler recursive olarak gelmiyorsa)
-      const initialCategories = await this.categoryService.getAllSubCategoriesRecursive(this.categoryId);
-      
-      if (!initialCategories || !initialCategories.items || initialCategories.items.length === 0) {
-        console.log("Alt kategori bulunamadı");
-        return;
-      }
-      
-      // Alt kategorileri işle ve ID'leri topla
-      this.subCategories = initialCategories.items; // Doğrudan alt kategorileri ayarla
-      
-      // Ana kategori ve alt kategorilerin ID'lerini topla
-      const categoryIds = [this.categoryId];
-      this.subCategories.forEach(cat => {
-        if (cat.id && !categoryIds.includes(cat.id)) {
-          categoryIds.push(cat.id);
-        }
-      });
-      
-      // Tüm kategorilerin alt kategorilerini TEK SEFERDE getir
-      if (categoryIds.length > 1) { // Ana kategoriden başka kategoriler varsa
-        const allSubCategoriesResponse = await this.categoryService.getSubCategoriesByMultipleIds(categoryIds);
-        
-        // Tüm alt kategorileri handle et
-        this.processAllSubCategories(allSubCategoriesResponse);
-      }
-      
-      // Tüm alt kategorileri allCategoryIds'e ekle (filtreleme için)
-      this.allCategoryIds = [...new Set(this.collectAllCategoryIds())];
-      console.log("Toplam kategori sayısı:", this.allCategoryIds.length);
-      
-    } catch (error) {
-      console.error("Alt kategorileri yükleme hatası:", error);
-    }
-  }
 
-  // Toplu alt kategori yanıtlarını işler
-private processAllSubCategories(response: {[categoryId: string]: GetListResponse<Category>}) {
-  // Her kategori için alt kategorileri işle
-  for (const [categoryId, subCategoriesResponse] of Object.entries(response)) {
-    if (this.processedCategoryIds.has(categoryId)) continue; // Zaten işlenmişse atla
+
+private async loadAllSubCategories() {
+  this.isFiltersLoading = true;
+  try {
+    // İlk olarak birinci seviye alt kategorileri yükle
+    const directResponse = await this.categoryService.getSubCategories(this.categoryId);
+    const directSubcategories = directResponse.items;
     
-    // Bu kategoriyi işaretleyin
-    this.processedCategoryIds.add(categoryId);
+    // Tüm kategori ID'lerini toplamak için
+    const allIds = [this.categoryId];
+    const allSubcategories = [...directSubcategories];
     
-    // Alt kategorileri mevcut yapıya ekleyin 
-    if (subCategoriesResponse.items && subCategoriesResponse.items.length > 0) {
-      subCategoriesResponse.items.forEach(subCategory => {
-        if (!this.findCategoryById(this.subCategories, subCategory.id)) {
-          // Henüz eklenmemişse ekle
-          this.addCategoryToHierarchy(this.subCategories, categoryId, subCategory);
+    // Her alt kategori için, onun alt kategorilerini de yükle
+    for (const subCategory of directSubcategories) {
+      allIds.push(subCategory.id);
+      
+      // Alt kategori için alt kategorileri al
+      try {
+        const nestedResponse = await this.categoryService.getSubCategories(subCategory.id);
+        if (nestedResponse.items && nestedResponse.items.length > 0) {
+          allSubcategories.push(...nestedResponse.items);
+          nestedResponse.items.forEach(nestedCat => allIds.push(nestedCat.id));
         }
-      });
+      } catch (error) {
+        console.error(`Alt kategori yüklenemedi: ${subCategory.id}`, error);
+      }
     }
+    
+    // Tüm alt kategorileri kaydet
+    this.subCategories = directSubcategories; // Sadece direkt alt kategorileri görüntüle
+    this.allCategoryIds = [...new Set(allIds)]; // Tüm kategori ID'lerini sakla
+    
+    // Ürünleri yükle
+    this.loadProducts();
+  } catch (error) {
+    console.error('Error loading subcategories:', error);
+    this.loadProducts();
+  } finally {
+    this.isFiltersLoading = false;
   }
+  
+  return this.subCategories;
 }
-
-/**
- * Kategori hiyerarşisine yeni kategori ekler
- */
-private addCategoryToHierarchy(categories: Category[], parentId: string, categoryToAdd: Category): boolean {
-  // Ana seviyede eşleşme durumu
-  for (const category of categories) {
-    if (category.id === parentId) {
-      // Doğru ebeveyn bulundu, alt kategori olarak ekle
-      if (!category.subCategories) {
-        category.subCategories = [];
-      }
-      category.subCategories.push(categoryToAdd);
-      return true;
-    }
+async loadAvailableFilters() {
+  this.isFiltersLoading = true;
+  try {
+    // Sadece bir API çağrısı ile hiyerarşik kategori yapısını getir
+    const filters = await this.productService.getAvailableFilters(
+      '', // SearchTerm boş string olarak gönder
+      [this.categoryId], // Sadece mevcut kategori ID'sini gönder
+      null // Brand filtresi yok
+    );
     
-    // Alt kategorilerde ara
-    if (category.subCategories && category.subCategories.length > 0) {
-      if (this.addCategoryToHierarchy(category.subCategories, parentId, categoryToAdd)) {
-        return true;
-      }
-    }
+    this.availableFilters = filters;
+    
+    // FilterComponent zaten parent-child ilişkisini işleyecek
+  } catch (error) {
+    console.error('Error loading filters:', error);
+  } finally {
+    this.isFiltersLoading = false;
   }
-  
-  return false;
-}
-
-/**
- * Kategori ID belirli bir kategoriyi bulur
- */
-private findCategoryById(categories: Category[], categoryId: string): Category | null {
-  for (const category of categories) {
-    if (category.id === categoryId) {
-      return category;
-    }
-    
-    if (category.subCategories && category.subCategories.length > 0) {
-      const found = this.findCategoryById(category.subCategories, categoryId);
-      if (found) {
-        return found;
-      }
-    }
-  }
-  
-  return null;
-}
-
-/**
- * Tüm kategori ID'lerini toplar
- */
-private collectAllCategoryIds(categories: Category[] = this.subCategories): string[] {
-  let ids: string[] = [this.categoryId]; // Ana kategori ile başla
-  
-  const collectIds = (cats: Category[]) => {
-    if (!cats) return;
-    
-    for (const cat of cats) {
-      if (cat.id) {
-        ids.push(cat.id);
-      }
-      
-      if (cat.subCategories && cat.subCategories.length > 0) {
-        collectIds(cat.subCategories);
-      }
-    }
-  };
-  
-  collectIds(categories);
-  return ids;
-}
-
-  async loadSubCategories() {
-    this.isFiltersLoading = true;
-    try {
-      // Ana kategorinin alt kategorilerini yükle
-      const response = await this.categoryService.getSubCategories(this.categoryId);
-      this.subCategories = response.items;
-      
-      // Tüm alt kategorileri toplayacak rekursif bir fonksiyon
-      const collectAllSubcategoryIds = async (categoryId: string): Promise<string[]> => {
-        try {
-          // Bu kategorinin alt kategorilerini al
-          const response = await this.categoryService.getSubCategories(categoryId);
-          const subcategories = response.items;
-          
-          if (!subcategories || subcategories.length === 0) {
-            return []; // Alt kategori yoksa boş dizi döndür
-          }
-          
-          // Tüm doğrudan alt kategori ID'lerini topla
-          const directSubcategoryIds = subcategories.map(c => c.id);
-          
-          // Her bir alt kategori için, onun alt kategorilerini rekursif olarak topla
-          const allNestedIds: string[] = [];
-          
-          // Alt kategorilerin her biri için rekursif olarak alt kategorileri getir
-          const nestedPromises = directSubcategoryIds.map(async (subCatId) => {
-            const nestedIds = await collectAllSubcategoryIds(subCatId);
-            return nestedIds;
-          });
-          
-          // Tüm alt kategorilerin işlemlerini tamamla ve sonuçları birleştir
-          const nestedResults = await Promise.all(nestedPromises);
-          nestedResults.forEach(nestedIds => {
-            allNestedIds.push(...nestedIds);
-          });
-          
-          // Doğrudan alt kategoriler + onların alt kategorileri
-          return [...directSubcategoryIds, ...allNestedIds];
-        } catch (error) {
-          console.error(`Error collecting subcategories for ${categoryId}:`, error);
-          return [];
-        }
-      };
-      
-      // Ana kategorinin tüm alt kategorilerini topla
-      const allSubcategoryIds = await collectAllSubcategoryIds(this.categoryId);
-      
-      // Benzersiz kategori ID'lerini ekle (mükerrer olmaması için)
-      this.allCategoryIds = [this.categoryId, ...new Set(allSubcategoryIds)];
-      
-      
-      // Şimdi tüm kategorilerin ürünlerini yükle
-      this.loadProducts();
-    } catch (error) {
-      console.error('Error loading subcategories:', error);
-      this.loadProducts(); // Sadece ana kategori ürünlerini yüklemeyi dene
-    } finally {
-      this.isFiltersLoading = false;
-    }
-    
-    return this.subCategories;
-  }
-  
-  async loadAvailableFilters() {
-    this.isFiltersLoading = true;
-    try {
-        // Önce alt kategorilerin yüklenmesini bekle
-         if (this.allCategoryIds.length <= 1) {
-            // Eğer sadece bir kategori varsa, alt kategorileri yükle
-            await this.loadSubCategories();
-        }
-       
-      
-        // Boş string olarak searchTerm gönderme
-        const filters = await this.productService.getAvailableFilters(
-            '', // MUTLAKA boş string olarak gönder (null yerine)
-            this.allCategoryIds,
-            null
-        );
-      
-        // Category filtresi için özel işlem
-        const categoryFilter = filters.find(f => f.key === 'Category');
-        if (categoryFilter) {
-            categoryFilter.options.forEach(option => {
-                (option as any).selected = this.allCategoryIds.includes(option.value);
-            });
-        }
-      
-        this.availableFilters = filters;
-    } catch (error) {
-        console.error('Error loading filters:', error);
-    } finally {
-        this.isFiltersLoading = false;
-    }
 }
   
   async loadProducts() {
@@ -427,41 +254,18 @@ private collectAllCategoryIds(categories: Category[] = this.subCategories): stri
     }
   }
 
-  onFilterChange(filters: { [key: string]: string[] }) {    
-    // Kategori seçiminin değişip değişmediğini kontrol et
-    let hasChangedCategory = false;
-    
-    if (filters['Category'] && filters['Category'].length === 1) {
-      const selectedCategoryId = filters['Category'][0];
-      // Eğer seçilen kategori mevcut kategori değilse ve alt kategorilerden biri değilse
-      hasChangedCategory = selectedCategoryId !== this.categoryId && 
-                          !this.allCategoryIds.slice(1).includes(selectedCategoryId);
+  onFilterChange(filters: { [key: string]: string[] }) {
+    // Eğer kategori filtresinde bir şey yoksa tüm kategorileri kullan
+    if (!filters['Category'] || filters['Category'].length === 0) {
+      filters['Category'] = [...this.allCategoryIds];
     }
     
-    if (hasChangedCategory && filters['Category'] && filters['Category'].length === 1) {
-      // Kategori tamamen değişti, yeni kategori sayfasına yönlendir
-      this.router.navigate(['/category', filters['Category'][0]]);
-    } else {
-      // Mevcut kategori içindeki filtre değişikliklerini uygula
-      
-      // Kategori filtrelemesi
-      if (!filters['Category'] || filters['Category'].length === 0) {
-        // Kategori filtresi yoksa, tüm kategorileri kullan
-        filters['Category'] = [...this.allCategoryIds];
-      } else if (filters['Category'].length === 1 && this.allCategoryIds.includes(filters['Category'][0])) {
-        // Tek bir kategori seçiliyse ve bu bizim kategorilerimizden biriyse
-        
-        // Eğer ana kategori seçildiyse, tüm alt kategorileri dahil et
-        if (filters['Category'][0] === this.categoryId) {
-          filters['Category'] = [...this.allCategoryIds];
-        }
-        // Alt kategori seçildiyse, sadece onu kullan (kodda değişiklik yok)
-      }
-      
-      this.selectedFilters = { ...filters };
-      this.pageRequest.pageIndex = 0;
-      this.loadProducts();
-    }
+    // Kategori filtresini uygula
+    this.selectedFilters = { ...filters };
+    this.pageRequest.pageIndex = 0;
+    
+    // Ürünleri yeniden yükle
+    this.loadProducts();
   }
 
   onPageChange(event: any) {
@@ -504,21 +308,6 @@ private collectAllCategoryIds(categories: Category[] = this.subCategories): stri
     return hierarchy;
   }
 
-  selectCategory(node: any, event: Event) {
-    event.stopPropagation();
-    this.onFilterChange({ 'Category': [node.id] });
-  }
-
-  toggleNode(node: any) {
-    node.expanded = !node.expanded;
-  }
-
-  formatCurrency(value: number | undefined): string {
-    if (value === undefined) return 'N/A';
-    return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(value);
-  }
-
-
   private checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
   }
@@ -532,40 +321,6 @@ private collectAllCategoryIds(categories: Category[] = this.subCategories): stri
     const grid = this.categoryGrid.nativeElement;
     grid.scrollBy({ left: 250, behavior: 'smooth' });
   }
-  formatCategoryTitle(title: string): string {
-    if (!title) return '';
-    
-    // Eğer başlık zaten HTML formatında ise, doğrudan döndür
-    if (title.includes('</')) return title;
-    
-    // Veritabanındaki metni yapılandırılmış bir şekilde ayrıştır
-    // Örnek format: "Types: Standard, Low Pressure... | Materials: PP, PA... | Standards: TS EN ISO..."
-    const sections = title.split('|');
-    
-    let html = '<div class="category-columns">';
-    
-    sections.forEach(section => {
-      const parts = section.split(':');
-      if (parts.length < 2) return; // Atlama durumunu kontrol et
-      
-      const header = parts[0].trim();
-      const itemsText = parts.slice(1).join(':').trim();
-      const itemsList = itemsText.split(',');
-      
-      html += `
-        <div class="category-column">
-          <h2>${header}</h2>
-          <ul>
-            ${itemsList.map(item => `<li>${item.trim()}</li>`).join('')}
-          </ul>
-        </div>
-      `;
-    });
-    
-    html += '</div>';
-    return html;
-  }
-
 
   parseCategory() {
     // Category yüklü değilse, işlem yapma

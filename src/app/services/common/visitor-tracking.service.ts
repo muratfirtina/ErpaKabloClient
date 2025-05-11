@@ -206,7 +206,6 @@ export class VisitorTrackingService implements OnDestroy {
 
     try {
       await this.hubConnection.start();
-      console.log('SignalR bağlantısı başlatıldı.');
       this.connectionEstablishedSubject.next(true);
       this.reconnectAttempts = 0;
     } catch (err) {

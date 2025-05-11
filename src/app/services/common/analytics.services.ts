@@ -60,7 +60,6 @@ export class AnalyticsService {
       document.head.appendChild(script2);
 
       this.googleInitialized = true;
-      console.log('Google Analytics initialized with consent');
     }
   }
 
@@ -101,7 +100,6 @@ export class AnalyticsService {
       document.body.appendChild(noscript);
 
       this.yandexInitialized = true;
-      console.log('Yandex Metrika initialized with consent');
     }
   }
 

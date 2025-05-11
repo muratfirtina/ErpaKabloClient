@@ -119,10 +119,11 @@ $breakpoint-large: 1400px;
   // Top bar
   .top-bar {
     background: transparent;
-    padding: 0 0 0 210px;
+    //padding: 0 0 0 210px;
     color: white;
     display: flex;
     align-items: center;
+    justify-content: space-between;
     height: 64px;
     position: relative;
     z-index: 100;
@@ -172,7 +173,7 @@ $breakpoint-large: 1400px;
 
     // All products dropdown button
     .all-products-dropdown {
-      padding: 0 1rem;
+      //padding: 0 1rem;
 
       @media (max-width: $breakpoint-tablet) {
         margin-left: 0;
@@ -218,7 +219,7 @@ $breakpoint-large: 1400px;
       flex-grow: 1;
       margin: 0 20px;
       position: relative;
-      max-width: 700px;
+      max-width: -webkit-fill-available;
 
       @media (max-width: $breakpoint-tablet) {
         margin: 0 10px;
@@ -250,7 +251,7 @@ $breakpoint-large: 1400px;
       form {
         display: flex;
         align-items: center;
-        max-width: 700px;
+        max-width: -webkit-fill-available;
 
         @media (max-width: $breakpoint-tablet) {
           max-width: none;
@@ -565,8 +566,6 @@ $breakpoint-large: 1400px;
   top: 64px; // Navbar height
   left: 0;
   right: 0;
-  padding-left: 125px;
-  padding-right: 125px;
   z-index: 99; // Lower than search dropdown
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
@@ -594,8 +593,10 @@ $breakpoint-large: 1400px;
     display: flex;
     background-color: white;
     max-height: fit-content;
+    max-width: 1420px;
+    margin: auto;
     overflow-y: auto;
-    border-radius: 4px;
+    //border-radius: 4px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 
     @media (max-width: $breakpoint-mobile) {

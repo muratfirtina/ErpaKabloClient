@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { BaseComponent, SpinnerType } from 'src/app/base/base/base.component';
@@ -27,6 +27,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { SpinnerService } from 'src/app/services/common/spinner.service';
 import { FooterComponent } from '../footer/footer.component';
 import { PaginationComponent } from 'src/app/base/components/pagination/pagination.component';
+import { Category } from 'src/app/contracts/category/category';
+import { CategoryService } from 'src/app/services/common/models/category.service';
 
 @Component({
   selector: 'app-search-results',
@@ -57,23 +59,36 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   sortOrder: string = '';
   isFiltersLoading: boolean = false;
   isProductsLoading: boolean = false;
+  subCategories: Category[] = [];
+  categoryImages: { [key: string]: any } = {};
+  isMobile = false;
+
+  @ViewChild('categoryGrid') categoryGrid!: ElementRef;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
+  }
 
   constructor(
     private route: ActivatedRoute,
-    private cartService: CartService,
     private router: Router,
     private productService: ProductService,
-    private customToasterService: CustomToastrService,
     private breadcrumbService: BreadcrumbService,
     private productLikeService: ProductLikeService,
     private authService: AuthService,
-    private productOperations: ProductOperationsService,
+    private categoryService: CategoryService,
     spinner: SpinnerService
   ) { 
     super(spinner);
   }
 
   ngOnInit() {
+    this.checkScreenSize();
     this.route.queryParams.subscribe(params => {
       this.searchTerm = params['q'] || '';
       this.pageRequest.pageIndex = +params['page'] || 0;
@@ -88,15 +103,93 @@ export class SearchResultsComponent extends BaseComponent implements OnInit {
   async loadAvailableFilters() {
     this.isFiltersLoading = true;
     try {
-        // searchTerm zaten var, değişiklik gerekmiyor
-        const filters = await this.productService.getAvailableFilters(this.searchTerm);
-        this.availableFilters = filters;
+      // Arama terimiyle ilgili filtreleri getir
+      const filters = await this.productService.getAvailableFilters(
+        this.searchTerm,
+        null,
+        null
+      );
+      
+      // Kategori filtresini al
+      const categoryFilter = filters.find(f => f.key === 'Category');
+      if (categoryFilter) {
+        console.log(`Category filter found with ${categoryFilter.options.length} options`);
+        
+        // Ürünü olan tüm kategorileri al (kök ve alt)
+        const allCategories = categoryFilter.options.filter(c => c.count > 0);
+        
+        if (allCategories.length > 0) {
+          // Kategorileri ana ve alt olacak şekilde sırala
+          const sortedCategories = this.sortCategories(allCategories);
+          
+          // Her bir kategori için resim bilgisini getir
+          const categoryIds = sortedCategories.map(c => c.value);
+          await this.loadCategoryImages(categoryIds);
+          
+          // Kategorileri güncelle
+          this.subCategories = sortedCategories.map(c => ({
+            id: c.value,
+            name: c.displayValue,
+            categoryImage: this.categoryImages[c.value] || { url: '/assets/images/placeholder.jpg' },
+            // Alt kategori gösterimi için ekstra bilgi ekleyelim
+            isSubcategory: !!c.parentId
+          } as any)); // Category tipine isSubcategory ekliyoruz
+        }
+      }
+      
+      this.availableFilters = filters;
     } catch (error) {
-        console.error('Error loading filters:', error);
+      console.error('Error loading filters:', error);
     } finally {
-        this.isFiltersLoading = false;
+      this.isFiltersLoading = false;
     }
-}
+  }
+  
+  // Kategorileri hiyerarşik olarak sıralayan metod (BrandPageComponent ile aynı)
+  private sortCategories(categories: any[]): any[] {
+    // Önce ana kategorileri, sonra alt kategorileri sırala
+    return categories.sort((a, b) => {
+      // Önce ana kategorileri göster
+      if (!a.parentId && b.parentId) return -1;
+      if (a.parentId && !b.parentId) return 1;
+      
+      // Aynı seviyedeki kategorileri isimlerine göre sırala
+      if ((!a.parentId && !b.parentId) || (a.parentId && b.parentId)) {
+        return a.displayValue.localeCompare(b.displayValue);
+      }
+      
+      return 0;
+    });
+  }
+  
+  // Kategori resimlerini getiren yeni bir metot ekleyelim
+  async loadCategoryImages(categoryIds: string[]) {
+    try {
+      // Kategori detaylarını al
+      const response = await this.categoryService.getCategoriesByIds(categoryIds);
+      
+      // Resimleri kategori ID'lerine göre düzenle
+      response.items.forEach(category => {
+        if (category.categoryImage && category.categoryImage.url) {
+          this.categoryImages[category.id] = {
+            url: category.categoryImage.url
+          };
+        }
+      });
+    } catch (error) {
+      console.error('Error loading category images:', error);
+    }
+  }
+  
+  scrollLeft() {
+    const grid = this.categoryGrid.nativeElement;
+    grid.scrollBy({ left: -250, behavior: 'smooth' });
+  }
+  
+  scrollRight() {
+    const grid = this.categoryGrid.nativeElement;
+    grid.scrollBy({ left: 250, behavior: 'smooth' });
+  }
 
   async searchProducts() {
     this.isProductsLoading = true;

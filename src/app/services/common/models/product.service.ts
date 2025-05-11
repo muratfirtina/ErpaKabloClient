@@ -144,30 +144,30 @@ export class ProductService {
     let queryParams: string[] = [];
     
     // searchTerm MUTLAKA ekle (boş string olsa bile)
-    queryParams.push(`searchTerm=${searchTerm || ''}`);  // Değişiklik burada
+    queryParams.push(`searchTerm=${searchTerm || ''}`);
     
     if (categoryIds && categoryIds.length > 0) {
-        categoryIds.forEach(id => {
-            queryParams.push(`categoryIds=${id}`);
-        });
+      categoryIds.forEach(id => {
+        queryParams.push(`categoryIds=${id}`);
+      });
     }
     
     if (brandIds && brandIds.length > 0) {
-        brandIds.forEach(id => {
-            queryParams.push(`brandIds=${id}`);
-        });
+      brandIds.forEach(id => {
+        queryParams.push(`brandIds=${id}`);
+      });
     }
     
     const queryString = queryParams.join('&');
     
     const observable = this.httpClientService.get<FilterGroup[]>({
-        controller: 'products',
-        action: 'filters',
-        queryString: queryString
+      controller: 'products',
+      action: 'filters',
+      queryString: queryString
     });
     
     return await firstValueFrom(observable);
-}
+  }
 
 async searchProducts(searchTerm: string, pageRequest: PageRequest): Promise<{
   products: GetListResponse<Product>;

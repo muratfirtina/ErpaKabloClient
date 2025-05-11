@@ -624,3 +624,167 @@ body {
     margin-left: 0 !important;
   }
 }
+:root {
+  --page-scale: 0.8;
+  --page-width: calc(100% / var(--page-scale));
+  --page-height: calc(100vh / var(--page-scale));
+}
+
+html {
+  transform: scale(var(--page-scale));
+  transform-origin: top left;
+  width: var(--page-width);
+  height: var(--page-height);
+  overflow-x: hidden;
+}
+
+.cdk-overlay-container {
+  transform: scale(var(--page-scale));
+  transform-origin: top left;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --page-scale: 1; /* Mobil cihazlarda daha az küçültme */
+  }
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: calc(100vw * (1 / var(--page-scale))) !important;
+  height: calc(100vh * (1 / var(--page-scale))) !important;
+  transform-origin: top left;
+}
+
+// CDK overlay backdrop düzeltmesi
+.cdk-overlay-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: calc(100vw * (1 / var(--page-scale))) !important;
+  height: calc(100vh * (1 / var(--page-scale))) !important;
+  transform-origin: top left !important;
+}
+
+// Ek düzeltmeler - Z-index ve pozisyonlama
+.modal {
+  z-index: 1050 !important;
+}
+
+// Tüm modal gösterildiğinde gövde padding sorununu düzelt
+body.modal-open {
+  padding-right: 0 !important;
+  overflow: hidden;
+}
+
+// Ölçeklendirilen body için overlay konumunu düzelt
+html.modal-open, 
+body.modal-open {
+  .modal-backdrop,
+  .cdk-overlay-backdrop {
+    position: fixed !important;
+  }
+}
+
+.modal-dialog {
+  position: relative;
+  z-index: 1060 !important; // Yüksek z-index değeri
+}
+
+// Bootstrap Modal Düzeltmeleri
+.modal {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: calc(100vw * (1 / var(--page-scale))) !important;
+  height: calc(100vh * (1 / var(--page-scale))) !important;
+  z-index: 1055 !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  // Modal içeriğini öne çıkarmak için
+  .modal-content {
+    position: relative;
+    z-index: 1061 !important;
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  }
+}
+
+// Modal açıkken transform ve z-index düzeltmeleri
+body.modal-open {
+  .modal.show .modal-dialog {
+    transform: none !important; // Bootstrap'in transform'ını engelle
+  }
+  
+  // Modal öne çıksın diye tüm sayfa içeriğini azalt
+  .main-content,
+  .main-header,
+  .navbar,
+  .container-xxl,
+  .container,
+  .row,
+  .col {
+    z-index: auto !important;
+  }
+}
+
+// Angular Material ve CDK için ek düzeltmeler
+.cdk-overlay-container {
+  position: fixed !important;
+  z-index: 1065 !important; // En yüksek z-index
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  
+  .cdk-overlay-backdrop {
+    pointer-events: auto !important;
+  }
+  
+  .cdk-global-overlay-wrapper {
+    display: flex;
+    position: absolute;
+    z-index: 1066 !important;
+    pointer-events: auto !important;
+  }
+  
+  .cdk-overlay-pane {
+    position: absolute;
+    pointer-events: auto;
+    z-index: 1067 !important;
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
+
+// Stacking context düzeltmesi - HTML ve body'yi yeni bir stacking context olarak ayarla
+html, body {
+  isolation: isolate;
+}
+
+// Modal'ın transform'larını düzelt
+.modal-open .modal.show .modal-dialog {
+  transform: translate(0, 0) scale(calc(1 / var(--page-scale))) !important;
+  transform-origin: center !important;
+  margin-top: calc(1.75rem * var(--page-scale));
+  margin-bottom: calc(1.75rem * var(--page-scale));
+}
+
+// Bootstrap modal'ın ölçeklendirmesini düzelt
+.modal.fade .modal-dialog {
+  transform: translate(0, -50px) scale(calc(1 / var(--page-scale))) !important;
+}
+
+// Bootstrap modal backdrop düzeltmeleri
+.modal-backdrop {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: calc(100vw * (1 / var(--page-scale))) !important;
+  height: calc(100vh * (1 / var(--page-scale))) !important;
+  z-index: 1050 !important;
+}

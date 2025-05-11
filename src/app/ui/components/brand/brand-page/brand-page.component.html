@@ -3,7 +3,7 @@
     <app-main-header></app-main-header>
     <app-navbar></app-navbar>
   
-    <div class="container-xxl main-content">
+    <div class="container-xxl main-content" style="max-width: 1420px !important;">
       <!-- Breadcrumb -->
       <div class="row mb-3">
         <div class="col-12">
@@ -28,7 +28,7 @@
           <p>All Categories For</p>
           <a class="brand-name" [routerLink]="['/', brand?.id]">{{brand.name}}</a>
         </div>
-        <div class="container">
+        <div class="container-grid">
           <button class="scroll-btn left" (click)="scrollLeft()" *ngIf="!isMobile && subCategories.length > 6">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">

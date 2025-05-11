@@ -3,7 +3,7 @@
     <app-main-header></app-main-header>
     <app-navbar></app-navbar>
 
-    <div class="container-xxl">
+    <div class="container-xxl" style="max-width: 1420px; margin: 0 auto;">
         <!-- Breadcrumb -->
         <nav aria-label="breadcrumb">
             <app-breadcrumb></app-breadcrumb>
@@ -85,13 +85,16 @@
                                         <span *ngIf="component['newPassword'].errors?.['required']">New Password
                                             Required</span>
                                         <ul *ngIf="component['newPassword'].errors?.['passwordStrength']" class="mb-0">
-                                            <li *ngIf="!passwordRequirements.uppercase">Password must contain at least one
+                                            <li *ngIf="!passwordRequirements.uppercase">Password must contain at least
+                                                one
                                                 uppercase letter</li>
-                                            <li *ngIf="!passwordRequirements.lowercase">Password must contain at least one
+                                            <li *ngIf="!passwordRequirements.lowercase">Password must contain at least
+                                                one
                                                 lowercase letter</li>
                                             <li *ngIf="!passwordRequirements.symbol">Password must contain at least one
                                                 special character</li>
-                                            <li *ngIf="!passwordRequirements.length">Password must be at least 8 characters
+                                            <li *ngIf="!passwordRequirements.length">Password must be at least 8
+                                                characters
                                                 long</li>
                                         </ul>
                                     </div>
@@ -114,7 +117,8 @@
                                     </div>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || submitted">
+                                <button type="submit" class="btn btn-primary"
+                                    [disabled]="passwordForm.invalid || submitted">
                                     Change Password
                                 </button>
                             </form>
@@ -155,7 +159,8 @@
                                                         {{ address.addressLine1 }}<br>
                                                         <span *ngIf="address.addressLine2">{{ address.addressLine2
                                                             }}<br></span>
-                                                        {{ address.districtName }}, {{ address.cityName }} {{ address.postalCode }}<br>
+                                                        {{ address.districtName }}, {{ address.cityName }} {{
+                                                        address.postalCode }}<br>
                                                         {{ address.countryName }}
                                                     </p>
                                                     <div class="btn-actions">
@@ -276,25 +281,17 @@
 <app-downbar></app-downbar>
 
 <!-- Address Modal Component -->
-<app-address-modal
-    [isEditMode]="isEditMode"
-    [currentAddress]="currentAddress"
-    (saveAddress)="handleSaveAddress($event)"
+<app-address-modal [isEditMode]="isEditMode" [currentAddress]="currentAddress" (saveAddress)="handleSaveAddress($event)"
     (cancelEdit)="handleCancelEdit()">
 </app-address-modal>
 
 <!-- Phone Modal Component -->
-<app-phone-modal
-    [isEditMode]="isEditMode"
-    [currentPhone]="currentPhone"
-    (savePhone)="handleSavePhone($event)"
+<app-phone-modal [isEditMode]="isEditMode" [currentPhone]="currentPhone" (savePhone)="handleSavePhone($event)"
     (cancelEdit)="handleCancelPhoneEdit()">
 </app-phone-modal>
 
 <!-- Delete Confirmation Modal Component -->
-<app-delete-confirm-modal
-    [message]="deleteConfirmMessage"
-    (confirmDelete)="handleDeleteConfirm()"
+<app-delete-confirm-modal [message]="deleteConfirmMessage" (confirmDelete)="handleDeleteConfirm()"
     (cancelDelete)="handleCancelDelete()">
 </app-delete-confirm-modal>
 <app-footer></app-footer>
