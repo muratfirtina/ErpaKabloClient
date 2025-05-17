@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+/* import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { VisitorAnalyticsService } from '../../../services/common/visitor-analytics.service';
@@ -631,4 +631,4 @@ export class VisitorAnalyticsComponent implements OnInit, AfterViewInit, OnDestr
     const str = this.getStringValue(key);
     return str.toLowerCase().replace(' ', '-');
   }
-}
+} */

@@ -73,11 +73,11 @@ export class SidebarComponent implements OnInit {
       icon: 'people',
       path: 'visitor-tracking'
     },
-    {
+    /* {
       title: 'Ziyaretçi Analizi',
       icon: 'dashboard',
       path: 'visitor-analytics'
-    },
+    }, */
     {
       title: 'Brand',
       icon: 'branding_watermark',

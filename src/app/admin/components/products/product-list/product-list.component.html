@@ -6,18 +6,115 @@
     </div>
   </div>
 
+  <!-- Search and Filter Form -->
   <div class="row mb-4">
     <div class="col-md-12">
       <div class="card">
         <div class="card-body">
-          <form [formGroup]="searchForm" (ngSubmit)="searchProduct(searchForm.get('nameSearch').value)">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Ürün Ara..." 
-                     formControlName="nameSearch" 
-                     (input)="searchProduct(searchForm.get('nameSearch').value)">
-              <button class="btn btn-primary" type="submit">
-                <i class="bi bi-search"></i> Ara
-              </button>
+          <form [formGroup]="searchForm" (ngSubmit)="applyFilters()">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="Ürün Ara..." 
+                         formControlName="nameSearch">
+                  <button class="btn btn-primary" type="submit">
+                    <i class="bi bi-search"></i> Ara
+                  </button>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <!-- Özel Kategori Seçici -->
+                <div class="category-selector-container">
+                  <!-- Kategori Seçici Tetikleyici -->
+                  <div class="category-selector-trigger" (click)="toggleCategorySelector()">
+                    <span *ngIf="!selectedCategoryId">Tüm Kategoriler</span>
+                    <span *ngIf="selectedCategoryId">{{ getCategoryName(selectedCategoryId) }}</span>
+                    <i class="bi" [ngClass]="{'bi-chevron-down': !showCategorySelector, 'bi-chevron-up': showCategorySelector}"></i>
+                  </div>
+                  
+                  <!-- Kategori Ağacı Popup -->
+                  <div class="category-tree-popup" *ngIf="showCategorySelector">
+                    <div class="category-tree-header">
+                      <h6 class="mb-0">Kategoriler</h6>
+                      <button type="button" class="btn btn-sm btn-link" (click)="collapseAllCategories()">Tümünü Kapat</button>
+                    </div>
+                    
+                    <div class="category-tree-search mb-2">
+                      <input type="text" class="form-control form-control-sm" placeholder="Kategori Ara...">
+                    </div>
+                    
+                    <div class="category-tree-container">
+                      <!-- Tümünü Seç Opsiyonu -->
+                      <div class="category-tree-item root-item" [ngClass]="{'active': !selectedCategoryId}" (click)="selectCategory('')">
+                        <span class="category-name">Tüm Kategoriler</span>
+                      </div>
+                      
+                      <!-- Kategori Ağacı -->
+                      <ng-container *ngFor="let node of categoryHierarchy">
+                        <div class="category-tree-item" [ngClass]="{'active': selectedCategoryId === node.category.id}" (click)="selectCategory(node.category.id)">
+                          <span class="toggle-icon" *ngIf="node.children.length > 0" (click)="toggleCategory(node.category.id, $event)">
+                            <i class="bi" [ngClass]="{'bi-plus-square': !(expandedCategories.get(node.category.id)), 'bi-dash-square': expandedCategories.get(node.category.id)}"></i>
+                          </span>
+                          <span class="category-name">{{ node.category.name }}</span>
+                          <span class="badge bg-secondary ms-2" *ngIf="node.children.length > 0">{{ node.children.length }}</span>
+                        </div>
+                        
+                        <!-- Alt Kategoriler -->
+                        <ng-container *ngFor="let childNode of node.children">
+                          <div class="category-tree-item child-item" 
+                               *ngIf="expandedCategories.get(node.category.id)"
+                               [ngClass]="{'active': selectedCategoryId === childNode.category.id}"
+                               (click)="selectCategory(childNode.category.id)">
+                            <span class="toggle-icon" *ngIf="childNode.children.length > 0" (click)="toggleCategory(childNode.category.id, $event)">
+                              <i class="bi" [ngClass]="{'bi-plus-square': !(expandedCategories.get(childNode.category.id)), 'bi-dash-square': expandedCategories.get(childNode.category.id)}"></i>
+                            </span>
+                            <span class="category-name">{{ childNode.category.name }}</span>
+                            <span class="badge bg-secondary ms-2" *ngIf="childNode.children.length > 0">{{ childNode.children.length }}</span>
+                          </div>
+                          
+                          <!-- İkinci seviye alt kategoriler -->
+                          <ng-container *ngFor="let grandChildNode of childNode.children">
+                            <div class="category-tree-item grandchild-item" 
+                                 *ngIf="expandedCategories.get(node.category.id) && expandedCategories.get(childNode.category.id)"
+                                 [ngClass]="{'active': selectedCategoryId === grandChildNode.category.id}"
+                                 (click)="selectCategory(grandChildNode.category.id)">
+                              <span class="toggle-icon" *ngIf="grandChildNode.children.length > 0" (click)="toggleCategory(grandChildNode.category.id, $event)">
+                                <i class="bi" [ngClass]="{'bi-plus-square': !(expandedCategories.get(grandChildNode.category.id)), 'bi-dash-square': expandedCategories.get(grandChildNode.category.id)}"></i>
+                              </span>
+                              <span class="category-name">{{ grandChildNode.category.name }}</span>
+                            </div>
+                          </ng-container>
+                        </ng-container>
+                      </ng-container>
+                    </div>
+                  </div>
+                </div>
+                
+                <div *ngIf="loadingCategories" class="text-center mt-1">
+                  <small><i class="bi bi-hourglass-split me-1"></i> Kategoriler yükleniyor...</small>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <button type="button" class="btn btn-outline-secondary w-100" (click)="resetFilters()">
+                  <i class="bi bi-x-circle"></i> Temizle
+                </button>
+              </div>
+            </div>
+            
+            <!-- Aktif Filtreler (İsteğe bağlı) -->
+            <div *ngIf="searchForm.get('nameSearch')?.value || searchForm.get('categoryFilter')?.value" 
+                 class="filters-area mt-3">
+              <small class="text-muted mb-2 d-block">Aktif Filtreler:</small>
+              <div class="d-flex flex-wrap">
+                <span *ngIf="searchForm.get('nameSearch')?.value" class="filter-badge">
+                  <i class="bi bi-search me-1"></i> "{{ searchForm.get('nameSearch')?.value }}"
+                  <i class="bi bi-x close-icon" (click)="searchForm.get('nameSearch')?.setValue(''); applyFilters()"></i>
+                </span>
+                <span *ngIf="searchForm.get('categoryFilter')?.value" class="filter-badge">
+                  <i class="bi bi-tag me-1"></i> {{ getCategoryName(searchForm.get('categoryFilter')?.value) }}
+                  <i class="bi bi-x close-icon" (click)="searchForm.get('categoryFilter')?.setValue(''); applyFilters()"></i>
+                </span>
+              </div>
             </div>
           </form>
         </div>
@@ -25,10 +122,11 @@
     </div>
   </div>
 
-  <div class="row">
+  <!-- Desktop Table View (hidden on small screens) -->
+  <div class="row d-none d-md-block">
     <div class="col-md-12">
       <div class="card">
-        <div class="card-body table-responsive">
+        <div class="card-body">
           <table class="table table-striped table-hover">
             <thead class="table-dark">
               <tr>
@@ -38,8 +136,7 @@
                 <th scope="col">Ürün Adı</th>
                 <th scope="col">Kategori</th>
                 <th scope="col">Varyant ID</th>
-                <th scope="col">Güncelle</th>
-                <th scope="col">Sil</th>
+                <th scope="col">İşlemler</th>
               </tr>
             </thead>
             <tbody>
@@ -58,12 +155,10 @@
                 <td>{{ item.categoryName }}</td>
                 <td>{{ item.varyantGroupID }}</td>
                 <td>
-                  <a [routerLink]="['/admin/products/product-update', item.id]" class="btn btn-sm btn-warning">
-                    <i class="bi bi-pencil-square"></i>
-                  </a>
-                </td>
-                <td>
-                  <div class="app-delete-directive-container">
+                  <div class="d-flex justify-content-center gap-2">
+                    <a [routerLink]="['/admin/products/product-update', item.id]" class="btn btn-sm btn-warning">
+                      <i class="bi bi-pencil-square"></i>
+                    </a>
                     <app-delete-directive 
                       [id]="item.id" 
                       [controller]="'products'" 
@@ -74,21 +169,76 @@
                 </td>
               </tr>
               <tr *ngIf="pagedProducts.length === 0">
-                <td colspan="8" class="text-center py-4">
+                <td colspan="7" class="text-center py-4">
                   No products found
                 </td>
               </tr>
             </tbody>
           </table>
-          
-          <!-- Pagination Component -->
-          <app-pagination 
-            [totalItems]="count" 
-            [pageRequest]="{ pageIndex: currentPageNo - 1, pageSize: pageSize }"
-            (pageChange)="onPageChange($event)">
-          </app-pagination>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Mobile Card View (visible only on small screens) -->
+  <div class="row d-md-none">
+    <div class="col-12">
+      <div *ngFor="let item of pagedProducts; let i = index" class="card product-card mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="card-title mb-0">{{ item.name }}</h5>
+            <span class="badge bg-primary rounded-pill">{{ (currentPageNo - 1) * pageSize + i + 1 }}</span>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-4">
+              <div class="product-image-container">
+                <img *ngIf="item.showcaseImage" [src]="item.showcaseImage.url" [alt]="item.name" class="mobile-product-image">
+                <span *ngIf="!item.showcaseImage" class="badge bg-secondary">No Image</span>
+              </div>
+            </div>
+            <div class="col-8">
+              <div class="product-details">
+                <p class="mb-1"><strong>Kategori:</strong> {{ item.categoryName }}</p>
+                <p class="mb-1"><strong>Varyant ID:</strong> {{ item.varyantGroupID }}</p>
+                <div class="mb-1">
+                  <strong>Özellikler:</strong>
+                  <div *ngFor="let feature of item.productFeatureValues" class="feature-tag">
+                    <span class="badge bg-info text-dark">{{ feature.featureValueName }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="d-flex justify-content-end gap-2">
+            <a [routerLink]="['/admin/products/product-update', item.id]" class="btn btn-sm btn-warning">
+              <i class="bi bi-pencil-square"></i> Güncelle
+            </a>
+            <app-delete-directive 
+              [id]="item.id" 
+              [controller]="'products'" 
+              [itemName]="item.name" 
+              (refresh)="removeProductFromList($event)">
+            </app-delete-directive>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="pagedProducts.length === 0" class="alert alert-info text-center">
+        No products found
+      </div>
+    </div>
+  </div>
+  
+  <!-- Pagination (works for both views) -->
+  <div class="row mt-3">
+    <div class="col-12">
+      <app-pagination 
+        [totalItems]="count" 
+        [pageRequest]="{ pageIndex: currentPageNo - 1, pageSize: pageSize }"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
     </div>
   </div>
 </div>

@@ -141,11 +141,7 @@ export class FilterComponent implements OnChanges, AfterViewInit, OnInit {
   }
 
   buildCategoryTree() {
-    console.log("Building category tree from availableFilters:", this.availableFilters);
-    
     const categoryFilter = this.availableFilters.find(filter => filter.key === 'Category');
-    console.log("Category filter found:", categoryFilter);
-    
     if (categoryFilter) {
       // Kategorileri sırala
       const categories = [...categoryFilter.options].sort((a, b) => {
@@ -160,11 +156,8 @@ export class FilterComponent implements OnChanges, AfterViewInit, OnInit {
         return a.displayValue.localeCompare(b.displayValue);
       });
       
-      console.log("Sorted categories:", categories);
-      
       // Ağaç yapısını oluştur
       this.categoryTree = this.buildTree(categories);
-      console.log("Built category tree:", this.categoryTree);
       
       // Seçili kategorileri güncelle
       this.updateCategorySelectState(this.categoryTree);
@@ -325,13 +318,16 @@ export class FilterComponent implements OnChanges, AfterViewInit, OnInit {
     const updatedFilters: { [key: string]: string[] } = {};
 
     Object.keys(formValue).forEach(key => {
-      if (Array.isArray(formValue[key])) {
+      if (Array.isArray(formValue[key]) && formValue[key].length > 0) {
         updatedFilters[key] = formValue[key];
       }
     });
 
     // Kategori filtresi için özel işlem
-    updatedFilters['Category'] = this.getSelectedCategoryIds(this.categoryTree);
+    const selectedCategoryIds = this.getSelectedCategoryIds(this.categoryTree);
+    if (selectedCategoryIds.length > 0) {
+      updatedFilters['Category'] = selectedCategoryIds;
+    }
 
     this.filterChange.emit(updatedFilters);
   }
@@ -454,9 +450,45 @@ export class FilterComponent implements OnChanges, AfterViewInit, OnInit {
   
   // Tüm filtreleri temizle
   clearAllFilters() {
+    // Seçili filtreleri temizle
     this.selectedFilters = {};
+    
+    // Form değerlerini sıfırla
+    Object.keys(this.filterForm.controls).forEach(key => {
+      if (key !== 'Category') { // Kategori için farklı işlem yapacağız
+        if (this.filterForm.get(key) instanceof FormGroup) {
+          // Range tipi filtreler için
+          const rangeGroup = this.filterForm.get(key) as FormGroup;
+          rangeGroup.get('min')?.setValue('');
+          rangeGroup.get('max')?.setValue('');
+        } else {
+          // Checkbox tipi filtreler için
+          this.filterForm.get(key)?.setValue([]);
+        }
+      }
+    });
+    
+    // Kategori seçimlerini temizle
     this.clearCategorySelection(this.categoryTree);
+    
+    // Arama kutularını temizle
+    Object.keys(this.searchControls).forEach(key => {
+      this.searchControls[key].setValue('');
+    });
+    
+    // Filtrelenmiş seçenekleri sıfırla
+    Object.keys(this.filteredOptions).forEach(key => {
+      const filter = this.availableFilters.find(f => f.key === key);
+      if (filter) {
+        this.filteredOptions[key] = filter.options;
+      }
+    });
+    
+    // Filtre değişikliklerini bildir
     this.updateSelectedFilters();
+    
+    // Konsola bilgi mesajı
+    console.log('Tüm filtreler temizlendi:', this.selectedFilters, this.filterForm.value);
   }
   
   // Arama kontrolünü getir
