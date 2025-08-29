@@ -82,13 +82,14 @@ interface FlatNode {
 })
 export class ProductCreateComponent implements OnInit {
   categories: Category[] = [];
+  allBrands: Brand[] = []; // Tüm markalar için yeni property
+  showBrandResults: boolean = false;
   productForm: FormGroup;
   loading: boolean = false;
   features: Feature[] = [];
   featureValues: { [key: string]: Featurevalue[] } = {};
   filteredBrands: Brand[] = [];
   filteredCategories: CategoryNode[] = [];
-  showBrandResults: boolean = false;
   showCategoryTree: boolean = false;
   allSelected: boolean = false;
   variantsCreated: boolean = false;
@@ -184,6 +185,18 @@ export class ProductCreateComponent implements OnInit {
     });
   }
 
+  private async loadAllBrands() {
+    try {
+      const response = await this.brandService.list({ pageIndex: -1, pageSize: -1 });
+      this.allBrands = response.items;
+      this.filteredBrands = [...this.allBrands]; // Başlangıçta tüm markalar gösterilsin
+    } catch (error) {
+      this.handleError('Markalar yüklenemedi', error);
+      this.allBrands = [];
+      this.filteredBrands = [];
+    }
+  }
+
   private setupFormSubscriptions() {
     this.productForm.get('features')?.valueChanges.subscribe(() => {
       this.updateCanGenerateVariants();
@@ -194,6 +207,7 @@ export class ProductCreateComponent implements OnInit {
     try {
       this.loading = true;
       await this.loadCategories();
+      await this.loadAllBrands();
     } catch (error) {
       this.handleError('Veriler yüklenirken bir hata oluştu', error);
     } finally {
@@ -271,19 +285,6 @@ export class ProductCreateComponent implements OnInit {
     this.changeDetectorRef.detectChanges();
   }
 
-  @HostListener('document:click', ['$event'])
-  handleClickOutside(event: Event) {
-    const categoryContainer = document.querySelector('.category-tree');
-    const categoryInput = document.querySelector('#categorySearch');
-
-    if (categoryContainer && categoryInput) {
-      if (!categoryContainer.contains(event.target as Node) &&
-          !categoryInput.contains(event.target as Node)) {
-        this.showCategoryTree = false;
-      }
-    }
-  }
-
   private buildCategoryTree(categories: Category[], parentId: string = null, level: number = 0): CategoryNode[] {
     const categoryNodes = categories
       .filter(cat => cat.parentCategoryId === parentId)
@@ -298,11 +299,6 @@ export class ProductCreateComponent implements OnInit {
         };
       });
     return categoryNodes;
-  }
-
-  onBrandSearchInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    this.brandSearchSubject.next(input.value);
   }
 
   async searchBrands(searchTerm: string) {
@@ -322,14 +318,6 @@ export class ProductCreateComponent implements OnInit {
     } catch (error) {
       this.handleError('Marka araması başarısız', error);
     }
-  }
-
-  selectBrand(brand: Brand) {
-    this.productForm.patchValue({
-      brandId: brand.id,
-      brandSearch: brand.name
-    });
-    this.showBrandResults = false;
   }
 
 
@@ -990,4 +978,66 @@ updateSelectedVariantsValue(field: string, value: any, currentIndex: number): vo
       }
   });
 }
+
+  onBrandInputFocus() {
+    this.filteredBrands = [...this.allBrands];
+    this.showBrandResults = this.allBrands.length > 0;
+  }
+
+  // Input'a yazıldığında yerel filtreleme yap
+  onBrandSearchInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const searchTerm = input.value.toLowerCase();
+
+    if (searchTerm.length === 0) {
+      this.filteredBrands = [...this.allBrands];
+      this.showBrandResults = this.allBrands.length > 0;
+      return;
+    }
+
+    if (searchTerm.length < 2) {
+      this.filteredBrands = [];
+      this.showBrandResults = false;
+      return;
+    }
+
+    // Yerel filtreleme
+    this.filteredBrands = this.allBrands.filter(brand =>
+      brand.name.toLowerCase().includes(searchTerm)
+    );
+    this.showBrandResults = this.filteredBrands.length > 0;
+  }
+
+  selectBrand(brand: Brand) {
+    this.productForm.patchValue({
+      brandId: brand.id,
+      brandSearch: brand.name
+    });
+    this.showBrandResults = false;
+  }
+
+  // Click outside handler için güncelleme
+  @HostListener('document:click', ['$event'])
+  handleClickOutside(event: Event) {
+    const categoryContainer = document.querySelector('.category-tree');
+    const categoryInput = document.querySelector('#categorySearch');
+    const brandContainer = document.querySelector('.brand-search-results');
+    const brandInput = document.querySelector('#brandSearch');
+
+    // Kategori kontrolü (existing)
+    if (categoryContainer && categoryInput) {
+      if (!categoryContainer.contains(event.target as Node) &&
+          !categoryInput.contains(event.target as Node)) {
+        this.showCategoryTree = false;
+      }
+    }
+
+    // Marka kontrolü (new)
+    if (brandContainer && brandInput) {
+      if (!brandContainer.contains(event.target as Node) &&
+          !brandInput.contains(event.target as Node)) {
+        this.showBrandResults = false;
+      }
+    }
+  }
 }

@@ -30,32 +30,75 @@
   }
  }
  
- // Brand Search Results
- .brand-search-results {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
+// product-create.component.scss içine eklenecek stiller
+
+.brand-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  border-radius: 0 0 0.375rem 0.375rem;
+  max-height: 300px;
+  overflow-y: auto;
+  
+  .list-group-item {
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid #f8f9fa;
+    
+    &:hover {
+      background-color: #f8f9fa;
+      cursor: pointer;
+    }
+    
+    &:last-child {
+      border-bottom: none;
+      border-radius: 0 0 0.375rem 0.375rem;
+    }
+    
+    &:first-child {
+      border-top: none;
+    }
+  }
+  
+  // Custom scrollbar for better UX
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+  }
+}
+
+// Form floating label düzeltmesi
+.form-floating {
+  .brand-search-results {
+    // Z-index'i kategori ağacından daha düşük yapın
+    z-index: 1040;
+  }
+}
+
+// Responsive düzenlemeler
+@media (max-width: 768px) {
+  .brand-search-results {
     max-height: 200px;
-    overflow-y: auto;
-    background: white;
-    border: 1px solid #dee2e6;
-    border-radius: 0 0 0.375rem 0.375rem;
-    z-index: 1050;
- 
-    @media (max-width: 768px) {
-      max-height: 250px;
-    }
- 
-    .list-group-item {
-        cursor: pointer;
-        padding: 0.5rem 1rem;
- 
-        &:hover {
-            background-color: #f8f9fa;
-        }
-    }
- }
+    font-size: 0.875rem;
+  }
+}
  
  // Category Tree
  .category-tree {
